@@ -66,6 +66,7 @@ modified: '2026-11-14T23:35:23+08:00'
 **新版（原生工具调用）**：把工具的 JSON Schema 发给模型，模型返回结构化的 `tool_calls` 字段。框架拿到的是对象，可直接按名字找工具、按 Schema 校验参数、执行。参数错误会作为工具结果返回给模型自我修正，且支持**并行调用多个工具**。
 
 ### `tool_calls` 很早就存在，为什么 ReAct 在 1.0 才用它？
+
 `tool_calls` 字段早在 **2024 年 4 月**就已引入 LangChain，为不同模型提供商的原生工具调用提供统一接口（此前工具调用信息散落在 `additional_kwargs` 或 `content` 里，格式因提供商而异）。但它不是 1.0 才有的。
 
 那为什么 `create_react_agent` 长期走文本解析？核心原因是**兼容性**：文本解析不依赖模型是否支持原生函数调用，任何 LLM（包括开源离线小模型）都能用；原生工具调用需要模型 API 层面支持 `bind_tools`，当时并非所有模型具备。
@@ -77,6 +78,7 @@ LangChain 1.0 让 `create_agent` 默认走原生工具调用，本质是一次**
 ## 四、动态提示词与上下文传递
 
 ### 示例：用中间件实现动态 System Prompt
+
 ```python
 from dataclasses import dataclass
 from langchain.agents import create_agent
@@ -114,6 +116,7 @@ result = agent.invoke(
 官方文档将 `context` 描述为**依赖注入（dependency injection）**机制：把数据库连接、用户 ID、配置等注入到工具和中间件中，让它们通过 `runtime.context` 访问，而不是硬编码值或使用全局状态。这使工具更可测试、可复用、灵活。在工具内部通过 `ToolRuntime[Context]` 参数访问 `runtime.context`。
 
 ### `context` vs 旧 `config["configurable"]`
+
 ```python
 # 旧模式（仍向后兼容，但不推荐新项目使用）
 agent.invoke({"messages": [...]}, config={"configurable": {"user_id": "user_123"}})
@@ -130,9 +133,11 @@ agent.invoke({"messages": [...]}, context=UserContext(user_name="小明", user_e
 ---
 
 ## 五、`create_agent` 基于 Graph 的构建
+
 `create_agent` 返回的是一个**已编译的 LangGraph 图**，核心是循环：模型节点 → 判断是否有工具调用 → 执行工具节点 → 回到模型节点 → 无工具调用则结束。
 
 **“基于 Graph”的意义在可组合性**：返回的 Agent 可作为普通节点嵌入更大的 `StateGraph`。中间件钩子直接运行在这个编译图内部，当 Agent 作为节点放入父图时，中间件随节点一起生效。
+
 ```python
 from langgraph.graph import StateGraph, START
 from langchain.agents import create_agent, AgentState
@@ -156,6 +161,7 @@ graph = (
 ## 六、状态（State）相关
 
 ### `AgentState` 里有什么
+
 `langchain.agents.AgentState` 是 `create_agent` 内部使用的状态，核心字段包括：
 - `messages`：消息列表，使用 `add_messages` 归约器
 - `jump_to`：Agent 内部控制字段，服务于中间件体系的流程跳转（普通 `StateGraph` 不会因该字段自动跳转）
@@ -180,9 +186,11 @@ graph = (
 流程是：**定义状态模式 → 构建 `StateGraph` → 编译 → 执行**。`MessagesState` 只负责第一步。
 
 ### `add_messages` 归约器的非显而易见行为
+
 `add_messages` **不只是追加**。它按消息 ID 匹配并**更新已有消息**，只有 ID 不存在时才追加。这意味着：
 - 同一个消息（相同 ID）再次出现时是**更新（覆盖）**，不是产生两条。
 - 手动构造消息时**务必带上稳定 ID**，否则每个节点返回都会追加新条目，历史无限增长。
+
 ```python
 existing = [HumanMessage("hi", id="1"), AIMessage("hello", id="2")]
 new = [AIMessage("hello there", id="2")]  # 相同 ID
@@ -191,11 +199,13 @@ merged = add_messages(existing, new)
 ```
 
 ### `MessageGraph` 已弃用
+
 `MessageGraph` 在 LangGraph v1.0.0 中已弃用，将在 v2.0.0 移除。官方建议使用 `StateGraph` + `messages` key（即 `MessagesState` 或自定义包含 `messages` 字段的状态）替代。
 
 ### 如何给 `StateGraph` 添加 `messages` 之外的状态
 
 定义 `TypedDict`，需要**累积**的字段用 `Annotated` 指定**归约器（reducer）**：
+
 ```python
 from typing import TypedDict, Annotated
 from langgraph.graph.message import add_messages
@@ -241,6 +251,7 @@ class CustomState(TypedDict):
 ### 两种 `before_model` 写法等价
 
 你写的类方法：
+
 ```python
 class StateMiddleware(AgentMiddleware):
     state_schema = MyState
@@ -257,9 +268,11 @@ class StateMiddleware(AgentMiddleware):
 所以**“识别”不依赖写法，而依赖 LangChain 对钩子方法的约定**。多个中间件的 `before_model` 按列表顺序依次执行。
 
 ### 内置中间件
+
 `SummarizationMiddleware`（对话摘要）、`HumanInTheLoopMiddleware`（人工审批）、`ToolRetryMiddleware` / `ModelRetryMiddleware`（自动重试）、`ToolErrorMiddleware`（工具错误处理）等。
 
 ### 不用装饰器的类写法示例
+
 ```python
 from langchain.agents.middleware import AgentMiddleware
 from typing import Callable
@@ -278,6 +291,7 @@ class ToolLoggerMiddleware(AgentMiddleware):
 ```
 
 ### `@wrap_model_call` 示例（动态切换模型）
+
 ```python
 from langchain.agents.middleware import wrap_model_call, ModelRequest, ModelResponse
 from typing import Callable
@@ -292,6 +306,7 @@ def dynamic_model(
 ```
 
 ### `@wrap_tool_call` 示例（业务校验 + 拦截短路）
+
 ```python
 from langchain.agents.middleware import wrap_tool_call
 from langchain_core.messages import ToolMessage
@@ -310,6 +325,7 @@ async def enforce_business_rules(request, handler):
 ```
 
 ### 通过 `state_schema` 扩展状态示例
+
 ```python
 from langchain.agents.middleware import AgentMiddleware
 from langchain.agents import AgentState
@@ -360,6 +376,7 @@ class StateMiddleware(AgentMiddleware):
 | :---------------- | :---------------------- | :--------------------------------------------- |
 | `before_model`    | 在**每次** LLM 调用之前 | 修改状态、更新提示词、裁剪消息                 |
 | `wrap_model_call` | **包裹**每次 LLM 调用   | 拦截、修改请求（换模型、换工具），决定是否放行 |
+
 `before_model` 适合“改状态/提示词后让流程继续”；`wrap_model_call` 适合“根据条件决定这次调用用什么模型、或拦截”。两者都能在模型调用前生效，设计意图不同。
 
 ---
@@ -371,6 +388,7 @@ class StateMiddleware(AgentMiddleware):
 **都有。** 这两个方法是 LangChain Runnable 接口的基础能力，早在 1.0 之前就存在。旧版 `AgentExecutor` 同样支持 `invoke()` 和 `stream()`。
 
 但 `AgentExecutor.stream()` 的“流式”质量很差：内部循环需要拿到**完整解析结果**（调用工具还是结束）才能决定下一步，模型调用走的是 `ainvoke()` 而非 `astream()`，导致 token 级流式回调无法正常触发。它所谓的“流式”更多是按步骤缓冲输出，而非逐 Token 实时输出。
+
 `create_agent` 基于 LangGraph 运行时，`stream()` 才能真正做到 token 级流式。这是迁移到 1.0 后流式体验改善的根本原因，而不是 `stream()` 这个方法本身是新的。
 
 ### 基于 LangGraph 运行时，`stream()` 如何做到 token 级流式？
@@ -394,6 +412,7 @@ class StateMiddleware(AgentMiddleware):
 ### `add_conditional_edges` 的第二个参数
 
 **不是节点名**，而是一个**路由函数**：接收当前状态、返回路由决策。默认返回值即目标节点名；也可传第三个参数（字典）做映射。
+
 ```python
 graph.add_conditional_edges("classify", route_function, {"email": "email_agent", "code": "code_agent"})
 ```

@@ -153,7 +153,8 @@ modified: '2026-08-31T19:14:41+08:00'
 - **reducer 合并（关键）**：同一 key 被多个节点返回时怎么并——追加用 `Annotated[list[X], operator.add]`，覆盖用普通字段，或写自定义 reducer（如先把答案排序再合）。
 - **校验 + 持久化**：Pydantic 校验失败即节点报错可回退；state 可序列化 → checkpoint 落 PG。
 
-**示例 State（商家资质审核 · 多 Agent）——能报这几个字段就算过关**```python
+**示例 State（商家资质审核 · 多 Agent）——能报这几个字段就算过关**
+```python
 class QAState(BaseModel):
     # 会话/身份层
     session_id: str; tenant_id: str

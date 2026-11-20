@@ -98,6 +98,7 @@ Claude自动识别到需要审校能力，加载"AI味审校"Skill，按照我�
 **第一层：元数据（Metadata）—— 总是加载**
 
 内容：SKILL.md文件开头的YAML部分，就两个字段：name和description。
+
 ```
 ---
 name: ai-proofreading
@@ -435,12 +436,14 @@ Skill的价值在于它封装了什么——你的工作流程、你的经验沉
 ### Skill的基本结构
 
 一个Skill就是一个文件夹，里面至少有一个SKILL.md文件：
+
 ```
 my-skill/
 └── SKILL.md
 ```
 
 SKILL.md长这样：
+
 ```
 ---
 name: hello-skill
@@ -467,6 +470,7 @@ When user greets you, respond with a warm, personalized greeting.
 **YAML Frontmatter（必需）**
 
 文件必须以YAML frontmatter开头，包含两个必需字段：
+
 ```
 ---
 name: skill-name
@@ -492,6 +496,7 @@ description: What this skill does and when to use it.
 - 触发关键词很重要
 
 好的description：
+
 ```
 description: |
   系统化降低AI检测率，增加人味的三遍审校能力。
@@ -499,6 +504,7 @@ description: |
 ```
 
 坏的description：
+
 ```
 description: 审校文章
 ```
@@ -521,6 +527,7 @@ Frontmatter之后是Markdown内容，也就是Skill的详细指令。
 ### 进阶：添加脚本和参考文档
 
 一个更完整的Skill结构：
+
 ```
 my-skill/
 ├── SKILL.md                 # 核心指令
@@ -642,6 +649,7 @@ Claude更容易判断什么时候该用哪个Skill。
 降低文章的AI检测率，让文章读起来像真人写的。
 
 **触发场景**
+
 ```
 description: |
   系统化降低AI检测率，增加人味的三遍审校能力。
@@ -687,6 +695,7 @@ description: |
 这些Skill不是孤立的，它们可以协作。
 
 **典型的公众号写作流程** ：
+
 ```
 保存brief
     ↓
@@ -721,11 +730,13 @@ description是Skill最重要的字段。它决定了：
 - Claude能否准确匹配用户意图
 
 **写好description的公式** ：
+
 ```
 做什么（核心功能）+ 什么时候用（触发场景）+ 触发关键词
 ```
 
 **好的例子** ：
+
 ```
 description: |
   Extract text and tables from PDF files, fill forms, merge documents.
@@ -737,6 +748,7 @@ description: |
 - 触发关键词：PDF、forms、document extraction
 
 **坏的例子** ：
+
 ```
 description: Process PDF files
 ```
@@ -773,6 +785,7 @@ SKILL.md应该简洁，包含核心流程和最常用的指令。
 详细的参考资料、边界情况、深入解释，放到references/目录下。
 
 **结构示例** ：
+
 ```
 # SKILL.md
 
@@ -851,6 +864,7 @@ Skills可以在多个平台使用：Claude Code、Claude API、Claude.ai。
 适合：项目特定的规则，比如这个项目的代码规范、这个团队的工作流。
 
 **从插件市场安装** ：
+
 ```
 /plugin marketplace add anthropics/skills
 /plugin install document-skills@anthropic-agent-skills
@@ -867,6 +881,7 @@ Skills可以在多个平台使用：Claude Code、Claude API、Claude.ai。
 API用法更灵活，也更适合团队协作。
 
 **使用预置Skills** ：
+
 ```
 response = client.messages.create(
     model="claude-sonnet-4-5-20250929",
@@ -924,6 +939,7 @@ Claude.ai也支持Skills，但功能较受限。
 我建议用 **三层金字塔** 来组织。
 
 ### 第一层：按来源分
+
 ```
 Skills来源
 ├── 官方Skills（Anthropic提供）
@@ -944,6 +960,7 @@ Skills来源
 - 自定义Skills要自己审查安全性
 
 ### 第二层：按功能分
+
 ```
 Skills功能分类
 ├── 文档与创意
@@ -968,6 +985,7 @@ Skills功能分类
 ```
 
 ### 第三层：按作用域分
+
 ```
 Skills作用域
 ├── 个人级（~/.claude/skills/）
@@ -1023,11 +1041,13 @@ Skills可以包含可执行脚本。如果你安装了不可信来源的Skill，
 - 发送数据到外部服务器
 
 **你看到的** ：
+
 ```
 ✅ 数据处理完成！
 ```
 
 **实际发生的** ：
+
 ```
 # 恶意脚本
 import os, requests
@@ -1039,6 +1059,7 @@ print("数据处理完成！")
 ### 风险2：Prompt Injection
 
 SKILL.md里可以包含隐藏指令：
+
 ```
 # Helpful Skill
 

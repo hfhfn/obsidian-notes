@@ -28,11 +28,13 @@ modified: '2026-09-14T01:04:41+08:00'
 | `jsonable_encoder` | FastAPI 万能转换器 | — | 主动全量遍历每个字段 | 抛清晰错误 |
 
 ### `default_encoder` 的关键缺陷（`return obj`）
+
 `json.dumps` 拿到 `default` 返回的值会**再次尝试序列化**。如果返回的还是原对象（未命中任何 `isinstance` 的自定义类），就陷入「无法序列化 → 调 default → 还是序列化不了」的死循环，最终抛模糊的 `TypeError`。而 `DateEncoder.super().default(obj)` 会直接抛出**明确的 TypeError**，告诉你哪个类型没处理，是官方推荐写法。
 
 ### 一个易忽略的坑：`datetime` 是 `date` 的子类
 
 必须先判断 `datetime`、再判断 `date`，否则 datetime 会被 date 分支截胡、丢掉时间部分。
+
 ```python
 if isinstance(obj, datetime):          # 先判 datetime
     return obj.strftime('%Y-%m-%d %H:%M:%S')
@@ -41,6 +43,7 @@ if isinstance(obj, date):              # 再判 date
 ```
 
 ### `Decimal` 转 float 丢精度
+
 `float(Decimal('0.1'))` 底层是 `0.1000000000000000055...`。金融金额建议返回 `str(obj)` 或用 `Decimal` 字符串形式，避免精度问题。
 
 ---
@@ -76,6 +79,7 @@ Pydantic v2 内置序列化，且策略和 FastAPI 不同：
 - **`Decimal`**：默认转成**字符串**（不是 float），避免丢精度，对金融数据更安全。
 
 想自定义（比如 Decimal 转 float、日期自定义格式），用 `@field_serializer`：
+
 ```python
 from decimal import Decimal
 from pydantic import BaseModel, field_serializer
@@ -93,6 +97,7 @@ class Product(BaseModel):
 > `@field_serializer` 只在 `model_dump()` / `model_dump_json()` 时生效。直接 `json.dumps(model)` 不会触发。应写成 `json.dumps(model.model_dump())` 或 `model.model_dump_json()`。
 
 **全局配置**（自定义基类避免重复）：
+
 ```python
 class MyBaseModel(BaseModel):
     model_config = ConfigDict(json_encoders={
@@ -107,6 +112,7 @@ class MyBaseModel(BaseModel):
 
 - **序列化**（`model_dump()`/`model_dump_json()`）：模型 → 可存储/传输格式。
 - **验证/反序列化**（`model_validate()`/`model_validate_json()`）：原始数据 → 模型。
+
 ```python
 raw = {"price": "19.99", "created_at": "2026-09-12"}
 product = Product.model_validate(raw)   # 字符串 → Decimal / date
@@ -118,6 +124,7 @@ product = Product.model_validate(raw)   # 字符串 → Decimal / date
 ---
 
 ## 五、效率真相：`json.dumps(default=...)` 是「兜底」不是「优先」
+
 `json.dumps` 的流程正好相反——**先走默认序列化，只有默认逻辑 `TypeError` 时才调 `default`**：
 
 | 数据 | 是否调 `default` |
@@ -125,6 +132,7 @@ product = Product.model_validate(raw)   # 字符串 → Decimal / date
 | `str`/`int`/`float`/`bool`/`None`/`list`/`dict` | 否（C 层内置编码器直接处理）|
 | `datetime`/`Decimal`/自定义类 | 是（内置失败后）|
 | `default` 的返回值 | 按返回类型重新判断 |
+
 ```python
 json.dumps({"name":"Alice", "age":30, "created_at":datetime.now()}, default=my_default)
 # name/age 完全不触发 default，只有 created_at 触发一次
@@ -138,6 +146,7 @@ json.dumps({"name":"Alice", "age":30, "created_at":datetime.now()}, default=my_d
 - `jsonable_encoder` **主动全量递归遍历** + 每个字段 `isinstance` 判断，更慢但更通用（实测 Pydantic 方案延迟 ~7.73ms vs msgspec 1.72ms；移除它可让响应端点快最多 2 倍）。
 
 **两种正确调用方式对比：**
+
 ```python
 clean = jsonable_encoder(data)   # 两阶段：先全量转换（出 dict）
 json.dumps(clean)                #         再序列化

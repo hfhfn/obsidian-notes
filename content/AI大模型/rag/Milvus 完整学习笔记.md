@@ -73,6 +73,7 @@ modified: '2026-10-17T18:19:08+08:00'
 | `True`          | 存入 `$meta`   | 结构灵活、字段频繁变化 |
 
 ### 2.4 使用示例
+
 ```python
 schema = client.create_schema(auto_id=False, enable_dynamic_field=True)
 schema.add_field(field_name="id", datatype=DataType.INT64, is_primary=True)
@@ -167,6 +168,7 @@ client.search(..., output_fields=["category", "description"],
 ## 五、集合与 Schema 操作
 
 ### 5.1 创建 Schema
+
 ```python
 schema = client.create_schema(auto_id=False, enable_dynamic_field=True)
 schema.add_field(field_name="id", datatype=DataType.INT64, is_primary=True)
@@ -175,6 +177,7 @@ schema.add_field(field_name="category", datatype=DataType.VARCHAR, max_length=64
 ```
 
 ### 5.2 推荐：Schema + Index 一次创建
+
 ```python
 index_params = client.prepare_index_params()
 index_params.add_index(
@@ -189,12 +192,14 @@ client.create_collection(collection_name="demo", schema=schema,
 ```
 
 ### 5.3 索引查看
+
 ```python
 client.list_indexes(collection_name="demo")
 client.describe_index(collection_name="demo", index_name="vector_index")
 ```
 
 ### 5.4 标量字段索引
+
 ```python
 index_params.add_index(field_name="category",
                        index_type="INVERTED",   # 倒排索引，加速过滤
@@ -206,6 +211,7 @@ index_params.add_index(field_name="category",
 ## 六、实体操作：增删改查
 
 ### 6.1 插入
+
 ```python
 # 插入主集合
 client.insert(collection_name="demo", data=[{...}, {...}])
@@ -217,6 +223,7 @@ client.insert(collection_name="demo", data=[...], partition_name="partitionA")
 ### 6.2 Upsert
 
 按主键判断：存在则覆盖，不存在则插入。
+
 ```python
 client.upsert(collection_name="demo", data=[...])
 # 指定分区：分区内不存在 id 时不影响，但会覆盖集合中同 id 实体
@@ -224,6 +231,7 @@ client.upsert(collection_name="demo", data=[...], partition_name="partitionA")
 ```
 
 ### 6.3 删除
+
 ```python
 # 按过滤条件（默认全集合）
 client.delete(collection_name="demo", filter="id in [12, 5, 6]")
@@ -233,6 +241,7 @@ client.delete(collection_name="demo", ids=[1, 2, 3], partition_name="partitionA"
 ```
 
 ### 6.4 分区管理
+
 ```python
 client.create_partition(collection_name="demo", partition_name="partitionA")
 client.list_partitions(collection_name="demo")
@@ -243,12 +252,14 @@ client.list_partitions(collection_name="demo")
 ## 七、搜索与查询
 
 ### 7.1 搜索前必须 Load
+
 ```python
 client.load_collection(collection_name="demo")
 client.get_load_state(collection_name="demo")
 ```
 
 ### 7.2 单向量搜索
+
 ```python
 res = client.search(
     collection_name="demo",
@@ -262,17 +273,20 @@ res = client.search(
 ### 7.3 批量向量搜索
 
 一个向量字段，多个查询向量：
+
 ```python
 res = client.search(collection_name="demo", data=[vec1, vec2], ...)
 ```
 
 ### 7.4 分区搜索
+
 ```python
 res = client.search(collection_name="demo", data=[...],
                     partition_names=["partitionA"], ...)
 ```
 
 ### 7.5 过滤搜索
+
 ```python
 res = client.search(collection_name="demo", data=[...],
                     filter='color like "red%"',
@@ -292,6 +306,7 @@ res = client.search(collection_name="demo", data=[...],
 | --------------- | ---------- | -------------------------------------------------------- |
 | **L2**          | 越小越相似 | `range_filter <= distance < radius`（range_filter 更小） |
 | **IP / COSINE** | 越大越相似 | `radius < distance <= range_filter`（range_filter 更大） |
+
 ```python
 search_params = {
     "metric_type": "IP",
@@ -300,7 +315,9 @@ search_params = {
 ```
 
 ### 7.7 output_fields 详解
+
 `output_fields` 指定**检索结果中每条命中实体需要返回哪些字段**。
+
 ```python
 output_fields=["id", "category"]   # 只返回 id 和 category
 ```
@@ -331,6 +348,7 @@ output_fields=["id", "category"]   # 只返回 id 和 category
 机制完全一样。只要走 `hybrid_search`，就是"多路召回 + Rerank"。如果各路传入相同的 `data`，只是输入恰好相同，框架处理不变。如果不需要融合，直接用 `search()`。
 
 ### 8.3 示例
+
 ```python
 req_1 = AnnSearchRequest(
     data=query_film, anns_field="filmVector",
@@ -360,7 +378,9 @@ res = client.hybrid_search(
 ## 九、标量过滤 + 向量检索
 
 ### 9.1 核心用法
+
 `filter` 参数直接写在 `search()` 里，Milvus 会**先在满足标量条件的实体中做向量检索**。
+
 ```python
 res = client.search(
     collection_name="demo",
@@ -383,6 +403,7 @@ res = client.search(
 ## 十、Reranker 详解：RRF 与 WeightedRanker
 
 ### 10.1 RRFRanker(k) 参数含义
+
 `RRFRanker(100)` 里的 **100 是 RRF 公式中的平滑参数 `k`**，默认值为 **60**。
 
 RRF 计分公式：
@@ -409,6 +430,7 @@ RRF 计分公式：
 想要"加权"效果，**直接用 `WeightedRanker` 替代 `RRFRanker`**。
 
 ### 10.3 WeightedRanker 用法
+
 ```python
 from pymilvus import WeightedRanker
 
@@ -451,6 +473,7 @@ res = client.hybrid_search(
 是的。它释放内存中的索引和数据，但磁盘上的数据仍保留，需要时可重新 `load`。
 
 ### 11.2 清理示例
+
 ```python
 def cleanup(client, name):
     if client.has_collection(name):
@@ -461,6 +484,7 @@ def cleanup(client, name):
 ---
 
 ## 十二、完整示例代码
+
 ```python
 """
 Milvus 完整使用示例
@@ -722,6 +746,7 @@ if __name__ == "__main__":
 ---
 
 ## 十四、索引参数调优（nlist/nprobe/M）
+
 `M` 是 **HNSW 索引**专有的参数，全称是 **Maximum degree of the node**，也就是**每个节点能拥有的最大连接数（边数）**。
 
 你可以把它理解成：在 HNSW 构建的图里，每个向量点最多能“牵手”多少个邻居节点。

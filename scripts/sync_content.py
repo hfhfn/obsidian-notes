@@ -444,7 +444,39 @@ class Sync:
         if src_rel in self.asset_map:
             return self.asset_map[src_rel]
         out_rel = unique_output(src_rel, self.used_outputs)
-        self.copy_file(src_rel, out_rel)
+        src = VAULT / src_rel
+        try:
+            data = json.loads(src.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            self.report["warnings"].append(f"Canvas 解析失败，原样复制：{src_rel} ({exc})")
+            self.copy_file(src_rel, out_rel)
+            self.asset_map[src_rel] = out_rel
+            self.report["canvas"] += 1
+            return out_rel
+
+        changed = 0
+        for node in data.get("nodes", []):
+            target = node.get("file")
+            if not isinstance(target, str) or not target:
+                continue
+            src_md, status = self.index.resolve_md(target, src_rel)
+            if status == "ok" and src_md:
+                fixed = src_md
+                if fixed != target:
+                    node["file"] = fixed
+                    changed += 1
+            else:
+                # Unpublished or missing note: drop the file link so the node
+                # stays as plain text instead of 404-ing on the site.
+                node.pop("file", None)
+                changed += 1
+
+        if changed:
+            self.report["warnings"].append(f"Canvas 修正 {changed} 个节点链接：{src_rel}")
+        if not self.dry_run:
+            p = self.out_path(out_rel)
+            ensure_parent(p)
+            p.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
         self.asset_map[src_rel] = out_rel
         self.report["canvas"] += 1
         return out_rel
@@ -474,7 +506,7 @@ class Sync:
     def fix_table_pipes(text: str) -> str:
         """Escape alias pipes inside wikilinks that sit in Markdown table rows."""
         lines = []
-        for line in text.splitlines():
+        for line in text.split("\n"):
             if line.lstrip().startswith("|"):
                 def fix(m: re.Match) -> str:
                     inner = m.group(2)
@@ -747,6 +779,23 @@ class Sync:
             self.report["broken_links"].append((src_rel, raw))
         return alt or posixpath.basename(raw)
 
+    @staticmethod
+    def fix_broken_fences(text: str) -> str:
+        """Move a fence that was written at the end of a text line onto its own line.
+
+        Obsidian tolerates `**Note:**```python`, but CommonMark does not treat it
+        as a fence, so the code block leaks into the page as prose.
+        """
+        out = []
+        for line in text.split("\n"):
+            m = re.match(r"^(\s*)(.*\S)(\s*)(`{3,}[A-Za-z0-9_+-]*)\s*$", line)
+            if m and m.group(2) and not m.group(2).endswith("`"):
+                out.append(m.group(1) + m.group(2))
+                out.append(m.group(3) + m.group(4))
+            else:
+                out.append(line)
+        return "\n".join(out)
+
     def rewrite_links(self, text: str, src_rel: str, note_out: str) -> str:
         parts = CODE_SPLIT_RE.split(text)
         for i, part in enumerate(parts):
@@ -839,6 +888,7 @@ class Sync:
                 "由 Quartz 自动构建发布。\n\n" + body
             )
 
+        body = self.fix_broken_fences(body)
         body = self.rewrite_links(body, src_rel, out_rel)
         body = self.redact(body, src_rel)
         for idx, rendered in enumerate(dv_blocks):

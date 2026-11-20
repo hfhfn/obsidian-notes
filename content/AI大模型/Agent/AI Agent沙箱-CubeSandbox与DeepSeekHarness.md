@@ -47,6 +47,7 @@ modified: '2026-09-02T00:02:30+08:00'
 专为 AI Agent 设计，**兼容 E2B 接口**（现有 E2B 应用改地址即接入）。
 
 ### 整体架构
+
 ```
 控制面（Control Plane）           工作节点（Node）
 ┌─────────────┐                  ┌───────────────┐
@@ -73,6 +74,7 @@ modified: '2026-09-02T00:02:30+08:00'
 ### 性能与使用
 - **压测**：50 并发下，沙箱创建 P99 延迟约 **150ms**。
 - 调用方式：API 把待执行代码/命令发给沙箱，结果从 `result` 字段返回。
+
 ```python
 # 示意：调用 CubeSandbox 执行代码
 response = cube_client.run(
@@ -88,7 +90,8 @@ print(response.result)  # 排序结果
 
 DeepSeek-Harness（`dsh`）是 DeepSeek 官方 2026 年开源的**通用智能体框架（agent harness）**，架构哲学"Everything is a Plugin"，基于 Cordis，TypeScript，`npx @deepseek-ai/dsh web` 起本地 Web UI。它的沙箱是一套可插拔的**进程沙箱 seam**，与 CubeSandbox 思路完全不同。
 
-### 隔离方式：不是 VM，是 OS 权限约束`ctx.sandbox` 把**同一个世界里要执行的子进程 argv** 包一层"文件效果策略"，靠各平台原生机制落地：
+### 隔离方式：不是 VM，是 OS 权限约束
+`ctx.sandbox` 把**同一个世界里要执行的子进程 argv** 包一层"文件效果策略"，靠各平台原生机制落地：
 
 | 平台 | 后端 |
 |---|---|
@@ -98,7 +101,8 @@ DeepSeek-Harness（`dsh`）是 DeepSeek 官方 2026 年开源的**通用智能�
 
 > 关键设计：**容器 / MicroVM / 远程执行在 dsh 里是"另一个完整能力 seam 的兄弟实现"，并不是 `ctx.sandbox` 的提供方**——也就是说最重的整机隔离可以外插（比如塞容器后端），但默认/首选是这套 OS 级进程约束。
 
-### 三种文件效果模式```ts
+### 三种文件效果模式
+```ts
 type SandboxMode = 'read-only' | 'workspace-write' | 'danger-full-access'
 ```
 - `read-only`：拒绝写（POSIX 后端会额外放行 `/dev/null` 供 shell 用）。

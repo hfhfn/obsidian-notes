@@ -32,6 +32,7 @@ modified: '2026-09-17T17:54:16+08:00'
 | **总计** | **1,884 个 TypeScript 源文件** | 中大型软件工程项目 |
 
 ### 1.2 技术栈架构
+
 ```
 生产级 Agent 框架设计
 ├── TypeScript / React / Ink（终端 UI 渲染）
@@ -52,6 +53,7 @@ modified: '2026-09-17T17:54:16+08:00'
 整个系统的心脏在 `query.ts` 的 `while(true)` 主循环，采用 **AsyncGenerator（yield）** 实现流式推送。
 
 ### 2.1 五阶段循环流程
+
 ```typescript
 // query.ts 伪代码
 async function* agentLoop() {
@@ -83,6 +85,7 @@ async function* agentLoop() {
 ### 2.2 五阶段详解
 
 #### 阶段 1：上下文准备
+
 ```
 预处理策略：
 ├── snipCompactIfNeeded()   - 历史消息裁剪
@@ -93,6 +96,7 @@ async function* agentLoop() {
 **目标**：保证每次送给模型的上下文既完整又不超标。
 
 #### 阶段 2：模型流式调用
+
 ```
 输入打包：
 ├── 对话历史（带 prependUserContext 注入 claude.md/记忆）
@@ -106,6 +110,7 @@ async function* agentLoop() {
 **关键优化**：流式输出，模型边生成边回传，不等待全部生成完成。
 
 #### 阶段 3：工具执行
+
 ```
 两种执行器：
 ├── StreamingToolExecutor  - 并行流式执行（模型输出时已开始预执行）
@@ -121,6 +126,7 @@ async function* agentLoop() {
 ```
 
 #### 阶段 4：附件收集
+
 ```
 收集内容：
 ├── 任务通知/提示信息
@@ -131,6 +137,7 @@ async function* agentLoop() {
 ```
 
 #### 阶段 5：终止/继续决策
+
 ```
 终止条件：
 ├── !needsFollowUp → completed
@@ -164,6 +171,7 @@ async function* agentLoop() {
 ## 四、六大工程亮点
 
 ### 4.1 Prompt 缓存分割策略
+
 ```
 系统提示分段：
 ├── 静态段（cacheScope: global）
@@ -181,6 +189,7 @@ async function* agentLoop() {
 ```
 
 ### 4.2 四级上下文压缩体系
+
 ```
 压缩级别：
 ├── Level 1: Snip         - 轻量裁剪（每轮 API 调用前）
@@ -199,6 +208,7 @@ async function* agentLoop() {
 ```
 
 ### 4.3 投机执行机制（Speculative Execution）
+
 ```
 执行流程：
 ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
@@ -215,6 +225,7 @@ async function* agentLoop() {
 ```
 
 ### 4.4 BashTool 20 项安全检查
+
 ```
 安全维度：
 ├── 不完整命令检测
@@ -249,6 +260,7 @@ async function* agentLoop() {
 **关键设计**：自动模式下脚本语言必须经过用户确认，防止模型偷偷执行脚本。
 
 ### 4.5 Zustand 风格轻量 Store
+
 ```
 自研核心机制：
 ├── Object.is 引用比较
@@ -268,6 +280,7 @@ AppState 包含 100+ 属性：
 ```
 
 ### 4.6 Hook 系统设计
+
 ```
 6 种 Hook 类型 × 24 种事件：
 
@@ -301,6 +314,7 @@ Hook 类型：
 ## 五、多 Agent 架构
 
 ### 5.1 三种 Agent 执行模型
+
 ```
 1. Fork 子 Agent（隐式 Worker）
    ├── 继承父 Agent 完整对话上下文
@@ -317,6 +331,7 @@ Hook 类型：
 ```
 
 ### 5.2 Coordinator 编排模式
+
 ```
 任务流水线：研究 → 综合 → 实现 → 验证
 
@@ -339,6 +354,7 @@ Hook 类型：
 ## 六、五层记忆体系
 
 ### 6.1 记忆层级
+
 ```
 短期记忆（工作记忆）
 ├── 当前会话消息列表（进程内）
@@ -365,6 +381,7 @@ Hook 类型：
 | `reference` | 外部系统引用 |
 
 ### 6.3 记忆搜索
+
 ```
 非关键词匹配，而是语义搜索：
 └── 使用 Claude Sonnet 模型判断相关性
@@ -372,6 +389,7 @@ Hook 类型：
 ```
 
 ### 6.4 摘要记忆 & Checkpoint
+
 ```
 摘要记忆（四级压缩）：
 ├── Level 1: 消息裁剪
@@ -392,6 +410,7 @@ Checkpoint（会话持久化）：
 ## 七、Prompt 编排系统
 
 ### 7.1 六级提示优先级
+
 ```
 1. Override     - 循环模式全量替换
 2. Coordinator  - COORDINATOR_MODE
@@ -402,12 +421,14 @@ Checkpoint（会话持久化）：
 ```
 
 ### 7.2 场景变体
+
 ```
 默认交互模式 / Plan 模式 / Proactive 模式
 / Coordinator 模式 / SDK 非交互模式
 ```
 
 ### 7.3 工具描述注入方式
+
 ```
 不注入系统提示，通过 API tools[] 独立传递：
 ├── 每个工具 prompt() 动态生成描述
@@ -420,6 +441,7 @@ Checkpoint（会话持久化）：
 ## 八、安全纵深防御
 
 ### 8.1 六层安全环
+
 ```
 1. Zod 验证         - Schema 强制校验
 2. 8 源权限匹配     - 分层规则匹配
@@ -442,6 +464,7 @@ Checkpoint（会话持久化）：
 ## 九、可观测性体系
 
 ### 9.1 监控组件
+
 ```
 ├── Datadog (DD)        - 遥测
 ├── GrowthBook          - AB 实验
@@ -458,6 +481,7 @@ Checkpoint（会话持久化）：
 ```
 
 ### 9.2 隐私控制
+
 ```
 三级开关：
 ├── 全部启用

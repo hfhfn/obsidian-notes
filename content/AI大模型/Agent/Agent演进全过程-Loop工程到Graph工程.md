@@ -31,6 +31,7 @@ modified: '2026-09-06T12:23:49+08:00'
 ## 一、五种 Agent 模式演进（从「实习生」到「CEO」）
 
 > 演进脉络：Level 1-2 解决「**怎么做**」（与环境交互的手脚）→ Level 3 解决「**做错了怎么改**」（大脑修正）→ Level 4 解决「**先做什么后做什么**」（大脑预演）→ Level 5 解决「**一个人忙不过来**」（组织架构）。
+
 ```mermaid
 flowchart LR
     T["① 工具使用 Tool Use<br/>实习生 · 学会动手"]
@@ -48,6 +49,7 @@ flowchart LR
 - **关键突破**：解决大模型「**幻觉**」和「**时效性**」问题，模型从「思考者」变为「执行者」。
 - **技术要点**：**Function Calling**——模型需要决策「何时用工具」以及「传入什么参数」。
 - **适用场景**：查询天气、预订酒店、执行 SQL、发送邮件。
+
 ```mermaid
 flowchart LR
     U["用户问题"] --> LLM{"LLM 决策<br/>Function Calling<br/>何时用 / 传什么参"}
@@ -66,6 +68,7 @@ flowchart LR
 - **关键突破**：相比工具使用的单次调用，ReAct 支持**多轮迭代**，执行中根据中间反馈**动态调整策略**。
 - **技术要点**：提示词工程让模型输出结构化的 Thought/Action/Observation，或用 Agent 框架（如 LangChain）强制实现循环。
 - **适用场景**：需要多步操作的复杂检索。
+
 ```mermaid
 flowchart LR
     Start(["提出问题"])
@@ -112,6 +115,7 @@ flowchart LR
 - **适用场景**：代码 Debug、长文润色、数学题验算、高质量翻译。
 
 **形态一：基础反思（带人类反馈的闭环）** —— 人类是唯一评判者，成本高但质量极高。
+
 ```mermaid
 flowchart TD
     Gen["生成初稿"] --> Human{"人类反馈"}
@@ -121,6 +125,7 @@ flowchart TD
 ```
 
 **形态二：高级反思（零外部依赖的内部自省）** —— 模型自身同时扮演执行者与评判者。
+
 ```mermaid
 flowchart TD
     Gen2["生成初稿"] --> SelfCri{"模型自我批判<br/>双角色：执行者 + 评审者"}
@@ -149,6 +154,7 @@ flowchart TD
 - **技术要点**：**Planner**（生成 DAG 执行计划）+ **Executor**（跑具体任务）+ **Verifier**（核对每步是否达成）。
 - **适用场景**：自动化市场调研、竞品分析、测试用例编写。
 - **推广到 "Plan & Execute"**：先全局规划（宏观大纲），再进入执行；**执行阶段不一定是纯顺序，某一步可以并发执行**。
+
 ```mermaid
 flowchart TD
     subgraph Planning_Phase ["规划阶段 (确定约束)"]
@@ -190,6 +196,7 @@ flowchart TD
 - **适用场景**：软件全流程开发、复杂商业决策模拟。
 
 **形态 A：瀑布流并行的多源收集→整合→审核**（如财报分析：多渠道采集 → 清洗 → 分析 → 独立审核）
+
 ```mermaid
 flowchart LR
     Start(["生成财报分析任务"]) --> Split["信息采集 Agent 分发任务"]
@@ -226,6 +233,7 @@ flowchart LR
 ```
 
 **形态 B：树状管理层的软件开发流程**（强调先后依赖：Tech Lead 先架构 → SDE 写代码 → DevOps 后介入）
+
 ```mermaid
 flowchart TD
     User["用户提出大需求"] --> PM["PM Agent<br/>(分析需求/协调)"]
@@ -277,6 +285,7 @@ flowchart TD
 ## 二、工程形态演进：Workflow → ReAct(Loop) → Graph
 
 这是同一能力的**工程化形态**演进，本质是「**确定性**」与「**智能性**」如何走向融合。
+
 ```mermaid
 flowchart LR
     WF["Workflow<br/>确定性 DAG<br/>流水线工人<br/>(节点固定·路径固定)"] --> React["ReAct (Loop)<br/>动态黑盒循环<br/>试探者<br/>(牺牲可控性)"] --> G["Graph<br/>Workflow 壳 + ReAct 魂<br/>可观测智能体"]
@@ -317,6 +326,7 @@ flowchart LR
 > 从 Loop 到 Graph，不只是实现「更复杂的跳转」，更是实现「**有状态、可中断、可恢复的企业级长时任务（Long-running Task）**」。
 
 ### 典型场景：自动客服退款（硬约束）
+
 ```mermaid
 flowchart TD
     Entry["入口"] --> Intent["意图识别<br/>(ReAct 节点自由 Loop<br/>分析退款小作文)"]
@@ -343,6 +353,7 @@ flowchart TD
 ## 三、关注点迁移：Harness 工程 → Loop 工程 → Graph 工程
 
 对应**抽象层次的不断抬升**（Andrej Karpathy 的「LLM OS」、DSPy 的编译器思路）。
+
 ```mermaid
 flowchart LR
     Harness["Harness 工程<br/>关注「连接」<br/>如何把函数转 JSON Schema"] --> Loop2["Loop 工程<br/>关注「终止性」<br/>max_iterations / 防 Token 耗散"] --> Graph2["Graph 工程<br/>关注「可观测性与可靠性」<br/>Human-in-the-loop"]
@@ -369,6 +380,7 @@ flowchart LR
 
 **路径 1：LLM 显式生成「执行图」（LLMCompiler）**
 LLM 充当「编译器」，把用户问题直接编译成由工具调用构成的 **DAG**。节点是工具调用，边用 `$1`、`$2` 占位符传递数据依赖，支持**并行执行**。规划器一次性生成全局调度图，执行中无需反复决策。
+
 ```mermaid
 flowchart TD
     Q["用户问题<br/>旧金山温度的三次方"] --> Planner["LLM Planner<br/>编译成 DAG 任务清单"]
@@ -396,6 +408,7 @@ flowchart TD
 ### 代码实现一：Send API 动态并行扇出（Fan-out）
 
 典型场景：给主题列表，同时独立分析每个主题，最后合并成报告。
+
 ```python
 import operator
 from typing import Annotated, TypedDict, List
@@ -438,6 +451,7 @@ graph = builder.compile()
 result = graph.invoke({"topics": ["量子计算", "可再生能源", "太空探索"]})
 print(result["final_report"])
 ```
+
 ```mermaid
 flowchart LR
     Start["主题列表"] --> Fan["fan_out_to_workers<br/>返回多个 Send"]
@@ -458,6 +472,7 @@ flowchart LR
 ### 代码实现二：LLMCompiler（LLM 自主规划 DAG）
 
 三个组件：**Planner**（流式生成任务，用 `${1}` 表达依赖）→ **Scheduler**（解析依赖，就绪即提交线程池并行）→ **Joiner**（汇总结果，成功即出答案，失败触发重规划）。
+
 ```python
 import re
 from concurrent.futures import ThreadPoolExecutor, wait
@@ -584,6 +599,7 @@ graph = builder.compile()
 > 大脑路径：**「我需要反思模式实现人机协作 → 因此在 Graph 工程关键节点用 HITL 挂起 → 等待外部专家反馈 → resume」**。
 
 ### LangGraph 中 HITL 如何实现（以支付审核为例）
+
 ```mermaid
 flowchart TD
     Run["Graph 运行到「风险初审」<br/>AI 判定中风险"] --> Interrupt["执行 interrupt<br/>State 持久化到 Checkpointer"]
@@ -605,6 +621,7 @@ flowchart TD
 ### 成熟业务中的反思：分层校验 + 状态机 + 补偿
 
 > ❗ 关键认知：成熟业务里「反思」**不是简单一张图里的一个判断框**，而是**分层、分步骤、异步校验 + 重试（Retry）+ 补偿（Compensation）**。
+
 ```mermaid
 flowchart TD
     Start(["用户点击结算"]) --> Step1["前端校验 (本地校验)"]
@@ -669,6 +686,7 @@ flowchart TD
 ### 软逻辑反思实战：支付超时的三种真相
 
 > 相同表象（支付超时），背后三种截然不同的真相，只有 Agent 能跨系统找线索 + 多维因果推理。
+
 ```mermaid
 flowchart TD
     Start(["用户提交支付请求"]) --> BusinessLogic["硬逻辑系统 (状态机)<br/>发起支付请求"]

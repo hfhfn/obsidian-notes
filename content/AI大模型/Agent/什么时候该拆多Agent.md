@@ -86,6 +86,7 @@ Google 常被引用的数据：**约 64% 的场景下，单 Agent 和多 Agent �
 ---
 
 ## 推荐架构：编排者 + 专业 Worker
+
 ```
 Orchestrator → Workers → Review & Synthesis
 ```
@@ -126,6 +127,7 @@ Orchestrator → Workers → Review & Synthesis
 ### 按"边界"选，不按"公司"选
 
 **A2A 不是"公司级才用"，而是"必须跨墙握手时才用"。** 判断顺序：
+
 ```
 先问：这些 Agent 要跨 团队 / 部署 / 安全域 / 外部 吗？
  ├─ 不跨（同团队、同进程、同代码库）→ LangGraph 或 单Agent+工具，就够 ✅
@@ -154,6 +156,7 @@ Orchestrator → Workers → Review & Synthesis
 ### 临场一键选：LangGraph vs MCP vs A2A 决策链
 
 上面是知识，这条是**轮到选型时从上往下走、命中第一条就停**的流程：
+
 ```
 ① 所有 Agent 能待进同一进程/代码库、一起编译发版、共享状态？
    ├─ 是 → LangGraph（强状态机 / checkpointer / Human-in-the-loop）✅ 停
@@ -196,6 +199,7 @@ Orchestrator → Workers → Review & Synthesis
 > **一句话澄清："LangGraph 的多 Agent 不必然是一个进程——拆成多个服务后，独立发版、故障隔离、租户隔离全都有。它和 A2A 真正的分界线不是进程，而是：这些 Agent 是不是都在你掌控下的同一套框架。全是你自己的 LangGraph，拆服务就够；要接你掌控不到、还用着别的框架的 Agent，才轮到 A2A。"**
 
 也需要同步微调决策链第①条（把"同一进程"放宽成"**同一框架且归你掌控**"）：
+
 ```
 ① 所有 Agent 能放进同一套 LangGraph、代码家族归你掌控？
    ├─ 是 → 用 LangGraph（要隔离？把 subgraph 拆成独立服务就有了）✅ 停
@@ -203,6 +207,7 @@ Orchestrator → Workers → Review & Synthesis
 ```
 
 **多 Agent 独立部署服务示例**（同框架、拆进程实现隔离，反衬 A2A 的差别）：
+
 ```
 【一个编排应用，3 个 LangGraph Agent 各一个 HTTP 服务】
 
@@ -247,7 +252,8 @@ Orchestrator → Workers → Review & Synthesis
 
 > **记法：** "拆服务拿到的是**进程隔离**，代价是**自造协议喊话**；A2A 放弃一点进程编排度，换来**大家都听得懂的通用话**。"
 
-**完整闭环：**```
+**完整闭环：**
+```
 进程隔离  ←靠部署（把 subgraph 拆成独立服务）
 协议隔离  ←才轮 A2A（自造 RPC 只在自己边界内有效）
 自造 RPC  ←只在"全归你掌控"时成立；一涉及外人/异构，就必须 A2A

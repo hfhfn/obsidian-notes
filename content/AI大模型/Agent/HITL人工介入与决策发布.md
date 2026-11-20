@@ -57,6 +57,7 @@ AI 自动批改（节点 ①–⑤）跑完 → **⑦ `teacher_review_node` 调 
 ---
 
 ## 4. 教师侧两个 API（人与图怎么对话）
+
 ```text
 GET  /submissions/{id}/review   → 教师用 aget_state 读 AI 预批改快照
 POST /confirm                    → 教师 approve / modify，传 Command(resume=decision) 回图

@@ -25,6 +25,7 @@ modified: '2026-09-05T18:27:42+08:00'
 > 改法：`pip install fastmcp`，只改 import，`@mcp.tool` / `mcp.run()` 用法完全一致。
 
 ## 2. 官方 mcp vs FastMCP
+
 ```python
 # mcp（官方底层 SDK）—— 手动处理一切
 from mcp.server import Server
@@ -41,6 +42,7 @@ async def handle_list_tools():
 async def handle_call_tool(name, arguments):
     return [TextContent(type="text", text="...")]
 ```
+
 ```python
 # fastmcp —— 装饰器 + 类型推断，极简
 from fastmcp import FastMCP
@@ -66,6 +68,7 @@ async def query_high_frequency_question() -> str:
 - **name**：默认用函数名（`def get_weather` → `name="get_weather"`）
 - **description**：默认用函数 docstring
 - **参数 JSON Schema**：从函数注解 + 默认值自动生成
+
 ```python
 @mcp.tool()
 async def search_products(keyword: str, category: str = "all", in_stock: bool = True) -> list:
@@ -77,6 +80,7 @@ async def search_products(keyword: str, category: str = "all", in_stock: bool = 
 **最佳实践**：函数名和 docstring 足够清晰就直接 `@mcp.tool()`；需要精确控制时才传 `name=`/`description=`。
 
 ## 4. 单独启动服务
+
 `mcp.run(transport="stdio")` 即可独立启动，等待客户端连接：
 - **stdio**：被 Claude Desktop 等宿主调用（标准模式）
 - **SSE**：`mcp.run(transport="sse", host="127.0.0.1", port=8000)` → 提供 HTTP 接口

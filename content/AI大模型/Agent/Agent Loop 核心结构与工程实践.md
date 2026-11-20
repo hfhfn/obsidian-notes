@@ -30,6 +30,7 @@ modified: '2026-11-17T05:46:45+08:00'
 ---
 
 ## 二、最小代码解析（`minimal_loop.py`）
+
 ```python
 def minimal_loop(task, model, execute):
     # 初始化消息历史：system 提示 + user 任务
@@ -134,21 +135,24 @@ def minimal_loop(task, model, execute):
 
 ## 六、对标 Anthropic `reference_loop.py`（282 行）
 
-### ① 主循环同构```python
+### ① 主循环同构
+```python
 # loop.py 第 238 行
 for turn in range(1, self.budget.max_turns + 1):
     response = self.client.messages.create(...)
 ```
 执行顺序与我们最小代码一致：请求模型 → 存响应 → 有工具调用则执行 → 回传结果。官方开局就带有轮数上限。
 
-### ② 写门禁（Fail-closed）```python
+### ② 写门禁（Fail-closed）
+```python
 # loop.py 第 123 行
 if unguarded and approve is None:
     # a missing gate must not mean every write runs
 ```
 只要注册的工具中有标注为"会修改外部数据"的工具，且未提供 `approve` 回调，程序直接报错、不创建 Agent。这是一种 **fail-closed** 策略：门禁默认关着，缺配置就不放行写操作。真正执行写工具时还会再调用 `approve` 判断，放行规则可由人工确认或权限逻辑实现。
 
-### ③ 停止原因分两层```python
+### ③ 停止原因分两层
+```python
 @dataclass
 class Result:
     text: str

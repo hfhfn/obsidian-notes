@@ -630,6 +630,7 @@ python
 复制
 
 下载
+
 ```python
 from peft import PeftModel
 from transformers import AutoModelForCausalLM
@@ -649,6 +650,7 @@ python
 复制
 
 下载
+
 ```
 # 将LoRA合并到基础模型并保存
 merged_model = model.merge_and_unload()
@@ -741,6 +743,7 @@ python
 复制
 
 下载
+
 ```python
 # 伪代码：合并4位主模型和16位LoRA
 def merge_lora_to_4bit_model():
@@ -1007,6 +1010,7 @@ python
 复制
 
 下载
+
 ```python
 import torch
 print(f"FP16支持: {torch.cuda.is_bf16_supported()}")
@@ -1114,6 +1118,7 @@ python
 复制
 
 下载
+
 ```python
 import torch
 print(f"FP16支持: {torch.cuda.is_fp16_supported()}")

@@ -23,6 +23,7 @@ modified: '2026-08-05T09:58:42+08:00'
 ## 一、文件结构
 
 新版部署需要以下文件，均位于 `docker/` 目录下：
+
 ```
 docker/
 ├── .env                          # 环境变量配置
@@ -39,18 +40,23 @@ docker/
 > 除了 WEB端口 8880, 4443, 和mysql对外端口5455, redis对外端口7379 做修改外, 其他都是默认值
 
 ### 镜像版本
+
 ```env
 RAGFLOW_IMAGE=infiniflow/ragflow:v0.25.6
 ```
 
-### 运行模式（CPU/GPU）```env
+### 运行模式（CPU/GPU）
+```env
 DEVICE=cpu   # 默认 CPU，改为 gpu 则启用 GPU 模式
-````COMPOSE_PROFILES` 会自动根据 `DOC_ENGINE` 和 `DEVICE` 组合：```env
+```
+`COMPOSE_PROFILES` 会自动根据 `DOC_ENGINE` 和 `DEVICE` 组合：
+```env
 COMPOSE_PROFILES=${DOC_ENGINE},${DEVICE}
 # 默认结果：elasticsearch,cpu
 ```
 
-### 对外端口```env
+### 对外端口
+```env
 SVR_WEB_HTTP_PORT=8880     # Web 访问端口（容器内 nginx 监听 80）
 SVR_WEB_HTTPS_PORT=4443    # HTTPS 端口
 SVR_HTTP_PORT=9380         # RAGFlow API 端口
@@ -60,7 +66,8 @@ GO_HTTP_PORT=9384          # Go server 端口
 GO_ADMIN_PORT=9383         # Go admin 端口
 ```
 
-### 数据库与中间件```env
+### 数据库与中间件
+```env
 MYSQL_PORT=3306
 EXPOSE_MYSQL_PORT=5455     # MySQL 对外暴露端口
 
@@ -69,11 +76,13 @@ REDIS_PORT=7379            # Redis 对外暴露端口（容器内固定 6379）
 REDIS_PASSWORD=infini_rag_flow
 ```
 
-### 时区```env
+### 时区
+```env
 TZ=Asia/Shanghai
 ```
 
-### API 路由模式```env
+### API 路由模式
+```env
 API_PROXY_SCHEME=python    # 使用纯 Python server，不启用 Go server
 ```
 
@@ -90,7 +99,8 @@ API_PROXY_SCHEME=python    # 使用纯 Python server，不启用 Go server
 - `ragflow-cpu`：profiles: `[cpu]`
 - `ragflow-gpu`：profiles: `[gpu]`，额外包含 nvidia GPU 资源配置
 
-### 启动命令```yaml
+### 启动命令
+```yaml
 command:
   - --enable-adminserver
 ```
@@ -100,6 +110,7 @@ command:
 ### volumes 配置
 
 > `service_conf.yaml.template` 和 `entrypoint.sh` 默认**挂载**，如果有路由异常问题, 可以考虑注释挂载, 直接使用镜像内置版本，避免版本不匹配导致路由异常。
+
 ```yaml
 volumes:
   - ./ragflow-logs:/ragflow/logs
@@ -113,20 +124,23 @@ volumes:
   - ./service_conf.yaml.template:/ragflow/conf/service_conf.yaml.template
 ```
 
-### envionment```yaml
+### envionment
+```yaml
 environment:
   - TZ=${TZ}
   - HF_ENDPOINT=${HF_ENDPOINT}
   - MACOS=${MACOS}
 ```
 
-### restart 策略```yaml
+### restart 策略
+```yaml
 restart: unless-stopped
 ```
 
 ---
 
 ## 四、启动命令
+
 ```bash
 # CPU 模式（默认）
 docker compose -f docker-compose.yml up -d
@@ -153,6 +167,7 @@ DEVICE=gpu docker compose -f docker-compose.yml up -d
 ## 六、启动日志确认
 
 正常启动后日志应包含以下关键信息：
+
 ```
 Applied nginx config: ragflow.conf.python   ✅ nginx 配置正确
 Database tables initialized.               ✅ 数据库初始化完成

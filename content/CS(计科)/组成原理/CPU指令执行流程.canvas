@@ -1,45 +1,312 @@
 {
-	"nodes":[
-		{"id":"gCPU","type":"group","text":"CPU 核心部件","x":30,"y":10,"width":1360,"height":150,"color":"4"},
-		{"id":"P0","type":"text","text":"**PC 程序计数器**\n保存下一条指令地址，IF 时给出地址，执行后 +4","x":60,"y":60,"width":200,"height":70,"color":"4"},
-		{"id":"P1","type":"text","text":"**IR 指令寄存器**\n暂存当前正在处理的指令","x":285,"y":60,"width":200,"height":70,"color":"4"},
-		{"id":"P2","type":"text","text":"**CU 控制单元**\n解析操作码，发控制信号指挥各部件","x":510,"y":60,"width":200,"height":70,"color":"4"},
-		{"id":"P3","type":"text","text":"**通用寄存器组**\n暂存参与运算的数据与结果","x":735,"y":60,"width":200,"height":70,"color":"4"},
-		{"id":"P4","type":"text","text":"**ALU 算术逻辑单元**\n真正做加/减/与/或/比较运算，设标志位","x":960,"y":60,"width":200,"height":70,"color":"4"},
-		{"id":"P5","type":"text","text":"**内存 RAM**\n按地址存取指令与数据","x":1185,"y":60,"width":200,"height":70,"color":"4"},
-		{"id":"gPL","type":"group","text":"经典 5 级流水线（指令完整执行流程）— 取指 → 译码 → 执行 → 访存 → 写回","x":30,"y":260,"width":1380,"height":230,"color":"2"},
-		{"id":"S0","type":"text","text":"**① IF 取指**\nPC 给地址→内存读指令→入 IR→PC+4","x":60,"y":310,"width":230,"height":100,"color":"2"},
-		{"id":"S1","type":"text","text":"**② ID 译码**\nCU 解析操作码→从寄存器组读源操作数","x":330,"y":310,"width":230,"height":100,"color":"2"},
-		{"id":"S2","type":"text","text":"**③ EX 执行 ⭐**\n操作数送 ALU 计算→(load/store 时算内存地址)","x":600,"y":310,"width":230,"height":100,"color":"2"},
-		{"id":"S3","type":"text","text":"**④ MEM 访存**\n仅 load/store 真访问内存；运算/分支空走","x":870,"y":310,"width":230,"height":100,"color":"2"},
-		{"id":"S4","type":"text","text":"**⑤ WB 写回**\n把 ALU 结果或内存数据写回寄存器","x":1140,"y":310,"width":230,"height":100,"color":"2"},
-		{"id":"gMEM","type":"group","text":"MEM 什么时候真干活？（关键对比）","x":30,"y":540,"width":1380,"height":190,"color":"6"},
-		{"id":"M0","type":"text","text":"**load (读内存)**✔ 必须用 MEM\nEX 用 ALU 算地址 → MEM 真读内存 → WB 写回寄存器","x":60,"y":590,"width":300,"height":90,"color":"6"},
-		{"id":"M1","type":"text","text":"**store (写内存)**✔ 必须用 MEM\nEX 用 ALU 算地址 → MEM 真写内存 → WB 空操作","x":398,"y":590,"width":300,"height":90,"color":"6"},
-		{"id":"M2","type":"text","text":"**运算 add/sub/and…**✘ 不用 MEM\n只在寄存器间运算，MEM 空走、空周期","x":736,"y":590,"width":300,"height":90,"color":"6"},
-		{"id":"M3","type":"text","text":"**分支 beq/bne**✘ 不用 MEM\nALU 比较 + 算跳转目标，改 PC","x":1074,"y":590,"width":300,"height":90,"color":"6"},
-		{"id":"nT","type":"text","text":"**通俗记忆**：取(拿指令)→译(懂指令+拿数据)→算(ALU 干活⭐)→访(需则读写内存)→存(结果放回寄存器)","x":60,"y":790,"width":1320,"height":60,"color":"1"}
-	],
-	"edges":[
-		{"id":"s0","fromNode":"S0","toNode":"gPL","fromSide":"right","toSide":"left"},
-		{"id":"s1","fromNode":"S1","toNode":"gPL","fromSide":"right","toSide":"left"},
-		{"id":"s2","fromNode":"S2","toNode":"gPL","fromSide":"right","toSide":"left"},
-		{"id":"s3","fromNode":"S3","toNode":"gPL","fromSide":"right","toSide":"left"},
-		{"id":"s4","fromNode":"S4","toNode":"gPL","fromSide":"right","toSide":"left"},
-		{"id":"seq0","fromNode":"S0","toNode":"S1","fromSide":"right","toSide":"left"},
-		{"id":"seq1","fromNode":"S1","toNode":"S2","fromSide":"right","toSide":"left"},
-		{"id":"seq2","fromNode":"S2","toNode":"S3","fromSide":"right","toSide":"left"},
-		{"id":"seq3","fromNode":"S3","toNode":"S4","fromSide":"right","toSide":"left"},
-		{"id":"pm0","fromNode":"P0","toNode":"S0","fromSide":"bottom","toSide":"top"},
-		{"id":"pm1","fromNode":"P1","toNode":"S0","fromSide":"bottom","toSide":"top"},
-		{"id":"pm2","fromNode":"P2","toNode":"S1","fromSide":"bottom","toSide":"top"},
-		{"id":"pm3","fromNode":"P3","toNode":"S1","fromSide":"bottom","toSide":"top"},
-		{"id":"pm4","fromNode":"P4","toNode":"S2","fromSide":"bottom","toSide":"top"},
-		{"id":"pm5","fromNode":"P5","toNode":"S3","fromSide":"bottom","toSide":"top"},
-		{"id":"pfin","fromNode":"S4","toNode":"nT","fromSide":"bottom","toSide":"top"}
-	],
-	"metadata":{
-		"version":"1.0-1.0",
-		"frontmatter":{}
-	}
+  "nodes": [
+    {
+      "id": "gCPU",
+      "type": "group",
+      "text": "CPU 核心部件",
+      "x": 30,
+      "y": 10,
+      "width": 1360,
+      "height": 150,
+      "color": "4"
+    },
+    {
+      "id": "P0",
+      "type": "text",
+      "text": "**PC 程序计数器**\n保存下一条指令地址，IF 时给出地址，执行后 +4",
+      "x": 60,
+      "y": 60,
+      "width": 200,
+      "height": 70,
+      "color": "4"
+    },
+    {
+      "id": "P1",
+      "type": "text",
+      "text": "**IR 指令寄存器**\n暂存当前正在处理的指令",
+      "x": 285,
+      "y": 60,
+      "width": 200,
+      "height": 70,
+      "color": "4"
+    },
+    {
+      "id": "P2",
+      "type": "text",
+      "text": "**CU 控制单元**\n解析操作码，发控制信号指挥各部件",
+      "x": 510,
+      "y": 60,
+      "width": 200,
+      "height": 70,
+      "color": "4"
+    },
+    {
+      "id": "P3",
+      "type": "text",
+      "text": "**通用寄存器组**\n暂存参与运算的数据与结果",
+      "x": 735,
+      "y": 60,
+      "width": 200,
+      "height": 70,
+      "color": "4"
+    },
+    {
+      "id": "P4",
+      "type": "text",
+      "text": "**ALU 算术逻辑单元**\n真正做加/减/与/或/比较运算，设标志位",
+      "x": 960,
+      "y": 60,
+      "width": 200,
+      "height": 70,
+      "color": "4"
+    },
+    {
+      "id": "P5",
+      "type": "text",
+      "text": "**内存 RAM**\n按地址存取指令与数据",
+      "x": 1185,
+      "y": 60,
+      "width": 200,
+      "height": 70,
+      "color": "4"
+    },
+    {
+      "id": "gPL",
+      "type": "group",
+      "text": "经典 5 级流水线（指令完整执行流程）— 取指 → 译码 → 执行 → 访存 → 写回",
+      "x": 30,
+      "y": 260,
+      "width": 1380,
+      "height": 230,
+      "color": "2"
+    },
+    {
+      "id": "S0",
+      "type": "text",
+      "text": "**① IF 取指**\nPC 给地址→内存读指令→入 IR→PC+4",
+      "x": 60,
+      "y": 310,
+      "width": 230,
+      "height": 100,
+      "color": "2"
+    },
+    {
+      "id": "S1",
+      "type": "text",
+      "text": "**② ID 译码**\nCU 解析操作码→从寄存器组读源操作数",
+      "x": 330,
+      "y": 310,
+      "width": 230,
+      "height": 100,
+      "color": "2"
+    },
+    {
+      "id": "S2",
+      "type": "text",
+      "text": "**③ EX 执行 ⭐**\n操作数送 ALU 计算→(load/store 时算内存地址)",
+      "x": 600,
+      "y": 310,
+      "width": 230,
+      "height": 100,
+      "color": "2"
+    },
+    {
+      "id": "S3",
+      "type": "text",
+      "text": "**④ MEM 访存**\n仅 load/store 真访问内存；运算/分支空走",
+      "x": 870,
+      "y": 310,
+      "width": 230,
+      "height": 100,
+      "color": "2"
+    },
+    {
+      "id": "S4",
+      "type": "text",
+      "text": "**⑤ WB 写回**\n把 ALU 结果或内存数据写回寄存器",
+      "x": 1140,
+      "y": 310,
+      "width": 230,
+      "height": 100,
+      "color": "2"
+    },
+    {
+      "id": "gMEM",
+      "type": "group",
+      "text": "MEM 什么时候真干活？（关键对比）",
+      "x": 30,
+      "y": 540,
+      "width": 1380,
+      "height": 190,
+      "color": "6"
+    },
+    {
+      "id": "M0",
+      "type": "text",
+      "text": "**load (读内存)**✔ 必须用 MEM\nEX 用 ALU 算地址 → MEM 真读内存 → WB 写回寄存器",
+      "x": 60,
+      "y": 590,
+      "width": 300,
+      "height": 90,
+      "color": "6"
+    },
+    {
+      "id": "M1",
+      "type": "text",
+      "text": "**store (写内存)**✔ 必须用 MEM\nEX 用 ALU 算地址 → MEM 真写内存 → WB 空操作",
+      "x": 398,
+      "y": 590,
+      "width": 300,
+      "height": 90,
+      "color": "6"
+    },
+    {
+      "id": "M2",
+      "type": "text",
+      "text": "**运算 add/sub/and…**✘ 不用 MEM\n只在寄存器间运算，MEM 空走、空周期",
+      "x": 736,
+      "y": 590,
+      "width": 300,
+      "height": 90,
+      "color": "6"
+    },
+    {
+      "id": "M3",
+      "type": "text",
+      "text": "**分支 beq/bne**✘ 不用 MEM\nALU 比较 + 算跳转目标，改 PC",
+      "x": 1074,
+      "y": 590,
+      "width": 300,
+      "height": 90,
+      "color": "6"
+    },
+    {
+      "id": "nT",
+      "type": "text",
+      "text": "**通俗记忆**：取(拿指令)→译(懂指令+拿数据)→算(ALU 干活⭐)→访(需则读写内存)→存(结果放回寄存器)",
+      "x": 60,
+      "y": 790,
+      "width": 1320,
+      "height": 60,
+      "color": "1"
+    }
+  ],
+  "edges": [
+    {
+      "id": "s0",
+      "fromNode": "S0",
+      "toNode": "gPL",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "s1",
+      "fromNode": "S1",
+      "toNode": "gPL",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "s2",
+      "fromNode": "S2",
+      "toNode": "gPL",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "s3",
+      "fromNode": "S3",
+      "toNode": "gPL",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "s4",
+      "fromNode": "S4",
+      "toNode": "gPL",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "seq0",
+      "fromNode": "S0",
+      "toNode": "S1",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "seq1",
+      "fromNode": "S1",
+      "toNode": "S2",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "seq2",
+      "fromNode": "S2",
+      "toNode": "S3",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "seq3",
+      "fromNode": "S3",
+      "toNode": "S4",
+      "fromSide": "right",
+      "toSide": "left"
+    },
+    {
+      "id": "pm0",
+      "fromNode": "P0",
+      "toNode": "S0",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "pm1",
+      "fromNode": "P1",
+      "toNode": "S0",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "pm2",
+      "fromNode": "P2",
+      "toNode": "S1",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "pm3",
+      "fromNode": "P3",
+      "toNode": "S1",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "pm4",
+      "fromNode": "P4",
+      "toNode": "S2",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "pm5",
+      "fromNode": "P5",
+      "toNode": "S3",
+      "fromSide": "bottom",
+      "toSide": "top"
+    },
+    {
+      "id": "pfin",
+      "fromNode": "S4",
+      "toNode": "nT",
+      "fromSide": "bottom",
+      "toSide": "top"
+    }
+  ],
+  "metadata": {
+    "version": "1.0-1.0",
+    "frontmatter": {}
+  }
 }

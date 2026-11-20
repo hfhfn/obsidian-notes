@@ -77,6 +77,7 @@ modified: '2026-10-17T11:44:59+08:00'
 ### 4. ReAct 框架与 Thought-Action-Observation 循环。
 
 **ReAct（Reasoning + Acting）** 由 Yao 等 2022 提出。让 LLM **交替输出推理与动作**：
+
 ```
 Thought（我应该先查订单状态）→ Action（call get_order_status）
 → Observation（订单已发货）→ Thought（用户问的是物流，应再查物流）
@@ -263,6 +264,7 @@ Agent 场景里 ReAct 模板高度相似，受益巨大。系统 prompt 长固�
 ### 17. 工具路由：高召回 + 高准确率的三层漏斗设计。
 
 工具上千时不能全塞 prompt，需漏斗筛选：
+
 ```
 1000 工具 → ① 向量召回（top 50）→ ② Cross-Encoder 重排（top 10）→ ③ LLM Function Calling 精选
 ```

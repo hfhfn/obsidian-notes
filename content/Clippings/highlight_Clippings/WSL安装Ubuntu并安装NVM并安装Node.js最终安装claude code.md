@@ -24,7 +24,8 @@ modified: '2026-08-05T11:03:22+08:00'
 
 ## 📌 摘录（核心步骤）
 
-### 1. WSL 安装/重装 Ubuntu```bash
+### 1. WSL 安装/重装 Ubuntu
+```bash
 # 彻底卸载旧实例
 wsl --unregister Ubuntu
 wsl --shutdown
@@ -32,7 +33,8 @@ wsl --shutdown
 wsl --install
 ```
 
-### 2. git 手动安装 nvm```bash
+### 2. git 手动安装 nvm
+```bash
 sudo apt install git
 git clone https://github.com/nvm-sh/nvm.git ~/.nvm
 cd ~/.nvm && git checkout v0.39.3
@@ -43,7 +45,8 @@ echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> ~/.bashrc
 source ~/.bashrc
 ```
 
-### 3. 装 Node + Claude Code```bash
+### 3. 装 Node + Claude Code
+```bash
 nvm install --lts && nvm use 22
 npm install -g @anthropic-ai/claude-code
 # 配置 API（anyrouter 示例）

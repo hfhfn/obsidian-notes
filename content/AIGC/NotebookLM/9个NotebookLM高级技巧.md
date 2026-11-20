@@ -52,6 +52,7 @@ Gemini 官网现在可以直接调用 NotebookLM 的笔记本了（目前灰度�
 7.  **负向约束**：禁止做什么（如禁止讨好、禁止模糊指代）。
 
 **系统提示词范例模版：**
+
 ```markdown
 ## 1. 角色设定
 你现在的身份是：[在此处填写角色]
@@ -135,7 +136,8 @@ NotebookLM 的 Deep Research 和 ChatGPT/Gemini 的 Deep Research 用途完全�
 - 优化Deep Research的提示词结构
 - 用 GPT/Gemini 做深度搜索，生成报告后，导入到 NotebookLM 里作为信源使用。
 
-提示词样例：````markdown
+提示词样例：
+````markdown
 ### 1. 角色设定
 你是一个深度研究引擎，负责基于现有资料与网络信息进行系统性研究、分析与整合。
 产出的内容将作为 NotebookLM 笔记本中的长期知识来源，而非一次性成稿。
@@ -260,7 +262,8 @@ NotebookLM **禁止上传真人人脸照片**，但有些场景下，你需要�
 **Shell 脚本代码：**
 注意：如果经常使用类似脚本，建议统一安装PowerShell 7，这样不管是windows还是mac行为都一致。
 当然，如果什么都不安装，那么下面的代码依然有效：
-- Windows版：```powershell
+- Windows版：
+```powershell
 Get-ChildItem -File |
 Where-Object { $_.Extension -in '.txt', '.md' } |
 Sort-Object Name |
@@ -272,7 +275,8 @@ ForEach-Object {
 Set-Content .\Combined_Knowledge.txt -Encoding UTF8
 
 ```
-- MacBook版：```bash
+- MacBook版：
+```bash
 #!/bin/zsh
 
 output="Combined_Knowledge.txt"
@@ -287,7 +291,8 @@ done
 ```
 
 #### 尝试Vibe Coding:
-使用下面的提示词，来生成shell脚本，一键自动化合并文本文件，适合没有编程背景的同学尝试：```markdown
+使用下面的提示词，来生成shell脚本，一键自动化合并文本文件，适合没有编程背景的同学尝试：
+```markdown
 
 ## 任务目标
 我想把【当前文件夹】里的多个文本文件合并成一个新的文本文件。我没有编程背景
@@ -341,12 +346,14 @@ done
 | 你的电子书是整本书、页数很多           | 安装 Calibre（ebook-convert）             | 可选   | 更稳定地把电子书直接转换成 PDF                            |
 | 所有准备完成                   | 运行 Python 脚本                          | 必须   | 自动扫描文件夹 → 转 PDF → 合并 → 生成一个总 PDF             |
 #### 代码执行
+
 ```bash
 python merge-file.py
 ```
 
 
 **Python 合并二进制文件的代码：**
+
 ```python
 import shutil
 import subprocess
@@ -461,7 +468,8 @@ if __name__ == "__main__":
 #### 尝试Vibe Coding
 
 下面的提示词适合没有编程背景的同学来尝试vibe coding，纯大白话，写这样的提示词没有任何难度。
-提示词：```markdown
+提示词：
+```markdown
 
 我没有编程经验，帮我写一个可以直接用的 Python 脚本。
 

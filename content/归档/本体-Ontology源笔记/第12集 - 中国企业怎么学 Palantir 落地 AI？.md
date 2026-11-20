@@ -174,6 +174,7 @@ modified: '2026-09-17T16:18:05+08:00'
 ## 核心总结
 
 ### Palantir 企业 AI 落地顺序
+
 ```
 1. 从具体业务决定出发 → 只连接需要的数据（垂直切片，非全域治理）
 2. Ontology 定义对象、规则、动作、权限（四维集成：Data·Logic·Action·Security）
@@ -204,7 +205,8 @@ modified: '2026-09-17T16:18:05+08:00'
 ### 08:50
 **讲解**：去改进方锐里面的 AI 系统，自动优化成本、性能和模型选择。还有 Object Timeline 追踪 agent 和人工的编辑。
 
-**画面**：```
+**画面**：
+```
 PALANTIR 官方原图
 同月还有：SuperRepo · AlPEvolve · ObjectTimeline
 Multimodal Data Plane: Any Data · Any Compute · Any Model
@@ -220,7 +222,8 @@ palantir.com/docs/foundry/announcements/2026-08
 ### 09:00
 **讲解**：带 token 用量、运行时长和 Agentic Coverage 指标。这是把 agent 的可观测性落到对象级别。然后再说 AIP 整体啊，Palantir 2026 年的 AIP 架构图列了 12 类能力。
 
-**画面**：```
+**画面**：
+```
 PALANTIR 官方原图
 同月还有：SuperRepo · AlPEvolve · ObjectTimeline
 Multimodal Data Plane: Any Data · Any Compute · Any Model
@@ -236,7 +239,8 @@ palantir.com/docs/foundry/announcements/2026-08
 ### 09:08
 **讲解**：编号特别清楚。第一个呢是安全的 LLM 接入。
 
-**画面**：```
+**画面**：
+```
 官方口径
 2026.08
 同月还有：SuperRepo · AlPEvolve · ObjectTimeline
@@ -257,7 +261,8 @@ orAIPry
 ### 09:20
 **讲解**：接下来呢第二类呢是端到端可观测、Context Engineering、Ontology System、安全与治理、Agent 的生命周期、运营自动化、开发环境、人机系统应用。
 
-**画面**：```
+**画面**：
+```
 Palantir AIP Architecture Overview
 AIP / 4 / CONTEXT ENGINEERING / [DATA, LOGIC, ACTIONS] / MMDP, Real-Time & No-Code
 AIP Architecture
@@ -306,7 +311,8 @@ OPalantir
 ### 09:30
 **讲解**：打包发布部署企业自动化。那模型接入呢只是 12 分之 1。如果一个企业 AI 平台只有模型网关、RAG 和 Agent 编排，它离生产系统还差得很远。
 
-**画面**：```
+**画面**：
+```
 Palantir AIP Architecture Overview
 RAIP?
 CONTEXT ENGINEERING
@@ -353,7 +359,8 @@ Workflow Management
 ### 09:40
 **讲解**：那现在回到刚才的缺料场景啊，讲写回。
 
-**画面**：```
+**画面**：
+```
 Architecture Overview
 CONTEXT ENGINEERING
 ONTOLOGY
@@ -407,7 +414,8 @@ Observa
 ### 09:55
 **讲解**：找到 3 张高风险订单，生成两个调拨方案。那采购经理呢选第二个，系统写回 ERP，同时修改对应工单。嗯，仓库实际只调出了 8 成，呃，只调出八成库存，对吧？原因也被记录下来。那到这里呢，闭环才开始有价值啊。
 
-**画面**：```
+**画面**：
+```
 Overview：12 类能力
 VIEW
 ONTOLOGY
@@ -425,7 +433,8 @@ A
 ### 10:10
 **讲解**：官方有一张图专门讲这个事儿叫 Read-Write Loops。图里人和 agent 通过同一套 interface 进 Ontology。那每个对象都带 properties、actions、automations 自来。左边呢写回外部系统，右边读取外部系统。那下面还有一条 external write。
 
-**画面**：```
+**画面**：
+```
 PALANTIR 官方原图
 AIP Architecture Overview：12 类能力
 Palantir AIP Architecture Overview
@@ -442,7 +451,8 @@ architecture
 ### 10:20
 **讲解**：那下面还有一条 external write。注意人和 agent 是并排的，走同一套接口，收同一套权限，这是整张图最重要的细节哈。那下一次系统就可以知道了，哪个建议是可以被接受的，执行到哪儿？
 
-**画面**：```
+**画面**：
+```
 PALANTIR 官方原图
 Ontology System: Read-Write Loops
 Palantir
@@ -459,7 +469,8 @@ paLant1r
 ### 10:30
 **讲解**：发生了什么偏差？不是把聊天记录塞回向量库，而是把决定和结果放回业务对象的历史。但写回一定要注意处理。
 
-**画面**：```
+**画面**：
+```
 Loops
 Agent / Human / Agent / Human / Agent / Human / Agent / Human
 Interfaces
@@ -500,7 +511,8 @@ ExternalWrites
 ### 10:47
 **讲解**：麻烦的这个现实，同一条请求重试，然后会不会调两次库存呀？然后 ERP 已经成功了，Agent 超时了，怎么对账呀？然后审批以后，供应商状态变了，要不要重新计算？
 
-**画面**：```
+**画面**：
+```
 PALANTIR 官方原图
 Ontology System: Read-Write Loops
 Ontology System Read-Write Loops
@@ -515,7 +527,8 @@ ion 旁边必须有幂等键、回执、补偿、审计和人工接管。闭环�
 ### 11:00
 **讲解**：所以 action 旁边呢还要有幂等键、回执、补偿、审计和人工接管，没有这些呢所谓闭环，就是 demo 顺利时看起来比较完整啊。最上面一层呢，我们要纠正一个常见的画法，就是 Gotham 其实不在应用层里。
 
-**画面**：```
+**画面**：
+```
 PALANTIR 官方原图
 Ontology System: Read-Write Loops
 Ontology System Read-Write Loops
@@ -530,7 +543,8 @@ QPalantir
 ### 11:10
 **讲解**：那 Gotham 它最早的组件呢是在标准的 AIP 和 Foundry 加 Apollo 架构之前开发的。
 
-**画面**：```
+**画面**：
+```
 PALANTIR 官方原图
 Interoperability: Palantir Provided vs Bring Your Own
 Interoperability Data Flow Security
@@ -545,7 +559,8 @@ Apollo 架构之前开发的
 ### 11:20
 **讲解**：那现在我们所有 offering 都已经完整集成进标准架构。那 Gotham 那套多模态应用和工具呢，是由 Foundry 管理的 Ontology 驱动。
 
-**画面**：```
+**画面**：
+```
 ARCHITECTURE CENTER · 2026
 核验 2026.08
 Palantir 企业 AI 架构
@@ -583,7 +598,8 @@ Data · Logic · Action · Security
 ### 11:30
 **讲解**：和 Gotham 并列的呢还有 Palantir for Hospitals、Warp Speed、RaceOS 以及客户自己造的。比如空客用 Skywise 撑起整个航空的这个生态哈。富士通建了一套专门的。
 
-**画面**：```
+**画面**：
+```
 PALANTIR 官方原图
 官方自己的反 SaaS 论证：alpha vs beta
 Enterprise OS Products for Alpha
@@ -613,7 +629,8 @@ Andretti 就自己造了。
 ### 11:40
 **讲解**：把这套应用啊，iRobot Racing 呢做了一个 RaceOS，把实时赛车数据接入 AI 的应用。那这个修正呢对我们企业有实际的意义，就是 offering 是可以自己造的。
 
-**画面**：```
+**画面**：
+```
 PALANTIR 官方原图
 官方自己的反 SaaS 论证：alpha vs beta
 Enterprise OS Products for Alpha
@@ -646,7 +663,8 @@ Andretti 就自己造了。
 ### 11:50
 **讲解**：你不需要买一个叫 Gotham 的东西，你需要基于自己的对象层，到一个只有你能造的行业交互形态。
 
-**画面**：```
+**画面**：
+```
 PALANTIR 官方原图
 官方自己的反 SaaS 论证：alpha vs beta
 Enterprise OS Products for Alpha
@@ -677,7 +695,8 @@ Andretti 就自己造了。
 ### 12:00
 **讲解**：那 Palantir 也是这么说的哈，官方用了一个比喻：一次成功的 Palantir 部署呢是企业在追 alpha，围绕自己差异化去建设，把自己的特殊性注入 ontology。
 
-**画面**：```
+**画面**：
+```
 PALANTIR 官方原图
 官方自己的反 SaaS 论证：alpha vs beta
 Enterprise OS Products for Alpha
@@ -710,7 +729,8 @@ palantir.com/docs/foundry/architecture-center/platforms
 ### 12:10
 **讲解**：那 beta 是什么呢？是追唾手可得的果实，比如一套一刀切的 SaaS 里的基础方案。那这套架构你能支撑这类的用例啊，但理想情况下，它们是只追 alpha 的副产品。
 
-**画面**：```
+**画面**：
+```
 己的反 SaaS 论证：alpha vs beta
 Enterprise OS Products for Alpha
 HYBRID PRODUCTS
@@ -749,7 +769,8 @@ Services
 ### 12:20
 **讲解**：所以我们可以直接回答我们现在的一些老问题，就是为什么我买了一样的产品就做不出一样的效果？因为你买的是 beta。
 
-**画面**：```
+**画面**：
+```
 Enterprise OS Products for Alpha
 HYBRID
 PRODUCTS
@@ -785,7 +806,8 @@ Services
 ### 12:30
 **讲解**：还有一层呢比较容易被忽略，就是它不在软件里。就是 FDE。他现在比较热啊，他其实是工程师被深入嵌入到全球的关键环境里。
 
-**画面**：```
+**画面**：
+```
 PALANTIR 官方原图
 官方自己的反 SaaS 论证：alpha vs beta
 Enterprise OS Products for Alpha
@@ -816,7 +838,8 @@ Andretti 就自己造了。
 ### 12:40
 **讲解**：从战区到工厂车间，跟客户一起走很多路，不停地进和发新功能。那这一层呢在我们企业里其实是容易复制的，也是比较少的企业来做的。
 
-**画面**：```
+**画面**：
+```
 ARCHITECTURE CENTER · 2026
 核验 2026.08
 Palantir 企业 AI 架构
@@ -876,7 +899,8 @@ Rubix
 ### 12:50
 **讲解**：它不太用于采购哈，就是只要决定说让你的工程师去到线产线上去待着就行了。
 
-**画面**：```
+**画面**：
+```
 ARCHITECTURE CENTER · 2026
 核验 2026.08
 Palantir 企业 AI 架构
@@ -935,7 +959,8 @@ Rubix
 ### 13:00
 **讲解**：所以如果让我给中国的企业排一个落地的顺序呢，我大概会分为两轮吧。那前三个月呢不追求自制哈。
 
-**画面**：```
+**画面**：
+```
 ARCHITECTURE CENTER · 2026
 核验 2026.08
 Palantir 企业 AI 架构
@@ -995,7 +1020,8 @@ Rubix
 ### 13:10
 **讲解**：选一个高价值的决定，接通最小数据点。定义对象关系和状态，做出一个有人审批能写回结果可追踪的 action 闭环。那这轮验收呢，我们不看模型有多聪明，只看业务有没有真的改变。
 
-**画面**：```
+**画面**：
+```
 PALANTIR 官方原图
 Enterprise Operating System
 AIP, Foundry, and Apollo: The Enterprise Operating System
@@ -1014,7 +1040,8 @@ palantir.com/docs/foundry/a/
 ### 13:20
 **讲解**：错误能不能发现、失败能不能恢复？那后三个月呢，我们再加上 agent。按 kLLM 的这个假设介入至少两种可替换的模型。
 
-**画面**：```
+**画面**：
+```
 PALANTIR 官方原图
 Enterprise Operating System
 AIP, Foundry, and Apollo: The Enterprise Operating System

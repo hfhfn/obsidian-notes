@@ -23,6 +23,7 @@ modified: '2026-11-14T23:35:23+08:00'
 ---
 
 ## 一、完整代码
+
 ```python
 import os, uuid, logging, hashlib
 from datetime import datetime, timedelta
@@ -455,6 +456,7 @@ for node, a in billing.summary().items():
 **问题**：对话越来越长，全塞 prompt 会爆 token，全摘要又丢细节。
 
 **落地**：`recall` + `retain` + State 上的 `summary` / `summarized_count`。
+
 ```
 working_context = [stable system] + [dynamic system(锚点+摘要)] + [裁剪后的近期原文]
                    ↑ 几乎不变          ↑ 每轮变但短            ↑ 只保留最近几轮
@@ -482,6 +484,7 @@ summary（远期） → 超过 SUMMARY_TRIGGER 才压缩，RAW_WINDOW 条永远�
 **问题**：所有逻辑塞一个图，条件边爆炸。
 
 **落地**：`router` 输出 `next_worker`，`subtask` 节点直接挂编译好的子图。
+
 ```python
 subtask_graph = build_subtask_graph()    # 独立编译
 builder.add_node("subtask", subtask_graph)   # 直接挂
@@ -495,6 +498,7 @@ builder.add_node("subtask", subtask_graph)   # 直接挂
 **问题**：LLM 偶发超时要重试；持续挂了要快速失败，不能重试放大延迟。
 
 **落地**：`with_resilience`（tenacity 内层重试 + pybreaker 外层熔断）+ `agent_node` 的 `try/except` + 条件边。
+
 ```python
 resilient_agent = with_resilience(_agent_call, "agent")
 
@@ -518,6 +522,7 @@ builder.add_conditional_edges("agent",
 **问题**：写文件、SQL 这类高危操作必须人工审批。
 
 **落地**：`tool_guard` 里 `interrupt()` 挂起，Checkpointer 持久化现场；调用方检查 `__interrupt__`，`Command(resume=...)` 恢复。
+
 ```python
 # 节点内
 decision = interrupt({"type": "tool_approval", "tool": tool_name, ...})
@@ -537,6 +542,7 @@ if result.get("__interrupt__"):
 - **幂等键解决重复副作用**：resume 可能执行多次，`execute_tool` 必须带幂等键。用**业务语义哈希**（`user_id + tool + args`），因为 `thread_id:message_id` **跨会话失效**——新会话重发同一需求会被重复执行。
 
 **用户拒绝 ≠ 服务故障**：
+
 ```python
 def route_after_guard(s):
     if s.get("pending_approval"): return "execute"
@@ -559,6 +565,7 @@ def route_after_guard(s):
 **问题**：出问题要能回放"哪个节点、哪次 LLM 调用、耗时多少"。
 
 **落地**：设环境变量，LangGraph 内置 OTel 集成，**每个节点自动发 span**，零侵入。
+
 ```python
 import os
 os.environ["LANGSMITH_OTEL_ENABLED"] = "true"
@@ -597,6 +604,7 @@ os.environ["OTEL_SERVICE_NAME"] = "prod-graph"
 ---
 
 ## 三、一轮请求的完整生命周期
+
 ```
 用户发消息
   │

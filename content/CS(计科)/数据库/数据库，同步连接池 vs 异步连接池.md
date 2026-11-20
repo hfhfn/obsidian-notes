@@ -17,7 +17,8 @@ modified: '2026-08-05T09:55:52+08:00'
 - 查询执行期间，线程会被 **阻塞**，直到数据库返回结果；
 - 查询结束后，连接被归还池中，供其他请求使用。
 
-### 📌 举个例子：```python
+### 📌 举个例子：
+```python
 # 同步调用（假设是单线程）
 result1 = db.execute_query("SELECT * FROM users WHERE id = 1")
 result2 = db.execute_query("SELECT * FROM users WHERE id = 2")
@@ -36,7 +37,8 @@ result2 = db.execute_query("SELECT * FROM users WHERE id = 2")
 - 使用 **事件循环（Event Loop）** 来调度任务，避免线程阻塞；
 - 支持真正的并发查询（多个查询同时进行）。
 
-### 📌 举个例子（异步）：```python
+### 📌 举个例子（异步）：
+```python
 import asyncio
 from aiomysql import create_pool
 
@@ -135,3 +137,4 @@ asyncio.run(main())
 - 使用 Gunicorn + Uvicorn Workers 部署异步应用。
 
 ---
+

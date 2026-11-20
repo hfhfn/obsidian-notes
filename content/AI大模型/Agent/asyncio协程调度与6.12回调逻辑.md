@@ -45,6 +45,7 @@ modified: '2026-09-04T14:09:21+08:00'
 ## 2. 6.12 后台批改 + done 回调业务逻辑
 
 时序（`POST /submit` 被调起后）——见顶部嵌入图：
+
 ```
 POST /submit（学员提交 .docx + exam_id）
   │
@@ -68,7 +69,8 @@ task 后台跑整张图（事件循环让出控制后开跑 → teacher_review i
 ### 为什么 /submit 用 `create_task` 而不是 `gather`？
 批改要 **30 秒+**，接口要**立即返回 202**，不能等。`gather` 的语义是「等全部跑完」，用了接口就被拖住；`create_task` 一调度就返回，正好做 **fire-and-forget**（后台跑，接口先走）。
 
-### 为什么 `_on_task_done` 里用 `ensure_future`？`add_done_callback` 要求回调是**同步**函数，但 `_cleanup` 里有 **async DB 操作**，同步里不能 `await`——用 `ensure_future(_cleanup())` 把它调度成**新后台任务**。这里换成 `create_task` 也等价，`ensure_future` 是历史习惯。
+### 为什么 `_on_task_done` 里用 `ensure_future`？
+`add_done_callback` 要求回调是**同步**函数，但 `_cleanup` 里有 **async DB 操作**，同步里不能 `await`——用 `ensure_future(_cleanup())` 把它调度成**新后台任务**。这里换成 `create_task` 也等价，`ensure_future` 是历史习惯。
 
 ### 回调双职责
 1. **释放引用**：从 `_background_tasks` `discard(t)`，防内存泄漏；

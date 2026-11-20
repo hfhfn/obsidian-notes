@@ -30,6 +30,7 @@ modified: '2026-09-05T18:27:52+08:00'
 
 - **SSE**：**请求走 POST 通道，响应走 SSE 通道**。两条通道必须同时存活，用 sessionId 关联。
 - **Streamable HTTP**：**请求和响应走同一连接闭环**；只有长任务需要实时流式输出时才临时升级为 SSE 流，流完即关。
+
 ```mermaid
 flowchart LR
 subgraph S["SSE 旧版 - 双通道常驻"]

@@ -34,7 +34,8 @@ modified: '2026-08-05T09:56:36+08:00'
 
   - 代码节点内容:
 
-    - ```python
+    -
+ ```python
       import json
       
       def main(body: str):
@@ -62,7 +63,8 @@ modified: '2026-08-05T09:56:36+08:00'
 #### 1、虚拟机基础配置
 1. 虚拟机网络模式设置为 **NAT 模式**
 2. 为虚拟机配置 **静态 IP** (192.168.88.100)
-3. 查看网关命令：```bash
+3. 查看网关命令：
+```bash
 ip route show
 ```
 
@@ -128,7 +130,8 @@ ip route show
 
 #### 4、局域网访问方式
 - 访问地址：**本机IP + 主机端口**
-- 查看本机 IP 命令（CMD 中执行）：```cmd
+- 查看本机 IP 命令（CMD 中执行）：
+```cmd
 ipconfig
 ```
 
@@ -139,6 +142,7 @@ ipconfig
 
 
 ### 三. 非本地IP访问数据库没有权限的问题
+
 ```mysql
 -- 查看当前 root 权限
 SELECT user,host FROM mysql.user WHERE user='root';

@@ -31,6 +31,7 @@ modified: '2026-09-05T18:28:31+08:00'
    - 提供 `ToolServer`，可把 LangChain 工具直接托管为 MCP Server
 
 ## 3. MCP 工具 → LangChain 工具（python-a2a）
+
 ```python
 from python_a2a.mcp import MCPClient
 from python_a2a.langchain import to_langchain_tool
@@ -55,6 +56,7 @@ await agent_executor.ainvoke({"input": query})
 > ⚠️ 易错点：`to_langchain_tool("http://host:8010")`（只传地址）返回的是**列表**；带第二个参数（工具名）的才返回**单个工具对象**。两者不能互换当同一种用。
 
 ## 4. 调用工具传参
+
 `client.call_tool("get_weather", {"city": "Beijing", "days": 3})`，第二个参数用**字典**传参；也支持关键字参数 `call_tool("get_weather", city="Beijing")`（参数名须与工具定义完全一致）。
 
 ## 相关笔记

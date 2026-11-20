@@ -103,6 +103,7 @@ $$L_i = -w_{y_i}\log p_{i,y_i}, \qquad L = \frac{1}{N}\sum_{i=1}^{N} -w_{y_i}\lo
 > ⚠️ 极少数类（如 $N_k=1$）会导致权重爆炸，建议 `torch.clamp(weights, max=...)`。
 
 #### PyTorch 实现
+
 ```python
 import torch
 import torch.nn as nn
@@ -147,6 +148,7 @@ $$L_{\text{focal}} = -\alpha_{y}(1-p_y)^{\gamma}\log p_y$$
 | 极难 | 0.05 | 0.90 | 几乎不变 |
 
 **代码**：
+
 ```python
 import torch
 import torch.nn as nn
@@ -198,6 +200,7 @@ $$\hat{y} = \arg\max_k\left(z_k + \tau\log\pi_k^{\text{real}}\right)$$
 其中 $\pi_k$ 是训练集类先验，$\tau$ 是温度超参。
 
 **实现**：
+
 ```python
 def logit_adjustment_loss(logits, targets, train_prior, tau=1.0, weight=None):
     adjusted = logits + tau * torch.log(train_prior + 1e-12)
@@ -216,6 +219,7 @@ def predict(logits, real_prior, tau=1.0):
 **Class-Balanced Loss**（用有效样本数代替逆频率，适合长尾）：
 
 $$w_k = \frac{1-\beta}{1-\beta^{N_k}}, \qquad \beta=0.999 \text{ 常用}$$
+
 ```python
 def class_balanced_weights(counts, beta=0.999):
     effective_num = 1.0 - torch.pow(beta, counts)
@@ -284,7 +288,9 @@ $$L_i = \sum_j C_{y_i,j} \cdot p_{i,j}$$
 **原理**：PyTorch `CrossEntropyLoss` 的 `ignore_index` 指定一个特殊目标值（默认 `-100`），标签等于该值时损失乘 0，被排除在反向传播外：
 
 $$l_n = -w_{y_n}\log\frac{e^{x_{n,y_n}}}{\sum_c e^{x_{n,c}}} \cdot \mathbb{1}\{y_n \neq \text{ignore\_index}\}$$
+
 `reduction='mean'` 时，分母也是 $\sum_n w_{y_n}\cdot\mathbb{1}\{y_n\neq\text{ignore\_index}\}$——**被忽略的样本既不在分子也不在分母**。
+
 ```python
 import torch
 import torch.nn as nn
@@ -304,6 +310,7 @@ NLP 中极常见：语言模型训练时 padding token 的标签设为 `-100`。
 ### 3.3 多标签：Loss Mask
 
 **数据形态**：一个样本的标签是长度为 $C$ 的 0/1 向量。
+
 ```
 样本1: [1, 0, 0, 1, 0, ..., 0]  # 属于类1和类4
 样本2: [0, 0, 0, 0, 1, ..., 0]  # 只属于类5
@@ -322,6 +329,7 @@ NLP 中极常见：语言模型训练时 padding token 的标签设为 `-100`。
 #### 三种实现方式
 
 **方式一：样本级 mask**（整个样本忽略；适用于标注完全不可靠的样本）
+
 ```python
 def sample_level_masked_bce(logits, targets, valid_mask):
     """valid_mask: [N] bool，True 表示该样本有效"""
@@ -333,6 +341,7 @@ def sample_level_masked_bce(logits, targets, valid_mask):
 ```
 
 **方式二：元素级 mask**（每个标签位置单独忽略）——**最常用**
+
 ```python
 def element_level_masked_bce(logits, targets, label_mask):
     """label_mask: [N, C] bool，True 表示该位置标签有效"""
@@ -344,12 +353,14 @@ def element_level_masked_bce(logits, targets, label_mask):
 ```
 
 **方式三：只用正样本 + 负采样**（正样本极少、全量负样本太多时）
+
 ```python
 label_mask = (targets == 1)            # 只用正样本
 # 或：正样本 + 随机采样的负样本
 ```
 
 #### 完整示例：多标签 + 缺失标注 + 不均衡
+
 ```python
 class MaskedBCELoss(nn.Module):
     def __init__(self, pos_weight=None):
@@ -388,6 +399,7 @@ loss = criterion(model(x), targets, label_mask)
 | mask 比例过高 | 有效信号太少，训练不充分，考虑补标 |
 
 #### 上线预测
+
 ```python
 probs = torch.sigmoid(model(x))         # 每个类独立概率
 
@@ -412,6 +424,7 @@ topk_probs, topk_idx = probs.topk(k=3, dim=1)   # 方式3：Top-K
 
 - **梯度行为**：CE 的 softmax 让类间竞争（提高一类压低其他类）；BCE 各类独立，提高一类不影响其他类
 - **这就是为什么多标签缺失标注要用 BCE + 元素级 mask**——CE 的 `ignore_index` 是样本级，无法只忽略某几个标签位置
+
 ```python
 # CE：单标签
 logits = model(x)                        # [N, 18]
@@ -507,6 +520,7 @@ loss = F.binary_cross_entropy_with_logits(logits, targets, pos_weight=pos_weight
 | **数据** | 过采样 · SMOTE/ADASYN · 数据增强（文本回译、图像变换）· 迁移学习 |
 | **结构** | 分层分类（先粗分大类再细分）· 二阶段（先判是否稀有类集合）· 共享表征 |
 | **评估** | Macro-F1 为主 · 逐类看 P/R/F1 · 验证集保持真实分布不过采样 |
+
 ```python
 # 逆频率加权，但给极少数类设上限，避免权重爆炸
 counts = torch.tensor([...])                      # 18 类样本数
@@ -516,6 +530,7 @@ criterion = nn.CrossEntropyLoss(weight=weights)
 ```
 
 #### 处理姿势总结
+
 ```
 1. 判断：业务价值 + 样本量 + 可补充性
 2. 能补数据 → 补数据，这是最根本的
@@ -595,6 +610,7 @@ $$\text{Weighted-F1} = \sum_{k=1}^{C} \frac{N_k}{N} F1_k$$
 2. **辅助看 Weighted-F1 / Micro-F1** —— 了解整体，避免为少数类牺牲太多多数类
 3. **同时看每类 P/R/F1** —— 只看聚合会掩盖问题，用 `classification_report` 逐类检查
 4. **结合业务代价** —— 漏判少数类代价高就看少数类 Recall；误判多数类代价高就看多数类 Precision
+
 ```
 主指标：Macro-F1
 辅指标：Weighted-F1、少数类 Recall
@@ -605,6 +621,7 @@ $$\text{Weighted-F1} = \sum_{k=1}^{C} \frac{N_k}{N} F1_k$$
 > - **不要只看 Accuracy/Micro-F1**：不均衡时会被多数类主导，掩盖少数类崩掉
 > - **Macro-F1 也有陷阱**：某类样本极少时其 F1 方差大，会剧烈影响 Macro-F1，需结合样本量看
 > - **多标签任务**：Micro-F1 ≠ Accuracy，此时 Micro 和 Macro 都有意义
+
 ```python
 from sklearn.metrics import f1_score, classification_report
 
@@ -645,6 +662,7 @@ $$\pi_k = P(y=k) = \frac{N_k}{N}$$
 $$p_{\text{real}}(y=k|x) \propto p_{\text{model}}(y=k|x) \cdot \frac{\pi_k^{\text{real}}}{\pi_k^{\text{train}}}$$
 
 修正后再归一化：
+
 ```python
 def prior_correction(probs, train_prior, real_prior):
     """probs: [N, C]；train_prior: [C] 训练时（过采样后）先验；real_prior: [C] 线上真实先验"""
@@ -658,6 +676,7 @@ $$p_{\text{cal}}(y=k|x) = \text{softmax}(z_k / T)$$
 
 - $T>1$：分布变**平缓**；$T<1$：变**尖锐**；$T=1$：不变
 - 让概率更接近真实置信度，**不改变 argmax 结果**（除以同一个 $T$，排序不变）
+
 ```python
 class TemperatureScaler(nn.Module):
     def __init__(self):
@@ -691,6 +710,7 @@ optimizer.step(closure)
 | 参数 | 1 个全局 $T$ | 每类一个阈值 |
 
 直观理解：
+
 ```
 原始 logits: [5, 3, 1]
 T=1:   softmax → [0.84, 0.11, 0.04]   argmax=类1
@@ -710,6 +730,7 @@ T=0.5: softmax → [0.98, 0.02, 0.00]   argmax=类1（不变，更尖）
 $$p_{\text{cal}} = \frac{1}{1 + \exp(A \cdot s + B)}$$
 
 $s$ 为模型原始输出，$A, B$ 在**验证集**上用最大似然拟合（本质是在模型输出上再训一个逻辑回归）。
+
 ```python
 from sklearn.linear_model import LogisticRegression
 
@@ -719,6 +740,7 @@ calibrated = platt.predict_proba(new_scores.reshape(-1, 1))[:, 1]
 ```
 
 多分类不能直接套，两种做法：
+
 ```python
 # 方式一：One-vs-Rest
 from sklearn.multiclass import OneVsRestClassifier
@@ -745,11 +767,13 @@ calibrated = calibrated / calibrated.sum(axis=1, keepdims=True)
 ### 6.6 Isotonic Regression —— 只假设单调
 
 **要解决**：Platt 假设校准曲线是 sigmoid，但真实关系可能更复杂。Isotonic **不假设形状**，只要求**单调非减**——把模型输出排序、分成若干段，每段用真实正例频率代替。
+
 ```
 模型输出:  0.1  0.2  0.3  0.4  0.5  0.6  0.7  0.8  0.9
 真实频率:  0.05 0.08 0.15 0.20 0.45 0.50 0.65 0.80 0.92
                 ↑ 分段拟合，保证单调不减
 ```
+
 ```python
 from sklearn.isotonic import IsotonicRegression
 
@@ -789,6 +813,7 @@ calibrated = calibrated / calibrated.sum(axis=1, keepdims=True)
 ### 6.8 阈值调整 —— 不校准概率，直接调决策
 
 下游只用类别标签、不关心概率时，可直接给稀有类加偏置：
+
 ```python
 adjusted_logits = logits + bias        # bias[k] 对稀有类为正
 pred = adjusted_logits.argmax(dim=1)
@@ -808,6 +833,7 @@ pred = adjusted_logits.argmax(dim=1)
 | **Logit Adjustment** | 训练推理都加先验 | 知道先验 | 长尾，训练推理一致 | 改 |
 
 **能都用吗？可以叠加，但要注意顺序**：
+
 ```
 1. 先验修正（处理重采样导致的偏移）
 2. Temperature Scaling（校准概率置信度）
@@ -824,6 +850,7 @@ pred = adjusted_logits.argmax(dim=1)
 | 简单快速 | Temperature Scaling |
 
 **决策树**：
+
 ```
 下游用概率吗？
 ├─ 否 → 阈值调整 或 Logit Adjustment
@@ -845,6 +872,7 @@ pred = adjusted_logits.argmax(dim=1)
 - **Focal 会扭曲概率**，用了 Focal 后概率校准更重要
 
 **典型配合流程**：
+
 ```
 1. 训练：Focal Loss 或加权 CE 处理不均衡
    ↓
@@ -865,6 +893,7 @@ pred = adjusted_logits.argmax(dim=1)
 ---
 
 ## 七、推荐的整体流程（收口）
+
 ```
 1. 分析数据分布 & 业务代价
 2. 判断任务类型：单标签（CE）还是多标签（BCE）

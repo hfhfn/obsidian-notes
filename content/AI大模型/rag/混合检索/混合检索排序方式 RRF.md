@@ -80,6 +80,7 @@ modified: '2026-05-23T10:23:38+08:00'
 **步骤 1：安装依赖与初始化检索器**
 
 首先，确保你安装了必要的库。这里以一个简单的例子，组合一个基于 `InMemoryVectorStore` 的向量检索器和一个基于 `BM25` 的关键词检索器。
+
 ```python
 # 安装所需库
 # pip install langchain langchain-community rank_bm25
@@ -119,6 +120,7 @@ ensemble_retriever = EnsembleRetriever(
 ```
 
 **步骤 2：执行检索**
+
 ```python
 # 使用融合检索器
 query = "什么动物是宠物？"

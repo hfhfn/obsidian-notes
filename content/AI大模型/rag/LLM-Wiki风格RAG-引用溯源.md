@@ -22,9 +22,11 @@ modified: '2026-11-17T05:46:45+08:00'
 ## 完整代码：LangChain 1.0 实现
 
 依赖安装：
+
 ```bash
 pip install -U langchain>=1.0 langchain-core>=1.0 langchain-community>=0.4 langchain-openai>=1.0 rank-bm25 pydantic
 ```
+
 ```python
 """
 LLM-Wiki 风格 RAG + 引用溯源 —— LangChain 1.0 实现
@@ -228,6 +230,7 @@ if __name__ == "__main__":
 ```
 
 ### 预期输出形态
+
 ```
 === 答案 ===
 标准商品可在购买后 30 天内申请退款，退款一般在 3–5 个工作日内原路返回。但定制商品不适用 30 天无理由退款，除非存在质量问题。
@@ -263,6 +266,7 @@ if __name__ == "__main__":
 ## 如果你的模型不支持 `with_structured_output`
 
 部分模型（尤其是部分国产开源模型）不支持 tool calling，`with_structured_output` 会失败。此时可以改用 **`PydanticOutputParser`** 走提示解析路线，代价是可靠性略低，需要更严格的格式约束：
+
 ```python
 from langchain_core.output_parsers import PydanticOutputParser
 

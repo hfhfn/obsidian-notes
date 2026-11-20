@@ -23,7 +23,8 @@ modified: '2026-11-17T05:46:45+08:00'
 ### 本质定义
 白话定义：让大模型开口回答前，先去翻一遍你给的专属参考资料。
 
-### 知识库构建三步```text
+### 知识库构建三步
+```text
 docs = load("售后规则/*.md")
 chunks = split(docs, size=512, overlap=50)
 build_index.py

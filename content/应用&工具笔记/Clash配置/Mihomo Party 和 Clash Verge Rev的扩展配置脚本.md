@@ -13,6 +13,7 @@ modified: '2026-08-05T09:57:32+08:00'
 - 扩写配置(添加代理组和规则)
   - 点击覆写选项，新建覆写配置文件，填入下方配置，最后点编辑信息勾选全局启用
   - 添加了非港台节点的代理组，便于使用gemini和claude的API（地区限制）
+
 ```yaml
 # https://mihomo.party/docs/guide/override/yaml
 
@@ -44,6 +45,7 @@ proxy-groups+:
   右键订阅中的扩展配置也是不能使用prepend 的。我看更新说明应该就是不支持prepend了
 
 - clash-verge 扩写脚本示例：
+
 ```javascript
 // Define main function (script entry)
 
@@ -75,3 +77,4 @@ function main(config) {
 
 ## 相关笔记
 - [[应用&工具笔记/Clash配置/配置clash的profiles和bypass（这种是临时方法，一旦刷新订阅信息又要重新配置）|配置clash的profiles和bypass（这种是临时方法，一旦刷新订阅信息又要重新配置）]] — 代理组与规则的 YAML 配置
+

@@ -99,6 +99,7 @@ QKV 三元组的经典比喻：
 - 概率最高的词就是模型输出。
 
 ## 1.7 一份完整的"总装图"
+
 `Tokenization → Embedding Matrix → Positional Encoding → Multi-Head Attention → Add/Norm → FFN → Linear Expansion → Softmax → Final Word`（Transformer Block 可堆叠 N 次）。
 
 五步第一性原理：① **Tokenize & Embed**（文本→数字）② **Positional Encoding**（注入时序）③ **Attention**（提取上下文）④ **FFN**（特征升降维萃取）⑤ **Linear & Softmax**（概率坍缩为词）。**万变不离其宗。**
@@ -108,6 +109,7 @@ QKV 三元组的经典比喻：
 # 第二部分 · 架构演进史（时间线）
 
 > 一条"能力演化史诗"式时间线：每一次新旧更替都在讲"解决上一代缺陷、又暴露新问题"。
+
 ```
 统计学派 N-gram ──(缺陷:组合爆炸+语义文盲)──▶ 词向量 Embedding（余弦相似度度量语义）
    └─▶ 前馈网络 FFNN（泛化）──(缺陷:固定视窗→长距离失忆)──▶

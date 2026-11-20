@@ -16,6 +16,7 @@ modified: '2026-09-05T18:28:43+08:00'
 > `await` 只能接 **awaitable**（协程/Future/实现 `__await__` 的对象），会暂停当前协程直到完成；把同步函数塞进事件循环要用 `asyncio.to_thread()`（I/O 友好）/ `run_in_executor`（可走进程池）。这一步彻底解开"Python 并发该选谁"。
 
 ## 1. `await` 的正确使用
+
 ```python
 async def f(): return "hello"
 await f()            # ✅ awaitable，可以
@@ -43,6 +44,7 @@ await loop.run_in_executor(None, sync_heavy_work) # ✅ 等价写法
 - `ProcessPoolExecutor` **不自动把单个大任务切成多块**。
 - 多个**独立任务**丢进程池 → 天然并行。
 - 单个大任务想并行  要**手动分割数据**（按 chunk 分区），再并发提交，最后合并。
+
 ```python
 import asyncio, concurrent.futures
 

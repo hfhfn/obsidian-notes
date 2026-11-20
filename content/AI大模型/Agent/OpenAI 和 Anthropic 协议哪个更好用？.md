@@ -37,6 +37,7 @@ modified: '2026-11-14T23:35:23+08:00'
 - 对话历史统一放入 `input` 数组
 - 单轮回复中的不同内容（`reasoning`、`message`、`function_call`）**作为独立条目并行排列**，不合成一条消息
 - 工具执行结果以独立的 `function_call_output` 返回，可同时包含文本与图片
+
 ```text
 instructions: <系统指令>
 input: [
@@ -55,6 +56,7 @@ input: [ ..., { type: "function_call_output", ... } ]
 - 单轮生成的 `thinking`、`text`、`tool_use` 块按顺序**合并在同一条 `assistant` 消息的 `content` 数组中**
 - 工具执行结果合并到紧随其后的 `user` 消息里，支持文本与图片混合
 - **关键约束**：若同一条 `user` 消息中同时存在 `tool_result` 与普通文本，`tool_result` **必须排在最前面**
+
 ```json
 {
   "system": "<系统指令>",

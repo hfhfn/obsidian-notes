@@ -24,6 +24,7 @@ modified: '2026-11-17T05:46:45+08:00'
 模型权重本身能装下，但对话一长 KV Cache 暴涨，`torch.cuda.OutOfMemoryError` 便随之而来。
 
 ### 一个 token 的 KV Cache 字节数公式（BF16 精度）
+
 ```
 Bytes = 2 × 2 × L × n_kv_heads × d_head
 ```
@@ -91,6 +92,7 @@ KV 组数 `g` 可调：
 多卡并行时，每张卡负责若干 Q 头，各组 KV 分配给不同卡，干净不冗余。
 
 ### 代码视角（MiniMind 开源项目）
+
 ```text
 def repeat_kv(x, n_rep):
     # bs, slen, num_kv_heads, head_dim
@@ -115,6 +117,7 @@ def repeat_kv(x, n_rep):
 
 - 24 个 Q 头，4 个 KV 头（每 6 头共享 1 份 KV）
 - head_dim = 256
+
 ```
 每 token 每层 KV Cache（BF16）：
 2 × 2 × 16 × 4 × 256 = 65,536 B ≈ 64 KB/token
@@ -131,6 +134,7 @@ def repeat_kv(x, n_rep):
 若用 FP8 存 KV（32 KB/token），一张 48 GB 卡可并发支撑 **十几至二十段** 3 万 token 的长对话。
 
 ### vLLM 部署建议
+
 ```bash
 vllm serve /models/qwen3.8-27b-fp8 \
   --kv-cache-dtype fp8 \

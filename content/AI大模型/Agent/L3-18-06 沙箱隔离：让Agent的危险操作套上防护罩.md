@@ -42,6 +42,7 @@ modified: '2026-09-17T18:27:52+08:00'
 | **进程隔离**（seccomp/AppArmor） | OS 级轻量隔离，共享内核，通过受限系统调用限制文件/网络访问 | 几乎无额外开销、性能敏感 | 共享内核、隔离力度相对较粗 | 性能极致敏感、轻量级快速迭代 |
 
 ### 典型配置示例
+
 ```text
 # 容器隔离示例
 image: python:3.11-slim
@@ -82,6 +83,7 @@ read_only_root: true
 | `/etc`, `/home` | — | 不可见 | 系统核心目录完全隐藏 |
 
 ### 无痕清理（临时文件系统）
+
 ```bash
 mount -t tmpfs -o size=100M tmpfs /sandbox/tmp
 ```

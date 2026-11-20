@@ -9,7 +9,8 @@ modified: '2026-08-05T09:57:17+08:00'
 #### 第一个原因：conda安装环境envs的配置项（envs_dirs）中没有指定自定义conda的envs安装位置或者指定的配置优先级比较低
 > 第一种解决方案 ==> 直接修改 envs_dirs 配置：
 
-查看envs_dirs的配置：`conda config --show envs_dirs`
+查看envs_dirs的配置：
+`conda config --show envs_dirs`
 
 示例显示如下：
 ![[images/pasted_images/Pasted image 20260118212554.webp]]
@@ -20,6 +21,7 @@ modified: '2026-08-05T09:57:17+08:00'
 可以再使用 `conda config --show envs_dirs` 命令查看是否修改成功
 
 > 第二种解决方案 ==> 在 C:\Users\用户名下创建一个 .condarc（有则不用创建） 文件写入以下配置来覆盖默认的 envs_dirs 配置：
+
 ```shell
 envs_dirs:
   - D:\\software\\miniconda3\\envs

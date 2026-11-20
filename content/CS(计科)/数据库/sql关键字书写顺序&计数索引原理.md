@@ -10,7 +10,8 @@ modified: '2026-08-05T10:08:10+08:00'
 
 SQL语句的**书写顺序**和**执行顺序**是不同的，这是一个非常重要的概念。
 
-## 一、SQL语句的书写顺序```sql
+## 一、SQL语句的书写顺序
+```sql
 SELECT DISTINCT 列名           -- 1. 选择列
 FROM 表名                     -- 2. 来源表
 JOIN 另一张表 ON 连接条件      -- 3. 连接其他表
@@ -21,7 +22,8 @@ ORDER BY 排序列              -- 7. 排序
 LIMIT 限制行数               -- 8. 限制条数
 ```
 
-## 二、完整的书写顺序示例```sql
+## 二、完整的书写顺序示例
+```sql
 SELECT 
     c.category_name,
     COUNT(p.product_id) AS product_count,
@@ -57,12 +59,14 @@ LIMIT 5;
 
 ## 四、各数据库的差异
 
-**MySQL/PostgreSQL/SQLite:**```sql
+**MySQL/PostgreSQL/SQLite:**
+```sql
 -- LIMIT 放在最后
 SELECT * FROM users LIMIT 10;
 ```
 
-**SQL Server/T-SQL:**```sql
+**SQL Server/T-SQL:**
+```sql
 -- 使用 TOP
 SELECT TOP 10 * FROM users;
 
@@ -73,7 +77,8 @@ OFFSET 0 ROWS
 FETCH NEXT 10 ROWS ONLY;
 ```
 
-**Oracle:**```sql
+**Oracle:**
+```sql
 -- 使用 ROWNUM
 SELECT * FROM users WHERE ROWNUM <= 10;
 
@@ -85,25 +90,29 @@ FETCH NEXT 10 ROWS ONLY;
 
 ## 五、常见错误写法
 
-❌ **错误：WHERE 中使用聚合函数**```sql
+❌ **错误：WHERE 中使用聚合函数**
+```sql
 SELECT * FROM products 
 WHERE AVG(price) > 100;  -- 聚合函数不能在WHERE中
 ```
 
-✅ **正确：聚合函数在HAVING中**```sql
+✅ **正确：聚合函数在HAVING中**
+```sql
 SELECT category_id, AVG(price) 
 FROM products 
 GROUP BY category_id 
 HAVING AVG(price) > 100;
 ```
 
-❌ **错误：ORDER BY 位置不对**```sql
+❌ **错误：ORDER BY 位置不对**
+```sql
 SELECT * FROM products 
 LIMIT 10 
 ORDER BY price;  -- ORDER BY 应该在 LIMIT 之前
 ```
 
-✅ **正确：ORDER BY 在 LIMIT 之前**```sql
+✅ **正确：ORDER BY 在 LIMIT 之前**
+```sql
 SELECT * FROM products 
 ORDER BY price 
 LIMIT 10;
@@ -172,6 +181,7 @@ count(*)和count(id)和count(1)在mysql8中的性能有区别吗
 tiny_column指什么; 如何做额外计数表或者redis计数
 
 ## 一、`tiny_column` 指的是什么？
+
 `tiny_column` 是指**占用存储空间很小的字段**，用来作为**最小二级索引**加速 `COUNT(*)`。
 
 ### 具体选择建议：
@@ -183,7 +193,8 @@ tiny_column指什么; 如何做额外计数表或者redis计数
 | **`char(1)`** | 1字符 | `gender CHAR(1)` |
 | **`date`** | 3字节 | `created_date DATE` |
 
-### 实战示例：```sql
+### 实战示例：
+```sql
 -- 原表：只有主键，COUNT(*)会走主键索引（较大）
 CREATE TABLE orders (
     id BIGINT PRIMARY KEY,
@@ -214,7 +225,8 @@ ALTER TABLE orders ADD INDEX idx_deleted (deleted);
 
 ### 实现方式：
 
-**1. 建表结构**```sql
+**1. 建表结构**
+```sql
 CREATE TABLE order_stats (
     stat_key VARCHAR(50) PRIMARY KEY,  -- 如 'total_orders'
     count_value BIGINT NOT NULL DEFAULT 0,
@@ -222,7 +234,8 @@ CREATE TABLE order_stats (
 );
 ```
 
-**2. 事务中同时更新计数表**```sql
+**2. 事务中同时更新计数表**
+```sql
 -- 开启事务
 START TRANSACTION;
 
@@ -240,11 +253,13 @@ WHERE stat_key = 'total_orders';
 COMMIT;
 ```
 
-**3. 查询总数**```sql
+**3. 查询总数**
+```sql
 SELECT count_value FROM order_stats WHERE stat_key = 'total_orders';
 ```
 
-### 多种维度的计数：```sql
+### 多种维度的计数：
+```sql
 -- 按状态统计
 CREATE TABLE order_stats_detail (
     stat_date DATE,
@@ -271,7 +286,8 @@ ON DUPLICATE KEY UPDATE count_value = count_value + 1;
 
 ### 1. 基础版：纯Redis计数
 
-**写入时：**```
+**写入时：**
+```
 // 1. 先写数据库
 orderMapper.insert(order);
 
@@ -280,7 +296,8 @@ redisTemplate.opsForValue()
     .increment("order:count:total", 1);
 ```
 
-**查询时：**```
+**查询时：**
+```
 // 直接从Redis读
 Long count = redisTemplate.opsForValue()
     .get("order:count:total");
@@ -292,7 +309,8 @@ Long count = redisTemplate.opsForValue()
 
 ### 2. 改进版：定时同步
 
-**方案A：binlog监听**```
+**方案A：binlog监听**
+```
 // 监听MySQL binlog变化
 @EventListener
 public void handleOrderInsert(OrderInsertEvent event) {
@@ -302,7 +320,8 @@ public void handleOrderInsert(OrderInsertEvent event) {
 }
 ```
 
-**方案B：定时任务补偿**```
+**方案B：定时任务补偿**
+```
 @Scheduled(cron = "0 0/5 * * * ?")  // 每5分钟
 public void syncOrderCount() {
     // 从数据库查询真实总数
@@ -315,7 +334,8 @@ public void syncOrderCount() {
 
 ---
 
-### 3. 多维统计的Redis结构```
+### 3. 多维统计的Redis结构
+```
 // Hash结构：按日期统计
 String key = "order:stats:2024-01-15";
 redisTemplate.opsForHash()
@@ -351,7 +371,8 @@ redisTemplate.opsForZSet()
 
 **亿级以上** 👉 **计数表 + Redis缓存**（Redis扛读流量，计数表保底）
 
-### 示例：二级缓存架构```
+### 示例：二级缓存架构
+```
 -- 查询逻辑
 public Long getOrderCount() {
     // 1. 读Redis缓存

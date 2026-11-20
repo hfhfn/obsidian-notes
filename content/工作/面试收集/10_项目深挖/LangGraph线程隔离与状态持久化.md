@@ -48,7 +48,8 @@ modified: '2026-09-09T13:37:54+08:00'
 | `task_id` | 每个任务独立隔离 | ✅ 最安全 |
 | `user_id + task_id` | 多用户多任务 | ✅ 又隔离、又方便按用户查 |
 
-**推荐**：`thread_id = f"user_{user_id}:task_{task_id}"````python
+**推荐**：`thread_id = f"user_{user_id}:task_{task_id}"`
+```python
 thread_id = f"user_{user_id}:task_{task_id}"   # 例：user_10086:task_20260909_001
 ```
 这样**一个任务独立一个线程**，隔离彻底；加 user 前缀便于运维按用户批量查。
@@ -65,6 +66,7 @@ thread_id = f"user_{user_id}:task_{task_id}"   # 例：user_10086:task_20260909_
 - ❌ **正在运行的任务**：绝不能设。任务还没跑完，Checkpoint 被 TTL 删了 → 恢复时找不到，任务失败。
 - ✅ **已完成的任务**：可按业务设（如保留 7 天人工审计，或归档冷存储）。
 - 🔁 **要求永久保留会话历史**：不要设 TTL，改用**冷热分离**：热数据 Redis（快恢复）+ 冷数据 PG/OSS（永久审计）。
+
 ```python
 # 冷热分离 Checkpointer（演示）
 class TieredCheckpointer:
@@ -86,6 +88,7 @@ class TieredCheckpointer:
 **两种机制**：
 1. **Checkpoint 跳转（推荐，性能高）**：`checkpointer.get(config)` 取最新快照，或指定 `checkpoint_id` 跳到历史步。
 2. **事件溯源重放（Event Sourcing，适合审计）**：不存完整 State，只存事件，重放时从空状态逐个 `apply_event` 重建。
+
 ```python
 from langgraph.checkpoint import MemorySaver
 checkpointer = MemorySaver()
@@ -109,6 +112,7 @@ result = graph.invoke(None, config)         # 从 step_2 继续执行
 > 你问「用户补充材料后重新审核，不也是 LangGraph 的 HITL 吗？」——**完全正确，这就是 HITL（人机协同）最典型的场景。**
 
 **结论**：用了 HITL，你**根本不用区分 task_id 和 thread_id**——用业务 ID（工单号）当 thread_id 贯穿全程即可，LangGraph 自己管理暂停/恢复。
+
 ```python
 # 1. 用业务 ID 当 thread_id
 thread_id = f"task_{business_id}"

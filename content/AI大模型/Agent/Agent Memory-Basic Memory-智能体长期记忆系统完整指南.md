@@ -76,7 +76,8 @@ Agent Memory 的意义，就是避免每次新会话都重新解释一些有长�
 | **Letta（原 MemGPT）**⭐ 约 24.3k         | 经验成长 | 把 Memory 作为有状态 Agent 自身机制 | 长期状态、历史消息、外部资料、自维护上下文 | Letta Server 统一管理状态与 Memory            | Agent 主动读写、重组长期状态        | Agent 运行过程中主动维护             | 不是 Codex / Claude / Hermes 的主流外挂路线                   | 云端或自托管                  | 研究价值高，更适合直接构建 Letta Agent         |
 | **Graphiti / Zep**⭐ Graphiti 约 30.0k | 时间图谱 | 处理实体关系和不断变化的事实            | 实体、事件、关系、来源、有效时间      | 图数据库 + 向量/全文索引                         | 图关系 + 向量 + 关键词 + 时间检索    | 写入事件后自动抽取实体和关系              | 主要通过 MCP 等通用方式接入                                     | Graphiti 可自托管；Zep 有云端服务 | 复杂关系和时间变化场景很强，普通个人用户通常偏重          |
 
-总体架构：```mermaid
+总体架构：
+```mermaid
 %%{init: {"flowchart": {"useMaxWidth": true, "htmlLabels": true, "nodeSpacing": 24, "rankSpacing": 36, "padding": 10}}}%%
 flowchart LR
     subgraph agent_side["智能体这一侧"]
@@ -147,6 +148,7 @@ Basic Memory 代表了一条非常明确的路线：**Markdown 才是用户真�
 它让人和多个 Agent 直接读写同一批 Markdown。
 
 ### Basic Memory 的结构
+
 ```mermaid
 flowchart LR
     C[Codex] --> M[MCP]
@@ -169,6 +171,7 @@ flowchart LR
 
 Basic Memory 当前要求 Python 3.12+。
 使用 `uv`命令在本地安装basic-memory：
+
 ```bash
 # 安装 Basic Memory CLI。
 uv tool install basic-memory
@@ -179,7 +182,8 @@ basic-memory --version
 
 
 默认知识目录通常位于：`~/basic-memory/`。
-可以运行：```bash
+可以运行：
+```bash
 basic-memory status
 basic-memory project list
 ```
@@ -187,7 +191,8 @@ basic-memory project list
 
 ### 创建 Basic Memory Project
 比如你想要在这个本地文件夹内保存你的智能体长期记忆：`~/jason-memory/`。（注意，也可以指定你的Obsidian Vault中的特定文件夹，这样一来就可以把它作为你的长期知识资产了。）
-先创建并设为默认 Project：```bash
+先创建并设为默认 Project：
+```bash
 bm project add "jason-memory" '/Users/jason/Obsidian/my-ob-vault/90 - System/Memory'
 bm project default "jason-memory"
 ```
@@ -198,7 +203,8 @@ bm project default "jason-memory"
 来到智能体中，安装插件，并运行初始化命令，分别为不同的 Agent 绑定这个project：
 
 #### Codex
-Codex版本的Plugin 自带 MCP、Skills 和 Hooks。```bash
+Codex版本的Plugin 自带 MCP、Skills 和 Hooks。
+```bash
 # 注册 Basic Memory Plugin marketplace
 codex plugin marketplace add basicmachines-co/basic-memory
 # 安装 Plugin
@@ -206,7 +212,8 @@ codex plugin add codex@basic-memory
 ```
 然后`$bm-setup` 然后选择`primaryProject = jason-memory`，它会写入 `~/.codex/basic-memory.json` 或当前项目的 `.codex/basic-memory.json`。
 #### Claude Code
-**目前Claude Code的plugin不带MCP**，这个要注意。所以完整安装命令是：```bash
+**目前Claude Code的plugin不带MCP**，这个要注意。所以完整安装命令是：
+```bash
 # 1. 连接 Basic Memory MCP
 claude mcp add basic-memory -- uvx basic-memory mcp
 
@@ -220,7 +227,8 @@ claude plugin install basic-memory@basicmachines-co
 然后`/basic-memory:bm-setup` 然后选择`jason-memory`作为primaryProject。这个命令会完成 Project 映射、Schema 初始化等配置。
 #### Hermes Agent
 
-Hermes特有的插件安装机制，可以直接安装Plugins：```bash
+Hermes特有的插件安装机制，可以直接安装Plugins：
+```bash
 # 1. 安装 Basic Memory Plugin
 hermes plugins install basicmachines-co/basic-memory/integrations/hermes
 
@@ -232,7 +240,8 @@ hermes memory status
 ```
 
 
-最终效果：三个智能体统一使用同一个记忆库。```text
+最终效果：三个智能体统一使用同一个记忆库。
+```text
 		~/jason-memory/
 			  │
 		Basic Memory
@@ -243,7 +252,9 @@ Codex      Claude Code   Hermes
 ```
 
 
-**安装官方通用skills**`plugin add`命令只会安装bm skill。```text
+**安装官方通用skills**
+`plugin add`命令只会安装bm skill。
+```text
 basic-memory/
 ├── plugins/
 │   ├── codex/skills/          ← Codex Plugin 专用 bm-* Skills
@@ -251,7 +262,8 @@ basic-memory/
 │
 └── skills/                    ← 跨 Agent 通用 memory-* Skills
 ```
-而官方还提供了一套通用skills：```bash
+而官方还提供了一套通用skills：
+```bash
 npx skills add basicmachines-co/basic-memory/skills
 ```
 
@@ -295,9 +307,11 @@ Basic Memory 官方不主张把 Agent 原生 Memory 全部删除。
 
 ### 初始化，以及Basic Memory的文件结构设计
 
-#### 方式一：memory-onboarding skill`memory-onboarding skill` 会执行以下流程：调查需求 → 提出目录结构 → 让用户批准 → 创建规则、结构、Note → 创建真实示例 → 配置 Agent 启动时如何读取。
+#### 方式一：memory-onboarding skill
+`memory-onboarding skill` 会执行以下流程：调查需求 → 提出目录结构 → 让用户批准 → 创建规则、结构、Note → 创建真实示例 → 配置 Agent 启动时如何读取。
 
-文件夹示例：```markdown
+文件夹示例：
+```markdown
 basic-memory-project/
 ├── instructions/                              ← 系统入口和各类长期操作规则
 │   ├── 启动路由.md                             ← AI 使用知识库前首先读取的场景路由
@@ -369,7 +383,8 @@ basic-memory-project/
 
 1. 有旧聊天文本（比如GPT聊天记录）、旧 Memory 文件、文档：`memory-ingest skill`
 2. 某个特别重要的长对话：`memory-capture skill`
-3. 完整的、已完成的项目：```markdown
+3. 完整的、已完成的项目：
+```markdown
 只读审计当前项目，并为 jason-memory 提炼长期项目记忆。
 
 先读取 Basic Memory 的“启动路由”和现有项目笔记，再检查仓库中的 AGENTS.md、README.md等重要文档以及关键配置和必要代码。
@@ -384,7 +399,8 @@ basic-memory-project/
 
 暂时不要写入 Basic Memory，等我确认。
 ```
-4. 然后就可以正常使用了：```markdown
+4. 然后就可以正常使用了：
+```markdown
 新工作
 → Plugin 自动产生 Session / Checkpoint
 → bm-decide 保存关键决定
@@ -399,7 +415,8 @@ basic-memory-project/
 >Because Basic Memory uses standard markdown with wiki links, Obsidian understands your knowledge base natively.
 
 所以Basic Memory 自己会解析双链语法。
-Basic Memory 官方甚至专门建议把它的目录直接作为 Obsidian Vault，并使用 Graph View、Backlinks、Tags。```text
+Basic Memory 官方甚至专门建议把它的目录直接作为 Obsidian Vault，并使用 Graph View、Backlinks、Tags。
+```text
 			 同一套 Markdown
 				  │
 	  ┌───────────┴───────────┐
@@ -420,7 +437,8 @@ Basic Memory 官方甚至专门建议把它的目录直接作为 Obsidian Vault�
 
 Basic Memory给出三种方案：
 
-**方案一：编写AGENTS.md和CLAUDE.md**```markdown
+**方案一：编写AGENTS.md和CLAUDE.md**
+```markdown
 ## Basic Memory
 
 在回答有关过往工作、决策、偏好或项目历史的问题之前，优先检索基础记忆库。 
@@ -428,7 +446,8 @@ Basic Memory给出三种方案：
 开启新会话时，在开展实质性工作前，加载启动路由以及相关的有效上下文。
 ```
 
-**方案二：Skills**```bash
+**方案二：Skills**
+```bash
 npx skills add basicmachines-co/basic-memory/skills
 ```
 里面有 `memory-notes`、`memory-onboarding`、`memory-ingest`、`memory-continue`、`memory-curate`、`memory-defrag` 等。
@@ -456,7 +475,8 @@ Plugin + Hooks 可以让“每次 session 尝试恢复记忆”成为默认生�
 | Hook        | 生命周期触发器 | “什么时候执行某件事”               | 自己不会判断信息有没有长期价值 |
 | 定时任务        | 周期触发器   | “每天/每隔多久整理一次”             | 不定义整理规则         |
 
-AGENTS.md 样例：```markdown
+AGENTS.md 样例：
+```markdown
 ## Long-term Memory
 
 Basic Memory 是跨 Agent 的长期记忆真源。
@@ -532,23 +552,27 @@ Basic Memory 为多个 Agent 提供共享的长期知识与交接层，用于保
 
 ### 版本升级
 Basic Memory当前比较活跃，版本更新后，如何更新本地安装的组件：
-检查核心版本：```bash
+检查核心版本：
+```bash
 basic-memory update --check
 basic-memory --version
 ```
 
-升级本地安装的核心组件：```bash
+升级本地安装的核心组件：
+```bash
 uv tool upgrade basic-memory
 basic-memory --version
 basic-memory doctor
 ```
 
-升级 Codex 插件（也可以发送自然语言指令，让codex自己去更新）：```bash
+升级 Codex 插件（也可以发送自然语言指令，让codex自己去更新）：
+```bash
 codex plugin marketplace upgrade basic-memory
 codex plugin list --marketplace basic-memory --json
 ```
 
-升级所有全局 skills：```bash
+升级所有全局 skills：
+```bash
 npx skills update -g
 ```
 

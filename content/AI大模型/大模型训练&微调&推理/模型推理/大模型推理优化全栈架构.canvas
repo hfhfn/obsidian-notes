@@ -1,66 +1,501 @@
 {
-	"nodes":[
-		{"id":"g0","type":"group","text":"🎯 顶层目标","x":30,"y":12,"width":1320,"height":166,"color":"6"},
-		{"id":"c0_0","type":"text","text":"高吞吐·低时延·省显存","x":180,"y":46,"width":290,"height":40,"color":"6"},
-		{"id":"c0_1","type":"text","text":"轻量本地部署可行","x":486,"y":46,"width":290,"height":40,"color":"6"},
-		{"id":"g1","type":"group","text":"① 数学 / 算法","x":30,"y":202,"width":1320,"height":166,"color":"1"},
-		{"id":"c1_0","type":"text","text":"QKV 分裂","x":180,"y":236,"width":290,"height":40,"color":"1"},
-		{"id":"c1_1","type":"text","text":"多头注意力","x":486,"y":236,"width":290,"height":40,"color":"1"},
-		{"id":"c1_2","type":"text","text":"分数矩阵并行","x":792,"y":236,"width":290,"height":40,"color":"1"},
-		{"id":"c1_3","type":"text","text":"Softmax 归一化","x":1098,"y":236,"width":290,"height":40,"color":"1"},
-		{"id":"g2","type":"group","text":"② 算子 / IO","x":30,"y":392,"width":1320,"height":166,"color":"2"},
-		{"id":"c2_0","type":"text","text":"FlashAttention 分块","x":180,"y":426,"width":290,"height":40,"color":"2"},
-		{"id":"c2_1","type":"text","text":"算子融合","x":486,"y":426,"width":290,"height":40,"color":"2"},
-		{"id":"c2_2","type":"text","text":"cu_seqlens 打包","x":792,"y":426,"width":290,"height":40,"color":"2"},
-		{"id":"c2_3","type":"text","text":"在线 Softmax","x":1098,"y":426,"width":290,"height":40,"color":"2"},
-		{"id":"g3","type":"group","text":"③ 显存管理","x":30,"y":582,"width":1320,"height":166,"color":"3"},
-		{"id":"c3_0","type":"text","text":"KV Cache","x":180,"y":616,"width":290,"height":40,"color":"3"},
-		{"id":"c3_1","type":"text","text":"PagedAttention 分页","x":486,"y":616,"width":290,"height":40,"color":"3"},
-		{"id":"c3_2","type":"text","text":"KV 位置对齐","x":792,"y":616,"width":290,"height":40,"color":"3"},
-		{"id":"g4","type":"group","text":"④ 请求调度","x":30,"y":772,"width":1320,"height":166,"color":"4"},
-		{"id":"c4_0","type":"text","text":"Continuous Batching","x":180,"y":806,"width":290,"height":40,"color":"4"},
-		{"id":"c4_1","type":"text","text":"Chunked Prefill","x":486,"y":806,"width":290,"height":40,"color":"4"},
-		{"id":"c4_2","type":"text","text":"Prefix Caching","x":792,"y":806,"width":290,"height":40,"color":"4"},
-		{"id":"g5","type":"group","text":"⑤ 计算 / 精度","x":30,"y":962,"width":1320,"height":166,"color":"5"},
-		{"id":"c5_0","type":"text","text":"量化 FP16/INT8/FP8","x":180,"y":996,"width":290,"height":40,"color":"5"},
-		{"id":"c5_1","type":"text","text":"TensorRT 融合+调优","x":486,"y":996,"width":290,"height":40,"color":"5"},
-		{"id":"c5_2","type":"text","text":"KV 缓存量化 Q4","x":792,"y":996,"width":290,"height":40,"color":"5"},
-		{"id":"g6","type":"group","text":"⑥ 分布式并行","x":30,"y":1152,"width":1320,"height":166,"color":"1"},
-		{"id":"c6_0","type":"text","text":"张量并行 TP","x":180,"y":1186,"width":290,"height":40,"color":"1"},
-		{"id":"c6_1","type":"text","text":"流水线并行 PP","x":486,"y":1186,"width":290,"height":40,"color":"1"},
-		{"id":"c6_2","type":"text","text":"多卡显存聚合","x":792,"y":1186,"width":290,"height":40,"color":"1"},
-		{"id":"g7","type":"group","text":"⑦ 生成 / 模型架构","x":30,"y":1342,"width":1320,"height":166,"color":"6"},
-		{"id":"c7_0","type":"text","text":"投机采样 Speculative","x":180,"y":1376,"width":290,"height":40,"color":"6"},
-		{"id":"c7_1","type":"text","text":"Medusa 多头投机","x":486,"y":1376,"width":290,"height":40,"color":"6"},
-		{"id":"c7_2","type":"text","text":"MoE 稀疏激活","x":792,"y":1376,"width":290,"height":40,"color":"6"}
-	],
-	"edges":[
-		{"id":"e0","fromNode":"c1_0","toNode":"g0","fromSide":"top","toSide":"bottom"},
-		{"id":"e1","fromNode":"c1_1","toNode":"g0","fromSide":"top","toSide":"bottom"},
-		{"id":"e2","fromNode":"c1_2","toNode":"g0","fromSide":"top","toSide":"bottom"},
-		{"id":"e3","fromNode":"c1_3","toNode":"g0","fromSide":"top","toSide":"bottom"},
-		{"id":"e4","fromNode":"c2_0","toNode":"g1","fromSide":"top","toSide":"bottom"},
-		{"id":"e5","fromNode":"c2_1","toNode":"g1","fromSide":"top","toSide":"bottom"},
-		{"id":"e6","fromNode":"c2_2","toNode":"g1","fromSide":"top","toSide":"bottom"},
-		{"id":"e7","fromNode":"c2_3","toNode":"g1","fromSide":"top","toSide":"bottom"},
-		{"id":"e8","fromNode":"c3_0","toNode":"g2","fromSide":"top","toSide":"bottom"},
-		{"id":"e9","fromNode":"c3_1","toNode":"g2","fromSide":"top","toSide":"bottom"},
-		{"id":"e10","fromNode":"c3_2","toNode":"g2","fromSide":"top","toSide":"bottom"},
-		{"id":"e11","fromNode":"c4_0","toNode":"g3","fromSide":"top","toSide":"bottom"},
-		{"id":"e12","fromNode":"c4_1","toNode":"g3","fromSide":"top","toSide":"bottom"},
-		{"id":"e13","fromNode":"c4_2","toNode":"g3","fromSide":"top","toSide":"bottom"},
-		{"id":"e14","fromNode":"c5_0","toNode":"g4","fromSide":"top","toSide":"bottom"},
-		{"id":"e15","fromNode":"c5_1","toNode":"g4","fromSide":"top","toSide":"bottom"},
-		{"id":"e16","fromNode":"c5_2","toNode":"g4","fromSide":"top","toSide":"bottom"},
-		{"id":"e17","fromNode":"c6_0","toNode":"g5","fromSide":"top","toSide":"bottom"},
-		{"id":"e18","fromNode":"c6_1","toNode":"g5","fromSide":"top","toSide":"bottom"},
-		{"id":"e19","fromNode":"c6_2","toNode":"g5","fromSide":"top","toSide":"bottom"},
-		{"id":"e20","fromNode":"c7_0","toNode":"g6","fromSide":"top","toSide":"bottom"},
-		{"id":"e21","fromNode":"c7_1","toNode":"g6","fromSide":"top","toSide":"bottom"},
-		{"id":"e22","fromNode":"c7_2","toNode":"g6","fromSide":"top","toSide":"bottom"}
-	],
-	"metadata":{
-		"version":"1.0-1.0",
-		"frontmatter":{}
-	}
+  "nodes": [
+    {
+      "id": "g0",
+      "type": "group",
+      "text": "🎯 顶层目标",
+      "x": 30,
+      "y": 12,
+      "width": 1320,
+      "height": 166,
+      "color": "6"
+    },
+    {
+      "id": "c0_0",
+      "type": "text",
+      "text": "高吞吐·低时延·省显存",
+      "x": 180,
+      "y": 46,
+      "width": 290,
+      "height": 40,
+      "color": "6"
+    },
+    {
+      "id": "c0_1",
+      "type": "text",
+      "text": "轻量本地部署可行",
+      "x": 486,
+      "y": 46,
+      "width": 290,
+      "height": 40,
+      "color": "6"
+    },
+    {
+      "id": "g1",
+      "type": "group",
+      "text": "① 数学 / 算法",
+      "x": 30,
+      "y": 202,
+      "width": 1320,
+      "height": 166,
+      "color": "1"
+    },
+    {
+      "id": "c1_0",
+      "type": "text",
+      "text": "QKV 分裂",
+      "x": 180,
+      "y": 236,
+      "width": 290,
+      "height": 40,
+      "color": "1"
+    },
+    {
+      "id": "c1_1",
+      "type": "text",
+      "text": "多头注意力",
+      "x": 486,
+      "y": 236,
+      "width": 290,
+      "height": 40,
+      "color": "1"
+    },
+    {
+      "id": "c1_2",
+      "type": "text",
+      "text": "分数矩阵并行",
+      "x": 792,
+      "y": 236,
+      "width": 290,
+      "height": 40,
+      "color": "1"
+    },
+    {
+      "id": "c1_3",
+      "type": "text",
+      "text": "Softmax 归一化",
+      "x": 1098,
+      "y": 236,
+      "width": 290,
+      "height": 40,
+      "color": "1"
+    },
+    {
+      "id": "g2",
+      "type": "group",
+      "text": "② 算子 / IO",
+      "x": 30,
+      "y": 392,
+      "width": 1320,
+      "height": 166,
+      "color": "2"
+    },
+    {
+      "id": "c2_0",
+      "type": "text",
+      "text": "FlashAttention 分块",
+      "x": 180,
+      "y": 426,
+      "width": 290,
+      "height": 40,
+      "color": "2"
+    },
+    {
+      "id": "c2_1",
+      "type": "text",
+      "text": "算子融合",
+      "x": 486,
+      "y": 426,
+      "width": 290,
+      "height": 40,
+      "color": "2"
+    },
+    {
+      "id": "c2_2",
+      "type": "text",
+      "text": "cu_seqlens 打包",
+      "x": 792,
+      "y": 426,
+      "width": 290,
+      "height": 40,
+      "color": "2"
+    },
+    {
+      "id": "c2_3",
+      "type": "text",
+      "text": "在线 Softmax",
+      "x": 1098,
+      "y": 426,
+      "width": 290,
+      "height": 40,
+      "color": "2"
+    },
+    {
+      "id": "g3",
+      "type": "group",
+      "text": "③ 显存管理",
+      "x": 30,
+      "y": 582,
+      "width": 1320,
+      "height": 166,
+      "color": "3"
+    },
+    {
+      "id": "c3_0",
+      "type": "text",
+      "text": "KV Cache",
+      "x": 180,
+      "y": 616,
+      "width": 290,
+      "height": 40,
+      "color": "3"
+    },
+    {
+      "id": "c3_1",
+      "type": "text",
+      "text": "PagedAttention 分页",
+      "x": 486,
+      "y": 616,
+      "width": 290,
+      "height": 40,
+      "color": "3"
+    },
+    {
+      "id": "c3_2",
+      "type": "text",
+      "text": "KV 位置对齐",
+      "x": 792,
+      "y": 616,
+      "width": 290,
+      "height": 40,
+      "color": "3"
+    },
+    {
+      "id": "g4",
+      "type": "group",
+      "text": "④ 请求调度",
+      "x": 30,
+      "y": 772,
+      "width": 1320,
+      "height": 166,
+      "color": "4"
+    },
+    {
+      "id": "c4_0",
+      "type": "text",
+      "text": "Continuous Batching",
+      "x": 180,
+      "y": 806,
+      "width": 290,
+      "height": 40,
+      "color": "4"
+    },
+    {
+      "id": "c4_1",
+      "type": "text",
+      "text": "Chunked Prefill",
+      "x": 486,
+      "y": 806,
+      "width": 290,
+      "height": 40,
+      "color": "4"
+    },
+    {
+      "id": "c4_2",
+      "type": "text",
+      "text": "Prefix Caching",
+      "x": 792,
+      "y": 806,
+      "width": 290,
+      "height": 40,
+      "color": "4"
+    },
+    {
+      "id": "g5",
+      "type": "group",
+      "text": "⑤ 计算 / 精度",
+      "x": 30,
+      "y": 962,
+      "width": 1320,
+      "height": 166,
+      "color": "5"
+    },
+    {
+      "id": "c5_0",
+      "type": "text",
+      "text": "量化 FP16/INT8/FP8",
+      "x": 180,
+      "y": 996,
+      "width": 290,
+      "height": 40,
+      "color": "5"
+    },
+    {
+      "id": "c5_1",
+      "type": "text",
+      "text": "TensorRT 融合+调优",
+      "x": 486,
+      "y": 996,
+      "width": 290,
+      "height": 40,
+      "color": "5"
+    },
+    {
+      "id": "c5_2",
+      "type": "text",
+      "text": "KV 缓存量化 Q4",
+      "x": 792,
+      "y": 996,
+      "width": 290,
+      "height": 40,
+      "color": "5"
+    },
+    {
+      "id": "g6",
+      "type": "group",
+      "text": "⑥ 分布式并行",
+      "x": 30,
+      "y": 1152,
+      "width": 1320,
+      "height": 166,
+      "color": "1"
+    },
+    {
+      "id": "c6_0",
+      "type": "text",
+      "text": "张量并行 TP",
+      "x": 180,
+      "y": 1186,
+      "width": 290,
+      "height": 40,
+      "color": "1"
+    },
+    {
+      "id": "c6_1",
+      "type": "text",
+      "text": "流水线并行 PP",
+      "x": 486,
+      "y": 1186,
+      "width": 290,
+      "height": 40,
+      "color": "1"
+    },
+    {
+      "id": "c6_2",
+      "type": "text",
+      "text": "多卡显存聚合",
+      "x": 792,
+      "y": 1186,
+      "width": 290,
+      "height": 40,
+      "color": "1"
+    },
+    {
+      "id": "g7",
+      "type": "group",
+      "text": "⑦ 生成 / 模型架构",
+      "x": 30,
+      "y": 1342,
+      "width": 1320,
+      "height": 166,
+      "color": "6"
+    },
+    {
+      "id": "c7_0",
+      "type": "text",
+      "text": "投机采样 Speculative",
+      "x": 180,
+      "y": 1376,
+      "width": 290,
+      "height": 40,
+      "color": "6"
+    },
+    {
+      "id": "c7_1",
+      "type": "text",
+      "text": "Medusa 多头投机",
+      "x": 486,
+      "y": 1376,
+      "width": 290,
+      "height": 40,
+      "color": "6"
+    },
+    {
+      "id": "c7_2",
+      "type": "text",
+      "text": "MoE 稀疏激活",
+      "x": 792,
+      "y": 1376,
+      "width": 290,
+      "height": 40,
+      "color": "6"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e0",
+      "fromNode": "c1_0",
+      "toNode": "g0",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "e1",
+      "fromNode": "c1_1",
+      "toNode": "g0",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "e2",
+      "fromNode": "c1_2",
+      "toNode": "g0",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "e3",
+      "fromNode": "c1_3",
+      "toNode": "g0",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "e4",
+      "fromNode": "c2_0",
+      "toNode": "g1",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "e5",
+      "fromNode": "c2_1",
+      "toNode": "g1",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "e6",
+      "fromNode": "c2_2",
+      "toNode": "g1",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "e7",
+      "fromNode": "c2_3",
+      "toNode": "g1",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "e8",
+      "fromNode": "c3_0",
+      "toNode": "g2",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "e9",
+      "fromNode": "c3_1",
+      "toNode": "g2",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "e10",
+      "fromNode": "c3_2",
+      "toNode": "g2",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "e11",
+      "fromNode": "c4_0",
+      "toNode": "g3",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "e12",
+      "fromNode": "c4_1",
+      "toNode": "g3",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "e13",
+      "fromNode": "c4_2",
+      "toNode": "g3",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "e14",
+      "fromNode": "c5_0",
+      "toNode": "g4",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "e15",
+      "fromNode": "c5_1",
+      "toNode": "g4",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "e16",
+      "fromNode": "c5_2",
+      "toNode": "g4",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "e17",
+      "fromNode": "c6_0",
+      "toNode": "g5",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "e18",
+      "fromNode": "c6_1",
+      "toNode": "g5",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "e19",
+      "fromNode": "c6_2",
+      "toNode": "g5",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "e20",
+      "fromNode": "c7_0",
+      "toNode": "g6",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "e21",
+      "fromNode": "c7_1",
+      "toNode": "g6",
+      "fromSide": "top",
+      "toSide": "bottom"
+    },
+    {
+      "id": "e22",
+      "fromNode": "c7_2",
+      "toNode": "g6",
+      "fromSide": "top",
+      "toSide": "bottom"
+    }
+  ],
+  "metadata": {
+    "version": "1.0-1.0",
+    "frontmatter": {}
+  }
 }

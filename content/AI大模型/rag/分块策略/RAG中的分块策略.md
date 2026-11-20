@@ -45,6 +45,7 @@ modified: '2026-08-05T09:37:21+08:00'
 ---
 
 ## 二、演进全景一览
+
 ```mermaid
 graph LR
     A[固定大小分块] --> B[递归分块]
@@ -78,6 +79,7 @@ graph LR
 ### 第 1 代：固定大小分块（Fixed-size Chunking）
 
 **核心思想**：不看内容，按固定 token 数或字符数硬切，可加重叠（overlap）防边界截断。
+
 ```python
 def fixed_chunking(text, chunk_size=500, overlap=50):
     chunks = []
@@ -99,6 +101,7 @@ def fixed_chunking(text, chunk_size=500, overlap=50):
 ### 第 2 代：递归分块（Recursive Chunking）
 
 **核心思想**：按**分隔符的优先级**逐级递归切分——先按 `\n\n`（段落）、再按 `\n`（行）、再按 `.`（句子）、最后按空格，保证切出的块尽量是"完整语义单元"。
+
 ```python
 # LangChain RecursiveCharacterTextSplitter 的思路
 def recursive_chunking(text, separators=["\n\n", "\n", ".", " "], chunk_size=500):
@@ -132,6 +135,7 @@ def recursive_chunking(text, separators=["\n\n", "\n", ".", " "], chunk_size=500
 ### 第 3 代：结构感知分块（Structure-aware Chunking）
 
 **核心思想**：**文档自带结构就是最好的边界**。按 Markdown 标题、HTML 标签、代码函数/类、PDF 段落等层级切分。
+
 ```python
 # Markdown 按标题层级切分
 def markdown_chunking(md_text):
@@ -166,6 +170,7 @@ def markdown_chunking(md_text):
 ### 第 4 代：语义分块（Semantic Chunking）
 
 **核心思想**：不做"表面切分"，而是用 embedding 计算**相邻句子的语义相似度**，相似度骤降处（话题转折点）即切分点。
+
 ```python
 # 核心流程：先切句 → 算相似度 → 动态阈值 → 切块
 similarities = [cosine_sim(vec[i], vec[i+1]) for i in range(len(sentences)-1)]
@@ -186,6 +191,7 @@ chunks = split_at_positions(sentences, [i+1 for i, s in enumerate(similarities) 
 ### 第 5 代：父子分块（Parent-Child / Small-to-Big Chunking）
 
 **核心思想**：同时保留**小块**和**大块**两级（或多级），**用小块检索、把对应的大块喂给 LLM**。
+
 ```
 检索时：  小 chunk 1 → 命中（粒度精准）
 输出时：  ↑ 映射到父 chunk（含完整上下文） → 交给 LLM
@@ -194,6 +200,7 @@ Parent chunk  ──┬── child chunk 1   ← embedding 索引
                 ├── child chunk 2
                 └── child chunk 3
 ```
+
 ```python
 # 父子分块：建立 child → parent 映射
 children = semantic_chunking(doc, small=True)      # 小块：用于检索
@@ -218,6 +225,7 @@ def retrieve(query, k=5):
 ### 第 6 代：上下文增强检索（Contextual Retrieval）
 
 **核心思想**：每个 chunk 脱离文档后经常**"缺上下文"**——比如一个 chunk 里只有"它被部署到生产环境"，读者不知道"它"是什么。用 LLM 为每个 chunk 生成一段**文档级上下文**，与 chunk 一起 embedding、一起存储：
+
 ```
 原始 chunk:  "它的延迟降低了 30%"
 生成 context: "该文本来自《系统性能优化报告》第三节，讨论将缓存中间件 Redis 引入架构后的效果。
@@ -238,10 +246,12 @@ def retrieve(query, k=5):
 ### 第 7 代：延迟分块（Late Chunking）
 
 **核心思想**：颠覆"先切后编码"的顺序——**先把整篇文档一次性编码**，让每个句子的向量都**融合全文上下文**，再在向量空间里检测"断层"切分。
+
 ```
 传统分块： 切块 → 每块独立编码（块间无上下文）
 延迟分块： 整篇编码 → 得到带全局上下文的句子向量 → 在向量空间切分
 ```
+
 ```python
 def late_chunking(document):
     sentences = split_sentences(document)                     # 只标记位置，不切
@@ -279,6 +289,7 @@ def late_chunking(document):
 | **混合文档库** | 递归分块起步 + 按类型分流 | 不同类型用不同策略，路由到对应 pipeline | 父子分块统一收口 |
 
 ### 决策树
+
 ```
 文档有明确结构吗（标题/标签/代码块）？
 ├─ 有 ──→ 结构感知分块

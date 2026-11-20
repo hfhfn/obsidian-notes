@@ -31,6 +31,7 @@ modified: '2026-08-06T10:44:15+08:00'
 - `answer`：RAG 系统基于 contexts 生成的回答
 
 ### 完整代码示例
+
 ```python
 from ragas import evaluate
 from ragas.metrics import faithfulness, answer_relevancy, context_precision, context_recall
@@ -82,6 +83,7 @@ print(result)
 - **计算步骤**：从 `answer` 提取所有陈述句（claims）→ 逐一验证每个 claim 能否从 `contexts` 推断出来 → 统计被支持的 claim 占比
 
 **示例**
+
 ```
 Contexts: "RAG 结合检索和生成，于 2020 年提出"
 Answer: "RAG 结合检索和生成，由 Google 开发"
@@ -100,6 +102,7 @@ Faithfulness = 1/2 = 0.5
 - **计算步骤**：从 `answer` 提取所有关键陈述 → 计算各陈述与 `question` 的语义相似度 → 求平均
 
 **示例**
+
 ```
 Question: "什么是 RAG？"
 Answer: "RAG 是检索增强生成技术，它结合了向量检索和语言模型。"
@@ -118,6 +121,7 @@ Answer Relevancy = (0.95 + 0.80) / 2 = 0.875
 - **计算步骤**：按检索顺序遍历 documents → 逐个判断是否与 question 相关 → 计算平均精度（位置 k 的精度 = 前 k 个文档中相关文档占比）
 
 **示例**
+
 ```
 Contexts（按检索顺序）:
 文档1: "RAG 是检索增强生成" → 相关 ✅
@@ -139,6 +143,7 @@ Context Precision = (1.0 + 0.5 + 0.667) / 3 = 0.722
 - **计算步骤**：从 `ground_truth` 提取所有关键信息点 → 检查每个信息点是否在 `contexts` 出现 → 统计被覆盖占比
 
 **示例**
+
 ```
 Ground Truth: "RAG 全称检索增强生成，结合了向量检索和生成模型，由 Lewis 等人在 2020 年提出"
 

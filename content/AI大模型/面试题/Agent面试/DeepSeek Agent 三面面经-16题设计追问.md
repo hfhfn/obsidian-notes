@@ -372,6 +372,7 @@ modified: '2026-10-21T15:29:16+08:00'
 > - **最长公共子串（Longest Common Substring）**：必须**连续**。递推 `dp[i][j] = dp[i-1][j-1] + 1`（相等时），不相等归零。
 > - **最长公共子序列（LCS）**：可以**不连续**。不相等时取 `max(dp[i-1][j], dp[i][j-1])`。
 > 题目里如果是子串，就按子串实现；面试时如果面试官说 LCS，**主动确认是子串还是子序列**——这个确认本身就是加分项。
+
 ```python
 def longest_common_substring(s: str, t: str) -> str:
     m, n = len(s), len(t)
@@ -396,6 +397,7 @@ def longest_common_substring(s: str, t: str) -> str:
 - `end` 取 `i` 而不是 `j`，因为结果要从 `s` 里切；两边长度一致取哪个都行，但要在注释里说清。
 
 ### 一维滚动（空间 O(n)）
+
 ```python
 def longest_common_substring_1d(s: str, t: str) -> str:
     m, n = len(s), len(t)

@@ -12,6 +12,7 @@ Cross Encoder（交叉编码器）是一种用于**稠密检索**、**文本匹�
 下面详细介绍 Cross Encoder 的网络结构。
 
 ## 1. 核心结构图
+
 ```text
     相关性得分 (0~1 或 -∞~+∞)
             ↑
@@ -47,12 +48,14 @@ Cross Encoder（交叉编码器）是一种用于**稠密检索**、**文本匹�
 
 有两种常用方式：
 
-### 方式一：基于[CLS]向量```
+### 方式一：基于[CLS]向量
+```
 score = MLP( [CLS]向量 )  或  Linear( [CLS]向量 )
 ```
 - [CLS]位置的最终隐状态向量（维度768或1024）代表了整个输入对（文本A+文本B）的聚合信息。
 
-### 方式二：基于所有token的池化```
+### 方式二：基于所有token的池化
+```
 score = Linear( Average(所有token的隐状态) )
 ```
 - 对序列所有位置的输出向量进行平均或最大池化，再通过一个线性层映射到标量得分。
@@ -84,6 +87,7 @@ score = Linear( Average(所有token的隐状态) )
 - 无法预计算索引：查询时无法预先编码文档库
 
 ## 8. 代码示例（HuggingFace + PyTorch）
+
 ```python
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import torch

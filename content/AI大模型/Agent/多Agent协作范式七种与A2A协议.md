@@ -62,6 +62,7 @@ modified: '2026-09-04T14:10:24+08:00'
 第 8 章在四个 Agent 前面架了**统一入口**（`unified_chat.py`，听懂意图）+ **编排器**（`orchestrator.py`，派活），把「用户只说一句话」变成「系统自动路由、串联、返回」。这是经典的 **Orchestrator / Supervisor（中心化编排队，hub-and-spoke）** 模式。
 
 ### 用思维导图还原整个模型
+
 ```
                            用户一句话
                                 │
@@ -144,6 +145,7 @@ modified: '2026-09-04T14:10:24+08:00'
 ### 二者不是二选一，而是互补
 
 真正成熟的生产系统**两者都要**：
+
 ```
 ┌────────────────────────────────────────────────────┐
 │       你的应用（EduAgent）                          │
@@ -178,6 +180,7 @@ modified: '2026-09-04T14:10:24+08:00'
 ### 示例 ①：Agent Card（发现机制，Well-Known URL）
 
 A2A 里的 Agent 先宣告自己的能力，别人才知道「找谁能干什么」。发布在 `https://<agent-host>/.well-known/agent.json`：
+
 ```json
 {
   "name": "EduAgent-ResumeReviewer",
@@ -222,6 +225,7 @@ A2A 里的 Agent 先宣告自己的能力，别人才知道「找谁能干什么
 ### 示例 ②：Wire 协议（一次真实的对话，JSON-RPC 2.0）
 
 这是 A2A 在「线上真正传的东西」，最稳定、最该看懂。客户端（可能是另一个 Agent，也可能是带 LLM 的编排器）向 Resume Agent 的 `url` 发 `message/send`：
+
 ```json
 // 请求（客户端 → Resume Agent）
 {
@@ -243,6 +247,7 @@ A2A 里的 Agent 先宣告自己的能力，别人才知道「找谁能干什么
   }
 }
 ```
+
 ```json
 // 响应（Resume Agent → 客户端，同步完成）
 {
@@ -285,6 +290,7 @@ A2A 里的 Agent 先宣告自己的能力，别人才知道「找谁能干什么
 > ⚠️ **包名澄清（2026-09 已上 PyPI 核实）**：Google 官方 Python SDK 的 PyPI 包名就是 **`a2a-sdk`**（发布方 `googleapis-packages@google.com`，仓库 `a2aproject/a2a-python`，最新 v1.1.2）。**`python-a2a` 是另一个人（Manoj Desai）做的第三方社区库，不是官方包**——装的时候务必 `pip install a2a-sdk`，别装成 `python-a2a`。
 
 用官方 SDK 写一个「回声」Agent 服务端——收到什么回什么：
+
 ```python
 # server.py —— 用 a2a-sdk (v1.x) 起一个 A2A Agent 服务
 # 安装：pip install a2a-sdk
@@ -369,6 +375,7 @@ def create_app() -> Starlette:
 if __name__ == "__main__":
     uvicorn.run(create_app(), host="127.0.0.1", port=9999)
 ```
+
 ```python
 # client.py —— 另一个 Agent（或编排器）通过 A2A 调用上面的服务
 import asyncio
@@ -522,6 +529,7 @@ AI 编程是**重交互、重多步、重并行、重成本**的场景：一个�
 ## 8.8.7 总结与实践建议
 
 ### 本章模型在整个多 Agent 坐标系中的位置
+
 ```
           开放度（Coupling）
   跨应用/开放   ★⑦ A2A+MCP （互操作层，对接外部）

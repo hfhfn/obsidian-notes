@@ -54,6 +54,7 @@ modified: '2026-10-21T15:30:57+08:00'
 ### Turtle 是什么，为什么看起来能用它推理
 
 Turtle 用紧凑的文本写出 RDF 图：`@prefix` 声明命名空间，`.` 结束一组语句，`;` 复用主语，`a` 是 `rdf:type` 的简写。下面把本体公理和实例事实写在同一段 Turtle 中：
+
 ```turtle
 @prefix :     <https://example.org/company#> .
 @prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
@@ -73,6 +74,7 @@ Turtle 用紧凑的文本写出 RDF 图：`@prefix` 声明命名空间，`.` 结
 ```
 
 解析器把文本还原为 RDF 图后，支持相应语义的推理器可推出：
+
 ```turtle
 # RDFS 子类推理：员工属于人的子类，因此 Alice 也是人。
 :Alice rdf:type :Person .
@@ -226,6 +228,7 @@ OWL 通常采用**开放世界假设**：没记录某条事实，不等于它不
 ## 四、企业落地范本：Palantir（一套可学的顺序）
 
 ### 架构心智：不是记产品名，而是记落地顺序
+
 ```
 1. 从具体业务决定出发 → 只连接需要的数据（垂直切片，非全域治理）
 2. Ontology 定义对象、规则、动作、权限（四维集成：Data · Logic · Action · Security）

@@ -37,7 +37,8 @@ modified: '2026-09-05T18:28:04+08:00'
 
 ## 3. 推荐方案：FastMCP + langchain-mcp-adapters（最简洁）
 
-**Server（math_server.py）**：```python
+**Server（math_server.py）**：
+```python
 from fastmcp import FastMCP
 mcp = FastMCP("MathServer")
 
@@ -50,7 +51,8 @@ if __name__ == "__main__":
     mcp.run(transport="stdio")
 ```
 
-**Agent 客户端（agent_client.py）**：```python
+**Agent 客户端（agent_client.py）**：
+```python
 import asyncio
 from langchain.agents import create_agent
 from langchain_openai import ChatOpenAI

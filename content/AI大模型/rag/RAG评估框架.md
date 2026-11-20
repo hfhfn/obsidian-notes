@@ -68,6 +68,7 @@ modified: '2026-08-06T09:42:00+08:00'
 - 支持 LangChain、LlamaIndex 等主流 RAG 框架集成
 
 **核心指标**：
+
 ```
 faithfulness          → 忠实度（回答与上下文一致性）
 answer_relevancy      → 答案相关性
@@ -79,6 +80,7 @@ answer_correctness    → 答案正确性
 ```
 
 **快速示例**：
+
 ```python
 from ragas import evaluate
 from ragas.metrics import (
@@ -121,6 +123,7 @@ print(result)
 - 与 LangChain、LlamaIndex 深度集成
 
 **核心评估维度（RAG Triad）**：
+
 ```
 Context Relevance   → 检索内容与问题的相关性
 Groundedness        → 回答基于检索内容的支撑程度（即忠实度）
@@ -128,6 +131,7 @@ Answer Relevance    → 最终回答与问题的相关性
 ```
 
 **快速示例**：
+
 ```python
 from trulens_eval import TruChain, Feedback, Tru
 from trulens_eval.feedback.provider import OpenAI
@@ -170,6 +174,7 @@ tru.run_dashboard()    # 启动可视化面板
 - 适合大规模数据集的高效批量评估
 
 **评估流程**：
+
 ```
 1. 合成数据生成  →  利用 LLM 自动生成评估问答对
 2. 评估模型训练  →  训练轻量分类器评估各维度质量
@@ -178,6 +183,7 @@ tru.run_dashboard()    # 启动可视化面板
 ```
 
 **快速示例**：
+
 ```python
 from ares import ARES
 
@@ -241,6 +247,7 @@ print(results)
 | **拒止一致性** | 对相同/相似无知识问题的拒止行为是否稳定 | 同类问题拒止率方差 |
 
 **优化建议**：
+
 ```
 问题：拒止率过高（误拒真实问题）
 原因：检索置信度阈值设置过严，或 Prompt 中拒绝指令过于激进
@@ -254,6 +261,7 @@ print(results)
 ```
 
 **代码示例（置信度门控拒止）**：
+
 ```python
 def rag_with_rejection(query, threshold=0.65):
     docs, scores = retriever.retrieve_with_scores(query)
@@ -295,6 +303,7 @@ def rag_with_rejection(query, threshold=0.65):
 | **恢复成功率** | 经重试或重写策略后成功回答的比例 |
 
 **典型降级链路**：
+
 ```
 主路：向量检索 → 成功 ✓
   ↓ 失败
@@ -332,6 +341,7 @@ def rag_with_rejection(query, threshold=0.65):
 | **缓存命中率** | 语义缓存复用的请求比例 | 引入 GPTCache 等方案 |
 
 **成本监控示例**：
+
 ```python
 import tiktoken
 
@@ -415,6 +425,7 @@ def track_cost(prompt, response, model="gpt-4o", price_per_1k=0.005):
 ## 六、RAG 评估最佳实践
 
 ### 6.1 评估数据集构建
+
 ```
 方式一：人工标注
   - 领域专家标注问答对及相关文档
@@ -431,6 +442,7 @@ def track_cost(prompt, response, model="gpt-4o", price_per_1k=0.005):
 ```
 
 ### 6.2 分阶段评估策略
+
 ```
 开发阶段  →  使用 Ragas 快速迭代，关注 Faithfulness & Answer Relevancy
 测试阶段  →  引入 ARES 进行批量自动化评估，覆盖更大测试集

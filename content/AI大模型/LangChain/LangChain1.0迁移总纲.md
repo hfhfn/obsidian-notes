@@ -47,6 +47,7 @@ modified: '2026-11-06T06:36:58+08:00'
 | 类名 | `Ollama` | `OllamaLLM` / `ChatOllama` |
 | 返回类型 | 字符串 | `ChatOllama` 返回消息对象，取 `.content` |
 | 状态 | 已废弃/移除 | 当前标准 |
+
 ```python
 # pip install -qU langchain-ollama
 
@@ -56,6 +57,7 @@ from langchain_ollama import OllamaLLM
 llm = OllamaLLM(base_url="http://localhost:11434", model="qwen2.5:7b", temperature=0)
 print(llm.invoke("你是谁"))          # 纯文本补全，返回 str
 ```
+
 ```python
 # 更推荐：ChatOllama（对话模型）
 from langchain_ollama import ChatOllama
@@ -87,6 +89,7 @@ print(llm.invoke("你是谁").content)   # 返回 AIMessage，需取 .content
 
 > [!warning] 迁移要点
 > `langchain_community.embeddings.OllamaEmbeddings` 自 0.3.1 起弃用 → 迁到 `langchain_ollama`。**核心 API（`embed_query` / `embed_documents`）不变**，只换导入路径。
+
 ```python
 # 旧：from langchain_community.embeddings import OllamaEmbeddings
 from langchain_ollama import OllamaEmbeddings   # pip install -qU langchain-ollama
@@ -123,6 +126,7 @@ vectors = embeddings.embed_documents(["文档1", "文档2"])
 | PromptTemplate | `from langchain import PromptTemplate` | `from langchain_core.prompts import PromptTemplate` |
 | FewShotPromptTemplate | `from langchain import FewShotPromptTemplate` | `from langchain_core.prompts import FewShotPromptTemplate` |
 | ChatPromptTemplate | — | `from langchain_core.prompts import ChatPromptTemplate` |
+
 ```python
 from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
 ```
@@ -133,6 +137,7 @@ from langchain_core.prompts import PromptTemplate, ChatPromptTemplate
 - **单消息快捷**：`ChatPromptTemplate.from_template("你好，{name}")`（等价于只有 Human 角色）
 - **直接构造**：传 `input_variables` + `promptMessages` 列表（底层控制）
 - **元组简写**：`from_messages` 里除 `("role", "content")`，也可直接传 `SystemMessage(...)` / `MessagePromptTemplate` 实例
+
 ```python
 prompt = ChatPromptTemplate.from_messages([
     ("system", "你是一个问答助手。只根据以下上下文回答：\n\n{context}"),
@@ -145,6 +150,7 @@ prompt = ChatPromptTemplate.from_messages([
 - `prompt.input_variables` → 模板期待的变量名列表（如 `['input', 'chat_history', 'agent_scratchpad']`）
 - `prompt.promptMessages` → 你定义的消息模板对象列表（调试用）
 - `format_messages()` → **只在直接走 LCEL 管道时才需要手动调用**；交给 Agent / AgentExecutor 时会自动完成
+
 ```python
 # 仅当自己拼 LCEL 链时，才需要手动 format
 chain = prompt | model
@@ -155,6 +161,7 @@ response = chain.invoke(messages)
 ### 3.3 动态提示词 → Middleware
 
 「动态提示词」指根据运行时状态（用户等级、画像、轮次）实时改变提示词。1.0 首选 **Middleware**：
+
 ```python
 from langchain.agents.middleware import dynamic_prompt, ModelRequest
 
@@ -183,6 +190,7 @@ def personalized_prompt(request: ModelRequest) -> str:
 | `AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION` | `create_agent` 默认支持多参数工具，无需特殊类型 |
 | `AgentType.CONVERSATIONAL_REACT_DESCRIPTION` + `ConversationBufferMemory` | `create_agent(checkpointer=InMemorySaver())` + `thread_id` |
 | `agent.run("字符串提示")` | `agent.invoke({"messages": [{"role": "user", "content": "..."}]})` |
+
 ```python
 from langchain.agents import create_agent
 from langchain_ollama import ChatOllama
@@ -218,6 +226,7 @@ print(result["messages"][-1].content)
 | 模型输出 | 纯文本 `Thought/Action/Observation` | 原生结构化 `tool_calls` |
 | 识别工具调用 | 正则解析文本 | 直接读 `AIMessage.tool_calls` 字段 |
 | 循环控制 | 提示词 + 解析器 | 状态图的边判断 |
+
 ```text
 START
   ▼
@@ -249,6 +258,7 @@ START
 - `create_agent` 返回的是**已编译的状态机**（`CompiledStateGraph`），可直接 `.invoke()`；要改循环「形状」需作为子图嵌入你自己的 `StateGraph`。
 
 ### 4.2 动态提示词 + 工具（静态 + 动态拆分）
+
 ```python
 from langchain.agents import create_agent
 from langchain.agents.middleware import dynamic_prompt, ModelRequest
@@ -305,6 +315,7 @@ agent.invoke(
 > `create_agent` 的循环上限实际是底层 LangGraph 的 `recursion_limit`，统计图执行的 **superstep（超步）** 数量：一次模型调用算一步，一轮工具执行也算一步。所以 `recursion_limit=25` 大约只够 **12 轮**「模型 → 工具 → 模型」。
 
 **方式一：创建时绑定（推荐，作为该 Agent 的默认值）**
+
 ```python
 agent = create_agent(
     model=model,
@@ -313,6 +324,7 @@ agent = create_agent(
 ```
 
 **方式二：调用时传入（覆盖默认值，仅本次生效）**
+
 ```python
 agent.invoke(
     {"messages": [{"role": "user", "content": "..."}]},
@@ -321,6 +333,7 @@ agent.invoke(
 ```
 
 **超限时会抛异常，建议在调用边界捕获：**
+
 ```python
 from langgraph.errors import GraphRecursionError
 
@@ -355,6 +368,7 @@ except GraphRecursionError:
 | `memory_key="history"` 等配置 | 通过 `state_schema` 扩展自定义记忆字段 |
 
 ### 5.1 短期记忆：`checkpointer` + `thread_id`
+
 ```python
 from langchain.agents import create_agent
 from langgraph.checkpoint.memory import InMemorySaver
@@ -375,6 +389,7 @@ print(r["messages"][-1].content)   # 正确回答 3 只
 ```
 
 ### 5.2 长期记忆：`store` + `ToolRuntime`
+
 ```python
 from dataclasses import dataclass
 from typing import TypedDict
@@ -441,6 +456,7 @@ agent = create_agent(
 
 > [!warning] 这些类**不在** `langgraph` 主包里
 > `langgraph` 只提供 `langgraph.checkpoint.base` / `langgraph.store.base` 这些抽象基类。只装 `langgraph` 时，`from langgraph.checkpoint.sqlite import SqliteSaver` 会直接 `ModuleNotFoundError`——具体实现要另装下面两个包。
+
 ```bash
 # 单机 / 开发期：SQLite
 pip install langgraph-checkpoint-sqlite
@@ -478,6 +494,7 @@ pip install "psycopg[binary,pool]" langgraph-checkpoint-postgres
 
 > [!warning] 裸装最新版会依赖冲突
 > 2026-11 的最新实现包都要求 `langgraph-checkpoint>=4.3`，而 `langgraph 1.0.1` 把上限锁在 `<4.0.0` → 直接 `pip install langgraph-checkpoint-sqlite`（或带 `-U`）会报 `ResolutionImpossible`。二选一：
+
 ```bash
 # A. 保留现有 langgraph 1.0.x：钉住实现包版本
 pip install "langgraph-checkpoint-sqlite==3.0.3"
@@ -506,11 +523,13 @@ pip install -U langgraph langgraph-checkpoint-sqlite langgraph-checkpoint-postgr
 | 类型/属性报错，提示 `psycopg2`                              | 混装了 psycopg2               | 卸载 `psycopg2` / `psycopg2-binary`，统一用 psycopg 3 |
 
 **一行自检**
+
 ```bash
 pip show langgraph langgraph-checkpoint langgraph-checkpoint-sqlite langgraph-checkpoint-postgres psycopg psycopg-pool aiosqlite sqlite-vec
 python -c "import langgraph.checkpoint.sqlite, langgraph.store.sqlite; print('sqlite ok')"
 python -c "import langgraph.checkpoint.postgres, langgraph.store.postgres; print('pg ok')"
 ```
+
 ```python
 # pip install langgraph-checkpoint-sqlite（含 aiosqlite / sqlite-vec，版本见 5.3.1）
 from dataclasses import dataclass
@@ -585,6 +604,7 @@ with (
 > - 两个库可以放同一个 SQLite 文件（表名不冲突），但示例刻意分成两个文件，避免 SQLite 写锁互相干扰。
 
 **换成 Postgres（生产 / 多实例）：**
+
 ```python
 # pip install "psycopg[binary,pool]" langgraph-checkpoint-postgres（版本见 5.3.1）
 from langgraph.checkpoint.postgres import PostgresSaver
@@ -649,6 +669,7 @@ with (
 | Excel | `UnstructuredExcelLoader` | `langchain_community` ⛔ |
 | CSV | `CSVLoader`（`document_loaders.csv_loader`） | `langchain_community` ⛔ 停维，无独立包 |
 | PDF/网页（高保真） | `DoclingLoader` / `MinerULoader` | `langchain-docling` / `langchain-mineru` ✅ 独立包 |
+
 ```python
 # 旧：from langchain_community.document_loaders import UnstructuredFileLoader
 from langchain_unstructured import UnstructuredLoader   # pip install langchain-unstructured
@@ -665,6 +686,7 @@ print(docs[0].page_content[:200], docs[0].metadata)
 > - 本地运行需系统依赖（`poppler-utils`、`libreoffice`、`libmagic` 等），官方推荐 Docker。
 
 ### 6.2 Splitter（文本分割）
+
 ```python
 # 旧：from langchain.text_splitter import CharacterTextSplitter
 from langchain_text_splitters import CharacterTextSplitter   # pip install langchain-text-splitters
@@ -685,6 +707,7 @@ splitter = CharacterTextSplitter(separator=" ", chunk_size=100, chunk_overlap=0)
 | Milvus | `from langchain_milvus import Milvus` | ✅ 独立包 |
 | FAISS | 仍 `from langchain_community.vectorstores import FAISS` | 通常可用 |
 | AstraDB | `langchain-astradb` | ✅ 独立包 |
+
 ```python
 # 旧：from langchain_community.vectorstores import Chroma
 from langchain_chroma import Chroma          # pip install langchain-chroma
@@ -711,6 +734,7 @@ docs = docsearch.similarity_search("1937年北京大学发生了什么？")
 | SVM / TF-IDF Retriever | ❌ 底层是 sklearn 算法，非存储 → 自定义 `BaseRetriever` 调 sklearn，或改用 BM25 |
 | ChatGPT Plugin Retriever / Databerry | 已废弃 / 淘汰 |
 | 传统检索器（BM25 等） | 移入 `langchain-classic` / 仍在 `langchain-community`（停维） |
+
 ```python
 # FAISS 没有独立包，仍在 langchain_community
 from langchain_community.vectorstores import FAISS
@@ -740,6 +764,7 @@ docs = retriever.invoke("北京大学什么时候成立的")     # 注意：旧�
 | `chain.run(question="...")` | `chain.invoke({"question": "..."})` |
 | 返回 `dict`（`{"text": ...}`） | 直接返回字符串（配 `StrOutputParser`） |
 | `SimpleSequentialChain([c1, c2])` | `c1 \| (lambda x: {...}) \| c2` |
+
 ```python
 from langchain_core.prompts import PromptTemplate
 from langchain_ollama import OllamaLLM
@@ -764,6 +789,7 @@ print(overall_chain.invoke({"lastname": "王"}))
 > - **`.stream()`**：只吐**最终输出**的增量，适合打字机效果，看不到中间步骤。
 > - **`.astream_events(version="v2")`**：吐**每个 Runnable** 的 start / end + token 级事件，调试中间步骤用它。
 > - **`RunnableLambda` 插桩**：最轻量，只在你自己指定的点上打印，不影响返回值。
+
 ```python
 import asyncio
 
@@ -786,6 +812,7 @@ asyncio.run(debug_chain())
 ```
 
 典型输出（能看到「生成名字 → 字典转换 → 起小名」每一步的进出）：
+
 ```text
 ▶ 开始 RunnableSequence
 ▶ 开始 PromptTemplate
@@ -799,12 +826,14 @@ asyncio.run(debug_chain())
 ```
 
 **只要最终结果，不需要中间步骤时，用 `.stream()`：**
+
 ```python
 for chunk in overall_chain.stream({"lastname": "王"}):
     print(chunk, end="", flush=True)     # 逐 token 输出最终答案
 ```
 
 **想在任意位置精确插桩，用 `RunnableLambda`：**
+
 ```python
 from langchain_core.runnables import RunnableLambda
 
@@ -840,12 +869,14 @@ overall_chain = (
 | 接入 | 环境变量为主，几乎零代码 | 实例化 `CallbackHandler` 并传入 `config` |
 | 场景 | 深度集成 LangChain，调试体验好 | 开源可自托管，数据隐私友好 |
 | 前缀 | `LANGSMITH_*` | `LANGFUSE_*` |
+
 ```bash
 # LangSmith：设完环境变量，所有调用自动被追踪
 export LANGSMITH_TRACING=true
 export LANGSMITH_API_KEY="..."
 export LANGSMITH_PROJECT="my-project"
 ```
+
 ```python
 # Langfuse：通过回调处理器接入
 from langfuse import Langfuse
@@ -860,6 +891,7 @@ result = overall_chain.invoke({"lastname": "王"}, config={"callbacks": [langfus
 > Langfuse ≥ 3.0 的 `CallbackHandler` **不再接受构造参数**，配置放到 `Langfuse()` 初始化或环境变量；短生命周期脚本结束记得 `langfuse.flush()`。
 
 **Langfuse ≥ 3.0 的完整写法（推荐环境变量 + 全局单例）：**
+
 ```python
 import os
 from langfuse import Langfuse
@@ -885,7 +917,8 @@ langfuse.flush()
 ```
 
 > [!tip] 给 Agent 用时可以顺带把 `thread_id` 传进去，同一会话的多次调用会归到同一条 trace 会话里
-> ```python
+>
+ ```python
 > agent.invoke(
 >     {"messages": [{"role": "user", "content": "..."}]},
 >     config={
@@ -893,7 +926,8 @@ langfuse.flush()
 >         "configurable": {"thread_id": "demo-1"},
 >     },
 > )
-> ```
+>
+ ```
 > 常驻服务（FastAPI / 长跑进程）无需手动 `flush()`，退出时 SDK 会自动回落；只有在「跑完就结束」的脚本里才必须显式调用。
 
 ---
@@ -911,6 +945,7 @@ langfuse.flush()
 | 消息历史       | 可用 `output_mode` 控制         | 由工具函数内决定返回什么   |
 | 安装         | 需单独装 `langgraph-supervisor` | 仅需 `langchain` |
 | 维护状态       | 已停止维护                       | 官方推荐           |
+
 ```python
 # Subagents：把子 Agent 包装成工具
 from langchain.agents import create_agent

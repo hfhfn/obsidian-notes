@@ -63,6 +63,7 @@ modified: '2026-02-19T02:46:55+08:00'
 - **大模型 Agent**：像一位有能力的助理，你告诉他"帮我安排明天的出差"，他会自动查航班、预订酒店、发邮件给相关人员，全程自主完成。
 
 ### 大模型 Agent 的核心要素
+
 ```
 感知（Perception）  →  规划（Planning）  →  行动（Action）
         ↑                                          ↓
@@ -84,6 +85,7 @@ LLM Agent 的架构通常由以下五个核心组件构成：
 - 综合信息得出最终答案
 
 ### ② 记忆系统（Memory）
+
 ```
 短期记忆（Short-term Memory）
 └── 当前对话的上下文窗口（Context Window）
@@ -119,6 +121,7 @@ Agent 可调用的外部能力，常见工具包括：
 - 将执行结果返回给 LLM 进行下一轮推理
 
 ### 完整架构图
+
 ```
 用户输入
     ↓
@@ -153,6 +156,7 @@ LLM Agent 的决策核心是**推理-行动循环**，目前最主流的方法�
 **原理：** 交替进行"推理（Thought）→ 行动（Action）→ 观察（Observation）"三步循环，直到任务完成。
 
 **实际运行示例：**
+
 ```
 用户问题：北京今天的天气怎么样？适合出行吗？
 
@@ -168,6 +172,7 @@ Final Answer: 北京今天晴天，气温 18-26°C，空气质量优，非常适
 ### 方法二：Chain-of-Thought（思维链）
 
 通过"让我一步步思考"的方式引导模型展示推理过程，提升复杂推理准确性：
+
 ```
 问题：一个工厂每天生产 500 件产品，其中 3% 是次品，
      工厂想在一周内积累 2000 件合格品，需要几天？
@@ -182,6 +187,7 @@ Answer: 5 天
 ### 方法三：Tree of Thoughts（思维树）
 
 将推理扩展为树状搜索，探索多条路径：
+
 ```
 问题（根节点）
     ├── 路径 A（推理方向一）→ 中间结果 A1 → A2 → 评分：0.8
@@ -194,6 +200,7 @@ Answer: 5 天
 ### 方法四：Plan-and-Execute
 
 先生成完整计划，再逐步执行——适合结构清晰的长任务：
+
 ```
 Plan:
   Step 1: 搜索竞品信息
@@ -220,6 +227,7 @@ Execute Step 1 → Execute Step 2 → ...（按计划依次执行）
 LLM 的上下文窗口是有限的，一旦会话结束，对话历史全部消失。要让 Agent 跨会话"记住"用户，需要外部长期记忆机制。
 
 ### 长期记忆的核心架构：RAG（检索增强生成）
+
 ```
 写入流程：
 新信息 → Embedding 模型 → 向量化 → 存入向量数据库
@@ -231,6 +239,7 @@ LLM 的上下文窗口是有限的，一旦会话结束，对话历史全部消�
 ### 实现方式详解
 
 **① 向量数据库存储（最主流）**
+
 ```python
 from langchain.vectorstores import Chroma
 from langchain.embeddings import OpenAIEmbeddings
@@ -256,6 +265,7 @@ def retrieve_memory(user_id: str, query: str, k: int = 5):
 ```
 
 **② 结构化存储（用户偏好/固定信息）**
+
 ```python
 # 用 JSON/数据库存储用户的固定属性
 user_profile = {
@@ -269,6 +279,7 @@ user_profile = {
 ```
 
 **③ 对话摘要压缩（节省空间）**
+
 ```python
 # 定期将历史对话压缩为摘要，存入长期记忆
 summary_prompt = f"""
@@ -280,6 +291,7 @@ save_memory(user_id, summary)
 ```
 
 **④ 记忆注入 Prompt**
+
 ```python
 def build_prompt_with_memory(user_id, current_query):
     # 检索相关历史记忆
@@ -315,6 +327,7 @@ def build_prompt_with_memory(user_id, current_query):
 OpenAI、Anthropic 等主流模型都支持 Function Calling，将 API 描述注册给模型，模型自动判断何时调用并生成参数。
 
 **① 工具注册（告诉模型有哪些 API 可用）**
+
 ```python
 tools = [
     {
@@ -357,6 +370,7 @@ tools = [
 ```
 
 **② 模型自主决策调用**
+
 ```python
 import openai
 import json
@@ -402,12 +416,14 @@ def run_agent_with_tools(user_message: str):
 
 ### 动态 API 调用的关键能力
 
-**自动参数生成：** 根据用户意图自动构造 API 参数```
+**自动参数生成：** 根据用户意图自动构造 API 参数
+```
 用户："帮我查一下明天上海的天气"
 模型自动生成：{"city": "上海", "date": "tomorrow"}
 ```
 
-**多工具串联：** 自动决策工具调用顺序```
+**多工具串联：** 自动决策工具调用顺序
+```
 用户："帮我找一家北京评分最高的米其林餐厅并查询今晚是否有空位"
 Step 1: search_restaurant(city="北京", type="米其林")
 Step 2: check_availability(restaurant_id="xxx", date="tonight")
@@ -422,6 +438,7 @@ Step 2: check_availability(restaurant_id="xxx", date="tonight")
 **多模态推理**是指 Agent 能够同时处理文本、图像、音频、视频等多种类型的输入，并进行综合理解和推理。
 
 ### 多模态输入处理流程
+
 ```
 图像输入 ──→ 视觉编码器（ViT / CLIP）────┐
 音频输入 ──→ 语音识别（ASR / Whisper）───┤
@@ -434,6 +451,7 @@ Step 2: check_availability(restaurant_id="xxx", date="tonight")
 **① 视觉语言模型（VLM）**
 
 代表模型：GPT-4V、Claude 3、Gemini、LLaVA、Qwen-VL
+
 ```python
 import openai
 import base64
@@ -473,6 +491,7 @@ result = analyze_image_with_agent(
 **② 多模态 ReAct 推理**
 
 Agent 在推理过程中动态决定需要处理哪种模态的信息：
+
 ```
 用户上传：一张合同截图 + 文字"帮我分析这份合同有没有风险条款"
 
@@ -572,6 +591,7 @@ LLM 的训练数据有截止日期，对最新事件、最新技术的了解需�
 **① 任务成功率（Task Success Rate）**
 
 最核心的指标——Agent 最终是否完成了用户交代的任务。
+
 ```
 成功率 = 成功完成的任务数 / 总任务数 × 100%
 
@@ -582,6 +602,7 @@ LLM 的训练数据有截止日期，对最新事件、最新技术的了解需�
 ```
 
 **② 效率指标**
+
 ```
 步骤效率 = 最优步骤数 / 实际步骤数
 （越接近1越高效，Agent 没走弯路）
@@ -688,6 +709,7 @@ Agent 走出数字世界，控制机器人在物理世界行动：
 ### 核心能力设计
 
 **① 专业知识库（Medical RAG）**
+
 ```python
 medical_knowledge_sources = {
     "临床指南": ["中国临床肿瘤学会指南", "WHO 治疗指南", "UpToDate"],
@@ -705,6 +727,7 @@ def medical_rag_search(query, level="general"):
 ```
 
 **② 意图识别与安全分级**
+
 ```python
 INTENT_SAFETY_MAP = {
     "症状查询":      {"level": "safe",    "action": "提供信息 + 建议就医"},
@@ -717,6 +740,7 @@ INTENT_SAFETY_MAP = {
 ```
 
 **③ 核心工具集**
+
 ```python
 medical_agent_tools = [
     symptom_checker_tool,       # 症状初步分析（基于症状→可能疾病映射）
@@ -730,6 +754,7 @@ medical_agent_tools = [
 ```
 
 **④ 分层用户权限**
+
 ```python
 USER_ROLES = {
     "patient":      # 患者：症状查询、用药基础信息、就医引导
@@ -740,6 +765,7 @@ USER_ROLES = {
 ```
 
 **⑤ 必须包含的安全机制**
+
 ```
 免责声明（每次回答末尾）：
 "本回答仅供健康参考，不构成医疗诊断或治疗建议。
@@ -755,6 +781,7 @@ USER_ROLES = {
 ```
 
 ### 完整系统架构
+
 ```
 用户输入
     ↓
@@ -798,6 +825,7 @@ LangChain 是目前最主流的 LLM 应用开发框架，其核心组件构成�
 **① Model I/O（模型输入输出）**
 
 统一封装不同 LLM 提供商的接口，一套代码切换任意模型：
+
 ```python
 from langchain.chat_models import ChatOpenAI, ChatAnthropic
 
@@ -818,6 +846,7 @@ chain = prompt | llm  # 用管道符组合
 **② Data Connection（数据连接）**
 
 RAG 的核心组件，将外部文档接入 LLM：
+
 ```python
 from langchain.document_loaders import PyPDFLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -840,6 +869,7 @@ retriever = vectorstore.as_retriever(k=5)     # 4. 检索器
 **③ Chains（链）**
 
 将多个 LLM 调用和工具调用串联成工作流：
+
 ```python
 from langchain.chains import RetrievalQA
 
@@ -855,6 +885,7 @@ answer = qa_chain.run("这份文档的主要结论是什么？")
 **④ Agents（智能体）**
 
 让 LLM 自主决策使用哪些工具：
+
 ```python
 from langchain.agents import initialize_agent, AgentType
 from langchain.tools import Tool
@@ -871,6 +902,7 @@ agent.run("今天北京天气如何？加上华氏度是多少？")
 **⑤ Memory（记忆）**
 
 管理对话上下文和历史：
+
 ```python
 from langchain.memory import (
     ConversationBufferMemory,        # 保留全部历史
@@ -883,6 +915,7 @@ from langchain.memory import (
 **⑥ Callbacks（回调）**
 
 监控和追踪 Agent 的执行过程：
+
 ```python
 from langchain.callbacks import LangChainTracer
 # 对接 LangSmith，可视化追踪每一步的输入输出
@@ -901,6 +934,7 @@ LangChain 提供了多种 Agent 类型，适用于不同场景：
 **① ZERO_SHOT_REACT_DESCRIPTION（最常用）**
 
 无需示例，基于工具的描述（description）自主决定何时调用哪个工具。
+
 ```python
 agent = initialize_agent(
     tools, llm,
@@ -914,6 +948,7 @@ agent = initialize_agent(
 **② OPENAI_FUNCTIONS / OPENAI_TOOLS**
 
 利用 OpenAI 的 Function Calling 原生能力，比 ReAct 更稳定，输出结构化。
+
 ```python
 agent = initialize_agent(
     tools, llm,
@@ -926,6 +961,7 @@ agent = initialize_agent(
 **③ CONVERSATIONAL_REACT_DESCRIPTION**
 
 在 ReAct 基础上加入对话历史管理，支持多轮对话中的上下文追踪。
+
 ```python
 memory = ConversationBufferMemory(memory_key="chat_history")
 agent = initialize_agent(
@@ -942,6 +978,7 @@ agent = initialize_agent(
 **⑤ PLAN_AND_EXECUTE（规划-执行型）**
 
 先完整生成任务计划，再逐步执行——适合长流程、确定性任务：
+
 ```python
 from langchain_experimental.plan_and_execute import (
     PlanAndExecute, load_agent_executor, load_chat_planner
@@ -977,6 +1014,7 @@ LlamaIndex（原名 GPT Index）专注于**数据索引与检索**，LangChain �
 ### 结合方式
 
 **① 将 LlamaIndex 索引作为 LangChain 的检索工具**
+
 ```python
 from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
 from langchain.tools import Tool
@@ -1004,6 +1042,7 @@ agent = initialize_agent(
 **② LlamaIndex SubQuestion Query Engine（复杂问题分解）**
 
 LlamaIndex 的子问题引擎将复杂问题自动分解为多个子查询，分别检索后综合：
+
 ```python
 from llama_index.core.query_engine import SubQuestionQueryEngine
 from llama_index.core.tools import QueryEngineTool
@@ -1030,6 +1069,7 @@ response = sub_question_engine.query("对比2023年和2024年的财务表现和�
 AutoGPT 是早期最具影响力的自主 Agent 项目，展示了 LLM Agent 自主完成长期任务的可能性。
 
 ### AutoGPT 的核心架构
+
 ```
 目标设定（用户提供高层目标）
         ↓
@@ -1057,6 +1097,7 @@ AutoGPT 是早期最具影响力的自主 Agent 项目，展示了 LLM Agent 自
 **① 结构化 Thought 输出**
 
 每次推理，AutoGPT 要求 LLM 输出结构化的思考过程：
+
 ```json
 {
     "thoughts": {
@@ -1099,6 +1140,7 @@ AutoGPT 作为早期探索，暴露了自主 Agent 的核心问题：
 BabyAGI 是一个轻量但极具启发性的自主 Agent 框架，以**任务队列 + 优先级调度**为核心，展示了 AGI 的雏形。
 
 ### BabyAGI 的三个核心 Agent
+
 ```
 ┌──────────────────────────────────────────┐
 │                BabyAGI                    │
@@ -1122,6 +1164,7 @@ BabyAGI 是一个轻量但极具启发性的自主 Agent 框架，以**任务队
 ```
 
 ### 任务管理流程
+
 ```python
 # BabyAGI 核心循环（简化版）
 def baby_agi_loop(objective, initial_task):
@@ -1183,6 +1226,7 @@ CrewAI 是专门为**多 Agent 协作**设计的框架，以"团队（Crew）+ �
 **① Agent（智能体）**
 
 每个 Agent 有明确的角色、目标和背景故事，LLM 会在这个角色框架内行动：
+
 ```python
 from crewai import Agent
 
@@ -1208,6 +1252,7 @@ writer = Agent(
 **② Task（任务）**
 
 定义每个 Agent 需要完成的具体工作，以及预期输出：
+
 ```python
 from crewai import Task
 
@@ -1231,6 +1276,7 @@ writing_task = Task(
 **③ Crew（团队）**
 
 将多个 Agent 和任务组合成协作团队，定义执行流程：
+
 ```python
 from crewai import Crew, Process
 
@@ -1249,6 +1295,7 @@ result = crew.kickoff()
 **顺序模式（Sequential）：** 任务按顺序依次执行，前一个任务的输出自动传递给下一个。
 
 **层级模式（Hierarchical）：** 由一个 Manager Agent 统筹协调，根据情况动态分配任务给其他 Agent：
+
 ```python
 manager = Agent(
     role="项目经理",
@@ -1283,6 +1330,7 @@ LangChain 提供了多种方式将外部 API 集成到 Agent 工作流中。
 ### 方式一：自定义 Tool 封装
 
 最灵活的方式，将任意 API 封装为 LangChain Tool：
+
 ```python
 from langchain.tools import tool
 import requests
@@ -1308,6 +1356,7 @@ agent.run("苹果公司今天股价是多少？")
 ```
 
 ### 方式二：Requests 工具包（通用 HTTP）
+
 ```python
 from langchain.tools import RequestsGetTool, RequestsPostTool
 from langchain.utilities import TextRequestsWrapper
@@ -1322,6 +1371,7 @@ post_tool = RequestsPostTool(requests_wrapper=TextRequestsWrapper())
 ### 方式三：内置集成工具包
 
 LangChain 内置了大量主流 API 的集成：
+
 ```python
 # 搜索 API
 from langchain.tools import TavilySearchResults, GoogleSerperAPIWrapper
@@ -1343,6 +1393,7 @@ from langchain_community.utilities import WolframAlphaAPIWrapper
 ### 方式四：OpenAPI 规范自动解析
 
 给定 API 的 OpenAPI/Swagger 文档，自动生成工具集：
+
 ```python
 from langchain_community.agent_toolkits.openapi import create_openapi_agent
 from langchain_community.agent_toolkits.openapi.toolkit import OpenAPIToolkit
@@ -1363,6 +1414,7 @@ agent.run("创建一个新用户，邮箱是 test@example.com")
 ```
 
 ### API 调用最佳实践
+
 ```python
 # 1. 错误处理：避免 API 错误导致 Agent 崩溃
 @tool
@@ -1393,6 +1445,7 @@ def cached_api_call(query: str) -> str:
 ### ① 减少不必要的 LLM 调用
 
 **智能路由：** 对于简单问题，用小模型或规则直接回答，只有复杂任务才调用大模型：
+
 ```python
 def smart_router(query: str) -> str:
     complexity = estimate_complexity(query)  # 评估问题复杂度
@@ -1406,6 +1459,7 @@ def smart_router(query: str) -> str:
 ```
 
 **缓存重复查询：** 对相同或语义相近的问题直接返回缓存结果：
+
 ```python
 from langchain.cache import RedisSemanticCache
 import langchain
@@ -1418,6 +1472,7 @@ langchain.llm_cache = RedisSemanticCache(
 ```
 
 ### ② 并行化工具调用
+
 ```python
 import asyncio
 
@@ -1432,6 +1487,7 @@ async def parallel_tool_execution(tools_and_args):
 ```
 
 ### ③ Prompt 优化
+
 ```python
 # ❌ 低效 Prompt：信息冗余，Token 浪费
 system_prompt = """
@@ -1444,6 +1500,7 @@ system_prompt = """你是专业助理。工具：{tools}。格式：Thought/Acti
 ```
 
 ### ④ RAG 检索优化
+
 ```python
 # 混合检索：语义 + 关键词，提升召回率
 from langchain.retrievers import EnsembleRetriever
@@ -1462,6 +1519,7 @@ ensemble_retriever = EnsembleRetriever(
 ### ⑤ 流式输出（Streaming）
 
 让用户感知到 Agent 在"思考"，改善等待体验：
+
 ```python
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 
@@ -1514,6 +1572,7 @@ llm = ChatOpenAI(
 **场景：** 财务报告、运营周报、市场分析
 
 **能力：** 自然语言 → SQL 查询数据库 → Python 数据分析 → 自动生成可视化图表 → 撰写报告
+
 ```python
 # Text-to-SQL + 数据分析 Agent
 agent.run("""

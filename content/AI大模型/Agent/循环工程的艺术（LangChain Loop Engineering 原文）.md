@@ -31,6 +31,7 @@ modified: '2026-09-17T17:55:37+08:00'
 ## 第一层：Agent Loop（代理循环）—— 自动化工作
 
 > 本质上，Agent 就是一个模型在一个循环里调用工具，直到任务完成。
+
 ```
 LOOP 1 — AGENT LOOP
 request → model → action(tools) → observation → repeat until done → result
@@ -47,6 +48,7 @@ request → model → action(tools) → observation → repeat until done → re
 ## 第二层：Verification Loop（验证循环）—— 确保正确
 
 > 代理循环能干活，但一次运行不一定正确一致。当一致性至关重要时，把它包进一个验证循环：检查输出，不理想就带反馈送回模型。
+
 ```
 LOOP 2 — VERIFICATION LOOP
 agent loop → result → grader(rubric/eval) → pass→done | fail→retry with feedback
@@ -62,6 +64,7 @@ agent loop → result → grader(rubric/eval) → pass→done | fail→retry wit
 ## 第三层：Event-Driven Loop（事件驱动循环）—— 规模化入系统
 
 > Agent 开发中最重要的是集成层：把 Agent 连进你的生态，让它能在后台持续运行。事件触发（新文档到达 / 定时任务 / Webhook）时才运行——Agent 不是被手动调用，而是作为大型系统的常驻组件。
+
 ```
 LOOP 3 — EVENT LOOP
 event trigger(cron / webhook / channel) → verification loop(agent loop…) → system update → service improves → new events
@@ -76,6 +79,7 @@ event trigger(cron / webhook / channel) → verification loop(agent loop…) →
 ## 第四层：Hill-Climbing Loop（爬坡循环 / 改进循环）—— 让系统自己变好
 
 > 前三个循环让工作自动化；第四个（也最重要的）让**改进自动化**。
+
 ```
 LOOP 4 — HILL CLIMBING LOOP
 event loop(…verification loop(…agent loop…)) → result

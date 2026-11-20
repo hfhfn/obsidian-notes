@@ -14,11 +14,13 @@ RMSNorm 并非在所有场景都优于 LayerNorm，其核心优势是**更高效
 ## 公式对比
 
 **LayerNorm**（需计算均值 μ 和方差 σ²）：
+
 ```
 y = (x - μ) / sqrt(σ² + ε) * γ + β
 ```
 
 **RMSNorm**（只需计算均方根 RMS）：
+
 ```
 y = x / RMS(x) * γ     其中 RMS(x) = sqrt(mean(x²))
 ```

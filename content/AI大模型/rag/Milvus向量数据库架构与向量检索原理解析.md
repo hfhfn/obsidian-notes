@@ -223,7 +223,8 @@ modified: '2026-09-01T23:47:34+08:00'
 ### 写入代码速查
 > 字段名为示例：`id`(主键)、`dense_vector`、`sparse_vector`、`category`/`text`(标量)。写入是写操作，与前面 `search()/query()` 的读操作是**两套 API**。
 
-**① 预建 collection（schema + 索引，先于写入）**```python
+**① 预建 collection（schema + 索引，先于写入）**
+```python
 from pymilvus import MilvusClient, DataType
 
 client = MilvusClient(uri="http://localhost:19530", token="root:Milvus")
@@ -243,7 +244,8 @@ client.create_collection(collection_name="my_collection", schema=schema, index_p
 client.create_partition(collection_name="my_collection", partition_name="表情包")   # 可选：建分区
 ```
 
-**② 批量写入（稠密向量 + 标量）**```python
+**② 批量写入（稠密向量 + 标量）**
+```python
 data = [
     {"id": 1, "dense_vector": [0.358, -0.602, 0.184, ...], "category": "风景_16:9"},
     {"id": 2, "dense_vector": [0.437, -0.559, 0.645, ...], "category": "风景_16:9"},
@@ -252,11 +254,13 @@ res = client.insert(collection_name="my_collection", data=data)
 # {'insert_count': 2, 'ids': [1, 2]}
 ```
 
-**③ 写入到指定分区**（与读取时 `partition_names=` 对应）```python
+**③ 写入到指定分区**（与读取时 `partition_names=` 对应）
+```python
 res = client.insert(collection_name="my_collection", partition_name="表情包", data=data)
 ```
 
-**④ 稀疏向量写入**（`text` 存原文，`sparse_vector` 用 dict 存非零 `{维度: 权值}`；若想让 BM25 函数从 `text` 自动生成向量，见下方「BM25 自动生成稀疏向量」小节）```python
+**④ 稀疏向量写入**（`text` 存原文，`sparse_vector` 用 dict 存非零 `{维度: 权值}`；若想让 BM25 函数从 `text` 自动生成向量，见下方「BM25 自动生成稀疏向量」小节）
+```python
 data = [
     {"id": 3, "text": "information retrieval is a field of study.",
               "sparse_vector": {1: 0.5, 100: 0.3, 500: 0.8}},
@@ -266,7 +270,8 @@ data = [
 client.insert(collection_name="my_collection", data=data)
 ```
 
-**⑤ 更新 / 覆盖（upsert：主键存在则覆盖，不存在则插入）**```python
+**⑤ 更新 / 覆盖（upsert：主键存在则覆盖，不存在则插入）**
+```python
 client.upsert(collection_name="my_collection",
               data=[{"id": 1, "dense_vector": [0.9, -0.2, 0.1, ...], "category": "风景_4:3"}])
 ```
@@ -276,7 +281,8 @@ client.upsert(collection_name="my_collection",
 ### BM25 自动生成稀疏向量（Function·BM25）
 > 核心：**建 Collection 时定义一个 `FunctionType.BM25` 函数，把 `text` 和 `sparse_vector` 绑定**，而非在写数据时手动计算。插入时**只需提供 `text` 原文，Milvus 自动分词并生成 BM25 稀疏向量**。与上面 §④（手工 dict 稀疏向量）互为两种方式。
 
-**① Schema + Function（关键配置：`analyzer` 分词器）**```python
+**① Schema + Function（关键配置：`analyzer` 分词器）**
+```python
 from pymilvus import MilvusClient, DataType, Function, FunctionType
 
 client = MilvusClient(uri="http://localhost:19530", token="root:Milvus")
@@ -297,7 +303,8 @@ schema.add_function(bm25)
 ```
 > `enable_analyzer=True` 和 `analyzer_params` 必不可少，决定文本如何分词（英文 `{"type":"english"}`，中文 `{"type":"chinese"}`）。
 
-**② 索引（关键：`metric_type` 必须=`BM25`，否则写入报错）**```python
+**② 索引（关键：`metric_type` 必须=`BM25`，否则写入报错）**
+```python
 index_params = client.prepare_index_params()
 index_params.add_index(
     field_name="sparse_vector",
@@ -309,7 +316,8 @@ index_params.add_index(
 client.create_collection(collection_name="demo_bm25", schema=schema, index_params=index_params)
 ```
 
-**③ 写入（只填 `text`，`sparse_vector` 自动生成，插入时省略该字段）**```python
+**③ 写入（只填 `text`，`sparse_vector` 自动生成，插入时省略该字段）**
+```python
 data = [
     {"text": "Artificial intelligence was founded as an academic discipline in 1956."},
     {"text": "Alan Turing was the first person to conduct significant research in AI."},
@@ -317,7 +325,8 @@ data = [
 client.insert(collection_name="demo_bm25", data=data)
 ```
 
-**④ 查询**（复用前文"稀疏向量检索"写法：`anns_field="sparse_vector"`，`data` 传 dict）```python
+**④ 查询**（复用前文"稀疏向量检索"写法：`anns_field="sparse_vector"`，`data` 传 dict）
+```python
 res = client.search(collection_name="demo_bm25", data=[{1: 0.2, 50: 0.4, 1000: 0.7}],
                     anns_field="sparse_vector", limit=3, output_fields=["text"])
 ```

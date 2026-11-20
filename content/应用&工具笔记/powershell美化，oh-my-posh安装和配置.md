@@ -23,7 +23,8 @@ modified: '2026-08-05T09:57:18+08:00'
 
 5. 配置oh my posh的 profile
 
-  - 在powershell中 运行：```shell
+  - 在powershell中 运行：
+```shell
 notepad $PROFILE
 ```
 
@@ -32,16 +33,19 @@ notepad $PROFILE
 - 我们原来是没有这个文件的，运行上述命令后，会弹出创建文件提醒，选择是。之后系统会自动使用记事本打开这个文件。
 
 - 如果没有弹出提醒，显示找不到该文件，则输入如下命令手动创建：
+
 ```shell
 if (!(Test-Path -Path $PROFILE )) { New-Item -Type File -Path $PROFILE -Force }
 ```
 
  - 在生成的文件中写入以下配置并保存
+
 ```shell
 oh-my-posh init pwsh | Invoke-Expression
 ```
 
 - 再使用以下命令使配置生效
+
 ```shell
 .$PROFILE
 ```
@@ -51,7 +55,8 @@ oh-my-posh init pwsh | Invoke-Expression
         输入命令 **Get-PoshThemes** 可查看主题
 
         还是 使用命令 **notepad $PROFILE** 打开配置文件，更改内容为：
-        ```shell
+        
+```shell
 oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH\iterm2.omp.json" | Invoke-Expression
 ```
 
@@ -70,7 +75,8 @@ oh-my-posh init pwsh --config "$env:POSH_THEMES_PATH\iterm2.omp.json" | Invoke-E
 
 2. 更改powershell启动后的初始目录：
 
-- notepad $PROFILE 打开配置文件写入以下配置保存：```shell
+- notepad $PROFILE 打开配置文件写入以下配置保存：
+```shell
 set-location ~/Desktop
 ```
 

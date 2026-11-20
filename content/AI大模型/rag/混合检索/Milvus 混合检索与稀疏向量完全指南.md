@@ -38,7 +38,8 @@ modified: '2026-05-26T03:57:37+08:00'
 
 ### 2.2 稀疏向量格式详解
 
-在你的截图中，`sparse_vector` 字段的值类似：```json
+在你的截图中，`sparse_vector` 字段的值类似：
+```json
 {"4": 0.0584, "7": 0.1277, "6": 0.0783, "74": 0.0471, ...}
 ```
 - **Key（键）**：词在词汇表中的 token ID（如分词器或 SPLADE 模型输出的索引）
@@ -56,7 +57,8 @@ modified: '2026-05-26T03:57:37+08:00'
 
 ## 3. 混合检索实现（Hybrid Search）
 
-### 3.1 整体流程```
+### 3.1 整体流程
+```
 用户查询
    ↓
 生成查询的稠密向量 + 稀疏向量
@@ -71,6 +73,7 @@ RRF 融合排序 → 最终 top_n 结果
 ```
 
 ### 3.2 代码示例：创建 Collection 并建立索引
+
 ```python
 from pymilvus import MilvusClient, DataType
 
@@ -115,6 +118,7 @@ client.create_collection(
 ### 3.3 生成查询向量并执行混合检索
 
 - 分别使用稠密向量模型和稀疏向量模型构建索引
+
 ```python
 # 假设已加载稠密模型和稀疏模型
 # dense_model = SentenceTransformer("all-MiniLM-L6-v2")
@@ -156,6 +160,7 @@ for hits in results:
 ```
 
 - 使用BGE-m3模型同时构建稠密向量和稀疏向量
+
 ```python
 from pymilvus import MilvusClient, DataType
 from pymilvus import model
@@ -305,6 +310,7 @@ for hits in results:
 **术语扩展**：模型会给原文中没有出现但语义相关的词也赋予非零权重（如“car” → “automobile”），这是 SPLADE 相比 BM25 的核心优势。
 
 ### 4.2 使用 PyMilvus 内置的模型（无需自定义）
+
 ```python
 from pymilvus.model.sparse import SpladeEmbeddingFunction
 
@@ -347,6 +353,7 @@ BGE-M3（BAAI General Embedding Model 3）是北京智源研究院开源的**多
 相比 SPLADE，BGE-M3 的优势在于**一个模型同时输出两种向量**，无需分别加载不同的模型。
 
 #### 4.4.2 安装依赖
+
 ```bash
 pip install pymilvus[model]   # 包含 BGE-M3 所需的 FlagEmbedding
 # 或单独安装
@@ -356,6 +363,7 @@ pip install pymilvus FlagEmbedding
 #### 4.4.3 使用 PyMilvus 内置的 BGEM3EmbeddingFunction
 
 PyMilvus 已经封装了 BGE-M3 的调用接口，使用非常简单：
+
 ```python
 from pymilvus import model
 
@@ -400,7 +408,8 @@ for i, doc in enumerate(docs):
     print(f"文档 {i+1} 的非零 token 数量: {len(non_zero[1])}")
 ```
 
-**输出示例**：```
+**输出示例**：
+```
 返回的键: dict_keys(['dense', 'sparse'])
 稠密向量维度: 1024
 稠密向量示例: [-0.02505937, -0.00142193, 0.04015467, -0.02094924, 0.02623661]
@@ -418,6 +427,7 @@ Milvus 的 `sparse_vector` 字段接受两种格式：
 2. **CSR 矩阵**（可直接使用）
 
 BGEM3EmbeddingFunction 返回的 `embeddings['sparse']` 就是 CSR 矩阵，可以直接用于插入或查询。
+
 ```python
 # 方式1：直接使用 CSR 矩阵（推荐，性能好）
 sparse_vectors = embeddings['sparse']   # 直接用于 Milvus
@@ -477,6 +487,7 @@ Milvus 本身不提供“关联查询”，需要在应用层通过 **`parent_id
 - **子块**：`chunk_type = "child"`，`parent_id` 指向父块的 `id`
 
 ### 5.2 插入父子块数据
+
 ```python
 data = [
     # 父块
@@ -510,6 +521,7 @@ client.insert("knowledge_base", data)
 ```
 
 ### 5.3 检索子块并获取父块内容
+
 ```python
 def search_with_parent(query_vec, top_k=3):
     # 1. 混合检索，只检索子块
@@ -559,7 +571,8 @@ def search_with_parent(query_vec, top_k=3):
 
 ## 6. RRF 中 k 值的影响（进阶）
 
-RRF 融合分数公式：  `RRF_score(d) = Σ 1 / (k + rank_i(d))`
+RRF 融合分数公式：  
+`RRF_score(d) = Σ 1 / (k + rank_i(d))`
 
 - **小 k（如 1~10）**：排名靠前的文档获得极大权重，靠后的文档几乎忽略 → 适合子检索器质量极高、只需 top 结果的场景。
 - **k = 60（默认）**：衰减平滑，给所有文档合理权重，被广泛验证为最佳实践。

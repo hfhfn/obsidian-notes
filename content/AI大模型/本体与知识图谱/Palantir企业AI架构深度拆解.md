@@ -35,6 +35,7 @@ modified: '2026-10-21T15:25:03+08:00'
 ## 一、先看结构，不要先背产品名
 
 Palantir 的当前架构不是「四个平台平行摆放」。AIP 和 Foundry 共享能力网格，Ontology 位于决策中间层，Apollo 托住软件交付。
+
 ```
 ┌────────────────────── 业务结果层 · NORTH OF ONTOLOGY ──────────────────────┐
 │ 分析与应用            Agents 与自动化            产品交付                  │
@@ -93,6 +94,7 @@ Foundry 是 Palantir 的核心。把它理解为「企业级数据操作系统�
 | ④ 设主键 | 为 Object Type 设置 Primary Key | 系统校验唯一性；主键设好后才能被其他 Object Type 引用，建立 Link Type |
 
 ### Object Type 长什么样
+
 ```
 OBJECT TYPE  Customer
   customer_id   string   PK
@@ -200,6 +202,7 @@ Palantir 选择了 **OAG（Ontology-Augmented Generation）**，差异不只是�
 Ontology 建好了，谁来消费它？
 
 ### Workshop：Ontology 的消费层
+
 ```
 Workshop（拖拽式应用构建器）
    ↓ 消费

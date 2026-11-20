@@ -100,6 +100,7 @@ IRCoT 将检索与思维链推理**交错进行**：先基于已检索内容生�
 
 
 ## 四、完整架构
+
 ```
 用户查询
   │
@@ -122,6 +123,7 @@ Query Router（三分类：local / cross_doc / corpus）
 ## 五、完整实现（LangGraph 1.x）
 
 以下代码将 Router、三条检索路径、Self-RAG 反思循环和 IRCoT 多跳循环统一在一个 `StateGraph` 中。RAPTOR 检索器、混合检索器通过 `.invoke()` 接口接入，与 classic 包的迁移解耦。
+
 ```python
 """
 Production RAG with LangGraph 1.x

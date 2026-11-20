@@ -82,6 +82,7 @@ modified: '2026-09-13T05:50:00+08:00'
 ## 五、对比学习最小可运行示例（RAG 检索训练）
 
 ### 最核心思想：一个 batch 内"拉近推远"（in-batch negatives）
+
 ```
 假设 batch 里有 4 个 (query, doc) 对：
 
@@ -104,6 +105,7 @@ $$\mathcal{L} = -\log \frac{\exp(\text{sim}(q_i, d_i)/\tau)}{\sum_{j=1}^{B}\exp(
 其中 **τ 是温度系数，B 是 batch size**。本质就是：**在 batch 内做一次 softmax 分类，把正确的文档分到第一位。**
 
 ### 数据准备
+
 ```python
 # 每个样本是一个 (query, positive_doc) 对
 # 负样本不显式提供，由 batch 内其他 doc 充当
@@ -117,6 +119,7 @@ train_samples = [
 ```
 
 ### 编码器与损失函数
+
 ```python
 import torch
 import torch.nn as nn
@@ -163,6 +166,7 @@ class InfoNCELoss(nn.Module):
 ```
 
 ### 训练循环
+
 ```python
 from torch.utils.data import DataLoader, Dataset
 
@@ -210,6 +214,7 @@ for epoch in range(3):
 ### 进阶：引入难负样本（Hard Negatives）
 
 只用 in-batch negatives 的问题：batch 内随机凑的文档太容易区分，模型学不到细粒度判别力。RAG 场景通常先用检索器召回一批"看起来像但不正确"的文档作为难负样本。
+
 ```python
 # 每个样本变成 (query, positive, hard_negative)
 train_samples_hn = [
@@ -260,6 +265,7 @@ def info_nce_with_hard_neg(q_emb, p_emb, n_emb, tau=0.05):
 ---
 
 ## 六、在 RAG 全流程中的位置
+
 ```
 离线阶段：
   原始文档 → 切块 → [对比学习训练好的 Encoder] → 向量库
@@ -292,6 +298,7 @@ MRL 能让"前 m 维本身成为完整表征"，技巧一句话：**在多个"�
 ### 核心思路
 
 假设输出一个 1024 维向量 `z ∈ R¹⁰²⁴`。MRL 训练时**不只在完整向量上算一次损失**，而是逐尺度各算一次：
+
 ```
 L_total = w₁·loss(z[:64])   ← 取前 64 维，算一次检索损失
         + w₂·loss(z[:128])  ← 取前 128 维，再算一次
@@ -305,6 +312,7 @@ L_total = w₁·loss(z[:64])   ← 取前 64 维，算一次检索损失
 ### 代码示例（把第七节 InfoNCE 升级成 MRL 版）
 
 只是在外层循环各个维度前缀：
+
 ```python
 class MatryoshkaInfoNCELoss(nn.Module):
     """MRL: 在每个维度前缀上分别算 InfoNCE，再求平均"""
@@ -336,6 +344,7 @@ class MatryoshkaInfoNCELoss(nn.Module):
 ```
 
 训练循环完全不用改，只需换上损失函数：
+
 ```python
 model     = DualEncoder()                              # 与笔记相同，输出 1024 维
 loss_fn   = MatryoshkaInfoNCELoss(dims=[64, 128, 256, 512, 1024], temperature=0.05)

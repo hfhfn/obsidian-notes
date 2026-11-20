@@ -14,7 +14,8 @@ modified: '2026-08-05T09:58:11+08:00'
 
 这个方案用**两个分支**分别管理"原项目代码"和"自己的修改"，最清晰也最安全。
 
-### 初始设置（只需一次）```bash
+### 初始设置（只需一次）
+```bash
 # 1. 克隆项目
 git clone https://github.com/原用户/原项目.git my-project
 cd my-project
@@ -30,7 +31,8 @@ git checkout -b my-feature
 git push -u origin my-feature
 ```
 
-### 日常开发流程```bash
+### 日常开发流程
+```bash
 # 1. 每天开始工作前，同步原项目更新
 git checkout main
 git pull upstream main           # 获取原项目最新代码
@@ -49,7 +51,8 @@ git commit -m "我的功能开发"
 git push origin my-feature
 ```
 
-### 部署流程（确保最新）```bash
+### 部署流程（确保最新）
+```bash
 # 1. 准备部署代码
 git checkout main
 git pull upstream main           # 确保有原项目最新代码
@@ -71,7 +74,8 @@ npm run build
 
 这个方案直接在 `main` 分支上开发和部署，用 Git 的合并策略来管理。
 
-### 初始设置（只需一次）```bash
+### 初始设置（只需一次）
+```bash
 # 1. 克隆并设置远程仓库
 git clone https://github.com/原用户/原项目.git my-project
 cd my-project
@@ -87,7 +91,8 @@ git config merge.ours.driver true
 echo "重要配置文件 merge=ours" >> .gitattributes
 ```
 
-### 日常开发流程```bash
+### 日常开发流程
+```bash
 # 1. 每天开始工作前，获取原项目更新
 git fetch upstream
 
@@ -113,7 +118,8 @@ git commit -m "我的新功能"
 git push origin main
 ```
 
-### 部署流程```bash
+### 部署流程
+```bash
 # 直接部署当前 main 分支（已经包含原项目更新和自己的修改）
 git checkout main
 git pull origin main  # 确保最新
@@ -140,6 +146,7 @@ npm run build  # 或其他部署命令
 ## 我为什么推荐方案一？
 
 因为在实际工作中，方案一的优势很明显：
+
 ```bash
 # 1. 可以精细控制每个功能的合并
 git checkout my-feature
@@ -162,7 +169,8 @@ git cherry-pick feature/payment  # 或挑选支付功能
 
 为了方便，可以创建两个脚本：
 
-**sync.sh**（同步更新）```bash
+**sync.sh**（同步更新）
+```bash
 #!/bin/bash
 # 方案一用
 git checkout main
@@ -172,7 +180,8 @@ git rebase main
 echo "✅ 同步完成，当前在 my-feature 分支"
 ```
 
-**deploy.sh**（部署）```bash
+**deploy.sh**（部署）
+```bash
 #!/bin/bash
 # 准备部署
 git checkout main

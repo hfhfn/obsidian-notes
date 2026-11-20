@@ -24,6 +24,7 @@ modified: '2026-08-28T12:48:34+08:00'
 **文件**：`C:\Users\hfhfn\.claude\settings.json`
 
 Claude Code 只会从该全局配置中的 `statusLine` 字段启动自定义状态栏。当前应保留以下对象：
+
 ```json
 "statusLine": {
   "command": "cols=${COLUMNS:-}; case \"$cols\" in \"\"|*[!0-9]*) cols=$(stty size </dev/tty 2>/dev/null | awk '{print $2}');; esac; case \"$cols\" in \"\"|*[!0-9]*) cols=120;; esac; export COLUMNS=$(( cols > 4 ? cols - 4 : 1 )); plugin_dir=$(ls -1d \"${CLAUDE_CONFIG_DIR:-$HOME/.claude}\"/plugins/cache/*/claude-hud/*/ 2>/dev/null | sort -V | tail -1); exec \"C:/nvm4w/nodejs/node.exe\" \"${plugin_dir}dist/index.js\"",
@@ -51,6 +52,7 @@ Claude Code 只会从该全局配置中的 `statusLine` 字段启动自定义状
 - 已开启的显示项：模型、上下文条、工具、Skills、MCP、Agent、Todo、项目路径、额外目录、配置计数、Token 明细、速度、费用、用量、会话名、会话时长、会话 Token、最后响应时间、压缩次数、推理强度、输出风格、内存、Prompt Cache、Claude Code 版本、Advisor。
 
 当前完整配置备份如下，可在配置丢失时覆盖回 `config.json`：
+
 ```json
 {
   "lineLayout": "compact",
@@ -108,6 +110,7 @@ Claude Code 只会从该全局配置中的 `statusLine` 字段启动自定义状
 | 插件项目主页 | <https://github.com/jarrodwatts/claude-hud> | 官方源码、更新和问题排查。 |
 
 ### 1.4 不需要备份的缓存
+
 `C:\Users\hfhfn\.claude\plugins\claude-hud\transcript-cache\`、`speed-cache\`、`config-cache\` 是运行缓存；删掉后 HUD 会重新生成。它们不属于个性化配置，也不需要作为恢复材料保存。
 
 ---
@@ -117,6 +120,7 @@ Claude Code 只会从该全局配置中的 `statusLine` 字段启动自定义状
 ### 2.1 为什么曾经丢失
 
 cc-switch 会生成同一个 Claude Code 全局文件：
+
 `C:\Users\hfhfn\.claude\settings.json`
 
 Provider 的 `env`（Base URL、认证 Token、模型映射）和 cc-switch 的 Claude 通用配置会被合并后写入该文件。若 `statusLine` 仅手工存在于 `settings.json`，而没有存到 cc-switch 的通用配置中，后续切换 Provider/代理/模型时就可能被覆盖删除；但 HUD 插件本体和 `config.json` 通常仍在。
@@ -132,6 +136,7 @@ Provider 的 `env`（Base URL、认证 Token、模型映射）和 cc-switch 的 
 | 键 | `common_config_claude` |
 | Provider 要求 | 当前/目标 Claude Provider 的 `meta.commonConfigEnabled` 必须为 `true` |
 | 本机当前 Provider | 云豆（`commonConfigEnabled: true`） |
+
 `common_config_claude` 当前同时保存：`allowed_openai_params`、`statusLine`、`litellm_settings` 与 `model`。cc-switch 在切换 Provider 时会将这份通用配置和 Provider 的 `env` 一起写回 `~/.claude/settings.json`，所以 HUD 状态栏不会再因正常切换而丢失。
 
 > 重建 cc-switch 或迁移到新电脑时，优先在 cc-switch 的 **Claude 通用配置 / Common Config** 中恢复本文 1.1 的 `statusLine` 对象；不要只手工修改 `~/.claude/settings.json`。
@@ -163,6 +168,7 @@ Provider 的 `env`（Base URL、认证 Token、模型映射）和 cc-switch 的 
 4. 完整重启 Claude Code。
 
 如果想修改显示内容，再输入：
+
 ```text
 /claude-hud:configure
 ```
@@ -170,6 +176,7 @@ Provider 的 `env`（Base URL、认证 Token、模型映射）和 cc-switch 的 
 ### 方法 B：手动恢复 `statusLine`
 
 当插件还在但 `/claude-hud:setup` 不可用时，编辑：
+
 `C:\Users\hfhfn\.claude\settings.json`
 
 在根对象中加入本文 **1.1** 的 `statusLine` 对象。JSON 前一个字段末尾需要保留逗号；不要删除或修改现有 `env`、`model`、`litellm_settings` 等 cc-switch 字段。
@@ -179,6 +186,7 @@ Provider 的 `env`（Base URL、认证 Token、模型映射）和 cc-switch 的 
 ### 恢复来源
 
 此前可用的配置仍保存在：
+
 `C:\Users\hfhfn\.claude\settings.json.bak.proxy`
 
 其中第 22–25 行包含 HUD 的 `statusLine`。该备份只可作为恢复 `statusLine` 的参考，不能在 cc-switch 切换后整份覆盖回当前配置。
@@ -188,6 +196,7 @@ Provider 的 `env`（Base URL、认证 Token、模型映射）和 cc-switch 的 
 ## 4. 从零重新安装
 
 在 Claude Code 中按顺序执行：
+
 ```text
 /plugin marketplace add jarrodwatts/claude-hud
 /plugin install claude-hud
@@ -204,11 +213,13 @@ Provider 的 `env`（Base URL、认证 Token、模型映射）和 cc-switch 的 
 3. 再次重启 Claude Code。
 
 如果 `/claude-hud:setup` 报找不到 JavaScript 运行时，请确保 Node.js LTS 已安装；本机原配置使用 `C:\nvm4w\nodejs\node.exe`。可在 PowerShell 中检查：
+
 ```powershell
 Test-Path 'C:\nvm4w\nodejs\node.exe'
 ```
 
 若不存在，可安装 Node.js LTS：
+
 ```powershell
 winget install OpenJS.NodeJS.LTS
 ```
@@ -222,6 +233,7 @@ winget install OpenJS.NodeJS.LTS
 ### 5.1 检查 `statusLine` 是否仍存在
 
 在 PowerShell 运行：
+
 ```powershell
 $settings = Get-Content -Raw "$HOME\.claude\settings.json" | ConvertFrom-Json
 $settings.statusLine
@@ -230,6 +242,7 @@ $settings.statusLine
 预期结果：`type` 为 `command`，且 `command` 中含有 `claude-hud`。
 
 ### 5.2 检查 Node.js、插件注册表与 HUD 入口
+
 ```powershell
 $claudeDir = Join-Path $HOME '.claude'
 $node = 'C:\nvm4w\nodejs\node.exe'

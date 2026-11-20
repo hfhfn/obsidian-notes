@@ -29,6 +29,7 @@ modified: '2026-04-02T12:35:46+08:00'
 ### 1.1 KV Cache 是什么？
 
 Transformer 在自回归生成时，每一步都需要计算所有历史 token 的 Key（K）和 Value（V）矩阵。为了避免重复计算，框架会将这些 K/V 矩阵缓存在显存中，称为 **KV Cache**。
+
 ```
 输入：  [token_1, token_2, ..., token_n]
           ↓
@@ -55,6 +56,7 @@ KV Cache：存储每个 token 的 Key 和 Value 向量
 ### 2.1 设计思想：借鉴操作系统虚拟内存分页
 
 PagedAttention 直接借鉴了操作系统中**虚拟内存分页（Virtual Memory Paging）**的思想：
+
 ```
 操作系统虚拟内存                    vLLM PagedAttention
 ─────────────────────────────────────────────────────
@@ -65,6 +67,7 @@ PagedAttention 直接借鉴了操作系统中**虚拟内存分页（Virtual Memo
 ```
 
 ### 2.2 工作原理
+
 ```
                     ┌─────────────────────────────────────────┐
                     │           显存（物理 KV 块池）              │
@@ -90,6 +93,7 @@ PagedAttention 直接借鉴了操作系统中**虚拟内存分页（Virtual Memo
 ### 2.3 共享 KV Cache（Copy-on-Write 机制）
 
 PagedAttention 还支持多个请求共享同一份 KV Cache 块，典型场景是 **Beam Search** 和 **Prefix Caching**：
+
 ```
 并行采样（Parallel Sampling）：
   同一个 prompt → 生成 N 个不同输出
@@ -103,6 +107,7 @@ PagedAttention 还支持多个请求共享同一份 KV Cache 块，典型场景�
 ## 3. Continuous Batching（连续批处理）
 
 ### 3.1 传统 Static Batching 的问题
+
 ```
 传统静态批处理（Static Batching）：
 
@@ -119,6 +124,7 @@ GPU 时间线：
 结果：GPU 利用率约 **30%**
 
 ### 3.2 Continuous Batching 的工作方式
+
 ```
 连续批处理（Continuous Batching）：
 
@@ -151,6 +157,7 @@ vLLM 的调度器（Scheduler）在每次迭代时决定：
 ### 4.1 核心思想
 
 很多场景中，不同请求共享相同的前缀（如 System Prompt、Few-shot 示例），Prefix Caching 将这部分的 KV Cache 持久化复用。
+
 ```
 多轮对话场景：
 
@@ -167,6 +174,7 @@ vLLM 的调度器（Scheduler）在每次迭代时决定：
 ### 4.2 实现机制
 
 vLLM 使用 **基于哈希的 KV 块管理**：
+
 ```python
 # 伪代码示意
 block_hash = hash(token_ids[:block_size])  # 对每个块的内容取哈希
@@ -197,12 +205,14 @@ else:
 ### 5.1 为什么要投机采样？
 
 大模型推理的瓶颈是 **自回归解码的串行性**：每次只能生成一个 token，无法并行化。
+
 ```
 传统解码：
 大模型 → [t1] → [t1,t2] → [t1,t2,t3] → ...（完全串行）
 ```
 
 ### 5.2 投机采样的工作流程
+
 ```
 投机采样（Speculative Decoding）：
 
@@ -238,6 +248,7 @@ else:
 ### 6.1 OpenAI 兼容 API
 
 vLLM 内置 OpenAI 兼容的 REST API 服务，无需修改任何业务代码即可替换 OpenAI 调用：
+
 ```bash
 # 一行命令启动服务
 python -m vllm.entrypoints.openai.api_server \
@@ -246,6 +257,7 @@ python -m vllm.entrypoints.openai.api_server \
     --max-model-len 8192 \
     --gpu-memory-utilization 0.9
 ```
+
 ```python
 # 业务代码无需修改，只需换 base_url
 from openai import OpenAI
@@ -276,6 +288,7 @@ response = client.chat.completions.create(
 ## 7. 性能对比与选型建议
 
 ### 7.1 与 HuggingFace Transformers 对比
+
 ```
 相同硬件（A100 80GB），相同模型（LLaMA-2-13B）：
 
@@ -298,6 +311,7 @@ P99 延迟（ms）        ~2000           ~800           2.5x
 | **MLC LLM** | 移动端 / 边缘设备 | 2~8GB | 跨平台（iOS/Android/WebGPU） |
 
 ### 7.3 选型决策树
+
 ```
 是否需要服务多个并发用户？
 ├── 是 → 显存 ≥ 16GB？
@@ -313,6 +327,7 @@ P99 延迟（ms）        ~2000           ~800           2.5x
 ## 8. 生产环境最佳实践
 
 ### 8.1 必开的关键参数
+
 ```bash
 python -m vllm.entrypoints.openai.api_server \
     --model <your-model> \
@@ -331,6 +346,7 @@ python -m vllm.entrypoints.openai.api_server \
 ```
 
 ### 8.2 Prefix Caching 的最大化收益
+
 ```python
 # ✅ 好的实践：所有请求共享相同的 System Prompt
 system_prompt = "你是一个专业的客服助手..."  # 固定不变
@@ -347,6 +363,7 @@ system_prompt = f"当前时间：{datetime.now()}，你是一个客服助手..."
 ```
 
 ### 8.3 显存估算公式
+
 ```
 KV Cache 显存（GB）≈
     2（K+V）× num_layers × num_heads × head_dim × seq_len × batch_size × dtype_bytes
@@ -375,6 +392,7 @@ KV Cache 显存（GB）≈
 ---
 
 ## 总结
+
 ```
 vLLM 核心创新体系
 

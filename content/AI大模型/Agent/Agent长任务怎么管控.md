@@ -39,6 +39,7 @@ modified: '2026-11-15T14:21:38+08:00'
 ### ① 分层拆解 — 逐层锁死边界
 
 每个步骤的**交付成果必须清晰写死**，明确写清输入是什么、输出是什么、怎样才算完成，避免模糊描述（如仅拆成「查资料」）。
+
 ```text
 示例（新能源行业研报任务）：
 ├─ Step1: 逐层检索行业数据
@@ -65,6 +66,7 @@ def validate_step(step):
 拆分并非一成不变：遇到**工具调用失败**或**信息不足**时，应允许 Agent 调整后续步骤的顺序或内容，而非一劳永逸地写死全流程。
 
 ### ⭐ 杀手锏：任务回滚机制
+
 ```bash
 agent-ctl inspect --task-id 108
 [FAIL] 步骤2 数据置信度低于阈值（62%）
@@ -108,6 +110,7 @@ agent-ctl inspect --task-id 108
 | 最大步骤数 | 30 步 | 强制终止 |
 | 最大工具调用次数 | 50 次 | 强制终止 |
 | 最大执行时长 | 300 秒 | 强制终止 |
+
 ```python
 # 伪代码示意
 if steps >= MAX_STEPS or calls >= MAX_CALLS or elapsed >= MAX_DURATION:
@@ -123,6 +126,7 @@ if steps >= MAX_STEPS or calls >= MAX_CALLS or elapsed >= MAX_DURATION:
 ### ① 提前定义工具的注册表与参数校验
 
 入参格式、取值范围、调用限制须显式声明，非法参数直接拦截。
+
 ```text
 示例错误复现：
 [T00L1] query_data(code='A01') → 成功
@@ -150,6 +154,7 @@ if steps >= MAX_STEPS or calls >= MAX_CALLS or elapsed >= MAX_DURATION:
 只做最终结果检查是不够的，需要进行**闭环验证**，通过三道把关：
 
 ### 第一道：目标把关
+
 ```python
 def audit_long_task(trace, original_goal):
     # 1. 目标把关
@@ -161,6 +166,7 @@ def audit_long_task(trace, original_goal):
 - 过程中是否有偏离导致部分要求未完成？
 
 ### 第二道：过程合规把关
+
 ```python
 # 2. 过程合规把关
 assert not trace.has_redundant_steps()        # 无冗余步骤
@@ -177,6 +183,7 @@ return True
 - 结论是否有依据支撑？
 
 ### 补充：任务复盘机制（闭环关键）
+
 ```bash
 agent-ctl review --dump-failed ./cases
 agent-ctl optimize --rule=all

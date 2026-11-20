@@ -550,6 +550,7 @@ python
 复制
 
 下载
+
 ```python
 import numpy as np
 from scipy.optimize import minimize
@@ -619,6 +620,7 @@ python
 复制
 
 下载
+
 ```python
 def tucker_decomposition(X, ranks, max_iter=100):
     modes = X.shape
@@ -701,6 +703,7 @@ text
 复制
 
 下载
+
 ```
 输入张量 → [展开为向量] → [全连接层（降维）] → [外积重组] → 输出张量
 ```
@@ -740,6 +743,7 @@ text
 复制
 
 下载
+
 ```
 输入张量 → [模态卷积（因子矩阵）] → [核心张量（动态池化）] → [逆投影] → 输出张量
 ```
@@ -793,6 +797,7 @@ python
 复制
 
 下载
+
 ```python
 import torch
 
@@ -821,6 +826,7 @@ python
 复制
 
 下载
+
 ```python
 class TuckerDecomposition(torch.nn.Module):
     def __init__(self, input_dims, ranks):

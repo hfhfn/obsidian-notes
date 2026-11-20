@@ -36,6 +36,7 @@ modified: '2026-11-05T21:42:12+08:00'
 | 第 1 课时 | 第 1-3 章 | 模型怎么调？LangChain 凭什么统一？提示词怎么写？ | 写出第一条可运行的 LCEL 链 |
 | 第 2 课时 | 第 4-6 章 | 模型怎么用工具？Agent 到底循环什么？记忆为什么分两层？ | 构建带工具和记忆的 Agent |
 | 第 3 课时 | 第 7-9 章 | 怎么让模型读自己的文档？多个 Agent 怎么协作？怎么观察？ | 完成一个本地知识库问答 Agent |
+
 ```mermaid
 flowchart LR
     A["第1章<br/>ChatModel"] --> B["第2章<br/>Runnable 协议"]
@@ -73,6 +74,7 @@ flowchart LR
 一句话：**LangChain 是「模型与外部世界之间」的胶水层。** 胶水层不出彩，但缺了它，每个项目都要重写一遍。
 
 ### 1.2 四个层次（决定你的 import 从哪来）
+
 ```mermaid
 flowchart TB
     A["集成层<br/>langchain-ollama / -openai / -chroma …"]
@@ -96,11 +98,13 @@ flowchart TB
 > 看到 `langchain_community` 的教程要警惕——它 2026 年已停止维护，新代码不该依赖。
 
 ### 1.3 装环境 + 第一条调用
+
 ```bash
 pip install -qU langchain langchain-ollama
 ollama pull qwen2.5:7b          # 对话模型
 ollama pull mxbai-embed-large   # 后面 RAG 用的向量模型
 ```
+
 ```python
 from langchain_ollama import ChatOllama
 
@@ -151,6 +155,7 @@ LangChain 里几乎所有东西——模型、提示词模板、输出解析器�
 > 这是 LangChain 1.0 唯一没变过的核心设计。
 
 ### 2.2 第一条 LCEL 链
+
 ```python
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
@@ -166,6 +171,7 @@ print(chain.invoke({"question": "什么是 Runnable？"}))
 ```
 
 数据是怎么流的：
+
 ```text
 {"question": "..."}  →  prompt  →  消息列表  →  llm  →  AIMessage  →  parser  →  "文本"
 ```
@@ -174,6 +180,7 @@ print(chain.invoke({"question": "什么是 Runnable？"}))
 > 不加的话 `chain.invoke()` 返回 `AIMessage`，你还得自己取 `.content`。解析器的作用就是把消息对象变成字符串，方便后续拼装或直接展示。
 
 ### 2.3 三种调用方式
+
 ```python
 chain.invoke({"question": "什么是 Agent？"})        # 一次性返回
 chain.batch([{"question": "A 是什么"}, {"question": "B 是什么"}])   # 并行
@@ -204,6 +211,7 @@ for chunk in chain.stream({"question": "讲讲 RAG"}):
 - 知道**什么时候不该用它**
 
 ### 3.1 模板的两个关键动作
+
 ```python
 prompt = ChatPromptTemplate.from_messages([
     ("system", "你是{role}，回答时只使用给定资料：\n{context}"),
@@ -233,6 +241,7 @@ prompt.format_messages(role="助教", context="……", question="……")
 | `create_agent` 建 Agent | **消息数组** + `system_prompt`，不要塞 `ChatPromptTemplate` |
 | 动态人设（按用户等级变化） | `@dynamic_prompt` 中间件 |
 | LCEL 链（翻译、摘要、RAG 拼装） | `ChatPromptTemplate` 仍然是标准做法 |
+
 ```python
 # Agent 场景：直接给字符串
 agent = create_agent(model=llm, tools=[], system_prompt="你是一个数学助教。")
@@ -266,6 +275,7 @@ chain = prompt | llm | StrOutputParser()
 - 手工跑一次完整循环，看清 Agent 的底牌
 
 ### 4.1 工具的三个要素
+
 ```python
 from langchain_core.tools import tool
 
@@ -285,6 +295,7 @@ def get_weather(city: str) -> str:
 > 模型**只靠描述**判断该不该调用这个工具。写成 `"""查询天气"""` 和 `"""查询指定城市的实时天气，参数为城市中文名，如「杭州」"""`，调用准确率天差地别。
 
 ### 4.2 模型到底返回了什么
+
 ```python
 llm_with_tools = llm.bind_tools([get_weather])
 msg = llm_with_tools.invoke("杭州天气怎么样？")
@@ -296,6 +307,7 @@ print(msg.tool_calls)   # [{'name': 'get_weather', 'args': {'city': '杭州'}, '
 **关键认知**：模型不会真的去查天气。它只输出一段结构化数据说「我想调用 `get_weather`，参数是杭州」。**真正执行函数的是你的代码。**
 
 ### 4.3 手工跑一遍循环
+
 ```python
 from langchain_core.messages import HumanMessage, ToolMessage
 
@@ -309,6 +321,7 @@ for call in ai_msg.tool_calls:                  # 可能一次调多个
 
 print(llm_with_tools.invoke(msgs).content)      # 拿到带工具结果的回答
 ```
+
 ```mermaid
 flowchart LR
     A["用户提问"] --> B["LLM"]
@@ -341,6 +354,7 @@ flowchart LR
 - 知道什么时候该用中间件
 
 ### 5.1 最小 Agent
+
 ```python
 from langchain.agents import create_agent
 
@@ -378,6 +392,7 @@ print(result["messages"][-1].content)
 | `before_agent` / `after_agent` | 每次 `invoke` 各一次 |
 | `before_model` / `after_model` | **每次调用模型**各一次 |
 | `wrap_tool_call` | 包住每次工具执行 |
+
 ```python
 from langchain.agents.middleware import dynamic_prompt, ModelRequest
 
@@ -412,6 +427,7 @@ def level_based(request: ModelRequest) -> str:
 - 会用 `store` 存用户画像，并知道 `InMemory*` 会丢
 
 ### 6.1 短期记忆：让同一会话接得上
+
 ```python
 from langgraph.checkpoint.memory import InMemorySaver
 
@@ -430,6 +446,7 @@ agent.invoke({"messages": [{"role": "user", "content": "我叫什么？"}]}, cfg
 ### 6.2 长期记忆：让新会话也认识你
 
 短期记忆活在一个 thread 里；用户偏好、画像这类**跨会话**的事实，要放进 `store`。
+
 ```python
 # UserContext 是一个 @dataclass，至少含 user_id 字段（见第 5.3 节的 context_schema）
 @tool
@@ -447,6 +464,7 @@ def save_profile(profile: dict, runtime: ToolRuntime[UserContext]) -> str:
 | 键 | `thread_id` | `(namespace..., key)` |
 
 ### 6.3 持久化：别在生产用 InMemory
+
 `InMemorySaver` / `InMemoryStore` 只活在当前进程，**一重启全没**。换成 `SqliteSaver` / `SqliteStore` 或 `PostgresSaver` / `PostgresStore`，接口完全不变，只改构造方式。
 
 > [!warning] 常见误区
@@ -474,6 +492,7 @@ def save_profile(profile: dict, runtime: ToolRuntime[UserContext]) -> str:
 - 分清「管道式 RAG」和「Agentic RAG」的适用场景
 
 ### 7.1 四步流水线
+
 ```mermaid
 flowchart LR
     D["文档"] --> L["Loader"] --> S["Splitter"] --> E["Embedding"] --> V[("向量库")]
@@ -489,6 +508,7 @@ flowchart LR
 | VectorStore / Retriever | 存 + 按相似度取 | `Chroma` / `FAISS` |
 
 ### 7.2 最小链路
+
 ```python
 from langchain_unstructured import UnstructuredLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -515,6 +535,7 @@ docs = db.as_retriever(search_kwargs={"k": 3}).invoke("北京大学什么时候�
 | 优点 | 简单、快、可预测 | 能多轮检索、能判断「不用查」 |
 | 缺点 | 不管是否需要都查一次 | 更慢、更贵、更难调试 |
 | 适合 | 客服问答、文档问答 | 研究助手、多源信息整合 |
+
 ```python
 @tool
 def search_knowledge(query: str) -> str:
@@ -558,6 +579,7 @@ agent = create_agent(model=llm, tools=[search_knowledge],
 代价：多一层调用、多一份延迟、多一处可能出错的地方。**简单任务别拆。**
 
 ### 8.2 子 Agent 就是工具
+
 ```python
 @tool("math_expert", description="处理算术与代数问题。")
 def call_math_agent(query: str) -> str:
@@ -596,6 +618,7 @@ supervisor = create_agent(
 - 记住上生产前必查的几件事
 
 ### 9.1 看中间结果
+
 ```python
 for chunk in chain.stream({"question": "什么是 Agent？"}):
     print(chunk, end="", flush=True)          # 只看到最终输出
@@ -612,6 +635,7 @@ async for ev in chain.astream_events({"question": "..."}, version="v2"):
 | 全链路追踪 + 成本统计 | LangSmith / Langfuse |
 
 ### 9.2 追踪
+
 ```bash
 export LANGSMITH_TRACING=true
 export LANGSMITH_API_KEY="..."

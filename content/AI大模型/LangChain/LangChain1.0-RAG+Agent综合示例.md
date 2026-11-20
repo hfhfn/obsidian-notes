@@ -25,6 +25,7 @@ modified: '2026-10-02T17:52:47+08:00'
 ---
 
 ## 🏗️ 整体架构
+
 ```text
 本地文档 ──Loader──▶ Document ──Splitter──▶ chunks ──Embedding──▶ VectorStore(Chroma)
                                                                         │
@@ -40,6 +41,7 @@ modified: '2026-10-02T17:52:47+08:00'
 ---
 
 ## 📦 依赖安装
+
 ```bash
 # LangChain 1.0：主包只保留 Agent 核心，其余全部拆成独立包
 pip install -U \
@@ -63,6 +65,7 @@ pip install -U \
 > **旧**：`from langchain_community.llms import Ollama`（已移除/废弃）
 > **新**：`from langchain_ollama import ChatOllama`（对话，推荐）或 `OllamaLLM`（文本补全）
 > 关键：`ChatOllama` 返回 `AIMessage`，取 `.content`；它是后续 Agent / 工具调用的基础。
+
 ```python
 from langchain_ollama import ChatOllama
 
@@ -82,6 +85,7 @@ print(llm.invoke("你是谁").content)
 > **旧**：`from langchain_community.embeddings import OllamaEmbeddings`
 > **新**：`from langchain_ollama import OllamaEmbeddings`
 > **核心 API 不变**：`embed_query()` / `embed_documents()` 照用。
+
 ```python
 from langchain_ollama import OllamaEmbeddings
 
@@ -103,6 +107,7 @@ _ = embeddings.embed_documents(["文档1", "文档2"])
 > **新**：`from langchain_unstructured import UnstructuredLoader`（独立包）
 > 参数变化：`mode` 被移除 → 改用 `chunking_strategy`；`url` 含义变为 API 服务器地址。
 > 简版替代：纯 txt 仍可用 `TextLoader`（在 `langchain_community`，已停维）。
+
 ```python
 from langchain_unstructured import UnstructuredLoader
 
@@ -125,6 +130,7 @@ print(documents[0].metadata)   # 保留 source 等元数据
 > **旧**：`from langchain.text_splitter import CharacterTextSplitter`
 > **新**：`from langchain_text_splitters import CharacterTextSplitter`（独立包）
 > 方法选择：**来自加载器的文档用 `split_documents()`（保留 metadata）**；纯字符串才用 `split_text()`。
+
 ```python
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
@@ -146,6 +152,7 @@ print(f"切分后块数：{len(chunks)}")
 > **旧**：`from langchain_community.vectorstores import Chroma`
 > **新**：`from langchain_chroma import Chroma`（独立包，无统一的「store 包」）
 > 用法基本不变：`from_documents()` / `similarity_search()`。
+
 ```python
 from langchain_chroma import Chroma
 
@@ -165,6 +172,7 @@ print(f"已写入向量库，集合大小：{vectorstore._collection.count()}")
 > **旧**：`db.as_retriever(search_kwargs={'k': 1})` + `retriever.get_relevant_documents(q)`
 > **新**：`as_retriever()` **不变**；但检索器现在是 Runnable，**统一用 `.invoke(q)`**（`get_relevant_documents` 属旧接口）。
 > 认知转变：Retriever 从「独立类」变成「向量库的方法 / 一种模式」。
+
 ```python
 retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
 
@@ -181,6 +189,7 @@ for d in docs:
 > **旧**：`from langchain import PromptTemplate`
 > **新**：`from langchain_core.prompts import ChatPromptTemplate`（对话场景推荐 Chat 版）
 > **注意**：在**纯 RAG 链**里，`ChatPromptTemplate` 仍是核心起点（`{context}` 占位符把检索结果动态填入）。
+
 ```python
 from langchain_core.prompts import ChatPromptTemplate
 
@@ -197,6 +206,7 @@ rag_prompt = ChatPromptTemplate.from_messages([
 > [!info] 迁移说明｜Chain
 > **旧**：`create_retrieval_chain(...)` / `RetrievalQA`（已移出主包）
 > **新**：用 **LCEL 管道** `prompt | llm | StrOutputParser()`，或直接写几行 Python。官方更推荐「显式代码」。
+
 ```python
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
@@ -222,6 +232,7 @@ print(rag_chain.invoke("北京大学是什么时候成立的？"))
 > **旧**：`from langchain.agents import load_tools`（字符串别名加载，已不推荐）
 > **新**：`@tool` 装饰器自己写（`from langchain.tools import tool`），或直接导入 `langchain_community.tools` 里的现成工具类。
 > 这一步把「检索」变成 Agent 可自主调用的工具——这就是 **Agentic RAG**。
+
 ```python
 from langchain.tools import tool
 
@@ -248,6 +259,7 @@ tools = [search_knowledge_base, calculate]
 > **旧**：`initialize_agent(tools, llm, agent=AgentType.XXX)` + `ConversationBufferMemory`
 > **新**：`create_agent(model, tools, system_prompt, checkpointer)`；记忆靠 **`checkpointer` + `thread_id`**，不再手动管 `chat_history`。
 > **注意**：`create_agent` 原生对接 **Message Array**，不要塞 `ChatPromptTemplate` 进去（会报 `Unsupported message type`）。
+
 ```python
 from langchain.agents import create_agent
 from langgraph.checkpoint.memory import InMemorySaver
@@ -269,6 +281,7 @@ agent = create_agent(
 > [!info] 迁移说明｜调用
 > **旧**：`agent.run("字符串")`
 > **新**：`agent.invoke({"messages": [{"role": "user", "content": "..."}]}, config)`，用 `thread_id` 维持会话。
+
 ```python
 config = {"configurable": {"thread_id": "kb-demo-1"}}   # 同一会话复用，记忆自动保持
 
@@ -287,6 +300,7 @@ print(ask("顺便帮我算一下 37 * 12 + 5"))       # → 触发 calculate
 ---
 
 ## 🧩 完整整合代码（单文件可跑）
+
 ```python
 """
 rag_agent_demo.py — LangChain 1.0 本地知识库问答 Agent

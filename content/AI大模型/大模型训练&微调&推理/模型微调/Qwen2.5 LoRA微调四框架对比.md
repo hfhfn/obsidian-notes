@@ -24,12 +24,14 @@ modified: '2026-11-17T05:46:45+08:00'
 这是“手写代码”路线，完全可控，适合需要深度定制训练流程的场景。核心库是 `transformers` + `peft` + `trl` + `datasets`。
 
 **安装依赖：**
+
 ```bash
 pip install -U "transformers>=4.44" "peft>=0.12" "trl>=0.9" \
   "datasets" "accelerate" "bitsandbytes"
 ```
 
 **完整训练脚本 `train_lora_peft.py`：**
+
 ```python
 from datasets import load_dataset
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -104,6 +106,7 @@ tokenizer.save_pretrained(f"{OUTPUT_DIR}/final")
 ## 二、Unsloth：显存更省、训练更快
 
 Unsloth 对注意力内核和梯度检查点做了专门优化，官方宣称在相同硬件下 VRAM 占用可减少约 30%，速度也有明显提升。API 仍然是 `FastLanguageModel` + `SFTTrainer`，迁移成本低。
+
 ```python
 from unsloth import FastLanguageModel
 from trl import SFTTrainer, SFTConfig
@@ -172,6 +175,7 @@ Unsloth 保存出来的也是标准 PEFT adapter 格式，可以用 PEFT 的标�
 LLaMA-Factory 把训练参数全部收敛到 YAML，适合快速实验和多组配置对比，不需要写训练循环代码。
 
 **训练 YAML `qwen2.5_lora_sft.yaml`：**
+
 ```yaml
 model_name_or_path: Qwen/Qwen2.5-1.5B-Instruct
 stage: sft
@@ -206,6 +210,7 @@ bf16: true
 ```
 
 **启动训练：**
+
 ```bash
 llamafactory-cli train qwen2.5_lora_sft.yaml
 ```
@@ -219,6 +224,7 @@ LLaMA-Factory 的 `finetuning_type: lora` 对应标准 LoRA；`lora_target: all`
 Axolotl 和 LLaMA-Factory 定位相似，但生态更偏 “研究/大规模实验” 风格，同样通过 YAML 描述模型、数据和方法，一条命令启动。
 
 **最小 LoRA YAML 示例 `qwen2.5-lora.yml`：**
+
 ```yaml
 base_model: Qwen/Qwen2.5-1.5B-Instruct
 model_type: AutoModelForCausalLM
@@ -264,6 +270,7 @@ save_steps: 500
 ```
 
 **启动训练：**
+
 ```bash
 axolotl train qwen2.5-lora.yml
 ```
@@ -275,6 +282,7 @@ Axolotl 同样支持 `axolotl merge-lora` 命令把 adapter 合并进基座，�
 ## 五、QLoRA 微调示例
 
 QLoRA 的本质是：**基座权重以 4bit NF4 量化加载并冻结，只训练 LoRA adapter**，从而把显存需求压到 16bit LoRA 的几分之一。以 Transformers + PEFT 为例：
+
 ```python
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
@@ -344,6 +352,7 @@ trainer = SFTTrainer(
 trainer.train()
 trainer.save_model("./qwen2.5-1.5b-qlora/final")
 ```
+
 `prepare_model_for_kbit_training` 是 QLoRA 流程中不可省略的一步：它会处理量化模型训练的精度细节，并启用适合 4bit 的梯度检查点，否则训练可能不稳定或直接报错。
 
 **Unsloth 下的 QLoRA 只需要改一个参数**：把 `FastLanguageModel.from_pretrained` 中的 `load_in_4bit=False` 改为 `load_in_4bit=True`，其余 LoRA 配置和训练代码完全不变。LLaMA-Factory 和 Axolotl 则在 YAML 中把对应量化开关打开即可（LLaMA-Factory 使用 `quantization_bit: 4`，Axolotl 使用 `load_in_4bit: true`）。
@@ -359,6 +368,7 @@ LoRA 训练产物是 **adapter 权重**（`adapter_model.bin` / `adapter_model.s
 这种方式保留 adapter 独立文件，基座仍然共享，适合需要同时维护多个任务 adapter、随时切换的场景。
 
 **Transformers / PEFT 标准加载：**
+
 ```python
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
@@ -381,6 +391,7 @@ print(tokenizer.decode(outputs[0], skip_special_tokens=True))
 ```
 
 如果是 **QLoRA 训练出来的 adapter**，加载时基座必须使用**相同的 4bit 量化配置**，否则 adapter 的数值尺度不匹配：
+
 ```python
 bnb_config = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type="nf4", ...)
 base_model = AutoModelForCausalLM.from_pretrained(
@@ -390,6 +401,7 @@ model = PeftModel.from_pretrained(base_model, ADAPTER)
 ```
 
 **Unsloth 下的动态加载：**
+
 ```python
 from unsloth import FastLanguageModel
 
@@ -406,6 +418,7 @@ FastLanguageModel.for_inference(model)           # 必须调用，否则 4bit �
 把 LoRA 的增量权重“融进”基座的线性层，导出一个不依赖 PEFT 的普通 Hugging Face 模型。推理时不需要 `PeftModel` 包装，可以直接交给 vLLM、TGI 等推理引擎。
 
 **PEFT 合并：**
+
 ```python
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
@@ -421,12 +434,14 @@ tokenizer.save_pretrained("./qwen2.5-1.5b-merged")
 ```
 
 合并后，`./qwen2.5-1.5b-merged` 就是一个标准模型目录，加载方式和普通模型完全一样：
+
 ```python
 model = AutoModelForCausalLM.from_pretrained("./qwen2.5-1.5b-merged", torch_dtype="bfloat16")
 tokenizer = AutoTokenizer.from_pretrained("./qwen2.5-1.5b-merged")
 ```
 
 **LLaMA-Factory 合并**用 `llamafactory-cli merge`，只需在 YAML 中指定基座、adapter 和输出目录：
+
 ```yaml
 model: Qwen/Qwen2.5-1.5B-Instruct
 peft_config:
@@ -434,6 +449,7 @@ peft_config:
   adapter_name_or_path: outputs/qwen2.5_lora
 export_dir: outputs/qwen2.5_merged
 ```
+
 ```bash
 llamafactory-cli merge merge.yaml
 ```

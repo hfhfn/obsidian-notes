@@ -172,6 +172,7 @@ $$最终得分 = \alpha \times 向量得分 + (1-\alpha) \times BM25得分,\quad
 ## 8. 核心代码（依据图1 OCR 整理）
 
 > 下方代码为按图面 OCR 语义校正后的示例实现，函数名与逻辑忠实于原图；变量/全角括号等 OCR 噪声已修正，建议对照原图校验细节。
+
 ```python
 import faiss, pickle, os, numpy as np
 from langchain_community.vectorstores import FAISS

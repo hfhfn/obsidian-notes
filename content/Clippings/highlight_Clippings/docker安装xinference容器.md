@@ -21,7 +21,8 @@ modified: '2026-08-05T11:03:29+08:00'
 
 ## 📌 摘录（核心方案）
 
-### Docker 启动 Xinference（GPU）```powershell
+### Docker 启动 Xinference（GPU）
+```powershell
 docker run --name xinference -d `
   -p 9997:9997 `
   -e XINFERENCE_HOME=/data `
@@ -40,7 +41,8 @@ docker run --name xinference -d `
 - 第一次用命令行启动（便于 UI 下载模型），后续用 compose 自动加载
 - **Windows 编写 .sh 脚本需转 Unix(LF) 格式**（Notepad++ 编辑→格式→转换）
 
-### 自动加载模型脚本（简化）```bash
+### 自动加载模型脚本（简化）
+```bash
 xinference launch --model-name qwen3 --model-type LLM \
   --model-engine vLLM --model-format awq \
   --size-in-billions 32 --quantization Int4 \

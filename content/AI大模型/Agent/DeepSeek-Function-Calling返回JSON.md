@@ -27,6 +27,7 @@ modified: '2026-09-05T18:28:22+08:00'
 | Function Calling（开启工具时） | `{"name": "get_weather", "arguments": {"city": "北京"}}` ← **调用指令**，非结果 |
 
 ## 3. 完整工作流（重点：真正调用靠你的代码）
+
 ```text
 ① 把函数描述发给模型
 ② 模型返回 JSON 指令 {"name":"get_weather","arguments":{"city":"北京"}}

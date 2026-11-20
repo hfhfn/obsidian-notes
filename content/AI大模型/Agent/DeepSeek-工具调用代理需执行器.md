@@ -48,6 +48,7 @@ modified: '2026-09-05T18:28:16+08:00'
 - **返回值**：从 `app.invoke()` 的结果里取最终消息。
 
 ## 6. AgentExecutor 改造示例（手动循环 → 框架）
+
 ```python
 from langchain.agents import AgentExecutor, create_tool_calling_agent
 from langchain_core.prompts import ChatPromptTemplate

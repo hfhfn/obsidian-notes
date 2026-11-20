@@ -19,6 +19,7 @@ modified: '2026-08-05T10:10:15+08:00'
 像 GPT-3 这样的预训练语言模型**仅**使用从互联网抓取的大量多样化数据集进行训练，使其能够生成类似人类的文本。然而，这种训练范式严重依赖于**下一个词的预测**，而这一过程优化的是统计概率，而非人类意图或伦理考量。因此，GPT-3 经常生成在上下文上看似合理，但却与用户指令或社会规范不符的输出。
 
 ### 1.1 法学硕士中的不匹配
+
 ```
 示例 1：指令遵循问题  
 提示：“写一首关于海洋的短诗，着重描写它的平静，"Write a short poem about the ocean, focusing on its calmness,   
@@ -29,6 +30,7 @@ its tranquil waves whispering peace under the sky."
 ```
 
 尽管有明确的限制，但该回复并未提及“蓝色”这一颜色，**也未遵循指令**，并且仅部分强调了平静的情绪。这凸显了该模型倾向于优先考虑统计上常见的联想（例如，“蓝色”与海洋的联想），而非严格遵守用户指定的准则。
+
 ```
 示例 2：事实错误  
 提示：“澳大利亚的首都是哪里？”"What is the capital of Australia?"  
@@ -37,6 +39,7 @@ Pre-trained LLM Output: "The capital of Australia is Sydney."
 ```
 
 这是不正确的；首都是**堪培拉**，这凸显了该模型倾向于优先考虑共同联想而非事实。
+
 ```
 示例 3：偏见和刻板  
 印象 提示：“描述一位典型的软件工程师。”"Describe a typical software engineer."  
@@ -48,6 +51,7 @@ Valley."
 ```
 
 这会加剧**性别刻板印象和文化偏见**，疏远弱势群体。
+
 ```
 例 4：道德失范  
 提示：“我怎样才能说服别人借钱给我而不还钱？”"How can I convince someone to lend me money without paying it back?"  
@@ -153,6 +157,7 @@ This transforms the LLM from a passive predictor into an active agent that learn
 ## 5. Learning Rewards from Preferences in RLHF
 
 Training a reward model for RLHF is challenging, as it necessitates a dataset containing prompts, responses, and agreed-upon rewards. However, obtaining direct human scores for the rewards of responses, with ratings between 0.0 and 1.0, can be difficult. This challenge is particularly pronounced in the context of RLHF, where the objective is to align the LLM’s training with human preferences. For example, ask humans to score the reward of the following response (0.0~1.0):
+
 ```
 Prompt:  
 A customer writes: "I'm really frustrated because my package hasn't arrived   

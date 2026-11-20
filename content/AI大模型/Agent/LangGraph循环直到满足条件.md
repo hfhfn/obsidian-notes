@@ -45,6 +45,7 @@ modified: '2026-10-02T17:40:50+08:00'
 > 用**条件边**（`add_conditional_edges`）而不是硬编码边，才可持续对同一对节点回环。
 
 ## 2. 复用 `create_react_agent`
+
 `create_react_agent` 本身就是一个为循环执行设计的封装，但它侧重**工具调用循环（Tool-Calling Loop）**——「思考→行动→观察」——直到不再需要调工具。**不适合做内容质量检查循环**。流程：
 
 - **Agent 节点**：推理后决定直接给答案还是调用工具。
@@ -59,6 +60,7 @@ LangGraph 提供现成高级 API，封装「生成 → 批评 → 改进」反�
 - 要求 State **至少包含 `messages` 字段**（依赖它传递对话历史并驱动循环）。
 - API 内部会**强制新增 `remaining_steps` 字段**来防死循环；因此你传入的状态 Schema **不能已存在 `remaining_steps`**，否则报错。
 - 通过 `state_schema` 传入自定义 State 类即可加自己的字段；最直接的方式是**继承 `MessagesState`** 再扩建 `draft` / `quality_passed` / `feedback` 等。
+
 ```python
 from langgraph.graph import StateGraph, END
 from typing_extensions import TypedDict

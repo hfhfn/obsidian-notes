@@ -26,6 +26,7 @@ modified: '2026-09-05T18:27:32+08:00'
 - **Client `stdout` → Server `stdin`**：客户端发请求
 - **Server `stdout` → Client `stdin`**：服务器回响应
 - **stderr 只写日志**：Server 的日志/错误必须走 stderr，否则会污染 stdout 的协议流导致客户端无法解析 JSON-RPC
+
 ```mermaid
 flowchart LR
 subgraph C["MCP Client 进程 (宿主)"]

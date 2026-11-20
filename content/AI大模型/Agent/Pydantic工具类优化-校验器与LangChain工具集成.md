@@ -38,6 +38,7 @@ modified: '2026-09-04T23:39:49+08:00'
 ## 1. 反模式：在 invoke() 里重复实例化自己
 
 原始代码的本意是"在调用前验证参数 a、b"，写法却踩了坑：
+
 ```python
 from pydantic import BaseModel, Field
 
@@ -67,6 +68,7 @@ class Add(BaseModel):
 ## 2. 三个正道：直接用 self / classmethod / staticmethod
 
 ### 方案一：直接用实例属性（推荐，最常用）
+
 ```python
 class Add(BaseModel):
     a: int = Field(..., description="第一个数字")
@@ -80,6 +82,7 @@ result = add.invoke()          # 8
 ```
 
 ### 方案二：类方法模式（需要从 dict 创建实例时）
+
 ```python
 class Add(BaseModel):
     a: int = Field(..., description="第一个数字")
@@ -94,6 +97,7 @@ Add.invoke_from_dict({"a": 3, "b": 5})  # 8
 ```
 
 ### 方案三：静态方法模式（适合无状态工具）
+
 ```python
 class Add(BaseModel):
     a: int = Field(..., description="第一个数字")
@@ -113,6 +117,7 @@ class Add(BaseModel):
 ## 3. @validate_call：纯函数也能校验，无需 BaseModel
 
 如果**只是**给一个普通函数加参数校验和类型转换，根本不用继承 `BaseModel` —— 用装饰器 `@validate_call`：
+
 ```python
 from pydantic import validate_call
 
@@ -140,6 +145,7 @@ result2 = add("4", "6")     # 字符串 '4','6' 被自动转为 4,6
 ## 4. field_validator / model_validator：字段级二次校验
 
 Pydantic 提供的三段式校验：`Field` 约束 → `@field_validator` 单字段 → `@model_validator` 跨字段。
+
 ```python
 from pydantic import BaseModel, Field, field_validator, model_validator
 
@@ -188,6 +194,7 @@ RegisterVo(username="  alice ", password="abc123", confirm_password="abc123")
 | `after` | 所有字段校验**之后** | 完整模型实例 `self` | 跨字段校验（如密码确认）、计算派生字段 |
 
 ### 装饰器顺序有讲究
+
 ```python
 # ✅ 正确：@field_validator 在上，@classmethod 在下
 @field_validator("username")
@@ -205,6 +212,7 @@ def username_must_valid(cls, v): ...
 ### 校验器是自动执行的吗？
 
 **完全自动，无需手动调用。** 只要创建实例（`User(...)`）或 `model_validate({...})`，所有 `@field_validator`/`@model_validator` 都会在对应时机自动触发，失败自动抛 `ValidationError`。
+
 ```python
 user = User(name="Alice", age=25)             # ✅ 自动触发全部校验器
 user = User.model_validate({"name": "Bob", "age": 30})
@@ -215,6 +223,7 @@ user = User.model_validate({"name": "Bob", "age": 30})
 ## 5. alias 与手写 mode="before"：字段映射的取舍
 
 **直觉正确的设计**：`alias` 本质就是 Pydantic 在 `mode="before"` 阶段做的字段映射，只是官方封装成了声明式语法糖：
+
 ```python
 from pydantic import BaseModel, Field
 
@@ -227,7 +236,8 @@ print(user.name)                    # Alice
 print(user.model_dump())            # {'name': 'Alice', 'age': 25}
 ```
 
-Pydantic 内部等价于手写的 `mode="before"` 预处理（简化伪代码）：```python
+Pydantic 内部等价于手写的 `mode="before"` 预处理（简化伪代码）：
+```python
 @model_validator(mode="before")
 @classmethod
 def _apply_aliases(cls, data):
@@ -253,6 +263,7 @@ def _apply_aliases(cls, data):
 - 简单字段名映射（`full_name` → `name`）
 - API 响应字段命名不一致（JSON 返回 `user_id`，模型用 `userId`）
 - 需要序列化控制（`serialization_alias` 控制输出名）
+
 ```python
 class User(BaseModel):
     user_id: int = Field(alias="id")   # 输入接受 id，输出为 user_id
@@ -274,6 +285,7 @@ User(id=123, email="t@t.com").model_dump(by_alias=True)  # {'id': 123, 'email': 
 Pydantic 类在这些场景统一以 **`args_schema`（参数模式）** 角色出现：告诉 LangChain / LLM 工具需要哪些参数、参数类型和描述；**校验逻辑由 Pydantic 自动处理**。
 
 ### 方式一：`@tool(args_schema=PydanticClass)`（最常用、标准组合）
+
 ```python
 from pydantic import BaseModel, Field
 from langchain_core.tools import tool
@@ -290,6 +302,7 @@ get_weather.invoke({"location": "Beijing"})
 ```
 
 ### 方式二：直接实例化 `StructuredTool.from_function()`
+
 ```python
 from langchain_core.tools import StructuredTool
 from pydantic import BaseModel, Field
@@ -309,6 +322,7 @@ tool.invoke({"a": 3, "b": 5})   # 8
 ```
 
 ### 方式三：继承 `BaseTool`（最灵活，支持状态与异步）
+
 ```python
 from langchain_core.tools import BaseTool
 from typing import Type
@@ -331,6 +345,7 @@ MultiplyTool().invoke({"a": 4, "b": 3})          # 12
 ```
 
 ### 方式四：直接传给 ChatModel（`bind_tools`）
+
 ```python
 from langchain_openai import ChatOpenAI
 from langchain_anthropic import ChatAnthropic

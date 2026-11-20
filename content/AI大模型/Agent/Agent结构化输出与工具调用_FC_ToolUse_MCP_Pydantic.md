@@ -92,6 +92,7 @@ modified: '2026-09-04T23:40:06+08:00'
 **历史原因**：OpenAI 最早（2023年6月）推出时叫 Function Calling，当时主要就是"调用函数"；Anthropic 稍晚（2023年底）为差异化叫 Tool Use；现在行业趋向于 Tool Calling——因为不限"函数"，可以是任何外部能力（API / 数据库 / 本地脚本），"工具"更宽泛准确。
 
 **代码差异对照**（同一概念，几个 key 不同）：
+
 ```python
 # OpenAI 风格 → Function Calling
 response = openai.chat.completions.create(
@@ -124,14 +125,16 @@ for content in response.content:
 ```
 
 > [!note] 概念图谱
-> ```
+>
+ ```
 > Function Calling (OpenAI)     Tool Use (Anthropic)
 >          └──────────┬────────────┘
 >                  Tool Calling（统称/实现层）
 >                          │
 >                          ▼
 >                MCP（标准化协议层）
-> ```
+>
+ ```
 > **MCP 是协议层，Tool Use/Function Calling 是实现层。** 听到 "Tool Use" 直接理解成 "Anthropic 版的 Function Calling" 即可，它们解决同一个问题。
 
 ---
@@ -174,7 +177,8 @@ for content in response.content:
 - **业务逻辑矛盾**：`{"start_time": "09:00", "end_time": "08:00"}` —— JSON 语法完全合法，Function Calling 判通过；`@field_validator` 能轻松捕获"结束早于开始"。
 - **必填字段的"幽灵空值"**：模型常输出 `"description": ""`（空串）或 `"value": null` 糊弄 required 字段。只有 Pydantic 能靠 `min_length=1` / `Field(..., strict=True)` 拦下。
 
-**为什么不用 `model_dump_json()` 直接丢给模型？**`OrderInfo.model_json_schema()` 生成的是 **Schema 定义**（告诉模型长得什么样），发给 API 的是这个 Schema；拿回来后用 `OrderInfo(**raw_args)` 校验实际数据。方向相反，两件事不能混。
+**为什么不用 `model_dump_json()` 直接丢给模型？**
+`OrderInfo.model_json_schema()` 生成的是 **Schema 定义**（告诉模型长得什么样），发给 API 的是这个 Schema；拿回来后用 `OrderInfo(**raw_args)` 校验实际数据。方向相反，两件事不能混。
 
 **纠错闭环（进阶）**：Pydantic 报错时不要直接返回 500，把 `e.errors()` 拼进下一轮对话让模型自己修正，再二次调用——既保证干净落地，又利用 LLM 自我纠错，比单纯重试效果好。
 
@@ -203,6 +207,7 @@ for content in response.content:
 ## 8. 生产级代码范式（含 MCP + Pydantic 完整示例）
 
 ### 8.1 黄金模板：Pydantic 双保险 + Function Calling（OpenAI 为例）
+
 ```python
 from pydantic import BaseModel, Field, field_validator
 
@@ -240,6 +245,7 @@ except ValidationError as e:
 ### 8.2 统一抽象层：屏蔽 OpenAI / Anthropic 差异（生产级封装）
 
 用 `ABC` 定义统一接口，各厂商 Provider 各自适配，上层只认统一返回格式：
+
 ```python
 from abc import ABC, abstractmethod
 from typing import Dict, Any, List
@@ -283,6 +289,7 @@ if result["type"] == "tool_call":
 ### 8.3 完整三件套示例：Function Calling + MCP + Pydantic（智能订票助手）
 
 结构：**① Pydantic 数据模型（生成 Schema + 二次校验）→ ② MCP 服务器（封装真实工具实现）→ ③ MCP 客户端（注册表：统一路由 + 执行前 Pydantic 校验）→ ④ 主循环（Function Calling 决策 + 校验 + 纠错回填）**。
+
 ```python
 import json, asyncio
 from datetime import datetime
@@ -344,6 +351,7 @@ class MCPClient:
 ---
 
 ## 9. 选型决策树
+
 ```
 你的需求是什么？
 │

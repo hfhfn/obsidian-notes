@@ -5,7 +5,8 @@ modified: '2026-08-05T09:56:14+08:00'
 
 > **切记: 重置docker网络后, 所有容器必须重启, 不然网络无法连接**
 ---
-## 错误信息```
+## 错误信息
+```
 Error response from daemon: ports are not available: exposing port TCP 0.0.0.0:8880 -> 127.0.0.1:0: listen tcp 0.0.0.0:8880: bind: An attempt was made to access a socket in a way forbidden by its access permissions.
 ```
 
@@ -17,11 +18,13 @@ Docker Desktop 后台服务 (`com.docker.service`) 状态异常，导致端口�
 ### ✅ 方案一：图形界面重启（最推荐）
 系统托盘 → 右键 Docker 鲸鱼图标 → 点击 **Restart**
 
-### ✅ 方案二：命令行重启（管理员 PowerShell）```powershell
+### ✅ 方案二：命令行重启（管理员 PowerShell）
+```powershell
 Restart-Service com.docker.service
 ```
 
-### 方案三：重启 Windows NAT 驱动（备选，仅在方案一二无效时使用）```powershell
+### 方案三：重启 Windows NAT 驱动（备选，仅在方案一二无效时使用）
+```powershell
 # 管理员 PowerShell
 net stop winnat
 net start winnat
@@ -33,15 +36,18 @@ Restart-Service com.docker.service
 
 ## 排查命令参考
 
-### 查看端口占用```cmd
+### 查看端口占用
+```cmd
 netstat -ano | findstr :8880
 ```
 
-### 查看 Hyper-V 保留端口范围```cmd
+### 查看 Hyper-V 保留端口范围
+```cmd
 netsh int ipv4 show excludedportrange protocol=tcp
 ```
 
-### 结束占用端口的进程```cmd
+### 结束占用端口的进程
+```cmd
 taskkill /PID <PID> /F
 ```
 

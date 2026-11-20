@@ -21,6 +21,7 @@ modified: '2026-09-14T01:04:19+08:00'
 ## 一、拼接 vs 参数化（本质区别）
 
 **危险的字符串拼接：**
+
 ```python
 name = "' OR '1'='1"
 sql = "SELECT * FROM users WHERE name = '" + name + "'"
@@ -30,6 +31,7 @@ cursor.execute(sql)
 ```
 
 **安全的参数化：**
+
 ```python
 sql = "SELECT * FROM users WHERE name = %s"
 cursor.execute(sql, (name,))
@@ -52,6 +54,7 @@ cursor.execute(sql, (name,))
 ## 二、参数化的边界：只保护「值的位置」
 
 **表名、列名、`ORDER BY`、`ASC/DESC` 这类「标识符位置」不能参数化**，必须白名单校验：
+
 ```python
 # ⚠️ 危险：表名/列名来自用户
 sql = f"SELECT * FROM {table} ORDER BY {column}"

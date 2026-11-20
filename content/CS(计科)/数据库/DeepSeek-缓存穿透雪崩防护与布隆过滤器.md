@@ -41,6 +41,7 @@ modified: '2026-09-14T01:05:02+08:00'
 3. **接口层校验**：对 id 做合法性校验，挡掉明显非法请求。
 
 **空值缓存示例：**
+
 ```java
 public User getUser(Long id) {
     String key = "user:" + id;
@@ -58,6 +59,7 @@ public User getUser(Long id) {
 ## 三、缓存雪崩（大量 key 同时失效）
 
 1. **过期时间加随机值（最常用）**：避免同一时刻批量失效。
+
 ```java
 int expire = 3600 + new Random().nextInt(600);   // 1 小时 + 0~10 分钟随机
 redis.setex(key, expire, value);
@@ -72,6 +74,7 @@ redis.setex(key, expire, value);
 ## 四、缓存击穿（单个热点 key 失效）
 
 **互斥锁重建**：只让一个线程查 DB 重建缓存，其他线程短暂等待。
+
 ```java
 public User getUser(Long id) {
     String key = "user:" + id;
@@ -128,6 +131,7 @@ public User getUser(Long id) {
 - m：位数组长度（越大误判越低）
 - k：哈希函数个数（有最优值）
 - n：已插入元素数
+
 ```
 误判率 p ≈ (1 - e^(-kn/m))^k
 最优哈希个数 k = (m/n)·ln2 ≈ 0.693·(m/n)
@@ -136,6 +140,7 @@ public User getUser(Long id) {
 经验值：误判率 ~1% 时，每个元素约需 **10 位**、用 **7 个哈希函数**。
 
 ### 在防穿透中的用法
+
 ```
 请求 id → 布隆过滤器判断
    ├─ 不存在 → 直接返回 null（拦截，不查 Redis/DB）

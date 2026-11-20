@@ -33,7 +33,8 @@ modified: '2026-01-29T23:56:12+08:00'
 
 
 ### 2.3 核心代码示例（概念性，原文简化版）
-#### 2.3.1 服务器端：`/sse` 端点实现```python
+#### 2.3.1 服务器端：`/sse` 端点实现
+```python
 @app.get("/sse")
 async def sse_endpoint(request: Request):  # 原文含拼写误差（如"asyne"），已修正核心语法
     # 生成包含客户端ID和消息端点的"端点事件"
@@ -49,7 +50,8 @@ async def sse_endpoint(request: Request):  # 原文含拼写误差（如"asyne"�
     # 注：实际场景需补充客户端消息处理逻辑，此处仅展示核心端点事件返回
 ```
 
-#### 2.3.2 客户端：SSE事件处理与 `/messages` 调用```python
+#### 2.3.2 客户端：SSE事件处理与 `/messages` 调用
+```python
 def handle_sse_events(self):
     # 设置SSE请求头（指定接受text/event-stream类型）
     headers = {"Accept": "text/event-stream"}
@@ -92,7 +94,8 @@ def handle_sse_events(self):
 
 
 ### 3.3 核心代码示例（服务器端，原文简化版）
-#### 3.3.1 GET `/message`：返回流式响应（处理持续数据传输）```python
+#### 3.3.1 GET `/message`：返回流式响应（处理持续数据传输）
+```python
 @app.get("/message")
 async def stream_messages(request: Request, response: Response):
     # 从请求头提取Session ID，管理客户端会话
@@ -129,7 +132,8 @@ async def stream_messages(request: Request, response: Response):
     return EventSourceResponse(event_generator())
 ```
 
-#### 3.3.2 POST `/message`：返回标准HTTP响应（处理单次交互）```python
+#### 3.3.2 POST `/message`：返回标准HTTP响应（处理单次交互）
+```python
 @app.post("/message")
 async def handle_single_message(request: Request, response: Response):
     # 提取Session ID和TSON-RPC请求体
@@ -278,7 +282,8 @@ SSE的本质是“带特殊规则的HTTP响应”，所有行为都基于HTTP协
 - `id`：事件唯一标识（用于断线重连时，客户端告诉服务器“我上次收到到哪个id的事件，继续推”）；
 - `retry`：断线重连时间（毫秒，客户端若断开连接，会按这个时间自动重试）。  
 
-例如文档中MCP服务器返回的SSE事件块（简化后）：  ```
+例如文档中MCP服务器返回的SSE事件块（简化后）：  
+```
 event:endpoint\n
 data:/messages?client_id=123\n
 \n  # 事件块结束

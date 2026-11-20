@@ -13,11 +13,13 @@ modified: '2026-01-29T23:48:01+08:00'
 
 ## 🛠️ Elasticsearch 搜索流水线
 
-### 整体流程图```
+### 整体流程图
+```
 用户查询 → 查询解析 → 分词处理 → 索引查找 → 评分排序 → 结果返回
 ```
 
-### 阶段1: 查询解析```python
+### 阶段1: 查询解析
+```python
 # 主要组件
 query_parsing = {
     "语法解析器": "解析bool/must/should/filter/must_not逻辑",
@@ -42,7 +44,8 @@ query_parsing = {
 }
 ```
 
-### 阶段2: 分词处理```python
+### 阶段2: 分词处理
+```python
 # 分词流水线
 tokenization_pipeline = {
     "字符过滤器": [
@@ -72,6 +75,7 @@ tokenization_pipeline = {
 - 全文搜索(关键字搜索): 倒排索引; 
 - 多字段过滤(多条件AND查询): 位图索引; 
 - 模糊搜索: 模糊查询(编辑距离)
+
 ```python
 # 倒排索引查找过程
 index_lookup = {
@@ -95,7 +99,8 @@ inverted_index = {
 }
 ```
 
-### 阶段4: 评分排序```python
+### 阶段4: 评分排序
+```python
 # BM25 评分公式
 scoring_components = {
     "TF (词频)": "词在文档中出现的频率，频次越高分数越高",
@@ -112,7 +117,8 @@ additional_scoring = {
 }
 ```
 
-### 阶段5: 结果返回```python
+### 阶段5: 结果返回
+```python
 # 结果处理
 result_processing = {
     "分页处理": "from/size参数处理",
@@ -132,11 +138,13 @@ ES相对于传统关系型数据库的优点:
 
 ## 🚀 现代搜索引擎流水线
 
-### 整体流程图```
+### 整体流程图
+```
 用户查询 → 查询理解 → 多路召回 → 神经排序 → 业务重排 → 结果增强 → 呈现
 ```
 
-### 阶段1: 查询理解```python
+### 阶段1: 查询理解
+```python
 # 深度查询分析
 query_understanding = {
     "拼写纠错": {
@@ -169,7 +177,8 @@ query_understanding = {
 }
 ```
 
-### 阶段2: 多路召回```python
+### 阶段2: 多路召回
+```python
 # 并行召回策略
 multi_channel_recall = {
     "精确匹配召回": {
@@ -207,7 +216,8 @@ multi_channel_recall = {
 }
 ```
 
-### 阶段3: 神经排序```python
+### 阶段3: 神经排序
+```python
 # 深度学习排序模型
 neural_ranking = {
     "特征工程": {
@@ -251,7 +261,8 @@ neural_ranking = {
 }
 ```
 
-### 阶段4: 业务重排```python
+### 阶段4: 业务重排
+```python
 # 业务规则调整
 business_reranking = {
     "多样性控制": {
@@ -280,7 +291,8 @@ business_reranking = {
 }
 ```
 
-### 阶段5: 结果增强```python
+### 阶段5: 结果增强
+```python
 # 搜索结果丰富化
 result_enhancement = {
     "直接答案": {
@@ -336,7 +348,8 @@ result_enhancement = {
 
 ## 🎯 技术架构总结
 
-### Elasticsearch 适用场景```python
+### Elasticsearch 适用场景
+```python
 es_appropriate_scenarios = [
     "企业内容搜索",
     "日志分析系统", 
@@ -346,7 +359,8 @@ es_appropriate_scenarios = [
 ]
 ```
 
-### 现代搜索引擎适用场景```python
+### 现代搜索引擎适用场景
+```python
 modern_search_scenarios = [
     "通用网页搜索",
     "智能问答系统",

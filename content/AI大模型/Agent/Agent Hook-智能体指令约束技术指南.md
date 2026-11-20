@@ -92,6 +92,7 @@ modified: '2026-08-30T17:12:19+08:00'
 - **决策的破坏力（取决所在生命周期事件）**：
   - 在 `user_prompt_submit` 处阻止 = **终结整轮对话**流程
   - 在 `pre_tool_use` 处阻止 = **仅剥夺本次工具调用权**（可能影响任务质量，但不致崩溃）
+
 ```text
 # Handler 示意
 > python script.py --input "data" ...
@@ -152,6 +153,7 @@ modified: '2026-08-30T17:12:19+08:00'
 > Claude Code 当前将 Hook 配置放在项目级 `.claude/settings.json`（或用户级 `~/.claude/settings.json`）的 `hooks` 字段中，不是一个必须叫 `hooks.json` 的固定文件。下面示例使用 Claude Code 的实际事件名：`PreToolUse`、`UserPromptSubmit`、`PostToolUse`、`Stop`。
 
 ### 10.1 通用配置骨架
+
 ```json
 {
   "hooks": {
@@ -216,12 +218,14 @@ modified: '2026-08-30T17:12:19+08:00'
 ### 10.2 示例一：阻止危险 Bash 命令（PreToolUse）
 
 目录结构：
+
 ```text
 .claude/
 ├── settings.json
 └── hooks/
     └── block-dangerous-command.py
 ```
+
 ```python
 # .claude/hooks/block-dangerous-command.py
 import json
@@ -258,6 +262,7 @@ else:
 > 对文件写入保护时，优先使用规范化后的绝对路径进行比较，例如 Python 的 `Path(path).resolve()`；不要只用字符串包含判断，否则 `profile-backup` 等相似路径可能被误判，`../profile` 也可能绕过检查。
 
 ### 10.3 示例二：提交提示词时注入项目上下文（UserPromptSubmit）
+
 ```python
 # .claude/hooks/inject-project-context.py
 import json
@@ -284,6 +289,7 @@ else:
 这个 Hook 适合注入**短小、稳定、与任务相关**的背景信息；安全红线仍应放在 `PreToolUse` 中用代码阻断，不能只靠注入一段提示词。
 
 ### 10.4 示例三：工具完成后记录审计日志（PostToolUse）
+
 ```python
 # .claude/hooks/audit-file-change.py
 import json
@@ -307,9 +313,11 @@ with log_file.open("a", encoding="utf-8") as f:
 
 print(json.dumps({}))
 ```
+
 `PostToolUse` 发生在工具调用完成后，适合做日志、格式化和测试触发；它不能撤销已经完成的写入。需要在写入前拦截，必须使用 `PreToolUse`。
 
 ### 10.5 示例四：没有 checkpoint 时阻止结束（Stop）
+
 ```python
 # .claude/hooks/require-checkpoint.py
 import json
@@ -332,6 +340,7 @@ if not checkpoint.exists():
 else:
     print(json.dumps({}))
 ```
+
 `Stop` 适合做“结束前必须完成”的检查，但不要把它当成测试系统本身：更可靠的做法是让脚本实际运行测试、读取明确的结果文件，并处理超时、失败和重入状态。
 
 ### 10.6 调试与上线检查清单

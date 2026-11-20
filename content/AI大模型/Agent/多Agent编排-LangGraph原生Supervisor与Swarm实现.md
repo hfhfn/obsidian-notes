@@ -44,6 +44,7 @@ modified: '2026-09-04T14:09:44+08:00'
 ### 2.1 子图（Subgraph）—— 小图当大图的一个节点
 
 LangGraph 里，**一个编译好的图可以作为另一个图的节点**。这就是「子图嵌套」的地基。
+
 ```
 父图（Supervisor）                 
 ┌──────────────────────────────┐
@@ -56,7 +57,9 @@ LangGraph 里，**一个编译好的图可以作为另一个图的节点**。这
 父子图**共享 state**：子图只读写它声明过的键，其余键原样透传。
 
 ### 2.2 `create_supervisor` —— 一键生成 Supervisor 图
+
 `langgraph-supervisor` 包提供的 helper，收一堆 worker（子图），自动生成一张「总调度图」：
+
 ```python
 supervisor_graph = create_supervisor(
     agents=[resume_agent, qa_agent, exam_agent, interview_agent],
@@ -75,6 +78,7 @@ app = supervisor_graph.compile(checkpointer=MemorySaver())
 ### 2.3 Handoff —— supervisor 怎么"派活"（内部时序）
 
 Supervisor 不是直接调函数，而是**把"请某 Agent 干活"当成一次 tool call**。`create_supervisor` 内部为每个 worker 自动生成一个 **handoff tool**（默认名 `transfer_to_<worker名>`），其触发体就是 worker 的编译子图——调用它 = 把控制权 + 对话历史交给那个子图去跑，子图跑完把最后一条消息回传。supervisor 节点本身是一个 **ReAct 式的 LLM + tools 循环**：
+
 ```
 用户: 帮我审查简历
   └ supervisor 节点（LLM，绑定了 5 个 transfer_to_* 工具）
@@ -117,6 +121,7 @@ Supervisor 不是直接调函数，而是**把"请某 Agent 干活"当成一次 
 ## 3. 完整实现（分步 + 讲解）
 
 ### 3.0 统一 State —— 父子图共享的键
+
 ```python
 from typing import Annotated, TypedDict
 from langgraph.graph.message import add_messages
@@ -134,6 +139,7 @@ class AgentState(TypedDict):
 ### 3.1 四个 Worker 子图（复用第4~7章 Agent 的骨架）
 
 每个 Agent 画成一张小 `StateGraph` 并 `.compile()`，成为 supervisor 的 worker。这里给出**示意实现**（真实 Agent 节点更多，见各章 `build_*_graph`）：
+
 ```python
 from langgraph.graph import StateGraph, START, END
 
@@ -164,6 +170,7 @@ resume_graph.add_edge(START, "review")
 resume_graph.add_edge("review", END)
 resume_agent = resume_graph.compile()
 ```
+
 ```python
 # ── Worker②：RAG 问答（第5章：检索+生成）──
 class QAState(TypedDict):
@@ -180,6 +187,7 @@ qa_graph.add_edge(START, "rag")
 qa_graph.add_edge("rag", END)
 qa_agent = qa_graph.compile()
 ```
+
 ```python
 # ── Worker③：试卷批改（第6章：三轨并行）──
 def grade_exam(state) -> dict:
@@ -204,6 +212,7 @@ interview_agent = interview_graph.compile()
 ### 3.2 求职全链路 Pipeline —— 用子图嵌套实现「简历→面试」
 
 第8章 `_run_pipeline` 的 `job_preparation`（简历审查 → 模拟面试），在 LangGraph 里就是**一张把两个子图当节点按序连起来的图**：
+
 ```python
 # ── Pipeline 子图：求职全链路（嵌套在顶层 supervisor 之下）──
 job_prep_graph = StateGraph(AgentState)
@@ -218,7 +227,8 @@ job_prep_agent = job_prep_graph.compile()
 > 🔑 **对照第8章 §8.3**：`add_edge("resume", "interview")` 就是 `_run_pipeline` 里那行 `current_context[f"{agent_type}_result"] = ...` 的**声明式等价物**——顺序、数据流都写在图上，不用 for 循环手推。
 >
 > ⚠️ **若想复刻第8章「`weighted_score < 60` 就 break 不进面试」**：**条件边必须取代上面的普通边，而不是叠加**。一个节点不能同时有普通出边和条件出边（LangGraph 会抛 `ValueError: Cannot add a conditional edge from node "resume" that already has an outgoing edge`）。正确写法是把 `add_edge("resume", "interview")` **删掉**，改用从 `resume` 出发的条件边：
-> ```python
+>
+ ```python
 > def should_interview(state):
 >     return "interview" if state.get("resume_result", {}).get("weighted_score", 0) >= 60 else END
 >
@@ -230,9 +240,11 @@ job_prep_agent = job_prep_graph.compile()
 >     {"interview": "interview", END: END},   # 返回键 → 目标节点映射
 > )
 > job_prep_graph.add_edge("interview", END)
-> ```
+>
+ ```
 
 ### 3.3 顶层 Supervisor —— 用 create_supervisor 把一切接起来
+
 ```python
 from langchain_openai import ChatOpenAI
 from langgraph_supervisor import create_supervisor
@@ -256,6 +268,7 @@ supervisor_graph = create_supervisor(
 )
 app = supervisor_graph.compile(checkpointer=MemorySaver())
 ```
+
 `create_supervisor` 自动完成：
 - 建 `chief` 节点（一个带 delegate 工具的 LLM）；
 - 把 5 个 worker（含 `job_prep_agent` 这个子图）注册成可调用的 tool；
@@ -264,6 +277,7 @@ app = supervisor_graph.compile(checkpointer=MemorySaver())
 ### 3.4 嵌套 Supervisor —— 分层（可选，⑧档进阶）
 
 LangGraph 子图能嵌套 supervisor，做出「分层调度树」（对应图谱 ⑥ 分层 Supervisor）：
+
 ```python
 # 子层：求职域 supervisor（只管简历/面试两条线）
 hiring_supervisor = create_supervisor(
@@ -285,6 +299,7 @@ top_supervisor = create_supervisor(
 ### 3.5 统一入口保留（SSE 分发不变，路由判断换人）
 
 第8章 `unified_chat.py` 的 SSE 端点和 8 种事件**可以原样保留**；唯一变化是 `_stream_qa_agent` 里那段「手动 `_get_agent_graph` + `astream_events`」可以直接换成调 `app.astream_events(...)`，让 supervisor 图在图上完成路由：
+
 ```python
 # 统一入口（示意）：把原来调 orchestrator.handle() 换成调 supervisor 图
 async def serve(request):
@@ -331,6 +346,7 @@ async def serve(request):
 ---
 
 ## 6. 运行与验证
+
 ```bash
 conda activate edu_agent
 pip install langgraph-supervisor langchain-openai
@@ -353,6 +369,7 @@ uvicorn backend.main:app --reload --port 8000
 ---
 
 ## 7. 补充：`create_subagent` —— 把子图变成"可调用"的子 Agent，及与 `create_supervisor` 的对比
+
 `create_supervisor` 不是 LangGraph 唯一的「图内多 Agent」方式。在 LangChain/LangGraph 1.0 的 Agent 框架（`langchain` 包，`create_agent` / `create_subagent`）里，还有另一种更贴近「主 Agent + 子 Agent 池」的写法。三种方式其实都是**同一个地基（子图作为节点）**上长出来的，区别只在"谁驱动、怎么分工"：
 
 ### 7.1 三种「图内多 Agent」方式速览
@@ -366,6 +383,7 @@ uvicorn backend.main:app --reload --port 8000
 > 💡 **关键区分**：`create_subagent` 没有独立的"调度节点"——**主 Agent 就是调度者**，子 Agent 只是它众多工具里的一个；而 `create_supervisor` 会额外造一个 supervisor 节点来专职派活。前者更轻、更贴近 Claude Code / Codex 那种"一个主 Agent 动态叫子 Agent"的形态。
 
 ### 7.2 代码示意（`create_agent` + `create_subagent`）
+
 ```python
 from langchain.agents import create_agent, create_subagent
 
@@ -439,7 +457,9 @@ app = main_agent.compile(checkpointer=MemorySaver())
 ---
 
 ## 8. 补充：LangGraph 的 `Command` —— 交接与中断的基础
+
 `Command` 是 LangGraph 里**一个类、两副面孔**：既能做 Agent 间交接，也能做人工中断/恢复。它是手里「下一步去哪 + 改什么状态」的**一次返回**。
+
 ```python
 from langgraph.types import Command
 ```
@@ -447,6 +467,7 @@ from langgraph.types import Command
 ### 8.1 面孔一：`Command(goto=...)` —— Agent 间交接（③ Handoff 的落地）
 
 一个节点返回 `Command`，**一步同时**完成两件事：控制去哪个节点（`goto`）+ 更新哪些 state（`update`）。这正是"Agent 把控制权交给另一个 Agent"的机制。
+
 ```python
 def handoff_node(state):
     # 判断下一步去哪，并带上要传递的状态
@@ -465,6 +486,7 @@ def handoff_node(state):
 ### 8.2 面孔二：`interrupt()` + `Command(resume=...)` —— 人工中断/恢复（第6章 HITL）
 
 另一个用法是**暂停等用户**（Human-in-the-Loop），这正是第6章试卷批改 `interrupt/resume` 的引擎。
+
 ```python
 from langgraph.types import Command, interrupt
 
@@ -502,6 +524,7 @@ app.invoke(config, Command(resume="yes"))
 ### 9.1 核心机制：Agent 自己决定"把活交给谁"
 
 **先看整体结构**——Swarm 本质上是一张"父图"，每个 Agent 是父图里的一个节点（子图），彼此之间用 `Command(goto=…)` 直接连线跳转：
+
 ```
             父图（swarm）
    ┌──────────────────────────────────────────────┐
@@ -534,6 +557,7 @@ app.invoke(config, Command(resume="yes"))
 3. **`graph=Command.PARENT` 为什么必须**：因为 `goto` 的目标 Agent（如 `qa_agent`）是**父 swarm 图里的一个节点**，不是当前 Agent 子图内部的节点。标了 `PARENT`，LangGraph 才会到【父图】层面去解析这个跳转，把执行从"当前 Agent 节点"切到"目标 Agent 节点"。**这正是"对等移交"的落点——控制权在 Agent 的返回里直接交给了下一个 Agent，不经任何调度节点。**
 
 **多轮记忆**：`create_swarm` 内部用 `add_active_agent_router` 加了一条 `START → route_to_active_agent` 路由，用 `active_agent` 状态记住"上次是哪个 Agent 在干活"，下次对话从这里继续（首次用 `default_active_agent`）。
+
 ```python
 # pip install langgraph-swarm
 from langchain.agents import create_agent

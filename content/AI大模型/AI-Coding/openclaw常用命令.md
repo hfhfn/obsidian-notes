@@ -10,6 +10,7 @@ modified: '2026-02-28T18:34:09+08:00'
 ---
 
 ## 1. 初始化与重置
+
 ```bash
 openclaw onboard
 ```
@@ -19,6 +20,7 @@ openclaw onboard
 ---
 
 ## 2. 配置管理
+
 ```bash
 openclaw config
 ```
@@ -33,6 +35,7 @@ openclaw config
 ---
 
 ## 3. 运行状态检查
+
 ```bash
 openclaw status
 ```
@@ -42,6 +45,7 @@ openclaw status
 ---
 
 ## 4. Gateway 服务控制
+
 ```bash
 # 前台运行（调试时使用，实时看日志）
 openclaw gateway
@@ -62,6 +66,7 @@ openclaw gateway restart
 ---
 
 ## 5. 快捷访问 Dashboard
+
 ```bash
 openclaw dashboard
 ```
@@ -71,6 +76,7 @@ openclaw dashboard
 ---
 
 ## 6. 故障排查
+
 ```bash
 # 实时查看运行日志（跟踪模式）
 openclaw logs --follow
@@ -87,6 +93,7 @@ openclaw logs > openclaw_debug.log
 ---
 
 ## 7. 系统更新
+
 ```bash
 openclaw update
 ```
@@ -98,6 +105,7 @@ openclaw update
 ## 8. 补充实用命令
 
 ### 版本信息
+
 ```bash
 openclaw version
 # 或
@@ -109,6 +117,7 @@ openclaw --version
 ---
 
 ### 帮助文档
+
 ```bash
 # 查看所有命令
 openclaw help
@@ -121,6 +130,7 @@ openclaw help config
 ---
 
 ### 快速重启（一键操作）
+
 ```bash
 openclaw gateway restart && openclaw status
 ```
@@ -130,6 +140,7 @@ openclaw gateway restart && openclaw status
 ---
 
 ### 清理与维护
+
 ```bash
 # 清理缓存
 openclaw cache clear
@@ -137,11 +148,13 @@ openclaw cache clear
 # 诊断环境问题（网络、权限、依赖等）
 openclaw doctor
 ```
+
 `openclaw doctor` 会自动检测常见配置问题并给出修复建议，是遇到奇怪问题时的首选排查工具。
 
 ---
 
 ### 会话与上下文管理
+
 ```bash
 # 查看当前活跃会话
 openclaw sessions list
@@ -153,6 +166,7 @@ openclaw sessions clear
 ---
 
 ### 多环境/多账号切换
+
 ```bash
 # 查看所有 profile
 openclaw profile list

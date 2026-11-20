@@ -8,6 +8,7 @@ modified: '2026-08-05T09:57:54+08:00'
 ## 1. `sg-prod-deploy` 标签是什么？
 
 这里的**标签(tag)**不是 Git 标签，而是 **GitLab Runner 的标签**。
+
 ```yaml
 tags:
   - sg-prod-deploy  # 这是指定哪台服务器来执行部署任务
@@ -24,6 +25,7 @@ tags:
 ## 2. 手动触发是什么意思？
 
 看这两个配置的区别：
+
 ```yaml
 # 测试环境 - 自动触发
 deploy-test:
@@ -43,6 +45,7 @@ deploy-prod:
 ### **手动触发的实际操作：**
 
 当你推送代码到 `main` 分支后，在 GitLab 界面会看到：
+
 ```
 GitLab CI/CD Pipeline 界面:
 ┌─────────────────────────────┐
@@ -66,6 +69,7 @@ GitLab CI/CD Pipeline 界面:
 ## 3. 你作为开发人员需要打标签吗？
 
 **不需要！** 你只需要：
+
 ```bash
 # 1. 开发完成后合并到 main
 git checkout main
@@ -80,6 +84,7 @@ git push origin main
 **就这么简单！** 剩下的都是运维的事。
 
 ## 4. 怎么才能只在 main 分支执行？
+
 ```yaml
 only:
   - main  # 这个配置决定的
@@ -101,6 +106,7 @@ only:
 - **手动触发的按钮是运维点击的**
 
 ## 完整的协作流程图
+
 ```
 开发人员(你)                        GitLab CI/CD                    运维人员
      │                                  │                             │

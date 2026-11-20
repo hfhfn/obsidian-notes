@@ -27,7 +27,8 @@ modified: '2026-08-05T10:55:44+08:00'
 
 **两个解决办法**：
 
-### 方案 A：把 Docker 数据盘迁到其他盘（治本）```powershell
+### 方案 A：把 Docker 数据盘迁到其他盘（治本）
+```powershell
 # 1. 退出 Docker Desktop
 # 2. 移动 C:\Users\<用户名>\AppData\Local\Docker 到其他盘
 # 3. 在 cmd（非 powershell）中建立链接
@@ -35,7 +36,8 @@ mklink /j "C:\Users\<用户名>\AppData\Local\Docker" "<目标位置>"
 ```
 > 本质：在 C 盘原位置建目录联接（junction），实际数据存新盘。
 
-### 方案 B：压缩 vhdx 空洞（治标）```powershell
+### 方案 B：压缩 vhdx 空洞（治标）
+```powershell
 wsl --shutdown          # 先关 WSL
 diskpart
 DISKPART> select vdisk file="<vhdx路径>"

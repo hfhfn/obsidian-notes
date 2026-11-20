@@ -35,13 +35,15 @@ VizTracer 是一个用于Python的低开销调试和分析工具，它可以**�
 * 时间线视图展示调用关系
 * 火焰图显示性能热点
 
-## 🔧 **安装方法**```bash
+## 🔧 **安装方法**
+```bash
 pip install viztracer
 ```
 
 ## 🚀 **基本使用方式**
 
-### **方式1：命令行使用**```
+### **方式1：命令行使用**
+```
 # 基本使用
 viztracer your_script.py
 
@@ -52,7 +54,8 @@ viztracer --output_file report.html your_script.py
 viztracer --include_functions my_function your_script.py
 ```
 
-### **方式2：装饰器方式**```python
+### **方式2：装饰器方式**
+```python
 from viztracer import VizTracer
 
 @VizTracer()
@@ -66,7 +69,8 @@ with VizTracer(output_file="trace.json"):
     your_code()
 ```
 
-### **方式3：编程方式**```python
+### **方式3：编程方式**
+```python
 from viztracer import VizTracer
 
 tracer = VizTracer()
@@ -81,7 +85,8 @@ tracer.save("trace.html")  # 或保存为JSON
 
 ## 📈 **实用示例**
 
-### **示例1：分析函数性能**```python
+### **示例1：分析函数性能**
+```python
 from viztracer import VizTracer
 import time
 
@@ -105,7 +110,8 @@ if __name__ == "__main__":
     tracer.save("performance_trace.html")
 ```
 
-### **示例2：选择性跟踪**```python
+### **示例2：选择性跟踪**
+```python
 from viztracer import VizTracer
 
 # 只跟踪特定函数
@@ -122,7 +128,8 @@ def critical_function():
     pass
 ```
 
-## ⚙️ **常用配置选项**```
+## ⚙️ **常用配置选项**
+```
 tracer = VizTracer(
     output_file="trace.html",      # 输出文件
     max_stack_depth=5,             # 最大调用深度
@@ -166,7 +173,8 @@ tracer = VizTracer(
 
 ## 🎨 **高级功能**
 
-### **1. 远程跟踪**```
+### **1. 远程跟踪**
+```
 # 启动远程服务器
 viztracer --host 0.0.0.0 --port 9001 manage_server.py
 
@@ -175,7 +183,8 @@ from viztracer import RemoteVizTracer
 tracer = RemoteVizTracer("localhost", 9001)
 ```
 
-### **2. 与Jupyter集成**```
+### **2. 与Jupyter集成**
+```
 %load_ext viztracer
 
 %%viztracer
@@ -183,7 +192,8 @@ tracer = RemoteVizTracer("localhost", 9001)
 your_code_here()
 ```
 
-### **3. 保存为JSON进行二次分析**```
+### **3. 保存为JSON进行二次分析**
+```
 tracer.save("trace.json")
 
 # 后续分析
@@ -233,7 +243,8 @@ tracer2.save_report("new_report.html")
 2. **数据量控制**：长时间运行可能生成巨大文件
 3. **隐私注意**：开启参数记录可能泄露敏感信息
 
-## 🌰 **完整工作流示例**```python
+## 🌰 **完整工作流示例**
+```python
 # performance_analysis.py
 from viztracer import VizTracer
 import json

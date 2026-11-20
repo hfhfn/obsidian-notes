@@ -17,7 +17,8 @@ modified: '2026-02-19T16:46:02+08:00'
 	github的认证token: ***REDACTED***
 	claude mcp add-json github '{"type":"http","url":"https://api.githubcopilot.com/mcp","headers":{"Authorization":"Bearer ***REDACTED***"}}'  --scope user
 5. 安装搜索工具brave(可以直接在用户目录下.claude.json配置文件中增加以下配置)
-	需要先在魔搭社区注册远程MCP服务, 再配置以下信息```json
+	需要先在魔搭社区注册远程MCP服务, 再配置以下信息
+```json
 "brave-search-mcp": {
   "type": "http",
   "url": "https://mcp.api-inference.modelscope.net/bf907fb0f5d744/mcp"
@@ -25,7 +26,8 @@ modified: '2026-02-19T16:46:02+08:00'
 ```
 
 6. 安装网页抓取工具 fetch
-	需要先在魔搭社区注册远程MCP服务, 再配置以下信息```json
+	需要先在魔搭社区注册远程MCP服务, 再配置以下信息
+```json
 "fetch": {
   "type": "http",
   "url": "https://mcp.api-inference.modelscope.net/2e1f1f3558d243/mcp"
