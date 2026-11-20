@@ -1,4 +1,4 @@
-# 一键发布：同步笔记 → 构建 → 部署到 Cloudflare Pages
+﻿# 一键发布：同步笔记 → 构建 → 部署到 Cloudflare Pages
 # 用法：在 D:\private\obsidian-site 下执行
 #   .\publish.ps1              # 同步 + 构建 + 部署
 #   .\publish.ps1 -DryRun      # 只看同步报告，不改文件
@@ -10,6 +10,9 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+[Console]::OutputEncoding = [System.Text.Encoding]::UTF8
+$OutputEncoding = [System.Text.Encoding]::UTF8
+$env:PYTHONIOENCODING = "utf-8"
 $site = Split-Path -Parent $MyInvocation.MyCommand.Path
 Set-Location $site
 
