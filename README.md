@@ -31,6 +31,17 @@ npm run preview      # 想在本地看效果时才需要
 npm run deploy       # CI 故障时兜底：直接部署
 ```
 
+## 定时自动发布
+
+```powershell
+.\setup-schedule.ps1              # 注册每天 23:30 的 Windows 计划任务
+.\setup-schedule.ps1 -Time 08:00  # 改时间
+.\setup-schedule.ps1 -RunNow      # 立即跑一次
+.\setup-schedule.ps1 -Remove      # 取消
+```
+
+任务在登录状态下运行（电脑需开机），错过的时间开机后补跑。
+
 ## 自动发布
 
 推送 `main` 分支即触发 `.github/workflows/deploy.yml`：构建 → 部署到 Cloudflare Pages。
