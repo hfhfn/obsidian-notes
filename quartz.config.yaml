@@ -154,6 +154,9 @@ plugins:
     enabled: true
   - source: "@quartz-community/explorer"
     enabled: true
+    options:
+      # 归档放最后；其余保持「文件夹在前、同级按名称」的默认顺序
+      sortFn: '(a, b) => { const rank = (n) => (n.slugSegment === "归档" ? 1 : 0); const ra = rank(a), rb = rank(b); if (ra !== rb) return ra - rb; if ((!a.isFolder && !b.isFolder) || (a.isFolder && b.isFolder)) return (a.displayName || "").localeCompare(b.displayName || "", undefined, { numeric: true, sensitivity: "base" }); return a.isFolder ? -1 : 1; }'
     layout:
       position: left
       priority: 50
