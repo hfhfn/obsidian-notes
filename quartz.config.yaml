@@ -23,25 +23,25 @@ configuration:
       code: IBM Plex Mono
     colors:
       lightMode:
-        light: "#faf8f8"
-        lightgray: "#e5e5e5"
-        gray: "#b8b8b8"
-        darkgray: "#4e4e4e"
-        dark: "#2b2b2b"
-        secondary: "#284b63"
-        tertiary: "#84a59d"
-        highlight: rgba(143, 159, 169, 0.15)
-        textHighlight: "#fff23688"
+        light: "#fdfdfb"
+        lightgray: "#e8e6e1"
+        gray: "#a3a19b"
+        darkgray: "#3c3c39"
+        dark: "#1b1b19"
+        secondary: "#1f5f8b"
+        tertiary: "#0d7d74"
+        highlight: "rgba(31, 95, 139, 0.08)"
+        textHighlight: "rgba(255, 213, 79, 0.42)"
       darkMode:
-        light: "#161618"
-        lightgray: "#393639"
-        gray: "#646464"
-        darkgray: "#d4d4d4"
-        dark: "#ebebec"
-        secondary: "#7b97aa"
-        tertiary: "#84a59d"
-        highlight: rgba(143, 159, 169, 0.15)
-        textHighlight: "#b3aa0288"
+        light: "#14151a"
+        lightgray: "#2a2c34"
+        gray: "#6b6f7a"
+        darkgray: "#c6c9d1"
+        dark: "#f1f2f5"
+        secondary: "#6aa9d8"
+        tertiary: "#4fc3b8"
+        highlight: "rgba(106, 169, 216, 0.12)"
+        textHighlight: "rgba(255, 213, 79, 0.28)"
   links:
     markdownLinkResolution: shortest
   contentIndex:
@@ -113,7 +113,7 @@ plugins:
       # so the page never blocks on fonts.googleapis.com (slow/blocked in CN).
       fontOrigin: selfHosted
   - source: "@quartz-themes/core"
-    enabled: true
+    enabled: false
     options:
       theme: default
       mode: both

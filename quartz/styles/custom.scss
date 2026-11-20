@@ -1,3 +1,373 @@
 @use "./variables.scss" as *;
 
-// put your custom CSS here!
+/* ==========================================================================
+   自定义视觉层
+   --------------------------------------------------------------------------
+   只在这里做「看得见」的调整，不改 Quartz 内部文件，升级时不会冲突。
+   主题插件（@quartz-themes/core）会覆盖 quartz.config.yaml 的配色，
+   因此配色也在这里以 CSS 变量形式锁定。
+   ========================================================================== */
+
+/* ---------- 1. 配色 ---------- */
+
+:root {
+  --light: #fdfdfb;
+  --lightgray: #e8e6e1;
+  --gray: #a3a19b;
+  --darkgray: #3c3c39;
+  --dark: #1b1b19;
+  --secondary: #1f5f8b;
+  --tertiary: #0d7d74;
+  --highlight: rgba(31, 95, 139, 0.08);
+  --textHighlight: rgba(255, 213, 79, 0.42);
+}
+
+:root[saved-theme="dark"] {
+  --light: #14151a;
+  --lightgray: #2a2c34;
+  --gray: #6b6f7a;
+  --darkgray: #c6c9d1;
+  --dark: #f1f2f5;
+  --secondary: #6aa9d8;
+  --tertiary: #4fc3b8;
+  --highlight: rgba(106, 169, 216, 0.12);
+  --textHighlight: rgba(255, 213, 79, 0.28);
+}
+
+/* 中文字体：西文字体不含汉字，补上系统中文栈，避免回退到宋体 */
+:root {
+  --bodyFont: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC",
+    sans-serif;
+  --headerFont: "Schibsted Grotesk", -apple-system, BlinkMacSystemFont,
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC",
+    sans-serif;
+  --titleFont: var(--headerFont);
+  --codeFont: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
+    "Microsoft YaHei", monospace;
+}
+
+/* ---------- 2. 文件树缩进（本次重点修复） ---------- */
+
+/* 每一层加左侧引导线 + 明确的缩进量，深层级一眼可辨 */
+.explorer-content {
+  .folder-outer > ul.content {
+    margin-left: 0.35rem;
+    padding-left: 0.85rem;
+    border-left: 1px solid var(--lightgray);
+  }
+
+  /* 文件项：用 flex + 伪元素做悬挂缩进，换行时第二行与首行文字对齐 */
+  li > a.nav-file-title {
+    display: flex;
+    align-items: baseline;
+    gap: 0.45rem;
+    padding: 0.16rem 0.4rem;
+    margin: 0.05rem 0;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    line-height: 1.45;
+    color: var(--darkgray);
+    opacity: 1;
+    transition: background-color 0.15s ease, color 0.15s ease;
+
+    /* 项目符号，占位保证多行文字左缘对齐 */
+    &::before {
+      content: "";
+      flex: 0 0 3px;
+      height: 3px;
+      border-radius: 50%;
+      background-color: var(--gray);
+      margin-top: 0.52em;
+      transition: background-color 0.15s ease;
+    }
+
+    &:hover {
+      background-color: var(--highlight);
+      color: var(--secondary);
+
+      &::before {
+        background-color: var(--secondary);
+      }
+    }
+
+    &.active {
+      background-color: var(--highlight);
+      color: var(--secondary);
+      font-weight: $semiBoldWeight;
+
+      &::before {
+        background-color: var(--secondary);
+      }
+    }
+  }
+
+  /* 文件夹标题 */
+  .folder-container {
+    padding: 0.1rem 0;
+    border-radius: 5px;
+
+    .folder-title {
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    &:hover .folder-title {
+      color: var(--tertiary);
+    }
+  }
+
+  .folder-icon {
+    margin-right: 0.3rem;
+    opacity: 0.6;
+  }
+
+  /* 深层文件夹用更细的引导线，视觉不糊 */
+  .folder-outer > ul.content .folder-outer > ul.content {
+    border-left-color: color-mix(in srgb, var(--lightgray) 70%, transparent);
+  }
+}
+
+/* ---------- 3. 正文排版 ---------- */
+
+article {
+  /* 中文正文行高与字距 */
+  p,
+  li {
+    line-height: 1.78;
+    letter-spacing: 0.01em;
+  }
+
+  /* 段落之间留白，避免大段文字糊成一片 */
+  p {
+    margin: 0.9rem 0;
+  }
+
+  ul,
+  ol {
+    padding-left: 1.5rem;
+
+    li {
+      margin: 0.32rem 0;
+    }
+
+    /* 嵌套列表再收紧一点 */
+    ul,
+    ol {
+      margin: 0.28rem 0;
+    }
+  }
+
+  /* 标题层级：字号差拉开，上间距明显大于下间距 */
+  h1 {
+    font-size: 1.72rem;
+    line-height: 1.35;
+    margin: 2.4rem 0 1rem;
+    letter-spacing: -0.01em;
+  }
+
+  h2 {
+    font-size: 1.32rem;
+    line-height: 1.4;
+    margin: 2.1rem 0 0.85rem;
+    padding-bottom: 0.35rem;
+    border-bottom: 1px solid var(--lightgray);
+  }
+
+  h3 {
+    font-size: 1.12rem;
+    line-height: 1.45;
+    margin: 1.7rem 0 0.7rem;
+    color: var(--secondary);
+  }
+
+  h4,
+  h5,
+  h6 {
+    font-size: 1rem;
+    margin: 1.4rem 0 0.6rem;
+  }
+
+  /* 正文链接：去掉整块底色，改成下划线强调，长文里更清爽 */
+  a.internal {
+    background-color: transparent;
+    padding: 0;
+    color: var(--secondary);
+    border-bottom: 1px solid color-mix(in srgb, var(--secondary) 35%, transparent);
+    border-radius: 0;
+    transition: border-color 0.15s ease, color 0.15s ease;
+
+    &:hover {
+      color: var(--tertiary);
+      border-bottom-color: var(--tertiary);
+    }
+
+    /* 图片链接不加下划线 */
+    &:has(> img) {
+      border-bottom: none;
+    }
+  }
+
+  /* 表格：更轻的边框，表头有底色 */
+  table {
+    font-size: 0.92rem;
+    margin: 1.2rem 0;
+
+    th {
+      background-color: var(--highlight);
+      font-weight: $semiBoldWeight;
+      border-bottom: 1px solid var(--gray);
+    }
+
+    td,
+    th {
+      padding: 0.45rem 0.7rem;
+      border-left: none;
+      border-right: none;
+    }
+
+    tr:nth-child(even) td {
+      background-color: color-mix(in srgb, var(--lightgray) 30%, transparent);
+    }
+  }
+
+  /* 代码块 */
+  pre {
+    border-radius: 8px;
+    border: 1px solid var(--lightgray);
+    padding: 0.2rem 0.4rem;
+
+    & > code {
+      font-size: 0.84rem;
+      line-height: 1.65;
+    }
+  }
+
+  /* 行内代码 */
+  code:not(pre code) {
+    font-size: 0.88em;
+    padding: 0.12em 0.35em;
+    border-radius: 4px;
+    background-color: var(--highlight);
+    color: var(--secondary);
+  }
+
+  /* 引用块 */
+  blockquote {
+    border-left: 3px solid var(--tertiary);
+    padding-left: 1rem;
+    margin: 1.1rem 0;
+    color: var(--darkgray);
+    opacity: 0.92;
+  }
+
+  /* 图片：圆角 + 轻阴影 */
+  img {
+    border-radius: 8px;
+    max-width: 100%;
+  }
+
+  hr {
+    margin: 2rem 0;
+    border: none;
+    border-top: 1px solid var(--lightgray);
+  }
+}
+
+/* ---------- 4. 页面骨架 ---------- */
+
+/* 正文栏稍微宽一点，中文长文更好读 */
+.page > #quartz-body .center {
+  max-width: 860px;
+}
+
+/* 站点标题 */
+.page-title {
+  font-family: var(--titleFont);
+  font-weight: $boldWeight;
+  letter-spacing: -0.02em;
+
+  a {
+    color: var(--dark);
+  }
+}
+
+/* 侧边栏分隔线更轻 */
+.sidebar {
+  &.left {
+    border-right: 1px solid color-mix(in srgb, var(--lightgray) 55%, transparent);
+  }
+
+  &.right {
+    border-left: 1px solid color-mix(in srgb, var(--lightgray) 55%, transparent);
+  }
+}
+
+/* 搜索框 */
+.search-button {
+  border-radius: 7px;
+  border: 1px solid var(--lightgray);
+  transition: border-color 0.15s ease;
+
+  &:hover {
+    border-color: var(--gray);
+  }
+}
+
+/* 右侧小标题统一一点 */
+.graph h3,
+.toc h3,
+.backlinks h3 {
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gray);
+  font-weight: $semiBoldWeight;
+}
+
+/* 目录与反链的字号 */
+.toc-content,
+.backlinks ul {
+  font-size: 0.88rem;
+}
+
+/* ---------- 5. Callout ---------- */
+
+.callout {
+  border-radius: 8px;
+  border-left-width: 3px;
+  margin: 1.1rem 0;
+
+  .callout-title {
+    font-weight: $semiBoldWeight;
+  }
+
+  p {
+    margin: 0.4rem 0;
+  }
+}
+
+/* ---------- 6. 移动端 ---------- */
+
+@media all and ($mobile) {
+  article {
+    p,
+    li {
+      line-height: 1.72;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      margin-top: 1.6rem;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+      margin-top: 1.5rem;
+    }
+  }
+
+  .page > #quartz-body .center {
+    max-width: 100%;
+  }
+}
