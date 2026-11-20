@@ -1,11 +1,4 @@
 {
   "version": "1.0.0",
-  "plugins": {
-    "cf-analytics": {
-      "source": "./quartz/plugins-local/cf-analytics",
-      "resolved": "D:\\private\\obsidian-site\\quartz\\plugins-local\\cf-analytics",
-      "commit": "local",
-      "installedAt": "2026-11-20T08:14:49.748Z"
-    }
-  }
+  "plugins": {}
 }

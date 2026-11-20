@@ -13,9 +13,10 @@ obsidian-site/
 ├─ content/                  # ← 自动生成，勿手改（每次同步会重建）
 ├─ scripts/
 │  ├─ sync_content.py        # 同步脚本：白名单复制 + 清洗 + WebP 转换
+│  ├─ inject_analytics.py    # 构建后注入 Cloudflare 统计信标
 │  └─ preview_server.py      # 本地预览服务器（模拟 Cloudflare 的 URL 规则）
 ├─ quartz.config.yaml        # 站点配置（标题、语言、主题、插件）
-├─ publish.ps1               # 一键：同步 → 构建 → 部署
+├─ publish.ps1               # 一键：同步 → 构建 → 推送（CI 部署）
 └─ .github/workflows/        # 推送到 GitHub 后的自动部署
 ```
 
@@ -24,11 +25,26 @@ obsidian-site/
 ```powershell
 npm run sync:dry     # 只看报告：会发什么、多大、哪些链接坏了
 npm run sync         # 同步笔记到 content/
-npm run build        # 构建到 public/
+npm run build        # 构建到 public/（含统计信标注入）
 npm run preview      # 本地预览 http://127.0.0.1:8080
-npm run deploy       # 部署到 Cloudflare Pages
-.\publish.ps1        # 一条命令走完：同步 + 构建 + 部署
+npm run deploy       # 直接部署到 Cloudflare Pages
+.\publish.ps1        # 同步 + 构建 + 推送，GitHub Actions 自动部署
 ```
+
+## 自动发布
+
+推送 `main` 分支即触发 `.github/workflows/deploy.yml`：构建 → 部署到 Cloudflare Pages。
+
+需要的两个仓库 Secret（Settings → Secrets and variables → Actions）：
+
+| Secret | 说明 |
+|---|---|
+| `CLOUDFLARE_API_TOKEN` | Cloudflare 面板 → My Profile → API Tokens → 用 **Edit Cloudflare Workers** 模板创建 |
+| `CLOUDFLARE_ACCOUNT_ID` | Cloudflare 首页右侧 Account ID：`20265cf496a87fcaafdaa97937089998` |
+| `CF_ANALYTICS_TOKEN`（可选） | Web Analytics 信标 token；不填则跳过统计注入 |
+
+未配置 `CLOUDFLARE_API_TOKEN` 时，CI 只构建不部署并给出一条 warning，不会报红。
+
 
 ## 发布范围
 

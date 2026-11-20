@@ -23,6 +23,10 @@ jobs:
           node-version: 22
           cache: npm
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
 
@@ -31,8 +35,21 @@ jobs:
 
       - name: Build site
         run: npm run build
+        env:
+          CF_ANALYTICS_TOKEN: ${{ secrets.CF_ANALYTICS_TOKEN }}
+
+      - name: Check Cloudflare credentials
+        id: creds
+        run: |
+          if [ -n "${{ secrets.CLOUDFLARE_API_TOKEN }}" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::CLOUDFLARE_API_TOKEN is not set — build only, skipping deploy. See README for setup."
+          fi
 
       - name: Deploy to Cloudflare Pages
+        if: steps.creds.outputs.ready == 'true'
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
