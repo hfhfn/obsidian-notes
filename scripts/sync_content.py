@@ -796,6 +796,15 @@ class Sync:
                 out.append(line)
         return "\n".join(out)
 
+    @staticmethod
+    def escape_numeric_hashes(text: str) -> str:
+        """Escape `#1234` issue numbers so they don't render as tags.
+
+        Obsidian refuses purely numeric tags, Quartz does not, so `issue #3511`
+        would turn into a tag chip on the site.
+        """
+        return re.sub(r"(?<![\w&/#])#(\d{1,6})(?![\w])", r"\\#\1", text)
+
     def rewrite_links(self, text: str, src_rel: str, note_out: str) -> str:
         parts = CODE_SPLIT_RE.split(text)
         for i, part in enumerate(parts):
@@ -805,6 +814,7 @@ class Sync:
             # attachments, which must not be treated as source links.
             part = MDLINK_RE.sub(lambda m: self.rewrite_mdlink(m, src_rel, note_out), part)
             part = WIKILINK_RE.sub(lambda m: self.rewrite_wikilink(m, src_rel, note_out), part)
+            part = self.escape_numeric_hashes(part)
             part = self.fix_table_pipes(part)
             parts[i] = part
         return "".join(parts)

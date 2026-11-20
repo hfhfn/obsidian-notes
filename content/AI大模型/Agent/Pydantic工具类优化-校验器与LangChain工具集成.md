@@ -25,13 +25,13 @@ modified: '2026-09-04T23:39:49+08:00'
 ---
 ## 目录
 
-1. [反模式：在 invoke() 里重复实例化自己](#1-反模式在-invoke-里重复实例化自己)
-2. [三个正道：直接用 self / classmethod / staticmethod](#2-三个正道直接用-self--classmethod--staticmethod)
-3. [@validate_call：纯函数也能校验，无需 BaseModel](#3-validate_call纯函数也能校验无需-basemodel)
-4. [field_validator / model_validator：字段级二次校验](#4-field_validator--model_validator字段级二次校验)
-5. [alias 与手写 mode="before"：字段映射的取舍](#5-alias-与手写-modebefore字段映射的取舍)
-6. [LangChain 工具集成的四种方式](#6-langchain-工具集成的四种方式)
-7. [面试/要点速查表](#7-面试要点速查表)
+1. [反模式：在 invoke() 里重复实例化自己](\#1-反模式在-invoke-里重复实例化自己)
+2. [三个正道：直接用 self / classmethod / staticmethod](\#2-三个正道直接用-self--classmethod--staticmethod)
+3. [@validate_call：纯函数也能校验，无需 BaseModel](\#3-validate_call纯函数也能校验无需-basemodel)
+4. [field_validator / model_validator：字段级二次校验](\#4-field_validator--model_validator字段级二次校验)
+5. [alias 与手写 mode="before"：字段映射的取舍](\#5-alias-与手写-modebefore字段映射的取舍)
+6. [LangChain 工具集成的四种方式](\#6-langchain-工具集成的四种方式)
+7. [面试/要点速查表](\#7-面试要点速查表)
 
 ---
 

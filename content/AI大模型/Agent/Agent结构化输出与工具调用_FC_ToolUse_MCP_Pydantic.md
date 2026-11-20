@@ -26,16 +26,16 @@ modified: '2026-09-04T23:40:06+08:00'
 
 ## 目录
 
-1. [核心结论：让模型"生成"JSON 而不是"手写"JSON](#1-核心结论让模型生成-json-而不是手写-json)
-2. [为什么首选 Function Calling](#2-为什么首选-function-calling)
-3. [纯 Prompt 手写 JSON 的致命缺陷](#3-纯-prompt-手写-json-的致命缺陷)
-4. [命名厘清：Function Calling / Tool Use / Tool Calling / MCP 的关系](#4-命名厘清function-calling--tool-use--tool-calling--mcp-的关系)
-5. [五种结构化输出模式全景](#5-五种结构化输出模式全景)
-6. [Function Calling + Pydantic：生产级"组合拳"](#6-function-calling--pydantic生产级组合拳)
-7. [MCP 与 Function Calling 是互补而非替代](#7-mcp-与-function-calling-是互补而非替代)
-8. [生产级代码范式（含 MCP + Pydantic 完整示例）](#8-生产级代码范式含-mcp--pydantic-完整示例)
-9. [选型决策树](#9-选型决策树)
-10. [面试/要点速查表](#10-面试要点速查表)
+1. [核心结论：让模型"生成"JSON 而不是"手写"JSON](\#1-核心结论让模型生成-json-而不是手写-json)
+2. [为什么首选 Function Calling](\#2-为什么首选-function-calling)
+3. [纯 Prompt 手写 JSON 的致命缺陷](\#3-纯-prompt-手写-json-的致命缺陷)
+4. [命名厘清：Function Calling / Tool Use / Tool Calling / MCP 的关系](\#4-命名厘清function-calling--tool-use--tool-calling--mcp-的关系)
+5. [五种结构化输出模式全景](\#5-五种结构化输出模式全景)
+6. [Function Calling + Pydantic：生产级"组合拳"](\#6-function-calling--pydantic生产级组合拳)
+7. [MCP 与 Function Calling 是互补而非替代](\#7-mcp-与-function-calling-是互补而非替代)
+8. [生产级代码范式（含 MCP + Pydantic 完整示例）](\#8-生产级代码范式含-mcp--pydantic-完整示例)
+9. [选型决策树](\#9-选型决策树)
+10. [面试/要点速查表](\#10-面试要点速查表)
 
 ---
 

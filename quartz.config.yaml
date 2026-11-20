@@ -108,6 +108,10 @@ plugins:
     order: 92
   - source: "@quartz-community/quartz-fonts"
     enabled: true
+    options:
+      # Self-hosted: fonts are fetched at build time and served from the site,
+      # so the page never blocks on fonts.googleapis.com (slow/blocked in CN).
+      fontOrigin: selfHosted
   - source: "@quartz-themes/core"
     enabled: true
     options:

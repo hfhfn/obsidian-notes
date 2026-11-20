@@ -11,14 +11,14 @@ modified: '2026-04-02T12:35:46+08:00'
 
 ## 目录
 
-1. [背景：大模型推理的核心瓶颈](#1-背景大模型推理的核心瓶颈)
-2. [核心创新：PagedAttention](#2-核心创新pageattention)
-3. [Continuous Batching（连续批处理）](#3-continuous-batching连续批处理)
-4. [Prefix Caching（前缀缓存）](#4-prefix-caching前缀缓存)
-5. [投机采样（Speculative Decoding）](#5-投机采样speculative-decoding)
-6. [工程特性与部署实践](#6-工程特性与部署实践)
-7. [性能对比与选型建议](#7-性能对比与选型建议)
-8. [生产环境最佳实践](#8-生产环境最佳实践)
+1. [背景：大模型推理的核心瓶颈](\#1-背景大模型推理的核心瓶颈)
+2. [核心创新：PagedAttention](\#2-核心创新pageattention)
+3. [Continuous Batching（连续批处理）](\#3-continuous-batching连续批处理)
+4. [Prefix Caching（前缀缓存）](\#4-prefix-caching前缀缓存)
+5. [投机采样（Speculative Decoding）](\#5-投机采样speculative-decoding)
+6. [工程特性与部署实践](\#6-工程特性与部署实践)
+7. [性能对比与选型建议](\#7-性能对比与选型建议)
+8. [生产环境最佳实践](\#8-生产环境最佳实践)
 
 ---
 

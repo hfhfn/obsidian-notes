@@ -15,7 +15,7 @@ import urllib.parse
 class PrettyHandler(http.server.SimpleHTTPRequestHandler):
     def translate_path(self, path):
         path = urllib.parse.urlsplit(path).path
-        path = urllib.parse.unquote(path)
+        path = urllib.parse.unquote(path).replace("\\", "/")
         path = posixpath.normpath(path)
         parts = [p for p in path.split("/") if p and p not in (".", "..")]
         root = self.directory
@@ -30,6 +30,18 @@ class PrettyHandler(http.server.SimpleHTTPRequestHandler):
         if os.path.exists(fs + ".html"):
             return fs + ".html"
         return fs
+
+    def list_directory(self, path):
+        # Never expose directory listings: production hosts don't.
+        self.send_error(404, "File not found")
+        return None
+
+    def send_head(self):
+        path = self.translate_path(self.path)
+        if os.path.isdir(path) and not os.path.exists(os.path.join(path, "index.html")):
+            self.send_error(404, "File not found")
+            return None
+        return super().send_head()
 
     def log_message(self, fmt, *args):  # quieter
         pass
