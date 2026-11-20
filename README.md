@@ -23,12 +23,12 @@ obsidian-site/
 ## 常用命令
 
 ```powershell
-npm run sync:dry     # 只看报告：会发什么、多大、哪些链接坏了
-npm run sync         # 同步笔记到 content/
-npm run build        # 构建到 public/（含统计信标注入）
-npm run preview      # 本地预览 http://127.0.0.1:8080
-npm run deploy       # 直接部署到 Cloudflare Pages
-.\publish.ps1        # 同步 + 构建 + 推送，GitHub Actions 自动部署
+.\publish.ps1        # 日常发布：同步 + 推送，CI 构建部署（不需要本地构建）
+.\publish.ps1 -Check  # 同步 + 本地构建校验，不推送
+.\publish.ps1 -DryRun # 只看同步报告，不改文件
+npm run sync         # 只同步笔记到 content/
+npm run preview      # 想在本地看效果时才需要
+npm run deploy       # CI 故障时兜底：直接部署
 ```
 
 ## 自动发布
