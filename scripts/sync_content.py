@@ -892,6 +892,8 @@ class Sync:
             body = re.sub(r"(?m)^>\s*(?:🌌|⚡|🎨|🌊|🧭).*\n?", "", body)
             body = re.sub(r"(?m)^>\s*$\n?", "", body)
             body = re.sub(r"(?m)^-\s*`private/`.*\n?", "", body)
+            # Internal workspace docs are not published; drop their bullet too.
+            body = re.sub(r"(?m)^-\s*`00_系统/`.*\n?", "", body)
             body = body.lstrip("\n")
             body = (
                 "> [!info] 本站内容来自我的 Obsidian 笔记库，"
