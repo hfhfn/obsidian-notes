@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BERT模型家族进化树</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-dark: #1a1f36;
+            --primary-blue: #2563eb;
+            --bg-gradient-start: #f8fafc;
+            --bg-gradient-end: #e2e8f0;
+            --card-bg: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 10px 30px rgba(0,0,0,0.12);
+            --transition-fast: 0.15s ease;
+            --transition-smooth: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+        }
+        
+        body { 
+            font-family: 'Noto Sans SC', -apple-system, system-ui, sans-serif;
+            background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            line-height: 1.6;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 背景装饰 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 50%, rgba(37, 99, 235, 0.08) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(-30px, -50px) rotate(5deg); }
+            66% { transform: translate(30px, -30px) rotate(-5deg); }
+        }
+        
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* 顶部标题区域 */
+        .header {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 3rem 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, 
+                #2563eb 0%, 
+                #10b981 25%, 
+                #8b5cf6 50%, 
+                #f59e0b 75%, 
+                #ef4444 100%);
+        }
+        
+        .header h1 {
+            font-size: clamp(1.75rem, 4vw, 2.5rem);
+            color: var(--primary-dark);
+            text-align: center;
+            margin-bottom: 0.75rem;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-blue) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header p {
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.05rem;
+            font-weight: 500;
+        }
+        
+        /* 图例 */
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-gradient-start);
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: all var(--transition-smooth);
+            border: 1px solid transparent;
+        }
+
+        .legend-item:hover {
+            transform: translateY(-2px);
+            border-color: var(--border-color);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .color-box {
+            width: 18px;
+            height: 18px;
+            border-radius: 4px;
+            border: 1px solid rgba(0,0,0,0.08);
+            flex-shrink: 0;
+        }
+        
+        /* 树形结构容器 */
+        .tree-container {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+        }
+        
+        .node {
+            margin-bottom: 1rem;
+            transition: all var(--transition-smooth);
+        }
+        
+        .node-card {
+            background: #f8fafc;
+            border-left: 4px solid var(--primary-blue);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-left: 0;
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .node-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.5) 100%);
+            opacity: 0;
+            transition: opacity var(--transition-smooth);
+            pointer-events: none;
+        }
+        
+        .node-card:hover {
+            transform: translateX(4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .node-card:hover::before {
+            opacity: 1;
+        }
+        
+        .node-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .toggle-btn {
+            background: rgba(0,0,0,0.05);
+            border: none;
+            cursor: pointer;
+            padding: 0.375rem;
+            border-radius: 6px;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .toggle-btn:hover {
+            background: rgba(0,0,0,0.1);
+            transform: scale(1.1);
+        }
+
+        .toggle-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .node-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
+            flex-grow: 1;
+            min-width: 120px;
+        }
+        
+        /* 修复年代标签颜色问题 */
+        .node-year {
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            color: #ffffff !important; /* 强制白色文字 */
+            padding: 0.375rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.02em;
+            box-shadow: 0 2px 8px rgba(30, 41, 59, 0.2);
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+        
+        .innovations {
+            margin-left: 2.5rem;
+        }
+        
+        .innovations h4 {
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .innovations ul {
+            list-style: none;
+        }
+        
+        .innovations li {
+            padding: 0.375rem 0;
+            color: var(--text-secondary);
+            font-size: 0.9375rem;
+            line-height: 1.6;
+            position: relative;
+            padding-left: 1.25rem;
+        }
+        
+        .innovations li::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0.75rem;
+            width: 6px;
+            height: 6px;
+            background: currentColor;
+            border-radius: 50%;
+            opacity: 0.6;
+        }
+        
+        /* 子节点缩进 */
+        .children {
+            margin-left: 2.5rem;
+            margin-top: 1rem;
+            border-left: 2px solid var(--border-color);
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .children::before {
+            content: '';
+            position: absolute;
+            left: -2px;
+            top: 0;
+            width: 2px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--border-color) 0%, transparent 100%);
+        }
+        
+        /* 趋势卡片 */
+        .trends {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid var(--border-color);
+        }
+        
+        .trends h2 {
+            color: var(--primary-dark);
+            margin-bottom: 1.5rem;
+            font-size: 1.75rem;
+            font-weight: 900;
+            letter-spacing: -0.02em;
+        }
+        
+        .trend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.25rem;
+        }
+        
+        .trend-card {
+            padding: 1.5rem;
+            border-radius: 12px;
+            border-left: 4px solid;
+            transition: all var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .trend-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 70%);
+            transform: translate(30%, -30%);
+            pointer-events: none;
+        }
+
+        .trend-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .trend-card h3 {
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+            font-size: 1.125rem;
+            font-weight: 700;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .trend-card p {
+            color: var(--text-secondary);
+            font-size: 0.9375rem;
+            line-height: 1.6;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* 模型卡片颜色方案 - 更协调的配色 */
+        .bg-blue { 
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); 
+            border-color: #3b82f6; 
+        }
+        .bg-green { 
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); 
+            border-color: #10b981; 
+        }
+        .bg-purple { 
+            background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%); 
+            border-color: #8b5cf6; 
+        }
+        .bg-yellow { 
+            background: linear-gradient(135deg, #fef9c3 0%, #fef08a 100%); 
+            border-color: #f59e0b; 
+        }
+        .bg-red { 
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); 
+            border-color: #ef4444; 
+        }
+        .bg-indigo { 
+            background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); 
+            border-color: #6366f1; 
+        }
+        .bg-pink { 
+            background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%); 
+            border-color: #ec4899; 
+        }
+        .bg-orange { 
+            background: linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%); 
+            border-color: #f97316; 
+        }
+        .bg-teal { 
+            background: linear-gradient(135deg, #ccfbf1 0%, #99f6e4 100%); 
+            border-color: #14b8a6; 
+        }
+        .bg-cyan { 
+            background: linear-gradient(135deg, #cffafe 0%, #a5f3fc 100%); 
+            border-color: #06b6d4; 
+        }
+        .bg-lime { 
+            background: linear-gradient(135deg, #ecfccb 0%, #d9f99d 100%); 
+            border-color: #84cc16; 
+        }
+        .bg-violet { 
+            background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%); 
+            border-color: #8b5cf6; 
+        }
+        .bg-gray { 
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%); 
+            border-color: #6b7280; 
+        }
+        
+        /* 趋势卡片颜色 */
+        .blue { border-color: #3b82f6; background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); }
+        .green { border-color: #10b981; background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%); }
+        .purple { border-color: #8b5cf6; background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%); }
+        .orange { border-color: #f97316; background: linear-gradient(135deg, #ffedd5 0%, #fed7aa 100%); }
+        
+        /* 移除可能覆盖颜色的规则 */
+        .node-card * {
+            /* 不强制继承颜色，让每个元素保持自己的颜色 */
+        }
+        
+        /* 动画 */
+        @keyframes fadeIn {
+            from { 
+                opacity: 0; 
+                transform: translateY(20px); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0); 
+            }
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) both;
+        }
+
+        .slide-in {
+            animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+        }
+
+        /* 为不同元素设置动画延迟 */
+        .header { animation-delay: 0.1s; }
+        .tree-container { animation-delay: 0.2s; }
+        .trends { animation-delay: 0.3s; }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem 0.75rem;
+            }
+
+            .header {
+                padding: 2rem 1.5rem;
+                border-radius: 16px;
+            }
+
+            .header h1 {
+                font-size: 1.75rem;
+            }
+
+            .tree-container, .trends {
+                padding: 1.5rem;
+                border-radius: 16px;
+            }
+
+            .node-card {
+                padding: 1.25rem;
+            }
+
+            .children {
+                margin-left: 1.5rem;
+                padding-left: 1rem;
+            }
+
+            .innovations {
+                margin-left: 1.5rem;
+            }
+
+            .legend {
+                gap: 0.5rem;
+            }
+
+            .legend-item {
+                font-size: 0.8125rem;
+                padding: 0.375rem 0.75rem;
+            }
+
+            .trend-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 打印样式 */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            body::before {
+                display: none;
+            }
+
+            .header, .tree-container, .trends {
+                box-shadow: none;
+                border: 1px solid #ddd;
+                page-break-inside: avoid;
+            }
+
+            .toggle-btn {
+                display: none;
+            }
+
+            .children {
+                display: block !important;
+            }
+        }
+
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-gradient-start);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header fade-in">
+            <h1>BERT模型家族进化树</h1>
+            <p>从预训练语言模型到领域专用优化的演进历程</p>
+            <div class="legend">
+                <div class="legend-item"><div class="color-box bg-blue"></div><span>基础架构</span></div>
+                <div class="legend-item"><div class="color-box bg-green"></div><span>训练优化</span></div>
+                <div class="legend-item"><div class="color-box bg-purple"></div><span>效率提升</span></div>
+                <div class="legend-item"><div class="color-box bg-red"></div><span>任务创新</span></div>
+                <div class="legend-item"><div class="color-box bg-cyan"></div><span>多语言/领域</span></div>
+            </div>
+        </div>
+
+        <div class="tree-container fade-in" id="tree-container">
+            <!-- 内容由JavaScript动态生成 -->
+        </div>
+
+        <div class="trends fade-in">
+            <h2>技术演进趋势</h2>
+            <div class="trend-grid">
+                <div class="trend-card blue">
+                    <h3>🚀 训练效率优化</h3>
+                    <p>从BERT的标准MLM到ELECTRA的RTD，再到DeBERTa V3的混合训练，持续降低训练成本</p>
+                </div>
+                <div class="trend-card green">
+                    <h3>⚡ 模型压缩</h3>
+                    <p>DistilBERT、ALBERT通过蒸馏和参数共享，在保持性能的同时大幅减少模型大小</p>
+                </div>
+                <div class="trend-card purple">
+                    <h3>🎯 注意力机制改进</h3>
+                    <p>从标准注意力到DeBERTa的解耦注意力，再到Longformer的稀疏注意力</p>
+                </div>
+                <div class="trend-card orange">
+                    <h3>🌍 领域适配</h3>
+                    <p>针对特定领域和语言的预训练，如BioBERT、mBERT等，提升专业任务表现</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 模型数据
+        const models = {
+            id: 'root',
+            name: 'Pre-BERT时代',
+            year: '2017-2018',
+            color: 'bg-gray',
+            innovations: [
+                'Word2Vec/GloVe 静态词向量',
+                'ELMo 动态上下文表示', 
+                'GPT 自回归语言模型'
+            ],
+            children: [
+                {
+                    id: 'bert',
+                    name: 'BERT',
+                    year: '2018-10',
+                    color: 'bg-blue',
+                    innovations: [
+                        '双向 Transformer 编码器',
+                        'Masked Language Model (MLM)',
+                        'Next Sentence Prediction (NSP)',
+                        '预训练+微调范式',
+                        'WordPiece 分词'
+                    ],
+                    children: [
+                        { 
+                            id: 'roberta', 
+                            name: 'RoBERTa', 
+                            year: '2019-07', 
+                            color: 'bg-green', 
+                            innovations: [
+                                '移除NSP任务',
+                                '动态Masking',
+                                '更大的batch size',
+                                '更多训练数据和步数',
+                                'Byte-level BPE'
+                            ], 
+                            children: [] 
+                        },
+                        { 
+                            id: 'albert', 
+                            name: 'ALBERT', 
+                            year: '2019-09', 
+                            color: 'bg-purple', 
+                            innovations: [
+                                '跨层参数共享',
+                                '因式分解嵌入参数化',
+                                'SOP替代NSP (Sentence Order Prediction)',
+                                '大幅减少参数量',
+                                '训练更深的模型'
+                            ], 
+                            children: [] 
+                        },
+                        { 
+                            id: 'distilbert', 
+                            name: 'DistilBERT', 
+                            year: '2019-10', 
+                            color: 'bg-yellow', 
+                            innovations: [
+                                '知识蒸馏技术',
+                                '参数量减少40%',
+                                '速度提升60%',
+                                '保留97%性能',
+                                '三重损失函数'
+                            ], 
+                            children: [] 
+                        },
+                        { 
+                            id: 'electra', 
+                            name: 'ELECTRA', 
+                            year: '2020-03', 
+                            color: 'bg-red', 
+                            innovations: [
+                                'Replaced Token Detection任务',
+                                '生成器-判别器架构',
+                                '所有token都参与学习',
+                                '训练效率大幅提升',
+                                '小模型也能达到好效果'
+                            ], 
+                            children: [] 
+                        },
+                        { 
+                            id: 'spanbert', 
+                            name: 'SpanBERT', 
+                            year: '2019-07', 
+                            color: 'bg-indigo', 
+                            innovations: [
+                                'Span Masking策略',
+                                'Span Boundary Objective',
+                                '移除NSP任务',
+                                '专注于span级别表示',
+                                '在抽取式问答任务上表现优异'
+                            ], 
+                            children: [] 
+                        },
+                        { 
+                            id: 'deberta', 
+                            name: 'DeBERTa', 
+                            year: '2020-06', 
+                            color: 'bg-pink', 
+                            innovations: [
+                                'Disentangled Attention机制',
+                                '内容和位置分离表示',
+                                'Enhanced Mask Decoder',
+                                '相对位置编码改进',
+                                '虚拟对抗训练'
+                            ], 
+                            children: [
+                                { 
+                                    id: 'debertav3', 
+                                    name: 'DeBERTa V3', 
+                                    year: '2021-11', 
+                                    color: 'bg-pink', 
+                                    innovations: [
+                                        'ELECTRA风格预训练',
+                                        '替换Token检测',
+                                        '梯度解耦嵌入共享',
+                                        '更高效的训练',
+                                        '多个规模的模型'
+                                    ], 
+                                    children: [] 
+                                }
+                            ] 
+                        },
+                        { 
+                            id: 'ernie', 
+                            name: 'ERNIE系列', 
+                            year: '2019-2021', 
+                            color: 'bg-orange', 
+                            innovations: [
+                                'ERNIE 1.0: 实体级和短语级Masking',
+                                'ERNIE 2.0: 多任务持续学习',
+                                'ERNIE 3.0: 大规模知识增强',
+                                '知识图谱融合',
+                                '中文优化'
+                            ], 
+                            children: [] 
+                        },
+                        { 
+                            id: 'xlnet', 
+                            name: 'XLNet', 
+                            year: '2019-06', 
+                            color: 'bg-teal', 
+                            innovations: [
+                                'Permutation Language Modeling',
+                                '解决MLM的独立性假设问题',
+                                '集成Transformer-XL',
+                                '相对位置编码',
+                                '双流自注意力机制'
+                            ], 
+                            children: [] 
+                        },
+                        { 
+                            id: 'multilingual', 
+                            name: '多语言分支', 
+                            year: '2019-2020', 
+                            color: 'bg-cyan', 
+                            innovations: [
+                                'mBERT: 104种语言',
+                                'XLM-R: 100种语言',
+                                '跨语言迁移',
+                                '更大的词表',
+                                '语言无关表示'
+                            ], 
+                            children: [] 
+                        },
+                        { 
+                            id: 'domain', 
+                            name: '领域专用BERT', 
+                            year: '2019-2021', 
+                            color: 'bg-lime', 
+                            innovations: [
+                                'BioBERT: 生物医学',
+                                'SciBERT: 科学文献',
+                                'ClinicalBERT: 临床医学',
+                                'FinBERT: 金融',
+                                'CodeBERT: 代码理解'
+                            ], 
+                            children: [] 
+                        },
+                        { 
+                            id: 'longformer', 
+                            name: 'Longformer', 
+                            year: '2020-04', 
+                            color: 'bg-violet', 
+                            innovations: [
+                                '滑动窗口注意力',
+                                '全局注意力机制',
+                                '扩展到4096 tokens',
+                                'O(n)复杂度',
+                                '长文档处理'
+                            ], 
+                            children: [] 
+                        }
+                    ]
+                }
+            ]
+        };
+
+        // 展开状态管理
+        let expandedNodes = new Set(['root', 'bert']);
+
+        // 创建节点HTML
+        function createNodeHTML(model, depth = 0) {
+            const isExpanded = expandedNodes.has(model.id);
+            const hasChildren = model.children && model.children.length > 0;
+            
+            let html = `
+                <div class="node slide-in" style="animation-delay: ${depth * 0.1}s;">
+                    <div class="node-card ${model.color}">
+                        <div class="node-header">
+            `;
+            
+            if (hasChildren) {
+                html += `
+                    <button class="toggle-btn" onclick="toggleNode('${model.id}')" aria-label="${isExpanded ? '收起' : '展开'}">
+                        ${isExpanded ? 
+                            '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>' :
+                            '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>'}
+                    </button>
+                `;
+            } else {
+                html += '<div style="width: 34px;"></div>';
+            }
+            
+            html += `
+                            <h3 class="node-title">${model.name}</h3>
+                            <span class="node-year">${model.year}</span>
+                        </div>
+                        <div class="innovations">
+                            <h4>核心创新</h4>
+                            <ul>
+            `;
+            
+            model.innovations.forEach(innovation => {
+                html += `<li>${innovation}</li>`;
+            });
+            
+            html += `
+                            </ul>
+                        </div>
+                    </div>
+            `;
+            
+            // 子节点
+            if (hasChildren && isExpanded) {
+                html += `<div class="children">`;
+                model.children.forEach(child => {
+                    html += createNodeHTML(child, depth + 1);
+                });
+                html += `</div>`;
+            }
+            
+            html += `</div>`;
+            return html;
+        }
+
+        // 切换节点展开状态
+        function toggleNode(id) {
+            if (expandedNodes.has(id)) {
+                expandedNodes.delete(id);
+            } else {
+                expandedNodes.add(id);
+            }
+            renderTree();
+        }
+
+        // 渲染整个树
+        function renderTree() {
+            const container = document.getElementById('tree-container');
+            container.innerHTML = createNodeHTML(models);
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            renderTree();
+            
+            // 添加键盘导航支持
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    expandedNodes.clear();
+                    expandedNodes.add('root');
+                    expandedNodes.add('bert');
+                    renderTree();
+                }
+            });
+        });
+
+        // 添加全局展开/收起功能
+        window.expandAll = function() {
+            function addAllIds(node) {
+                expandedNodes.add(node.id);
+                if (node.children) {
+                    node.children.forEach(child => addAllIds(child));
+                }
+            }
+            addAllIds(models);
+            renderTree();
+        };
+
+        window.collapseAll = function() {
+            expandedNodes.clear();
+            expandedNodes.add('root');
+            renderTree();
+        };
+    </script>
+</body>
+</html>

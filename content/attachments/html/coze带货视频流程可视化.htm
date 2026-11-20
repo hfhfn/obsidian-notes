@@ -1,0 +1,513 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); }
+
+.app { padding: 1.5rem 0; max-width: 680px; }
+
+.header { margin-bottom: 1.5rem; }
+.header h1 { font-size: 20px; font-weight: 500; color: var(--color-text-primary); }
+.header p { font-size: 13px; color: var(--color-text-secondary); margin-top: 4px; }
+
+.steps-bar { display: flex; gap: 0; margin-bottom: 1.5rem; border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; }
+.step-tab { flex: 1; padding: 8px 4px; text-align: center; font-size: 11px; color: var(--color-text-secondary); cursor: pointer; background: var(--color-background-secondary); border-right: 0.5px solid var(--color-border-tertiary); transition: background 0.15s; }
+.step-tab:last-child { border-right: none; }
+.step-tab.active { background: var(--color-background-primary); color: var(--color-text-primary); font-weight: 500; }
+.step-tab.done { color: #1D9E75; }
+.step-num { font-size: 10px; display: block; margin-bottom: 2px; opacity: 0.7; }
+
+.panel { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; margin-bottom: 1rem; }
+
+.field-label { font-size: 13px; color: var(--color-text-secondary); margin-bottom: 6px; display: block; }
+.field-group { margin-bottom: 1rem; }
+.field-group:last-child { margin-bottom: 0; }
+
+input[type=text], textarea, select {
+  width: 100%; font-size: 14px; color: var(--color-text-primary);
+  background: var(--color-background-secondary);
+  border: 0.5px solid var(--color-border-secondary);
+  border-radius: var(--border-radius-md);
+  padding: 8px 12px;
+}
+textarea { resize: vertical; min-height: 72px; }
+
+.upload-zone {
+  border: 1.5px dashed var(--color-border-secondary);
+  border-radius: var(--border-radius-md);
+  padding: 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  background: var(--color-background-secondary);
+  transition: border-color 0.15s;
+}
+.upload-zone:hover { border-color: var(--color-border-primary); }
+.upload-zone.has-image { border-style: solid; border-color: #1D9E75; }
+.upload-zone img { max-height: 120px; max-width: 100%; border-radius: 6px; }
+.upload-label { font-size: 13px; color: var(--color-text-secondary); margin-top: 8px; }
+
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.action-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 10px 16px;
+  font-size: 14px; font-weight: 500;
+  border: 0.5px solid var(--color-border-secondary);
+  border-radius: var(--border-radius-md);
+  background: var(--color-background-primary);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+.action-btn:hover { background: var(--color-background-secondary); }
+.action-btn:active { transform: scale(0.98); }
+.action-btn.primary {
+  background: #1D9E75; color: #fff; border-color: #1D9E75;
+}
+.action-btn.primary:hover { background: #0F6E56; }
+.action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.output-box {
+  background: var(--color-background-secondary);
+  border-radius: var(--border-radius-md);
+  padding: 1rem;
+  font-size: 13px;
+  color: var(--color-text-primary);
+  white-space: pre-wrap;
+  line-height: 1.6;
+  min-height: 80px;
+  border: 0.5px solid var(--color-border-tertiary);
+}
+
+.status-row { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--color-text-secondary); margin-bottom: 8px; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: #888; flex-shrink: 0; }
+.dot.running { background: #EF9F27; animation: pulse 1s infinite; }
+.dot.done { background: #1D9E75; }
+.dot.error { background: #E24B4A; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+.video-card {
+  border: 0.5px solid var(--color-border-tertiary);
+  border-radius: var(--border-radius-lg);
+  overflow: hidden;
+  background: var(--color-background-primary);
+}
+.video-placeholder {
+  background: var(--color-background-secondary);
+  aspect-ratio: 9/16;
+  max-height: 280px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 8px;
+  color: var(--color-text-secondary);
+  font-size: 13px;
+}
+.video-meta { padding: 12px; font-size: 12px; color: var(--color-text-secondary); }
+.video-url { font-size: 12px; color: #185FA5; word-break: break-all; padding: 8px 12px; }
+
+.tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 10px; margin-right: 4px; }
+.tag-teal { background: #E1F5EE; color: #0F6E56; }
+.tag-amber { background: #FAEEDA; color: #854F0B; }
+
+.section-title { font-size: 13px; font-weight: 500; color: var(--color-text-secondary); margin-bottom: 8px; }
+
+.flow-mini { display: flex; align-items: center; gap: 4px; margin-bottom: 1rem; flex-wrap: wrap; }
+.flow-node { font-size: 11px; padding: 4px 8px; border-radius: 10px; background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); }
+.flow-node.active { background: #E1F5EE; color: #0F6E56; border-color: #5DCAA5; }
+.flow-arrow { font-size: 10px; color: var(--color-text-secondary); }
+
+.copy-btn { font-size: 11px; padding: 3px 8px; cursor: pointer; float: right; margin-top: -2px; }
+</style>
+
+<div class="app">
+  <h2 class="sr-only">AIGC口播带货视频生成工作流</h2>
+
+  <div class="header">
+    <h1><i class="ti ti-video" aria-hidden="true" style="font-size:20px;vertical-align:-2px;margin-right:8px;color:#1D9E75"></i>AIGC 口播带货生成器</h1>
+    <p>五步全自动生成带货短视频 · 支持多国语言 · Seedance 2.0 驱动</p>
+  </div>
+
+  <div class="flow-mini">
+    <span class="flow-node" id="fn1">① 产品输入</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-node" id="fn2">② 分镜脚本</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-node" id="fn3">③ 串联提示词</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-node" id="fn4">④ 生成视频</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-node" id="fn5">⑤ 视频输出</span>
+  </div>
+
+  <div class="steps-bar">
+    <div class="step-tab active" id="tab1" onclick="goStep(1)"><span class="step-num">STEP 1</span>产品信息</div>
+    <div class="step-tab" id="tab2" onclick="goStep(2)"><span class="step-num">STEP 2</span>分镜脚本</div>
+    <div class="step-tab" id="tab3" onclick="goStep(3)"><span class="step-num">STEP 3</span>提示词</div>
+    <div class="step-tab" id="tab4" onclick="goStep(4)"><span class="step-num">STEP 4</span>生成视频</div>
+    <div class="step-tab" id="tab5" onclick="goStep(5)"><span class="step-num">STEP 5</span>视频输出</div>
+  </div>
+
+  <div id="step1">
+    <div class="panel">
+      <div class="field-group">
+        <label class="field-label"><i class="ti ti-photo" aria-hidden="true"></i> 产品图片</label>
+        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('imgInput').click()">
+          <div id="uploadPlaceholder">
+            <i class="ti ti-cloud-upload" style="font-size:32px;color:var(--color-text-secondary)" aria-hidden="true"></i>
+            <div class="upload-label">点击上传产品图</div>
+            <div style="font-size:11px;color:var(--color-text-secondary);margin-top:4px">支持 JPG / PNG / WEBP</div>
+          </div>
+          <img id="previewImg" style="display:none" />
+        </div>
+        <input type="file" id="imgInput" accept="image/*" style="display:none" onchange="handleImg(this)" />
+      </div>
+      <div class="field-group">
+        <label class="field-label"><i class="ti ti-tag" aria-hidden="true"></i> 产品名称</label>
+        <input type="text" id="productName" placeholder="例：便携式挂烫机" />
+      </div>
+      <div class="field-group">
+        <label class="field-label"><i class="ti ti-star" aria-hidden="true"></i> 核心卖点</label>
+        <textarea id="productFeatures" placeholder="例：30秒预热、折叠小巧、蒸汽强劲&#10;（留空则由AI根据产品图和名称自动推理）"></textarea>
+      </div>
+      <div class="row2">
+        <div class="field-group" style="margin-bottom:0">
+          <label class="field-label"><i class="ti ti-map-pin" aria-hidden="true"></i> 目标国家</label>
+          <select id="targetCountry">
+            <option value="美国">🇺🇸 美国</option>
+            <option value="英国">🇬🇧 英国</option>
+            <option value="德国">🇩🇪 德国</option>
+            <option value="法国">🇫🇷 法国</option>
+            <option value="日本">🇯🇵 日本</option>
+            <option value="韩国">🇰🇷 韩国</option>
+            <option value="泰国">🇹🇭 泰国</option>
+            <option value="澳大利亚">🇦🇺 澳大利亚</option>
+            <option value="巴西">🇧🇷 巴西</option>
+            <option value="中国">🇨🇳 中国</option>
+          </select>
+        </div>
+        <div class="field-group" style="margin-bottom:0">
+          <label class="field-label"><i class="ti ti-language" aria-hidden="true"></i> 目标语言</label>
+          <select id="targetLang">
+            <option value="英语">English 英语</option>
+            <option value="德语">Deutsch 德语</option>
+            <option value="法语">Français 法语</option>
+            <option value="日语">日本語 日语</option>
+            <option value="韩语">한국어 韩语</option>
+            <option value="泰语">ภาษาไทย 泰语</option>
+            <option value="葡萄牙语">Português 葡语</option>
+            <option value="中文">中文</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <button class="action-btn primary" onclick="runStep2()">
+      <i class="ti ti-sparkles" aria-hidden="true"></i> 生成分镜脚本 →
+    </button>
+  </div>
+
+  <div id="step2" style="display:none">
+    <div class="panel">
+      <div class="status-row" id="s2status">
+        <span class="dot running" id="s2dot"></span>
+        <span id="s2msg">正在调用 AI 生成分镜脚本...</span>
+      </div>
+      <div class="section-title">
+        分镜脚本 <button class="action-btn copy-btn" onclick="copyText('script-output')" style="display:inline-flex;width:auto;font-size:11px;padding:3px 8px"><i class="ti ti-copy" aria-hidden="true"></i> 复制</button>
+      </div>
+      <div class="output-box" id="script-output">等待生成...</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="action-btn" onclick="goStep(1)" style="flex:0 0 auto;width:auto;padding:10px 16px"><i class="ti ti-arrow-left" aria-hidden="true"></i></button>
+      <button class="action-btn primary" id="toStep3Btn" onclick="runStep3()" style="flex:1" disabled>
+        <i class="ti ti-wand" aria-hidden="true"></i> 串联提示词 →
+      </button>
+    </div>
+  </div>
+
+  <div id="step3" style="display:none">
+    <div class="panel">
+      <div class="section-title">
+        串联后的视频提示词 <button class="action-btn copy-btn" onclick="copyText('prompt-output')" style="display:inline-flex;width:auto;font-size:11px;padding:3px 8px"><i class="ti ti-copy" aria-hidden="true"></i> 复制</button>
+      </div>
+      <div class="output-box" id="prompt-output" style="min-height:120px">正在串联...</div>
+      <div style="margin-top:12px">
+        <label class="field-label">可手动编辑提示词</label>
+        <textarea id="promptEdit" style="min-height:100px;font-size:12px" placeholder="提示词将自动填入，可修改后再生成视频"></textarea>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="action-btn" onclick="goStep(2)" style="flex:0 0 auto;width:auto;padding:10px 16px"><i class="ti ti-arrow-left" aria-hidden="true"></i></button>
+      <button class="action-btn primary" onclick="runStep4()" style="flex:1">
+        <i class="ti ti-movie" aria-hidden="true"></i> 调用 Seedance 2.0 生成视频 →
+      </button>
+    </div>
+  </div>
+
+  <div id="step4" style="display:none">
+    <div class="panel">
+      <div class="status-row" id="s4status">
+        <span class="dot running" id="s4dot"></span>
+        <span id="s4msg">正在提交 Seedance 2.0 视频生成任务...</span>
+      </div>
+      <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:1rem;margin-top:8px">
+        <div class="section-title" style="margin-bottom:8px">任务信息</div>
+        <div style="font-size:12px;color:var(--color-text-secondary);display:grid;grid-template-columns:1fr 1fr;gap:6px" id="taskInfo">
+          <span>任务 ID：<span style="color:var(--color-text-primary)" id="taskId">-</span></span>
+          <span>状态：<span style="color:var(--color-text-primary)" id="taskStatus">-</span></span>
+          <span>模型：<span style="color:var(--color-text-primary)">Seedance 2.0</span></span>
+          <span>模式：<span style="color:var(--color-text-primary)">慢速版</span></span>
+        </div>
+      </div>
+      <div style="margin-top:12px">
+        <div class="section-title">查询日志</div>
+        <div class="output-box" id="queryLog" style="font-size:12px;font-family:var(--font-mono);min-height:80px"></div>
+      </div>
+    </div>
+    <button class="action-btn primary" id="toStep5Btn" onclick="goStep(5)" disabled>
+      <i class="ti ti-check" aria-hidden="true"></i> 查看视频结果 →
+    </button>
+  </div>
+
+  <div id="step5" style="display:none">
+    <div class="panel">
+      <div class="status-row" id="s5status">
+        <span class="dot done" id="s5dot"></span>
+        <span id="s5msg">视频生成成功！</span>
+      </div>
+      <div class="video-card">
+        <div class="video-placeholder" id="videoPlaceholder">
+          <i class="ti ti-player-play" style="font-size:40px;color:var(--color-text-secondary)" aria-hidden="true"></i>
+          <span>视频预览</span>
+        </div>
+        <video id="videoPlayer" style="display:none;width:100%;max-height:320px" controls></video>
+        <div class="video-url" id="videoUrlDisplay">-</div>
+        <div class="video-meta" id="videoMeta"></div>
+      </div>
+      <div style="margin-top:12px;display:flex;gap:8px">
+        <button class="action-btn" id="copyUrlBtn" onclick="copyVideoUrl()" style="flex:1">
+          <i class="ti ti-copy" aria-hidden="true"></i> 复制视频链接
+        </button>
+        <button class="action-btn" id="openUrlBtn" onclick="openVideo()" style="flex:1">
+          <i class="ti ti-external-link" aria-hidden="true"></i> 打开视频
+        </button>
+      </div>
+    </div>
+    <button class="action-btn" onclick="resetAll()">
+      <i class="ti ti-refresh" aria-hidden="true"></i> 重新生成新视频
+    </button>
+  </div>
+</div>
+
+<script>
+let state = {
+  imgBase64: null,
+  imgType: null,
+  scriptText: '',
+  promptText: '',
+  taskId: null,
+  videoUrl: null,
+  currentStep: 1
+};
+
+function goStep(n) {
+  for (let i = 1; i <= 5; i++) {
+    document.getElementById('step' + i).style.display = i === n ? '' : 'none';
+    const tab = document.getElementById('tab' + i);
+    tab.className = 'step-tab' + (i === n ? ' active' : (i < n ? ' done' : ''));
+  }
+  ['fn1','fn2','fn3','fn4','fn5'].forEach((id, idx) => {
+    const el = document.getElementById(id);
+    el.className = 'flow-node' + (idx + 1 === n ? ' active' : '');
+  });
+  state.currentStep = n;
+}
+
+function handleImg(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    state.imgBase64 = e.target.result.split(',')[1];
+    state.imgType = file.type;
+    const img = document.getElementById('previewImg');
+    img.src = e.target.result;
+    img.style.display = 'block';
+    document.getElementById('uploadPlaceholder').style.display = 'none';
+    document.getElementById('uploadZone').classList.add('has-image');
+  };
+  reader.readAsDataURL(file);
+}
+
+async function runStep2() {
+  const name = document.getElementById('productName').value.trim();
+  const features = document.getElementById('productFeatures').value.trim();
+  const country = document.getElementById('targetCountry').value;
+  const lang = document.getElementById('targetLang').value;
+  if (!name) { alert('请填写产品名称'); return; }
+  goStep(2);
+  setStatus(2, 'running', '正在调用 AI 生成分镜脚本...');
+  document.getElementById('script-output').textContent = '生成中...';
+  document.getElementById('toStep3Btn').disabled = true;
+
+  const sysPrompt = `你是一位全球化短视频内容营销专家，精通TikTok、Instagram Reels和YouTube Shorts的爆款底层逻辑。擅长用符合目标国家文化语境的生活化场景和细节展示产品真实体验，镜头语言偏向"沉浸式原生短视频"，助力打造高完播率、真实感产品体验脚本。
+
+请生成一段15秒口播带货短视频分镜脚本，严格按照以下格式输出（4个分镜）：
+【人物】<描述出镜人物>
+【场景引入】<镜头描述+口播文案>
+【产品细节】<近景特写描述+口播文案>
+【真实体验】<使用体验描述+口播文案>
+【推荐总结】<结尾CTA描述+口播文案>
+
+口播文案必须使用${lang}，符合${country}用户的文化习惯和表达方式，自然口语化。`;
+
+  const userContent = [];
+  if (state.imgBase64) {
+    userContent.push({ type: 'image', source: { type: 'base64', media_type: state.imgType || 'image/jpeg', data: state.imgBase64 } });
+  }
+  userContent.push({ type: 'text', text: `产品名称：${name}\n目标国家：${country}\n目标语言：${lang}\n核心卖点：${features || '请根据产品图和名称自动推理'}` });
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, system: sysPrompt, messages: [{ role: 'user', content: userContent }] })
+    });
+    const data = await res.json();
+    const text = data.content?.map(b => b.text || '').join('') || '生成失败，请重试';
+    state.scriptText = text;
+    document.getElementById('script-output').textContent = text;
+    setStatus(2, 'done', '分镜脚本生成完成');
+    document.getElementById('toStep3Btn').disabled = false;
+  } catch(e) {
+    setStatus(2, 'error', '生成失败：' + e.message);
+    document.getElementById('script-output').textContent = '错误：' + e.message;
+  }
+}
+
+async function runStep3() {
+  const name = document.getElementById('productName').value.trim();
+  const lang = document.getElementById('targetLang').value;
+  goStep(3);
+  document.getElementById('prompt-output').textContent = '正在串联...';
+  document.getElementById('promptEdit').value = '';
+
+  const systemPrompt = `你是一个视频提示词工程师，请将分镜脚本转换为Seedance视频生成提示词。
+要求：
+1. 提示词用英文输出（国际化视频生成模型标准）
+2. 强调产品外观100%还原（材质/颜色/Logo/细节）
+3. 电影级摄影风格，沉浸式原生短视频感
+4. 画面绝对禁止出现任何文字浮层
+5. 串联4个分镜的动态描述，每个镜头用"|"分隔
+6. 格式：[角色描述], [场景1描述] | [产品特写描述] | [使用体验描述] | [结尾CTA描述], cinematic photography, product commercial style, no text overlay`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 600, system: systemPrompt, messages: [{ role: 'user', content: `产品名称：${name}\n目标语言：${lang}\n分镜脚本：\n${state.scriptText}\n\n请生成串联后的Seedance视频提示词（英文）` }] })
+    });
+    const data = await res.json();
+    const text = data.content?.map(b => b.text || '').join('') || '';
+    state.promptText = text;
+    document.getElementById('prompt-output').textContent = text;
+    document.getElementById('promptEdit').value = text;
+  } catch(e) {
+    document.getElementById('prompt-output').textContent = '串联失败：' + e.message;
+  }
+}
+
+async function runStep4() {
+  const finalPrompt = document.getElementById('promptEdit').value.trim() || state.promptText;
+  if (!finalPrompt) { alert('请先生成提示词'); return; }
+  goStep(4);
+  setStatus(4, 'running', '正在提交 Seedance 2.0 视频生成任务...');
+  const log = document.getElementById('queryLog');
+  log.textContent = '';
+  document.getElementById('taskId').textContent = '-';
+  document.getElementById('taskStatus').textContent = '-';
+  document.getElementById('toStep5Btn').disabled = true;
+
+  addLog(log, '📤 提交任务中...');
+  addLog(log, '提示词长度：' + finalPrompt.length + ' 字符');
+
+  // Simulate task submission (Seedance 2.0 API call would go here)
+  await sleep(1200);
+  const fakeTaskId = 'SEED-' + Math.random().toString(36).substr(2, 10).toUpperCase();
+  state.taskId = fakeTaskId;
+  document.getElementById('taskId').textContent = fakeTaskId;
+  document.getElementById('taskStatus').textContent = '处理中';
+  addLog(log, '✅ 任务已提交，ID：' + fakeTaskId);
+
+  setStatus(4, 'running', '任务生成中，正在轮询状态...');
+  
+  // Simulate polling (3 rounds)
+  const polls = ['处理中 (0%)','处理中 (35%)','处理中 (72%)','完成 ✓'];
+  for (let i = 0; i < polls.length; i++) {
+    await sleep(1800);
+    const status = polls[i];
+    document.getElementById('taskStatus').textContent = status;
+    addLog(log, '🔄 [查询 ' + (i+1) + '] 状态：' + status);
+    if (i === polls.length - 1) {
+      state.videoUrl = 'https://example-cdn.seedance.ai/videos/' + fakeTaskId + '.mp4';
+      addLog(log, '🎬 视频地址：' + state.videoUrl);
+      setStatus(4, 'done', '视频生成完成！');
+      document.getElementById('toStep5Btn').disabled = false;
+    }
+  }
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function addLog(el, msg) {
+  const ts = new Date().toLocaleTimeString('zh-CN');
+  el.textContent += `[${ts}] ${msg}\n`;
+  el.scrollTop = el.scrollHeight;
+}
+
+function setStatus(step, state, msg) {
+  const dot = document.getElementById('s' + step + 'dot');
+  const msgEl = document.getElementById('s' + step + 'msg');
+  dot.className = 'dot ' + state;
+  msgEl.textContent = msg;
+}
+
+function goStep5FromStep4() {
+  const name = document.getElementById('productName').value.trim();
+  const country = document.getElementById('targetCountry').value;
+  const lang = document.getElementById('targetLang').value;
+  goStep(5);
+  document.getElementById('videoUrlDisplay').textContent = state.videoUrl || '暂无地址';
+  document.getElementById('videoMeta').innerHTML = `<span class="tag tag-teal">${name}</span><span class="tag tag-amber">${country} · ${lang}</span><span class="tag tag-teal">Seedance 2.0</span>`;
+  if (state.videoUrl) {
+    document.getElementById('videoPlayer').src = state.videoUrl;
+    document.getElementById('videoPlayer').style.display = '';
+    document.getElementById('videoPlaceholder').style.display = 'none';
+  }
+}
+
+document.getElementById('toStep5Btn').addEventListener('click', function(e) {
+  e.stopPropagation();
+  goStep5FromStep4();
+});
+
+function copyText(id) {
+  const el = document.getElementById(id);
+  navigator.clipboard.writeText(el.textContent).then(() => alert('已复制'));
+}
+
+function copyVideoUrl() {
+  if (state.videoUrl) navigator.clipboard.writeText(state.videoUrl).then(() => alert('链接已复制'));
+}
+
+function openVideo() {
+  if (state.videoUrl) openLink(state.videoUrl);
+}
+
+function resetAll() {
+  state = { imgBase64: null, imgType: null, scriptText: '', promptText: '', taskId: null, videoUrl: null, currentStep: 1 };
+  document.getElementById('productName').value = '';
+  document.getElementById('productFeatures').value = '';
+  document.getElementById('previewImg').style.display = 'none';
+  document.getElementById('uploadPlaceholder').style.display = '';
+  document.getElementById('uploadZone').classList.remove('has-image');
+  goStep(1);
+}
+</script>

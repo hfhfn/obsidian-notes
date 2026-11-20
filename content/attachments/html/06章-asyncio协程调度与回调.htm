@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>asyncio 协程调度方法 + 6.12 回调逻辑</title>
+<style>
+  :root {
+    --bg-main: #f8fafc;
+    --card-bg: #ffffff;
+    --border-color: #e2e8f0;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    --stroke-edge: #94a3b8;
+    --stroke-edge-hl: #2563eb;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 32px 24px;
+    background: var(--bg-main);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .container { max-width: 1200px; width: 100%; }
+  .header { margin-bottom: 20px; }
+
+  h1 { font-size: 22px; font-weight: 700; margin: 0 0 6px 0; color: var(--text-primary); letter-spacing: -0.02em; }
+  .sub { font-size: 13.5px; color: var(--text-secondary); margin: 0 0 16px 0; }
+  .sub code { background: #eff6ff; color: #1d4ed8; padding: 2px 6px; border-radius: 4px; font-family: "Fira Code", Consolas, Monaco, monospace; font-size: 12.5px; }
+
+  .canvas-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+    padding: 20px;
+    overflow: hidden;
+  }
+
+  svg { width: 100%; height: auto; display: block; }
+  text { user-select: none; }
+
+  .node-group { cursor: pointer; transition: transform 0.2s ease; }
+  .node-group:hover rect { filter: brightness(0.97); stroke-width: 2px; }
+
+  .edge { fill: none; stroke: var(--stroke-edge); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: stroke 0.2s, stroke-width 0.2s; }
+  .edge:hover { stroke: var(--stroke-edge-hl); stroke-width: 2.5; }
+  .edge-amber { fill: none; stroke: #f59e0b; }
+
+  .nm { font-size: 12.5px; font-weight: 700; font-family: "Fira Code", Consolas, Monaco, monospace; text-anchor: middle; }
+  .nb { font-size: 10.5px; text-anchor: middle; }
+
+  .route-table { margin-top: 20px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px 24px; font-size: 13.5px; color: var(--text-secondary); line-height: 1.8; }
+  .route-table p { margin: 6px 0; }
+  .route-table b { color: var(--text-primary); }
+  .route-table code { background: #f1f5f9; color: #0f172a; border: 1px solid #e2e8f0; border-radius: 4px; padding: 1px 6px; font-family: Consolas, Monaco, monospace; font-size: 12px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>asyncio 协程调度方法 + 6.12 回调业务逻辑</h1>
+    <p class="sub">上半：7 种调度方法对比（绿色 = 本项目用到）；下半：<code>POST /submit</code> 后台批改的 done 回调怎么跑</p>
+  </div>
+
+  <div class="canvas-card">
+    <svg viewBox="0 0 1180 1080" aria-label="asyncio 协程方法 + 6.12 回调逻辑" xmlns="http://www.w3.org/2000/svg">
+
+      <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#94a3b8"/>
+        </marker>
+        <marker id="arr-amber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#d97706"/>
+        </marker>
+        <filter id="shadow" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+          <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.06" />
+        </filter>
+      </defs>
+
+      <!-- ═══════════ 上半：协程调度方法对比表 ═══════════ -->
+      <text x="50" y="56" font-size="15" font-weight="700" fill="#0f172a">① 协程调度方法一览</text>
+      <text x="50" y="74" font-size="11" fill="#64748b">协程对象本身不会执行，必须被调度进事件循环 —— 下面这些方法都是"调度器"，区别在等不等你、怎么收结果</text>
+
+      <!-- 表头 -->
+      <rect x="50" y="90" width="1080" height="44" rx="8" fill="#f1f5f9" stroke="#e2e8f0" stroke-width="1"/>
+      <text x="60" y="117" font-size="12.5" font-weight="700" fill="#0f172a" dominant-baseline="middle">方法</text>
+      <text x="250" y="117" font-size="12.5" font-weight="700" fill="#0f172a" dominant-baseline="middle">是否等待</text>
+      <text x="410" y="117" font-size="12.5" font-weight="700" fill="#0f172a" dominant-baseline="middle">返回什么</text>
+      <text x="710" y="117" font-size="12.5" font-weight="700" fill="#0f172a" dominant-baseline="middle">项目用在哪</text>
+
+      <!-- 列分隔线 -->
+      <line x1="240" y1="90" x2="240" y2="434" stroke="#e2e8f0" stroke-width="1"/>
+      <line x1="400" y1="90" x2="400" y2="434" stroke="#e2e8f0" stroke-width="1"/>
+      <line x1="700" y1="90" x2="700" y2="434" stroke="#e2e8f0" stroke-width="1"/>
+
+      <!-- 行1 await（灰） -->
+      <rect x="50" y="134" width="1080" height="42" fill="#ffffff" stroke="#f1f5f9" stroke-width="1"/>
+      <text x="60" y="155" font-size="12" font-weight="700" fill="#334155" font-family="Consolas, monospace" dominant-baseline="middle">await coro</text>
+      <text x="250" y="155" font-size="11.5" fill="#475569" dominant-baseline="middle">等（阻塞）</text>
+      <text x="410" y="155" font-size="11.5" fill="#475569" dominant-baseline="middle">直接返回值</text>
+      <text x="710" y="155" font-size="11.5" fill="#475569" dominant-baseline="middle">各节点内部顺序调用</text>
+
+      <!-- 行2 create_task（本项目用，绿） -->
+      <rect x="50" y="176" width="1080" height="42" fill="#ecfdf5" stroke="#a7f3d0" stroke-width="1"/>
+      <text x="60" y="197" font-size="12" font-weight="700" fill="#047857" font-family="Consolas, monospace" dominant-baseline="middle">create_task(coro)</text>
+      <text x="250" y="197" font-size="11.5" fill="#047857" dominant-baseline="middle">不等，立即返回 Task</text>
+      <text x="410" y="197" font-size="11.5" fill="#047857" dominant-baseline="middle">Task（.result() / 回调）</text>
+      <text x="710" y="197" font-size="11.5" fill="#047857" dominant-baseline="middle"><tspan>POST /submit 起后台批改（fire-and-forget）</tspan></text>
+
+      <!-- 行3 ensure_future（本项目用，绿） -->
+      <rect x="50" y="218" width="1080" height="42" fill="#ecfdf5" stroke="#a7f3d0" stroke-width="1"/>
+      <text x="60" y="239" font-size="12" font-weight="700" fill="#047857" font-family="Consolas, monospace" dominant-baseline="middle">ensure_future(obj)</text>
+      <text x="250" y="239" font-size="11.5" fill="#047857" dominant-baseline="middle">不等</text>
+      <text x="410" y="239" font-size="11.5" fill="#047857" dominant-baseline="middle">协程→Task；已是 Task 原样返回</text>
+      <text x="710" y="239" font-size="11.5" fill="#047857" dominant-baseline="middle">同步回调里包 async 清理（历史习惯）</text>
+
+      <!-- 行4 gather（本项目用，绿） -->
+      <rect x="50" y="260" width="1080" height="42" fill="#ecfdf5" stroke="#a7f3d0" stroke-width="1"/>
+      <text x="60" y="281" font-size="12" font-weight="700" fill="#047857" font-family="Consolas, monospace" dominant-baseline="middle">gather(*coros)</text>
+      <text x="250" y="281" font-size="11.5" fill="#047857" dominant-baseline="middle">等全部</text>
+      <text x="410" y="281" font-size="11.5" fill="#047857" dominant-baseline="middle">结果列表</text>
+      <text x="710" y="281" font-size="11.5" fill="#047857" dominant-baseline="middle">6.5-6.8 三轨并行（return_exceptions=True）</text>
+
+      <!-- 行5 as_completed（灰） -->
+      <rect x="50" y="302" width="1080" height="42" fill="#ffffff" stroke="#f1f5f9" stroke-width="1"/>
+      <text x="60" y="323" font-size="12" font-weight="700" fill="#94a3b8" font-family="Consolas, monospace" dominant-baseline="middle">as_completed(...)</text>
+      <text x="250" y="323" font-size="11.5" fill="#94a3b8" dominant-baseline="middle">边等边收</text>
+      <text x="410" y="323" font-size="11.5" fill="#94a3b8" dominant-baseline="middle">谁先完成谁出</text>
+      <text x="710" y="323" font-size="11.5" fill="#94a3b8" dominant-baseline="middle">（本项目未用）</text>
+
+      <!-- 行6 wait（灰） -->
+      <rect x="50" y="344" width="1080" height="42" fill="#ffffff" stroke="#f1f5f9" stroke-width="1"/>
+      <text x="60" y="365" font-size="12" font-weight="700" fill="#94a3b8" font-family="Consolas, monospace" dominant-baseline="middle">wait(...)</text>
+      <text x="250" y="365" font-size="11.5" fill="#94a3b8" dominant-baseline="middle">等</text>
+      <text x="410" y="365" font-size="11.5" fill="#94a3b8" dominant-baseline="middle">(done, pending) 集合</text>
+      <text x="710" y="365" font-size="11.5" fill="#94a3b8" dominant-baseline="middle">3.11+ 被 TaskGroup 取代</text>
+
+      <!-- 行7 TaskGroup（灰） -->
+      <rect x="50" y="386" width="1080" height="48" fill="#ffffff" stroke="#f1f5f9" stroke-width="1"/>
+      <text x="60" y="410" font-size="12" font-weight="700" fill="#94a3b8" font-family="Consolas, monospace" dominant-baseline="middle">TaskGroup()</text>
+      <text x="250" y="410" font-size="11.5" fill="#94a3b8" dominant-baseline="middle">等全部</text>
+      <text x="410" y="410" font-size="11.5" fill="#94a3b8" dominant-baseline="middle">结构化并发</text>
+      <text x="710" y="410" font-size="11.5" fill="#94a3b8" dominant-baseline="middle">新写法，出错自动取消兄弟任务</text>
+
+      <!-- ═══════════ 下半：6.12 回调业务逻辑 ═══════════ -->
+      <text x="50" y="480" font-size="15" font-weight="700" fill="#0f172a">② 6.12 后台批改 + done 回调业务逻辑</text>
+
+      <!-- 事件循环是什么 -->
+      <g class="node-group">
+        <rect x="50" y="500" width="340" height="120" rx="12" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.2"/>
+        <text x="70" y="524" font-size="12.5" font-weight="700" fill="#0f172a">事件循环（event loop）</text>
+        <text x="70" y="548" font-size="10.5" fill="#475569">asyncio 的单线程调度器：不停循环，</text>
+        <text x="70" y="566" font-size="10.5" fill="#475569">谁有活就派谁跑。</text>
+        <text x="70" y="590" font-size="10.5" fill="#475569">协程在 await 处让出控制权，循环再调度下一个。</text>
+        <text x="70" y="612" font-size="10.5" fill="#b45309">▸ create_task 只是把它排进循环的队列。</text>
+      </g>
+
+      <!-- POST /submit -->
+      <g class="node-group">
+        <rect x="420" y="500" width="340" height="44" rx="12" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="590" y="522" class="nm" fill="#1d4ed8">POST /submit 处理</text>
+        <text x="590" y="537" class="nb" fill="#3b82f6">学员提交 .docx + exam_id</text>
+      </g>
+      <path class="edge" d="M 590,544 L 590,574" marker-end="url(#arr)"/>
+
+      <!-- ① create_task -->
+      <g class="node-group">
+        <rect x="420" y="574" width="340" height="50" rx="12" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.3" filter="url(#shadow)"/>
+        <text x="590" y="596" class="nm" fill="#334155">① asyncio.create_task(_graph.ainvoke(...))</text>
+        <text x="590" y="614" class="nb" fill="#64748b">仅调度排进队，立即返回 Task（协程体未跑）</text>
+      </g>
+      <text x="772" y="599" font-size="10" font-weight="700" fill="#b45309">⚠️ 仅调度！task 体要等</text>
+      <text x="772" y="613" font-size="10" fill="#b45309">事件循环让出控制才开跑</text>
+      <path class="edge" d="M 590,624 L 590,654" marker-end="url(#arr)"/>
+
+      <!-- ② add -->
+      <g class="node-group">
+        <rect x="420" y="654" width="340" height="50" rx="12" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.3" filter="url(#shadow)"/>
+        <text x="590" y="676" class="nm" fill="#334155">② _background_tasks.add(task)</text>
+        <text x="590" y="694" class="nb" fill="#64748b">强引用：把 Task 抱住，计数≥1 防 GC 回收</text>
+      </g>
+      <path class="edge" d="M 590,704 L 590,734" marker-end="url(#arr)"/>
+
+      <!-- ③ add_done_callback -->
+      <g class="node-group">
+        <rect x="420" y="734" width="340" height="50" rx="12" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.3" filter="url(#shadow)"/>
+        <text x="590" y="756" class="nm" fill="#334155">③ task.add_done_callback(_on_task_done)</text>
+        <text x="590" y="774" class="nb" fill="#64748b">注册回调：跑前就位，task 结束才触发</text>
+      </g>
+      <path class="edge" d="M 590,784 L 590,814" marker-end="url(#arr)"/>
+
+      <!-- 阶段分界：同步 setup / 事件循环执行 -->
+      <line x1="420" y1="799" x2="760" y2="799" stroke="#94a3b8" stroke-dasharray="6 4"/>
+      <line x1="405" y1="574" x2="405" y2="784" stroke="#94a3b8" stroke-width="1.5"/>
+      <text x="398" y="660" font-size="10.5" font-weight="700" fill="#475569" text-anchor="end">同步 setup 段（瞬间完成）</text>
+      <line x1="405" y1="814" x2="405" y2="954" stroke="#94a3b8" stroke-width="1.5"/>
+      <text x="398" y="880" font-size="10.5" font-weight="700" fill="#b45309" text-anchor="end">事件循环执行段</text>
+
+      <!-- task 跑图 -->
+      <g class="node-group">
+        <rect x="420" y="814" width="340" height="50" rx="12" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="590" y="836" class="nm" fill="#047857">task 后台跑整张图</text>
+        <text x="590" y="854" class="nb" fill="#059669">事件循环让出控制后开跑 → teacher_review interrupt → 结束</text>
+      </g>
+      <path class="edge" d="M 590,864 L 590,894" marker-end="url(#arr)"/>
+
+      <!-- _on_task_done 回调（触发） -->
+      <g class="node-group">
+        <rect x="420" y="894" width="340" height="60" rx="12" fill="#fff7ed" stroke="#f59e0b" stroke-width="1.8" filter="url(#shadow)"/>
+        <text x="590" y="916" class="nm" fill="#b45309">回调触发 _on_task_done(t)</text>
+        <text x="590" y="934" class="nb" fill="#d97706">task 结束后才 fire（收到 task 参数）</text>
+        <text x="590" y="950" class="nb" fill="#b45309">① discard(t) 放手·计数归0 · ② 判断 task_failed</text>
+      </g>
+
+      <!-- 回调两个分支 -->
+      <path class="edge-amber" d="M 490,954 C 400,966 350,968 350,986" stroke-dasharray="4 3" marker-end="url(#arr-amber)"/>
+      <text x="330" y="972" font-size="10" fill="#b45309" text-anchor="middle">task_failed</text>
+      <path class="edge" d="M 690,954 C 780,966 830,968 830,986" marker-end="url(#arr)"/>
+      <text x="850" y="972" font-size="10" fill="#64748b" text-anchor="middle">无论成败</text>
+
+      <g class="node-group">
+        <rect x="200" y="986" width="300" height="60" rx="12" fill="#fff7ed" stroke="#f59e0b" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="350" y="1010" class="nm" fill="#b45309">ensure_future(_cleanup())</text>
+        <text x="350" y="1030" class="nb" fill="#d97706">回滚 DB status='submitted'（允许重提）</text>
+      </g>
+      <g class="node-group">
+        <rect x="680" y="986" width="300" height="60" rx="12" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.3" filter="url(#shadow)"/>
+        <text x="830" y="1010" class="nm" fill="#334155">清理临时 .docx 文件</text>
+        <text x="830" y="1030" class="nb" fill="#64748b">os.remove(tmp_path)</text>
+      </g>
+
+    </svg>
+  </div>
+
+  <div class="route-table">
+    <p><b>为什么 /submit 用 create_task 而不是 gather：</b>批改要 30 秒+，接口要<b>立即返回 202</b>，不能等。`gather` 的语义是"等全部跑完"，用了接口就被拖住；`create_task` 一调度就返回，正好做 fire-and-forget。</p>
+    <p><b>为什么 _on_task_done 里用 ensure_future：</b>回调是<b>同步</b>函数（`add_done_callback` 要求同步），但 `_cleanup` 里有 async DB 操作，同步里不能 `await` —— 用 `ensure_future(_cleanup())` 把它调度成新后台任务。这里换成 `create_task` 也等价，`ensure_future` 是历史习惯。</p>
+    <p><b>回调双职责：</b>① 从 `_background_tasks` 释放引用（防内存泄漏）；② 失败则回滚状态允许重提，无论成败都清理临时文件。</p>
+    <p style="margin-top:10px;border-top:1px dashed var(--border-color);padding-top:8px;color:var(--text-muted);">
+      记忆口诀：<code>create_task</code> 不等、<code>gather</code> 等齐、<code>ensure_future</code> 多面手；<code>add</code> 进集合防回收、<code>discard</code> 掉防泄漏。
+    </p>
+  </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HITL + 决策发布连续流（6.9-6.10 合并）</title>
+<style>
+  :root {
+    --bg-main: #f8fafc;
+    --card-bg: #ffffff;
+    --border-color: #e2e8f0;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    --stroke-edge: #94a3b8;
+    --stroke-edge-hl: #2563eb;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 32px 24px;
+    background: var(--bg-main);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .container { max-width: 1200px; width: 100%; }
+  .header { margin-bottom: 20px; }
+
+  h1 { font-size: 22px; font-weight: 700; margin: 0 0 6px 0; color: var(--text-primary); letter-spacing: -0.02em; }
+  .sub { font-size: 13.5px; color: var(--text-secondary); margin: 0 0 16px 0; }
+  .sub code { background: #fffbeb; color: #b45309; padding: 2px 6px; border-radius: 4px; font-family: "Fira Code", Consolas, Monaco, monospace; font-size: 12.5px; }
+
+  .canvas-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+    padding: 20px;
+    overflow: hidden;
+  }
+
+  svg { width: 100%; height: auto; display: block; }
+  text { user-select: none; }
+
+  .node-group { cursor: pointer; transition: transform 0.2s ease; }
+  .node-group:hover rect { filter: brightness(0.97); stroke-width: 2px; }
+
+  .edge { fill: none; stroke: var(--stroke-edge); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: stroke 0.2s, stroke-width 0.2s; }
+  .edge:hover { stroke: var(--stroke-edge-hl); stroke-width: 2.5; }
+  .edge-amber { fill: none; stroke: #f59e0b; }
+  .edge-purple { fill: none; stroke: #8b5cf6; }
+
+  .nm { font-size: 13px; font-weight: 700; font-family: "Fira Code", Consolas, Monaco, monospace; text-anchor: middle; }
+  .nb { font-size: 10.5px; text-anchor: middle; }
+
+  .route-table { margin-top: 20px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px 24px; font-size: 13.5px; color: var(--text-secondary); line-height: 1.8; }
+  .route-table p { margin: 6px 0; }
+  .route-table b { color: var(--text-primary); }
+  .route-table code { background: #f1f5f9; color: #0f172a; border: 1px solid #e2e8f0; border-radius: 4px; padding: 1px 6px; font-family: Consolas, Monaco, monospace; font-size: 12px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>6.9–6.10 连续流：HITL 暂停 → 教师决策 → 发布</h1>
+    <p class="sub">中断机制（<code>interrupt</code> / <code>Command(resume)</code> / <code>MemorySaver</code>）与决策发布（approve-modify / 三分数）一条线讲完</p>
+  </div>
+
+  <div class="canvas-card">
+    <svg viewBox="0 0 1180 900" aria-label="HITL + 决策发布连续流" xmlns="http://www.w3.org/2000/svg">
+
+      <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#94a3b8"/>
+        </marker>
+        <marker id="arr-amber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#d97706"/>
+        </marker>
+        <marker id="arr-purple" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#8b5cf6"/>
+        </marker>
+        <filter id="shadow" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+          <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.06" />
+        </filter>
+      </defs>
+
+      <!-- 图例 -->
+      <g id="legend">
+        <text x="40" y="44" font-size="12.5" font-weight="700" fill="#0f172a">图例</text>
+        <rect x="88" y="34" width="14" height="14" rx="4" fill="#fff7ed" stroke="#f59e0b" stroke-width="1.2"/>
+        <text x="108" y="46" font-size="12" fill="#334155" dominant-baseline="middle">HITL / 决策</text>
+        <rect x="188" y="34" width="14" height="14" rx="4" fill="#ecfdf5" stroke="#10b981" stroke-width="1.2"/>
+        <text x="208" y="46" font-size="12" fill="#334155" dominant-baseline="middle">教师动作</text>
+        <rect x="288" y="34" width="14" height="14" rx="4" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="1.2"/>
+        <text x="308" y="46" font-size="12" fill="#334155" dominant-baseline="middle">MemorySaver</text>
+      </g>
+
+      <!-- ═══ 右侧：MemorySaver + 教师侧 ═══ -->
+      <text x="940" y="66" font-size="12" font-weight="700" fill="#0f172a" text-anchor="middle">MemorySaver / 教师侧</text>
+      <g class="node-group">
+        <rect x="780" y="80" width="320" height="50" rx="12" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="1.8" filter="url(#shadow)"/>
+        <text x="940" y="102" class="nm" fill="#6d28d9">MemorySaver</text>
+        <text x="940" y="120" class="nb" fill="#7c3aed">中断的 State 按 thread_id 存这</text>
+      </g>
+      <g class="node-group">
+        <rect x="780" y="180" width="320" height="50" rx="12" fill="#ecfdf5" stroke="#10b981" stroke-width="1.3" filter="url(#shadow)"/>
+        <text x="940" y="202" class="nm" fill="#047857">GET /submissions/{id}/review</text>
+        <text x="940" y="220" class="nb" fill="#059669">教师 aget_state 读 AI 预批改</text>
+      </g>
+      <g class="node-group">
+        <rect x="780" y="280" width="320" height="50" rx="12" fill="#ecfdf5" stroke="#10b981" stroke-width="1.3" filter="url(#shadow)"/>
+        <text x="940" y="302" class="nm" fill="#047857">POST /confirm</text>
+        <text x="940" y="320" class="nb" fill="#059669">教师 approve / modify</text>
+      </g>
+
+      <!-- ═══ 主链路（左） ═══ -->
+      <!-- ⑦ interrupt -->
+      <g class="node-group">
+        <rect x="320" y="80" width="320" height="56" rx="12" fill="#fff7ed" stroke="#f59e0b" stroke-width="1.8" filter="url(#shadow)"/>
+        <text x="480" y="106" class="nm" fill="#b45309">⑦ teacher_review_node</text>
+        <text x="480" y="124" class="nb" fill="#d97706">interrupt(display_data) 暂停 · 图冻结</text>
+      </g>
+      <path class="edge-amber" d="M 640,108 L 780,105" stroke-dasharray="4 3" marker-end="url(#arr-amber)"/>
+      <text x="700" y="96" font-size="10" fill="#b45309" text-anchor="middle">interrupt 存 State</text>
+
+      <path class="edge-purple" d="M 940,130 L 940,180" stroke-dasharray="4 3" marker-end="url(#arr-purple)"/>
+      <text x="950" y="158" font-size="10" fill="#7c3aed">aget_state 读</text>
+      <path class="edge" d="M 940,230 L 940,280" marker-end="url(#arr)"/>
+
+      <!-- ⑦ resume -->
+      <g class="node-group">
+        <rect x="320" y="260" width="320" height="50" rx="12" fill="#fff7ed" stroke="#f59e0b" stroke-width="1.8" filter="url(#shadow)"/>
+        <text x="480" y="282" class="nm" fill="#b45309">⑦ 恢复：interrupt() 返回 decision</text>
+        <text x="480" y="300" class="nb" fill="#d97706">decision 写入 teacher_decision</text>
+      </g>
+      <path class="edge-amber" d="M 780,305 C 730,305 700,295 640,285" stroke-dasharray="4 3" marker-end="url(#arr-amber)"/>
+      <text x="760" y="338" font-size="10" fill="#b45309" text-anchor="middle">Command(resume=decision)</text>
+      <path class="edge" d="M 480,136 L 480,260" marker-end="url(#arr)"/>
+      <text x="300" y="200" font-size="10" fill="#64748b" text-anchor="end">图冻结，等教师确认后恢复</text>
+
+      <!-- ⑧ apply -->
+      <g class="node-group">
+        <rect x="320" y="380" width="320" height="50" rx="12" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.3" filter="url(#shadow)"/>
+        <text x="480" y="402" class="nm" fill="#334155">⑧ apply_teacher_decision</text>
+        <text x="480" y="420" class="nb" fill="#64748b">按决策合并 final_score</text>
+      </g>
+      <path class="edge" d="M 480,310 L 480,380" marker-end="url(#arr)"/>
+
+      <!-- approve / modify 分支 -->
+      <path class="edge" d="M 400,430 C 350,445 260,445 220,460" marker-end="url(#arr)"/>
+      <path class="edge" d="M 570,430 C 600,445 610,445 580,460" marker-end="url(#arr)"/>
+      <g class="node-group">
+        <rect x="120" y="460" width="200" height="50" rx="10" fill="#fff7ed" stroke="#f59e0b" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="220" y="482" class="nm" fill="#b45309">approve</text>
+        <text x="220" y="500" class="nb" fill="#d97706">final_score = ai_score</text>
+      </g>
+      <g class="node-group">
+        <rect x="420" y="460" width="320" height="50" rx="10" fill="#fff7ed" stroke="#f59e0b" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="580" y="482" class="nm" fill="#b45309">modify</text>
+        <text x="580" y="500" class="nb" fill="#d97706">只改命中的题 final_score = teacher_score</text>
+      </g>
+
+      <!-- final_results -->
+      <path class="edge" d="M 220,510 C 300,525 420,525 460,540" marker-end="url(#arr)"/>
+      <path class="edge" d="M 580,510 L 580,540" marker-end="url(#arr)"/>
+      <g class="node-group">
+        <rect x="320" y="540" width="320" height="50" rx="12" fill="#f8fafc" stroke="#94a3b8" stroke-width="1.3" filter="url(#shadow)"/>
+        <text x="480" y="562" class="nm" fill="#334155">final_results</text>
+        <text x="480" y="580" class="nb" fill="#64748b">两分支合流，每题带 final_score</text>
+      </g>
+
+      <!-- publish -->
+      <path class="edge" d="M 480,590 L 480,640" marker-end="url(#arr)"/>
+      <g class="node-group">
+        <rect x="320" y="640" width="320" height="50" rx="12" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="480" y="662" class="nm" fill="#1d4ed8">⑨ publish_results</text>
+        <text x="480" y="680" class="nb" fill="#3b82f6">先删后插写 exam_reviews + status=published</text>
+      </g>
+
+      <!-- publish → 写库字段（次主题，右侧） -->
+      <path class="edge-purple" d="M 640,665 L 780,665" stroke-dasharray="4 3" marker-end="url(#arr-purple)"/>
+      <text x="700" y="655" font-size="10" fill="#7c3aed" text-anchor="middle">publish 写库内容</text>
+      <g class="node-group">
+        <rect x="780" y="640" width="340" height="165" rx="12" fill="#f5f3ff" stroke="#8b5cf6" stroke-width="1.5" filter="url(#shadow)"/>
+        <text x="800" y="660" font-size="12" font-weight="700" fill="#6d28d9" text-anchor="start">publish_results 写库内容</text>
+        <rect x="795" y="670" width="310" height="22" rx="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+        <text x="805" y="684" font-size="10.5" fill="#334155" text-anchor="start">ai_score　·　AI 打的分数（永久保存）</text>
+        <rect x="795" y="698" width="310" height="22" rx="6" fill="#ffffff" stroke="#cbd5e1" stroke-width="1"/>
+        <text x="805" y="712" font-size="10.5" fill="#334155" text-anchor="start">teacher_score　·　教师改的（仅 modify）</text>
+        <rect x="795" y="726" width="310" height="22" rx="6" fill="#eff6ff" stroke="#93c5fd" stroke-width="1"/>
+        <text x="805" y="740" font-size="10.5" fill="#1d4ed8" text-anchor="start">final_score　·　学员最终得分（二者之一）</text>
+        <line x1="795" y1="756" x2="1105" y2="756" stroke="#e2e8f0" stroke-dasharray="4 3"/>
+        <text x="800" y="774" font-size="10.5" fill="#6d28d9" text-anchor="start">exam_reviews　·　先删后插（幂等）每道题一行</text>
+        <text x="800" y="792" font-size="10.5" fill="#6d28d9" text-anchor="start">exam_submissions　·　status='published' + weak_points</text>
+      </g>
+
+      <!-- END -->
+      <path class="edge" d="M 480,690 L 480,740" marker-end="url(#arr)"/>
+      <g class="node-group">
+        <rect x="425" y="740" width="110" height="34" rx="17" fill="#0f766e" filter="url(#shadow)"/>
+        <text x="480" y="757" font-size="12.5" font-weight="700" fill="#ffffff" text-anchor="middle" dominant-baseline="middle">END</text>
+      </g>
+
+    </svg>
+  </div>
+
+  <div class="route-table">
+    <p><b>连续流主线：</b><code>⑦ teacher_review</code> <code>interrupt()</code> 暂停（图冻结，State 存 MemorySaver）→ 教师 <code>GET /{id}/review</code> 用 <code>aget_state</code> 读 AI 预批改 → <code>POST /confirm</code> 传 <code>Command(resume=decision)</code> → ⑦ 恢复，<code>interrupt()</code> 返回 decision → ⑧ 按 approve / modify 合并 → <code>publish_results</code> 写库 → END。</p>
+    <p><b>三分数：</b><code>ai_score</code> 永久保存；<code>teacher_score</code> 仅 modify 有；<code>final_score</code> = approve 取 ai、modify 被改题取 teacher、未改取 ai。</p>
+    <p><b>interrupt 机制 5 步：</b>① <code>interrupt(value)</code> 抛内部 <code>Interrupt</code>；② <code>ainvoke</code> 捕获并存 State 到 MemorySaver；③ <code>ainvoke</code> 真正返回；④ 图暂停（<code>next=[teacher_review]</code>）；⑤ <code>Command(resume)</code> 恢复，让 <code>interrupt()</code> 返回 decision，图从原处继续。</p>
+    <p style="margin-top:10px;border-top:1px dashed var(--border-color);padding-top:8px;color:var(--text-muted);">
+      ⚠️ 编译图<b>不传</b> <code>interrupt_before</code>，只在节点内调 <code>interrupt()</code>（LangGraph 1.0 新写法）。
+    </p>
+  </div>
+</div>
+
+</body>
+</html>

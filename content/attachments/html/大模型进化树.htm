@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>大模型架构进化树 (HTML 版)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* 小型样式调整 */
+    .node-card { transition: all .15s ease; }
+    .chev { width: 18px; height: 18px; display: inline-block; vertical-align: middle; }
+    .toggle-btn { cursor: pointer; }
+    .indent { margin-left: 1.5rem; }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+  <div class="w-full max-w-6xl mx-auto p-6">
+    <header class="mb-8">
+      <h1 class="text-4xl font-bold text-gray-800 mb-2">大模型架构进化树 (2017-2025)</h1>
+      <p class="text-gray-600 mb-4">从Transformer诞生到现代大语言模型的完整技术演进路径（HTML 可离线打开）</p>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-4 text-sm">
+        <div class="flex items-center gap-2"><div class="w-4 h-4 bg-blue-500 rounded"></div><span>Decoder-only (GPT系)</span></div>
+        <div class="flex items-center gap-2"><div class="w-4 h-4 bg-green-500 rounded"></div><span>Encoder-only (BERT系)</span></div>
+        <div class="flex items-center gap-2"><div class="w-4 h-4 bg-purple-500 rounded"></div><span>Encoder-Decoder</span></div>
+        <div class="flex items-center gap-2"><div class="w-4 h-4 bg-yellow-500 rounded"></div><span>高效架构</span></div>
+        <div class="flex items-center gap-2"><div class="w-4 h-4 bg-red-500 rounded"></div><span>MoE (专家混合)</span></div>
+        <div class="flex items-center gap-2"><div class="w-4 h-4 bg-pink-500 rounded"></div><span>多模态</span></div>
+      </div>
+      <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded text-sm text-gray-700">💡 <strong>使用提示:</strong> 点击条目左侧箭头展开/收起子节点。每个节点展示了该模型的核心优化技术和创新点。</div>
+    </header>
+
+    <main id="tree-root"></main>
+  </div>
+
+  <script>
+    // 数据来源（基于你上传的 React 组件内容）
+    const treeData = {
+      id: 'root',
+      name: 'Transformer (2017)',
+      year: '2017',
+      paper: 'Attention Is All You Need',
+      optimizations: [
+        '多头自注意力机制 (Multi-Head Self-Attention)',
+        '位置编码 (Positional Encoding)',
+        '前馈神经网络 (Feed-Forward Networks)',
+        '残差连接 + Layer Normalization',
+        '并行化计算能力'
+      ],
+      children: [
+        {
+          id: 'gpt', name: 'GPT系列 (Decoder-only)', branch: 'decoder', children: [
+            { id: 'gpt1', name: 'GPT-1 (2018)', year: '2018', paper: 'OpenAI', optimizations: ['单向Decoder架构','预训练 + 微调范式','无监督预训练','117M参数'], children: [] },
+            { id: 'gpt2', name: 'GPT-2 (2019)', year: '2019', paper: 'OpenAI', optimizations: ['扩大模型规模到1.5B','Zero-shot学习能力','更大的训练数据集','Layer Normalization调整到子层之前'], children: [] },
+            { id: 'gpt3', name: 'GPT-3 (2020)', year: '2020', paper: 'OpenAI', optimizations: ['175B参数的超大规模','In-Context Learning','Few-shot Learning','交替使用Dense和Sparse注意力'], children: [
+                { id: 'instructgpt', name: 'InstructGPT (2022)', year: '2022', optimizations: ['RLHF (人类反馈强化学习)','PPO算法优化','指令微调 (Instruction Tuning)','对齐人类偏好'], children: [] },
+                { id: 'chatgpt', name: 'ChatGPT (2022)', year: '2022', optimizations: ['对话优化','安全性约束','上下文理解增强','拒绝不当请求能力'], children: [] },
+                { id: 'gpt4', name: 'GPT-4 (2023)', year: '2023', optimizations: ['多模态能力 (图文)','更强的推理能力','更长的上下文窗口','专家混合架构 (MoE, 推测)','更精细的RLHF'], children: [] }
+              ] },
+            { id: 'llama', name: 'LLaMA系列 (2023-2024)', year: '2023', paper: 'Meta', optimizations: ['RMSNorm替代LayerNorm','SwiGLU激活函数','RoPE位置编码',' 更高效的训练方法','Grouped-Query Attention (GQA)'], children: [
+                { id: 'llama2', name: 'LLaMA 2 (2023)', year: '2023', optimizations: ['扩展到70B参数','Ghost Attention优化','更大的上下文长度 (4K)','RLHF对齐'], children: [] },
+                { id: 'llama3', name: 'LLaMA 3 (2024)', year: '2024', optimizations: ['扩展到405B参数','128K词汇表','GQA优化','更长上下文 (8K-128K)','多语言能力提升'], children: [] }
+              ] },
+            { id: 'palm', name: 'PaLM (2022)', year: '2022', paper: 'Google', optimizations: ['540B参数','Pathways系统训练','Multi-Query Attention','SwiGLU激活','Parallel层设计'], children: [
+                { id: 'palm2', name: 'PaLM 2 (2023)', year: '2023', optimizations: ['计算效率优化','多语言提升','推理能力增强','更好的数据质量控制'], children: [] },
+                { id: 'gemini', name: 'Gemini (2023)', year: '2023', optimizations: ['原生多模态架构','跨模态联合训练','长上下文支持 (32K-1M)','Flash Attention优化','Mixture-of-Experts'], children: [] }
+              ] },
+            { id: 'claude', name: 'Claude系列 (2023-2024)', year: '2023', paper: 'Anthropic', optimizations: ['Constitutional AI','RLHF + RLAIF','长上下文处理 (100K-200K)','安全性优先设计','拒绝有害内容能力'], children: [] },
+            { id: 'mistral', name: 'Mistral (2023)', year: '2023', optimizations: ['Sliding Window Attention','Rolling Buffer Cache','GQA优化','7B高性能模型','Sparse Mixture-of-Experts (8x7B)'], children: [] }
+          ]
+        },
+        { id: 'bert', name: 'BERT系列 (Encoder-only)', branch: 'encoder', children: [
+            { id: 'bert-base', name: 'BERT (2018)', year: '2018', paper: 'Google', optimizations: ['双向编码器','Masked Language Modeling (MLM)','Next Sentence Prediction (NSP)','预训练 + 微调范式','110M-340M参数'], children: [
+                { id: 'roberta', name: 'RoBERTa (2019)', year: '2019', optimizations: ['移除NSP任务','动态掩码','更大的batch size','更多训练数据','Byte-level BPE'], children: [] },
+                { id: 'albert', name: 'ALBERT (2019)', year: '2019', optimizations: ['参数共享机制','因式分解嵌入参数化','Sentence Order Prediction (SOP)','大幅减少参数量'], children: [] },
+                { id: 'electra', name: 'ELECTRA (2020)', year: '2020', optimizations: ['判别式预训练','Replaced Token Detection','更高效的预训练','小模型高性能'], children: [] },
+                { id: 'deberta', name: 'DeBERTa (2020)', year: '2020', paper: 'Microsoft', optimizations: ['Disentangled Attention','增强的掩码解码器','相对位置编码','虚拟对抗训练'], children: [] }
+              ] }
+          ]
+        },
+        { id: 'encoder-decoder', name: 'Encoder-Decoder架构', branch: 'both', children: [
+            { id: 't5', name: 'T5 (2019)', year: '2019', paper: 'Google', optimizations: ['Text-to-Text框架','统一的输入输出格式','Span Corruption预训练','相对位置嵌入','11B参数'], children: [
+                { id: 'mt5', name: 'mT5 (2020)', year: '2020', optimizations: ['多语言支持 (101种语言)','共享词汇表','跨语言迁移能力'], children: [] }
+              ] },
+            { id: 'bart', name: 'BART (2019)', year: '2019', paper: 'Facebook', optimizations: ['去噪自编码器','多种噪声策略','Token Masking + Deletion','Sentence Permutation','特别适合生成任务'], children: [] },
+            { id: 'ul2', name: 'UL2 (2022)', year: '2022', paper: 'Google', optimizations: ['混合去噪器','R-Denoiser, S-Denoiser, X-Denoiser','统一的预训练目标','多任务学习'], children: [] }
+          ]
+        },
+        { id: 'efficient', name: '高效架构分支', branch: 'efficient', children: [
+            { id: 'longformer', name: 'Longformer (2020)', year: '2020', optimizations: ['局部窗口注意力','全局注意力机制','线性复杂度','支持长文档 (4K-16K)'], children: [] },
+            { id: 'bigbird', name: 'BigBird (2020)', year: '2020', optimizations: ['稀疏注意力模式','随机注意力','窗口注意力 + 全局token','理论保证的近似'], children: [] },
+            { id: 'reformer', name: 'Reformer (2020)', year: '2020', optimizations: ['LSH (Locality-Sensitive Hashing) Attention','可逆层 (Reversible Layers)','块化FFN','大幅减少内存消耗'], children: [] },
+            { id: 'flash-attention', name: 'Flash Attention (2022)', year: '2022', optimizations: ['IO感知的注意力算法','分块计算','减少HBM访问','2-4倍加速','支持更长上下文'], children: [] },
+            { id: 'retnet', name: 'RetNet (2023)', year: '2023', optimizations: ['保留网络架构','线性复杂度','并行训练 + 循环推理','可能替代Transformer的新范式'], children: [] },
+            { id: 'mamba', name: 'Mamba (2023)', year: '2023', optimizations: ['状态空间模型 (SSM)','选择性状态空间','线性时间推理','无注意力机制','高效长序列处理'], children: [] }
+          ]
+        },
+        { id: 'moe', name: 'MoE (专家混合) 分支', branch: 'moe', children: [
+            { id: 'gshard', name: 'GShard (2020)', year: '2020', paper: 'Google', optimizations: ['MoE Transformer','稀疏门控','专家并行化','600B参数但激活小部分'], children: [] },
+            { id: 'switch', name: 'Switch Transformer (2021)', year: '2021', paper: 'Google', optimizations: ['简化的MoE路由','每token一个专家','1.6T参数','提升训练稳定性'], children: [] },
+            { id: 'glam', name: 'GLaM (2021)', year: '2021', paper: 'Google', optimizations: ['1.2T参数','Top-2 MoE','能效优化','比GPT-3少1/3能耗'], children: [] },
+            { id: 'mixtral', name: 'Mixtral 8x7B (2023)', year: '2023', paper: 'Mistral', optimizations: ['8个专家','Top-2路由','46.7B总参数, 12.9B激活','开源高性能MoE'], children: [] }
+          ]
+        },
+        { id: 'multimodal', name: '多模态分支', branch: 'multimodal', children: [
+            { id: 'clip', name: 'CLIP (2021)', year: '2021', paper: 'OpenAI', optimizations: ['对比学习','图像-文本联合编码','零样本图像分类','大规模图文对训练'], children: [] },
+            { id: 'flamingo', name: 'Flamingo (2022)', year: '2022', paper: 'DeepMind', optimizations: ['视觉语言模型','Perceiver Resampler','交叉注意力机制','Few-shot学习'], children: [] },
+            { id: 'gpt4v', name: 'GPT-4V (2023)', year: '2023', optimizations: ['原生图像理解','端到端训练','统一的多模态表示','复杂视觉推理'], children: [] },
+            { id: 'llava', name: 'LLaVA (2023)', year: '2023', optimizations: ['视觉指令微调','CLIP视觉编码器','LLaMA语言模型','开源多模态方案'], children: [] }
+          ]
+        }
+      ]
+    };
+
+    // 分支颜色映射
+    const branchColors = {
+      decoder: 'bg-blue-50 border-blue-300',
+      encoder: 'bg-green-50 border-green-300',
+      both: 'bg-purple-50 border-purple-300',
+      efficient: 'bg-yellow-50 border-yellow-300',
+      moe: 'bg-red-50 border-red-300',
+      multimodal: 'bg-pink-50 border-pink-300'
+    };
+    const branchBorderColors = {
+      decoder: 'border-l-blue-500',
+      encoder: 'border-l-green-500',
+      both: 'border-l-purple-500',
+      efficient: 'border-l-yellow-500',
+      moe: 'border-l-red-500',
+      multimodal: 'border-l-pink-500'
+    };
+
+    // 初始展开集合（可通过 localStorage 保持）
+    const defaultExpanded = new Set(['root','transformer','gpt','bert','encoder-decoder']);
+    const storageKey = 'evolution_tree_expanded_v1';
+    let expanded = new Set(JSON.parse(localStorage.getItem(storageKey) || '[]'));
+    if (expanded.size === 0) expanded = new Set(['root','gpt','bert','encoder-decoder']);
+
+    function saveExpanded(){ localStorage.setItem(storageKey, JSON.stringify(Array.from(expanded))); }
+
+    function createChevron(isDown){
+      if(isDown){
+        return '<svg class="chev" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+      }
+      return '<svg class="chev" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+    }
+
+    function renderOptimizations(opts){
+      if(!opts || opts.length===0) return '';
+      return `<div class="ml-7 mt-2"><p class="text-sm font-semibold text-gray-700 mb-1">关键优化技术:</p><ul class="text-sm text-gray-700 space-y-1">${opts.map(o=>`<li class=\"flex items-start\"><span class=\"mr-2\">•</span><span>${o}</span></li>`).join('')}</ul></div>`;
+    }
+
+    function renderNode(node, depth=0, parentBranch=null){
+      const hasChildren = node.children && node.children.length>0;
+      const branch = node.branch || parentBranch;
+      const bgClass = branch ? branchColors[branch] : 'bg-gray-50 border-gray-300';
+      const borderClass = branch ? branchBorderColors[branch] : 'border-l-gray-400';
+      const isExpanded = expanded.has(node.id);
+
+      const header = `
+        <div class=\"mb-3 p-4 rounded-lg border-2 border-l-4 ${bgClass} ${borderClass} node-card\">
+          <div class=\"flex items-start justify-between\">
+            <div class=\"flex-1\">
+              <div class=\"flex items-center gap-2 mb-2\">
+                ${hasChildren? `<span class=\"toggle-btn\" data-node=\"${node.id}\">${createChevron(isExpanded)}</span>` : ''}
+                <h3 class=\"text-lg font-bold text-gray-800\">${node.name}</h3>
+                ${node.year ? `<span class=\"px-2 py-1 bg-white rounded text-sm font-semibold text-gray-600\">${node.year}</span>` : ''}
+              </div>
+              ${node.paper ? `<p class=\"text-sm text-gray-600 mb-2 ml-7\">📄 ${node.paper}</p>` : ''}
+              ${renderOptimizations(node.optimizations)}
+            </div>
+          </div>
+        </div>
+      `;
+
+      let childrenHtml = '';
+      if(hasChildren){
+        childrenHtml = `<div class=\"border-l-2 border-gray-300 ml-3\" style=\"display:${isExpanded? 'block':'none'}\">${node.children.map(child=>renderNode(child, depth+1, branch)).join('')}</div>`;
+      }
+
+      return (depth>0? `<div class=\"indent\">${header}${childrenHtml}</div>` : `${header}${childrenHtml}`);
+    }
+
+    function attachToggles(){
+      document.querySelectorAll('.toggle-btn').forEach(el=>{
+        el.addEventListener('click', ()=>{
+          const id = el.getAttribute('data-node');
+          if(expanded.has(id)) expanded.delete(id); else expanded.add(id);
+          saveExpanded();
+          // 重新渲染整个树（简单且快速，因为数据量小）
+          document.getElementById('tree-root').innerHTML = renderNode(treeData);
+          attachToggles();
+        })
+      });
+    }
+
+    // 首次渲染
+    document.getElementById('tree-root').innerHTML = renderNode(treeData);
+    attachToggles();
+
+  </script>
+
+  <footer class="fixed right-4 bottom-4 text-sm text-gray-500 bg-white/80 p-2 rounded shadow">基于你上传的 React 组件生成。</footer>
+</body>
+</html>

@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seq2Seq & Attention 架构对比分析</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- MathJax Configuration & Script -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+        processEscapes: true,
+        processEnvironments: true
+      },
+      options: {
+        skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      },
+      startup: {
+        pageReady: () => {
+          return MathJax.startup.defaultPageReady().then(() => {
+            console.log('MathJax initialization complete');
+          });
+        }
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <!-- Google Font: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* Dark Mode Theme */
+    html.dark body {
+      background-color: #0b1329;
+      color: #f8fafc;
+    }
+
+    html.dark .glass-card {
+      background: rgba(30, 41, 59, 0.85);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+    }
+
+    html.dark .svg-bg {
+      background-color: #0f172a;
+      border-color: #1e293b;
+    }
+
+    html.dark .text-adaptive-main { color: #f8fafc; }
+    html.dark .text-adaptive-sub { color: #94a3b8; }
+    html.dark .text-svg-node { fill: #f8fafc; }
+    html.dark .text-svg-subnode { fill: #cbd5e1; }
+    html.dark .bg-tab-bar { background-color: rgba(30, 41, 59, 0.8); border-color: #334155; }
+    html.dark .table-header { background-color: rgba(30, 41, 59, 0.9); color: #e2e8f0; }
+    html.dark .table-row-hover:hover { background-color: rgba(51, 65, 85, 0.5); }
+
+    /* High-Contrast Light Mode Theme */
+    html:not(.dark) body {
+      background-color: #f1f5f9;
+      color: #0f172a;
+    }
+
+    html:not(.dark) .glass-card {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.08);
+    }
+
+    html:not(.dark) .svg-bg {
+      background-color: #f8fafc;
+      border-color: #cbd5e1;
+    }
+
+    html:not(.dark) .text-adaptive-main { color: #0f172a; }
+    html:not(.dark) .text-adaptive-sub { color: #334155; }
+    html:not(.dark) .text-svg-node { fill: #0f172a; }
+    html:not(.dark) .text-svg-subnode { fill: #1e293b; }
+    html:not(.dark) .bg-tab-bar { background-color: #e2e8f0; border-color: #cbd5e1; }
+    html:not(.dark) .table-header { background-color: #e2e8f0; color: #0f172a; }
+    html:not(.dark) .table-row-hover:hover { background-color: #f1f5f9; }
+
+    /* Dynamic SVG Theme Color Switchers */
+    html:not(.dark) .svg-enc-bg { fill: #ecfdf5; stroke: #059669; }
+    html.dark .svg-enc-bg { fill: #065f46; fill-opacity: 0.2; stroke: #059669; }
+
+    html:not(.dark) .svg-enc-node { fill: #d1fae5; stroke: #059669; }
+    html.dark .svg-enc-node { fill: #064e3b; stroke: #10b981; }
+
+    html:not(.dark) .svg-enc-text { fill: #065f46; }
+    html.dark .svg-enc-text { fill: #a7f3d0; }
+
+    html:not(.dark) .svg-dec-bg { fill: #fffbeb; stroke: #d97706; }
+    html.dark .svg-dec-bg { fill: #78350f; fill-opacity: 0.2; stroke: #d97706; }
+
+    html:not(.dark) .svg-dec-node { fill: #fef3c7; stroke: #d97706; }
+    html.dark .svg-dec-node { fill: #78350f; stroke: #f59e0b; }
+
+    html:not(.dark) .svg-dec-text { fill: #92400e; }
+    html.dark .svg-dec-text { fill: #fef3c7; }
+
+    html:not(.dark) .svg-input-node { fill: #f1f5f9; stroke: #64748b; }
+    html.dark .svg-input-node { fill: #1e293b; stroke: #475569; }
+
+    html:not(.dark) .svg-input-text { fill: #0f172a; }
+    html.dark .svg-input-text { fill: #e2e8f0; }
+
+    html:not(.dark) .svg-ctx-node { fill: #ffe4e6; stroke: #e11d48; }
+    html.dark .svg-ctx-node { fill: #881337; stroke: #f43f5e; }
+
+    html:not(.dark) .svg-ctx-text { fill: #9f1239; }
+    html.dark .svg-ctx-text { fill: #fecdd3; }
+
+    html:not(.dark) .svg-fusion-node { fill: #f3e8ff; stroke: #7e22ce; }
+    html.dark .svg-fusion-node { fill: #4c1d95; stroke: #a855f7; }
+
+    html:not(.dark) .svg-fusion-text { fill: #581c87; }
+    html.dark .svg-fusion-text { fill: #f3e8ff; }
+
+    html:not(.dark) .svg-attn-node { fill: #faf5ff; stroke: #9333ea; }
+    html.dark .svg-attn-node { fill: #581c87; fill-opacity: 0.3; stroke: #a855f7; }
+
+    html:not(.dark) .svg-out-node { fill: #ffffff; stroke: #d97706; }
+    html.dark .svg-out-node { fill: #0f172a; stroke: #f59e0b; }
+
+    /* Badges Style */
+    .badge-bahdanau {
+      background: rgba(245, 158, 11, 0.15);
+      color: #d97706;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+    }
+    html.dark .badge-bahdanau {
+      color: #fbbf24;
+    }
+
+    .badge-luong {
+      background: rgba(168, 85, 247, 0.15);
+      color: #7e22ce;
+      border: 1px solid rgba(168, 85, 247, 0.4);
+    }
+    html.dark .badge-luong {
+      color: #c084fc;
+    }
+
+    .badge-standard {
+      background: rgba(59, 130, 246, 0.15);
+      color: #1d4ed8;
+      border: 1px solid rgba(59, 130, 246, 0.4);
+    }
+    html.dark .badge-standard {
+      color: #60a5fa;
+    }
+
+    .mjx-chtml {
+      font-size: 105% !important;
+      outline: none !important;
+    }
+  </style>
+</head>
+<body class="min-h-screen pb-16">
+
+  <!-- Main Container -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+    
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
+      <div>
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 via-teal-500 to-purple-600 dark:from-blue-400 dark:via-teal-300 dark:to-purple-400">
+          Seq2Seq & Attention 架构对比图解
+        </h1>
+        <p class="text-adaptive-sub text-xs sm:text-sm mt-1 font-medium">
+          包含单时间步单节点融合、精准数据流向与高清晰度双色调对比
+        </p>
+      </div>
+
+      <!-- Theme Switcher Button -->
+      <button onclick="toggleTheme()" class="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-700 transition flex items-center gap-2 text-xs font-semibold shadow-sm">
+        <span id="theme-icon">🌙</span> <span id="theme-text">深色模式</span>
+      </button>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="flex justify-center mb-8">
+      <div class="bg-tab-bar p-1.5 rounded-xl border inline-flex flex-wrap justify-center gap-1 sm:gap-2 shadow-sm">
+        <button onclick="switchTab('all')" id="tab-all" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 bg-indigo-600 text-white shadow">
+          全景视图 (All Models)
+        </button>
+        <button onclick="switchTab('standard')" id="tab-standard" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 text-adaptive-sub hover:text-indigo-600 dark:hover:text-slate-100">
+          普通 Seq2Seq
+        </button>
+        <button onclick="switchTab('bahdanau')" id="tab-bahdanau" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 text-adaptive-sub hover:text-indigo-600 dark:hover:text-slate-100">
+          Bahdanau Attention
+        </button>
+        <button onclick="switchTab('luong')" id="tab-luong" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 text-adaptive-sub hover:text-indigo-600 dark:hover:text-slate-100">
+          Luong Attention
+        </button>
+      </div>
+    </div>
+
+    <!-- Architectural Diagrams Section -->
+    <div id="diagrams-section" class="space-y-8 mb-12">
+      
+      <!-- Diagram 1: Ordinary Seq2Seq Overview -->
+      <div id="card-standard" class="glass-card rounded-2xl p-6">
+        <div class="flex items-center justify-between mb-4 border-b border-slate-200 dark:border-slate-700/60 pb-3">
+          <div class="flex items-center space-x-3">
+            <span class="badge-standard px-3 py-1 rounded-full text-xs font-bold">Standard Model</span>
+            <h2 class="text-lg sm:text-xl font-bold text-adaptive-main">1. 普通 Seq2Seq 全景架构 (Encoder-Decoder)</h2>
+          </div>
+          <span class="text-xs text-adaptive-sub font-mono">固定 Context Vector $c = h_{T_x}$</span>
+        </div>
+        <p class="text-xs sm:text-sm text-adaptive-sub mb-6">
+          编码器按时序处理全部输入文本后，将整个序列的信息压缩并仅保留最后一个隐藏状态 $h_3$，作为固定的 Context Vector $c$ 传递给解码器作为初始隐藏状态。
+        </p>
+        
+        <div class="w-full overflow-x-auto svg-bg rounded-xl p-4 border shadow-inner">
+          <svg viewBox="0 0 950 280" class="w-full h-auto min-w-[800px] text-xs font-sans">
+            <defs>
+              <marker id="std-arrow-grey" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+              </marker>
+              <marker id="std-arrow-blue" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#0284c7"/>
+              </marker>
+              <marker id="std-arrow-green" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#059669"/>
+              </marker>
+              <marker id="std-arrow-amber" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#d97706"/>
+              </marker>
+              <marker id="std-arrow-red" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#e11d48"/>
+              </marker>
+            </defs>
+
+            <!-- Encoder Group -->
+            <g>
+              <rect x="20" y="20" width="380" height="240" rx="12" class="svg-enc-bg" stroke-dasharray="4 4"/>
+              <text x="35" y="45" font-weight="bold" font-size="13" class="svg-enc-text">Encoder (编码器)</text>
+
+              <!-- Inputs x1, x2, x3 -->
+              <rect x="50" y="205" width="70" height="34" rx="6" class="svg-input-node"/>
+              <text x="85" y="226" font-weight="bold" text-anchor="middle" class="svg-input-text">Input x₁</text>
+              <rect x="175" y="205" width="70" height="34" rx="6" class="svg-input-node"/>
+              <text x="210" y="226" font-weight="bold" text-anchor="middle" class="svg-input-text">Input x₂</text>
+              <rect x="300" y="205" width="70" height="34" rx="6" class="svg-input-node"/>
+              <text x="335" y="226" font-weight="bold" text-anchor="middle" class="svg-input-text">Input x₃</text>
+
+              <!-- Encoder States h1, h2, h3 -->
+              <rect x="50" y="115" width="70" height="48" rx="8" class="svg-enc-node" stroke-width="2"/>
+              <text x="85" y="144" font-weight="bold" text-anchor="middle" class="svg-enc-text">RNN (h₁)</text>
+
+              <rect x="175" y="115" width="70" height="48" rx="8" class="svg-enc-node" stroke-width="2"/>
+              <text x="210" y="144" font-weight="bold" text-anchor="middle" class="svg-enc-text">RNN (h₂)</text>
+
+              <rect x="300" y="115" width="70" height="48" rx="8" class="svg-enc-node" stroke-width="2"/>
+              <text x="335" y="144" font-weight="bold" text-anchor="middle" class="svg-enc-text">RNN (h₃)</text>
+
+              <!-- Inputs to RNN arrows -->
+              <line x1="85" y1="205" x2="85" y2="169" stroke="#059669" stroke-width="2" marker-end="url(#std-arrow-green)"/>
+              <line x1="210" y1="205" x2="210" y2="169" stroke="#059669" stroke-width="2" marker-end="url(#std-arrow-green)"/>
+              <line x1="335" y1="205" x2="335" y2="169" stroke="#059669" stroke-width="2" marker-end="url(#std-arrow-green)"/>
+
+              <!-- Inter-state arrows -->
+              <line x1="120" y1="139" x2="169" y2="139" stroke="#0284c7" stroke-width="2" marker-end="url(#std-arrow-blue)"/>
+              <line x1="245" y1="139" x2="294" y2="139" stroke="#0284c7" stroke-width="2" marker-end="url(#std-arrow-blue)"/>
+            </g>
+
+            <!-- Context Vector -->
+            <g>
+              <line x1="370" y1="139" x2="424" y2="139" stroke="#e11d48" stroke-width="2.5" marker-end="url(#std-arrow-red)"/>
+              <rect x="430" y="115" width="90" height="48" rx="8" class="svg-ctx-node" stroke-width="2"/>
+              <text x="475" y="136" font-weight="bold" text-anchor="middle" class="svg-ctx-text">Context (c)</text>
+              <text x="475" y="152" font-size="10" font-weight="semibold" text-anchor="middle" class="svg-ctx-text">c = h₃ (固定)</text>
+            </g>
+
+            <!-- Decoder Group -->
+            <g>
+              <rect x="540" y="20" width="390" height="240" rx="12" class="svg-dec-bg" stroke-dasharray="4 4"/>
+              <text x="555" y="45" font-weight="bold" font-size="13" class="svg-dec-text">Decoder (解码器)</text>
+
+              <line x1="520" y1="139" x2="559" y2="139" stroke="#e11d48" stroke-width="2.5" marker-end="url(#std-arrow-red)"/>
+
+              <rect x="565" y="115" width="70" height="48" rx="8" class="svg-dec-node" stroke-width="2"/>
+              <text x="600" y="144" font-weight="bold" text-anchor="middle" class="svg-dec-text">RNN (s₁)</text>
+
+              <rect x="690" y="115" width="70" height="48" rx="8" class="svg-dec-node" stroke-width="2"/>
+              <text x="725" y="144" font-weight="bold" text-anchor="middle" class="svg-dec-text">RNN (s₂)</text>
+
+              <rect x="815" y="115" width="70" height="48" rx="8" class="svg-dec-node" stroke-width="2"/>
+              <text x="850" y="144" font-weight="bold" text-anchor="middle" class="svg-dec-text">RNN (s₃)</text>
+
+              <line x1="635" y1="139" x2="684" y2="139" stroke="#d97706" stroke-width="2" marker-end="url(#std-arrow-amber)"/>
+              <line x1="760" y1="139" x2="809" y2="139" stroke="#d97706" stroke-width="2" marker-end="url(#std-arrow-amber)"/>
+
+              <rect x="565" y="205" width="70" height="34" rx="6" class="svg-input-node"/>
+              <text x="600" y="226" font-weight="bold" text-anchor="middle" class="svg-input-text">&lt;BOS&gt;</text>
+              <rect x="690" y="205" width="70" height="34" rx="6" class="svg-input-node"/>
+              <text x="725" y="226" font-weight="bold" text-anchor="middle" class="svg-input-text">Target y₁</text>
+              <rect x="815" y="205" width="70" height="34" rx="6" class="svg-input-node"/>
+              <text x="850" y="226" font-weight="bold" text-anchor="middle" class="svg-input-text">Target y₂</text>
+
+              <line x1="600" y1="205" x2="600" y2="169" stroke="#d97706" stroke-width="2" marker-end="url(#std-arrow-amber)"/>
+              <line x1="725" y1="205" x2="725" y2="169" stroke="#d97706" stroke-width="2" marker-end="url(#std-arrow-amber)"/>
+              <line x1="850" y1="205" x2="850" y2="169" stroke="#d97706" stroke-width="2" marker-end="url(#std-arrow-amber)"/>
+
+              <!-- Outputs -->
+              <rect x="565" y="55" width="70" height="34" rx="6" class="svg-out-node" stroke-width="2"/>
+              <text x="600" y="76" font-weight="bold" text-anchor="middle" class="svg-dec-text">Out y₁</text>
+              <rect x="690" y="55" width="70" height="34" rx="6" class="svg-out-node" stroke-width="2"/>
+              <text x="725" y="76" font-weight="bold" text-anchor="middle" class="svg-dec-text">Out y₂</text>
+              <rect x="815" y="55" width="70" height="34" rx="6" class="svg-out-node" stroke-width="2"/>
+              <text x="850" y="76" font-weight="bold" text-anchor="middle" class="svg-dec-text">Out y₃</text>
+
+              <line x1="600" y1="115" x2="600" y2="95" stroke="#64748b" stroke-width="2" marker-end="url(#std-arrow-grey)"/>
+              <line x1="725" y1="115" x2="725" y2="95" stroke="#64748b" stroke-width="2" marker-end="url(#std-arrow-grey)"/>
+              <line x1="850" y1="115" x2="850" y2="95" stroke="#64748b" stroke-width="2" marker-end="url(#std-arrow-grey)"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Diagram 2: Bahdanau Attention (Single Step Focus t) -->
+      <div id="card-bahdanau" class="glass-card rounded-2xl p-6">
+        <div class="flex items-center justify-between mb-4 border-b border-slate-200 dark:border-slate-700/60 pb-3">
+          <div class="flex items-center space-x-3">
+            <span class="badge-bahdanau px-3 py-1 rounded-full text-xs font-bold">Bahdanau Model</span>
+            <h2 class="text-lg sm:text-xl font-bold text-adaptive-main">2. Bahdanau Attention (单时间步视角 Step $t$)</h2>
+          </div>
+          <span class="text-xs text-amber-600 dark:text-amber-400 font-mono font-bold">输入融合节点 $x_t = W_x [c_t ; y_{t-1}] + b_x$</span>
+        </div>
+        <p class="text-xs sm:text-sm text-adaptive-sub mb-6">
+          <strong>数据流机制：</strong> 先由上一时刻解码器隐藏状态 $s_{t-1}$ 与编码器全部隐藏状态 $H$ 计算注意力得出 $c_t$。将 $c_t$ 与上一目标词 $y_{t-1}$ 输入统一的<strong>输入融合节点 (Linear Projection)</strong> 映射为 $x_t$，送入 Decoder RNN 更新得到当前状态 $s_t$，再由 $s_t$ 直连 Linear+Softmax 预测目标词 $y_t$。
+        </p>
+
+        <div class="w-full overflow-x-auto svg-bg rounded-xl p-4 border shadow-inner">
+          <svg viewBox="0 0 950 480" class="w-full h-auto min-w-[800px] text-xs font-sans">
+            <defs>
+              <marker id="bah-arrow-green" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#059669"/>
+              </marker>
+              <marker id="bah-arrow-amber" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#d97706"/>
+              </marker>
+              <marker id="bah-arrow-purp" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#9333ea"/>
+              </marker>
+              <marker id="bah-arrow-red" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#e11d48"/>
+              </marker>
+              <marker id="bah-arrow-blue" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#2563eb"/>
+              </marker>
+              <marker id="bah-arrow-slate" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+              </marker>
+            </defs>
+
+            <!-- Encoder States Box -->
+            <rect x="30" y="30" width="300" height="110" rx="10" class="svg-enc-bg" stroke-dasharray="3 3"/>
+            <text x="45" y="52" font-weight="bold" class="svg-enc-text">Encoder Hidden States H = [h₁, h₂, h₃]</text>
+            
+            <rect x="50" y="68" width="65" height="55" rx="6" class="svg-enc-node" stroke-width="1.5"/>
+            <text x="82" y="100" font-weight="bold" text-anchor="middle" class="svg-enc-text">h₁</text>
+
+            <rect x="145" y="68" width="65" height="55" rx="6" class="svg-enc-node" stroke-width="1.5"/>
+            <text x="177" y="100" font-weight="bold" text-anchor="middle" class="svg-enc-text">h₂</text>
+
+            <rect x="240" y="68" width="65" height="55" rx="6" class="svg-enc-node" stroke-width="1.5"/>
+            <text x="272" y="100" font-weight="bold" text-anchor="middle" class="svg-enc-text">h₃</text>
+
+            <!-- Previous Decoder Hidden State s_{t-1} -->
+            <rect x="740" y="55" width="120" height="50" rx="8" class="svg-dec-node" stroke-width="2"/>
+            <text x="800" y="76" font-weight="bold" text-anchor="middle" class="svg-dec-text">上一解码状态</text>
+            <text x="800" y="94" font-weight="bold" text-anchor="middle" class="svg-dec-text">s_{t-1}</text>
+
+            <!-- Attention Alignment Module -->
+            <rect x="390" y="30" width="220" height="110" rx="10" class="svg-attn-node" stroke-width="2"/>
+            <text x="500" y="55" font-weight="bold" text-anchor="middle" class="svg-fusion-text">Attention Calculation</text>
+            <text x="500" y="76" font-size="11" font-weight="medium" text-anchor="middle" class="svg-fusion-text">e_{t,i} = v_aᵀ tanh(W_a s_{t-1} + U_a h_i)</text>
+            <text x="500" y="94" font-size="11" font-weight="medium" text-anchor="middle" class="svg-fusion-text">α_{t,i} = softmax(e_{t,i})</text>
+            <text x="500" y="112" font-size="10" font-weight="bold" text-anchor="middle" class="svg-fusion-text">c_t = Σ α_{t,i} h_i</text>
+
+            <!-- Connections to Attention module -->
+            <path d="M 330 85 L 382 85" stroke="#059669" stroke-width="2" marker-end="url(#bah-arrow-green)"/>
+            <path d="M 740 80 L 618 80" stroke="#d97706" stroke-width="2.5" marker-end="url(#bah-arrow-amber)"/>
+            <text x="675" y="70" fill="#d97706" font-size="10" font-weight="bold" text-anchor="middle">s_{t-1}</text>
+
+            <!-- Context Vector c_t -->
+            <rect x="445" y="175" width="110" height="42" rx="8" class="svg-ctx-node" stroke-width="2"/>
+            <text x="500" y="195" font-weight="bold" text-anchor="middle" class="svg-ctx-text">Context Vector</text>
+            <text x="500" y="209" font-weight="bold" text-anchor="middle" class="svg-ctx-text">c_t</text>
+            <line x1="500" y1="140" x2="500" y2="169" stroke="#9333ea" stroke-width="2" marker-end="url(#bah-arrow-purp)"/>
+
+            <!-- Input y_{t-1} -->
+            <rect x="620" y="175" width="110" height="42" rx="8" class="svg-input-node" stroke-width="1.5"/>
+            <text x="675" y="195" font-weight="bold" text-anchor="middle" class="svg-input-text">Target Input</text>
+            <text x="675" y="209" font-weight="bold" text-anchor="middle" class="svg-input-text">y_{t-1}</text>
+
+            <!-- UNIFIED FUSION BLOCK: CONCATENATION & LINEAR PROJECTION -->
+            <rect x="475" y="255" width="230" height="60" rx="10" class="svg-fusion-node" stroke-width="2.5"/>
+            <text x="590" y="278" font-weight="bold" font-size="12" text-anchor="middle" class="svg-fusion-text">输入融合节点 (Fusion Node)</text>
+            <text x="590" y="298" font-weight="bold" font-size="11" text-anchor="middle" class="svg-fusion-text">x_t = W_x · [ c_t ; y_{t-1} ] + b_x</text>
+
+            <!-- Route c_t and y_{t-1} into Unified Fusion Node -->
+            <path d="M 500 217 L 500 235 L 545 235 L 545 249" fill="none" stroke="#e11d48" stroke-width="2" marker-end="url(#bah-arrow-red)"/>
+            <path d="M 675 217 L 675 235 L 635 235 L 635 249" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#bah-arrow-slate)"/>
+
+            <!-- Decoder RNN Cell -->
+            <rect x="500" y="355" width="180" height="50" rx="10" class="svg-dec-node" stroke-width="2.5"/>
+            <text x="590" y="377" font-weight="bold" font-size="13" text-anchor="middle" class="svg-dec-text">Decoder RNN Cell</text>
+            <text x="590" y="394" font-size="11" font-weight="medium" text-anchor="middle" class="svg-dec-text">s_t = RNN(s_{t-1}, x_t)</text>
+
+            <!-- Arrow from Unified Fusion Node to Decoder RNN -->
+            <line x1="590" y1="315" x2="590" y2="349" stroke="#2563eb" stroke-width="2.5" marker-end="url(#bah-arrow-blue)"/>
+
+            <!-- Direct State s_{t-1} line into Decoder RNN -->
+            <path d="M 800 105 L 800 380 L 688 380" fill="none" stroke="#d97706" stroke-width="2" marker-end="url(#bah-arrow-amber)"/>
+            <text x="805" y="240" fill="#d97706" font-size="10" font-weight="bold" text-anchor="start">隐藏状态 s_{t-1} 传入</text>
+
+            <!-- Output Prediction y_t -->
+            <line x1="590" y1="405" x2="590" y2="423" stroke="#d97706" stroke-width="2.5" marker-end="url(#bah-arrow-amber)"/>
+
+            <rect x="500" y="425" width="180" height="42" rx="8" class="svg-out-node" stroke-width="2"/>
+            <text x="590" y="444" font-weight="bold" text-anchor="middle" class="svg-dec-text">Output Prediction y_t</text>
+            <text x="590" y="458" font-size="10" font-weight="semibold" text-anchor="middle" class="svg-dec-text">Softmax(W_o · s_t + b_o)</text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Diagram 3: Luong Attention (Single Step Focus t) -->
+      <div id="card-luong" class="glass-card rounded-2xl p-6">
+        <div class="flex items-center justify-between mb-4 border-b border-slate-200 dark:border-slate-700/60 pb-3">
+          <div class="flex items-center space-x-3">
+            <span class="badge-luong px-3 py-1 rounded-full text-xs font-bold">Luong Model</span>
+            <h2 class="text-lg sm:text-xl font-bold text-adaptive-main">3. Luong Attention (单时间步视角 Step $t$)</h2>
+          </div>
+          <span class="text-xs text-purple-600 dark:text-purple-400 font-mono font-bold">输出融合节点 $\tilde{s}_t = \tanh(W_c [c_t ; s_t] + b_c)$</span>
+        </div>
+        <p class="text-xs sm:text-sm text-adaptive-sub mb-6">
+          <strong>数据流机制：</strong> 上一隐藏状态 $s_{t-1}$ 与上一目标词 Embedding $y_{t-1}$ <strong>独立并行输入 Decoder RNN</strong> 产生当前状态 $s_t$。利用 $s_t$ 与编码器状态 $H$ 计算注意力得出 $c_t$。最后在 RNN 外部的<strong>输出注意力融合节点</strong>拼接 $c_t$ 与 $s_t$ 映射为 <strong>Attentional Hidden State $\tilde{s}_t$</strong>，并输入 Linear + Softmax 产生目标词 $y_t$。
+        </p>
+
+        <div class="w-full overflow-x-auto svg-bg rounded-xl p-4 border shadow-inner">
+          <svg viewBox="0 0 950 520" class="w-full h-auto min-w-[800px] text-xs font-sans">
+            <defs>
+              <marker id="luo-arrow-green" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#059669"/>
+              </marker>
+              <marker id="luo-arrow-amber" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#d97706"/>
+              </marker>
+              <marker id="luo-arrow-purp" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#9333ea"/>
+              </marker>
+              <marker id="luo-arrow-red" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#e11d48"/>
+              </marker>
+              <marker id="luo-arrow-slate" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+              </marker>
+            </defs>
+
+            <!-- Encoder States Box -->
+            <rect x="30" y="30" width="300" height="110" rx="10" class="svg-enc-bg" stroke-dasharray="3 3"/>
+            <text x="45" y="52" font-weight="bold" class="svg-enc-text">Encoder Hidden States H = [h₁, h₂, h₃]</text>
+            
+            <rect x="50" y="68" width="65" height="55" rx="6" class="svg-enc-node" stroke-width="1.5"/>
+            <text x="82" y="100" font-weight="bold" text-anchor="middle" class="svg-enc-text">h₁</text>
+
+            <rect x="145" y="68" width="65" height="55" rx="6" class="svg-enc-node" stroke-width="1.5"/>
+            <text x="177" y="100" font-weight="bold" text-anchor="middle" class="svg-enc-text">h₂</text>
+
+            <rect x="240" y="68" width="65" height="55" rx="6" class="svg-enc-node" stroke-width="1.5"/>
+            <text x="272" y="100" font-weight="bold" text-anchor="middle" class="svg-enc-text">h₃</text>
+
+            <!-- Separate Inputs s_{t-1} & y_{t-1} entering RNN -->
+            <rect x="630" y="25" width="100" height="40" rx="6" class="svg-dec-node" stroke-width="1.5"/>
+            <text x="680" y="45" font-weight="bold" text-anchor="middle" class="svg-dec-text">State s_{t-1}</text>
+
+            <rect x="765" y="25" width="100" height="40" rx="6" class="svg-input-node" stroke-width="1.5"/>
+            <text x="815" y="45" font-weight="bold" text-anchor="middle" class="svg-input-text">Input y_{t-1}</text>
+
+            <!-- Decoder RNN Cell -->
+            <rect x="650" y="100" width="190" height="50" rx="10" class="svg-dec-node" stroke-width="2.5"/>
+            <text x="745" y="122" font-weight="bold" font-size="13" text-anchor="middle" class="svg-dec-text">Decoder RNN Cell</text>
+            <text x="745" y="139" font-weight="medium" text-anchor="middle" class="svg-dec-text">生成当前隐藏状态 s_t</text>
+
+            <!-- Arrows into RNN cell separately -->
+            <path d="M 680 65 L 680 94" stroke="#d97706" stroke-width="2" marker-end="url(#luo-arrow-amber)"/>
+            <path d="M 815 65 L 815 82 L 800 82 L 800 94" fill="none" stroke="#64748b" stroke-width="2" marker-end="url(#luo-arrow-slate)"/>
+
+            <!-- Attention Score Module -->
+            <rect x="380" y="100" width="220" height="110" rx="10" class="svg-attn-node" stroke-width="2"/>
+            <text x="490" y="122" font-weight="bold" text-anchor="middle" class="svg-fusion-text">Attention Calculation</text>
+            <text x="490" y="142" font-size="11" font-weight="medium" text-anchor="middle" class="svg-fusion-text">score(s_t, h_i) = s_tᵀ W_a h_i</text>
+            <text x="490" y="160" font-size="11" font-weight="medium" text-anchor="middle" class="svg-fusion-text">a_{t,i} = softmax(score)</text>
+            <text x="490" y="180" font-size="10" font-weight="bold" text-anchor="middle" class="svg-fusion-text">c_t = Σ a_{t,i} h_i</text>
+
+            <!-- Arrows to Attention -->
+            <path d="M 330 110 L 372 125" stroke="#059669" stroke-width="2" marker-end="url(#luo-arrow-green)"/>
+            <path d="M 650 125 L 608 125" stroke="#d97706" stroke-width="2.5" marker-end="url(#luo-arrow-amber)"/>
+            <text x="628" y="115" fill="#d97706" font-size="10" font-weight="bold" text-anchor="middle">s_t</text>
+
+            <!-- Context Vector c_t -->
+            <rect x="435" y="250" width="110" height="42" rx="8" class="svg-ctx-node" stroke-width="2"/>
+            <text x="490" y="270" font-weight="bold" text-anchor="middle" class="svg-ctx-text">Context Vector</text>
+            <text x="490" y="284" font-weight="bold" text-anchor="middle" class="svg-ctx-text">c_t</text>
+            <line x1="490" y1="210" x2="490" y2="244" stroke="#9333ea" stroke-width="2" marker-end="url(#luo-arrow-purp)"/>
+
+            <!-- Current State s_t routing downward -->
+            <rect x="670" y="250" width="110" height="42" rx="8" class="svg-dec-node" stroke-width="2"/>
+            <text x="725" y="270" font-weight="bold" text-anchor="middle" class="svg-dec-text">Current State</text>
+            <text x="725" y="284" font-weight="bold" text-anchor="middle" class="svg-dec-text">s_t</text>
+            <path d="M 745 150 L 745 200 L 725 200 L 725 244" fill="none" stroke="#d97706" stroke-width="2" marker-end="url(#luo-arrow-amber)"/>
+
+            <!-- Outer CONCATENATION & ATTENTIONAL STATE LAYER (c_t & s_t) -->
+            <rect x="510" y="340" width="220" height="65" rx="10" class="svg-fusion-node" stroke-width="2.5"/>
+            <text x="620" y="362" font-weight="bold" font-size="12" text-anchor="middle" class="svg-fusion-text">输出融合节点 (Attentional State)</text>
+            <text x="620" y="382" font-size="11" font-weight="bold" text-anchor="middle" class="svg-fusion-text">s̃_t = tanh( W_c [ c_t ; s_t ] + b_c )</text>
+
+            <!-- Route c_t and s_t into s̃_t node -->
+            <path d="M 490 292 L 490 315 L 560 315 L 560 332" fill="none" stroke="#e11d48" stroke-width="2.5" marker-end="url(#luo-arrow-red)"/>
+            <path d="M 725 292 L 725 315 L 680 315 L 680 332" fill="none" stroke="#d97706" stroke-width="2.5" marker-end="url(#luo-arrow-amber)"/>
+
+            <!-- Output Layer -->
+            <line x1="620" y1="405" x2="620" y2="439" stroke="#9333ea" stroke-width="2.5" marker-end="url(#luo-arrow-purp)"/>
+
+            <rect x="520" y="442" width="200" height="45" rx="8" class="svg-out-node" stroke-width="2"/>
+            <text x="620" y="462" font-weight="bold" text-anchor="middle" class="svg-dec-text">Output Prediction y_t</text>
+            <text x="620" y="478" font-size="11" font-weight="medium" text-anchor="middle" class="svg-dec-text">Softmax( W_o · s̃_t + b_o )</text>
+          </svg>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 5-Column Comparison Table -->
+    <div class="glass-card rounded-2xl p-6 shadow-xl overflow-hidden mb-12">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 border-b border-slate-200 dark:border-slate-700/60 pb-4 gap-2">
+        <div>
+          <h2 class="text-xl sm:text-2xl font-bold text-adaptive-main">3大 Seq2Seq 机制深度对比表</h2>
+          <p class="text-xs text-adaptive-sub mt-1">从编码器输出、解码步输入、Context 生成机制与最终输出映射彻底对比</p>
+        </div>
+        <span class="bg-indigo-500/10 text-indigo-700 dark:text-indigo-300 border border-indigo-500/30 text-xs px-3 py-1.5 rounded-lg font-bold">数学级完整对齐</span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse min-w-[900px]">
+          <thead>
+            <tr class="table-header text-xs sm:text-sm">
+              <th class="py-4 px-4 font-bold w-[14%]">模型</th>
+              <th class="py-4 px-4 font-bold w-[20%]">编码器输出</th>
+              <th class="py-4 px-4 font-bold w-[22%]">解码器每一步的输入</th>
+              <th class="py-4 px-4 font-bold w-[22%]">上下文向量 Context ($c_t$)</th>
+              <th class="py-4 px-4 font-bold w-[22%]">解码器输出 (Decoder Output)</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200 dark:divide-slate-800 text-xs sm:text-sm text-adaptive-main">
+            <!-- Row 1: Standard Seq2Seq -->
+            <tr class="table-row-hover transition-colors">
+              <td class="py-4 px-4 font-bold text-blue-600 dark:text-blue-400">
+                普通 Seq2Seq
+              </td>
+              <td class="py-4 px-4">
+                所有隐藏状态，但通常只用最后一个状态传递语义 ($h_{T_x}$)。
+              </td>
+              <td class="py-4 px-4">
+                上一时刻的目标词 Embedding ($y_{t-1}$) + 上一时刻隐藏状态 ($s_{t-1}$)。
+              </td>
+              <td class="py-4 px-4">
+                编码结束后得到的固定语义表示，通常由编码器最终状态提供 ($c = h_{T_x}$)。
+              </td>
+              <td class="py-4 px-4">
+                直接由当前隐藏状态映射输出：<br>
+                $P(y_t) = \text{softmax}(W_o s_t + b_o)$
+              </td>
+            </tr>
+
+            <!-- Row 2: Bahdanau Attention -->
+            <tr class="table-row-hover transition-colors bg-amber-500/5">
+              <td class="py-4 px-4 font-bold text-amber-600 dark:text-amber-400">
+                Bahdanau Attention
+                <span class="text-[10px] text-amber-700 dark:text-amber-500/80 font-normal block mt-1">加法注意力 (Additive)</span>
+              </td>
+              <td class="py-4 px-4">
+                保留所有时间步的隐藏状态 $H = [h_1, h_2, \dots, h_{T_x}]$。
+              </td>
+              <td class="py-4 px-4">
+                在 <strong>输入融合节点中拼接并线性变换</strong> $y_{t-1}$ 与 $c_t$：<br>
+                $x_t = W_x [c_t ; y_{t-1}] + b_x$<br>
+                与上一时刻隐藏状态 $s_{t-1}$ 共同输入 RNN。
+              </td>
+              <td class="py-4 px-4">
+                先使用<strong>上一时刻解码器状态 $s_{t-1}$</strong> 与编码器全部隐藏状态计算注意力，加权求和得到 $c_t$。
+              </td>
+              <td class="py-4 px-4">
+                由融入了 $c_t$ 信息的新隐藏状态 $s_t$ 直接映射输出：<br>
+                $P(y_t) = \text{softmax}(W_o s_t + b_o)$
+              </td>
+            </tr>
+
+            <!-- Row 3: Luong Attention -->
+            <tr class="table-row-hover transition-colors bg-purple-500/5">
+              <td class="py-4 px-4 font-bold text-purple-600 dark:text-purple-400">
+                Luong Attention
+                <span class="text-[10px] text-purple-700 dark:text-purple-400/80 font-normal block mt-1">乘法注意力 (Multiplicative)</span>
+              </td>
+              <td class="py-4 px-4">
+                保留所有时间步的隐藏状态 $H = [h_1, h_2, \dots, h_{T_x}]$。
+              </td>
+              <td class="py-4 px-4">
+                目标词 Embedding ($y_{t-1}$) 与上一时刻隐藏状态 ($s_{t-1}$) <strong>分开独立输入</strong> RNN 计算出 $s_t$；随后再进行注意力融合。
+              </td>
+              <td class="py-4 px-4">
+                先计算<strong>当前时刻解码器隐藏状态 $s_t$</strong>，再与编码器各状态计算注意力权重和 $c_t$。
+              </td>
+              <td class="py-4 px-4">
+                在 <strong>输出融合节点</strong> 拼接 $c_t$ 与 $s_t$ 生成 Attentional State：<br>
+                $\tilde{s}_t = \tanh(W_c [c_t ; s_t] + b_c)$<br>
+                再过 Linear+Softmax 输出：<br>
+                $P(y_t) = \text{softmax}(W_o \tilde{s}_t + b_o)$
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Summary Box -->
+    <div class="glass-card rounded-xl p-5 mb-8 text-xs sm:text-sm text-adaptive-main space-y-2">
+      <p class="font-bold text-adaptive-main">关键区别总结：</p>
+      <ul class="list-disc list-inside space-y-1 text-adaptive-sub font-medium">
+        <li><strong class="text-amber-600 dark:text-amber-400">Bahdanau Attention：</strong> 上一时刻状态 $s_{t-1} \to$ 计算 $c_t \to$ 输入融合节点生成 $x_t = W_x [c_t; y_{t-1}] + b_x \to$ 输入 RNN 更新得 $s_t \to$ 直连 Softmax 输出。</li>
+        <li><strong class="text-purple-600 dark:text-purple-400">Luong Attention：</strong> 独立输入 $s_{t-1}, y_{t-1} \to$ RNN 先生成当前状态 $s_t \to$ 计算 $c_t \to$ 输出融合节点生成 Attentional State $\tilde{s}_t = \tanh(W_c [c_t; s_t]) \to$ 过 Softmax 输出。</li>
+      </ul>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center text-slate-500 text-xs border-t border-slate-200 dark:border-slate-800 pt-6">
+      Seq2Seq & Attention Visualized Alignment · High Contrast Dual Theme Powered
+    </footer>
+
+  </div>
+
+  <!-- JavaScript for Interactive Tabs and Theme Switcher -->
+  <script>
+    function toggleTheme() {
+      const htmlClass = document.documentElement.classList;
+      const themeIcon = document.getElementById('theme-icon');
+      const themeText = document.getElementById('theme-text');
+      
+      if (htmlClass.contains('dark')) {
+        htmlClass.remove('dark');
+        themeIcon.textContent = '☀️';
+        themeText.textContent = '浅色模式';
+      } else {
+        htmlClass.add('dark');
+        themeIcon.textContent = '🌙';
+        themeText.textContent = '深色模式';
+      }
+
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        window.MathJax.typesetPromise();
+      }
+    }
+
+    function switchTab(type) {
+      const tabs = ['all', 'standard', 'bahdanau', 'luong'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`tab-${t}`);
+        if (t === type) {
+          btn.className = "px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 bg-indigo-600 text-white shadow";
+        } else {
+          btn.className = "px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-200 text-adaptive-sub hover:text-indigo-600 dark:hover:text-slate-100";
+        }
+      });
+
+      const cards = {
+        'standard': document.getElementById('card-standard'),
+        'bahdanau': document.getElementById('card-bahdanau'),
+        'luong': document.getElementById('card-luong')
+      };
+
+      if (type === 'all') {
+        Object.values(cards).forEach(c => c.classList.remove('hidden'));
+      } else {
+        Object.keys(cards).forEach(k => {
+          if (k === type) {
+            cards[k].classList.remove('hidden');
+          } else {
+            cards[k].classList.add('hidden');
+          }
+        });
+      }
+
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        window.MathJax.typesetPromise();
+      }
+    }
+
+    window.addEventListener('load', () => {
+      if (window.MathJax && window.MathJax.typesetPromise) {
+        window.MathJax.typesetPromise().catch((err) => console.log('MathJax initialization error:', err));
+      }
+    });
+  </script>
+</body>
+</html>

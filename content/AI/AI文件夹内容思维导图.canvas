@@ -1,0 +1,59 @@
+{
+	"nodes":[
+		{"id":"group005","type":"group","x":880,"y":1050,"width":720,"height":500,"color":"2","label":"前沿应用与工具"},
+		{"id":"group001","type":"group","x":0,"y":300,"width":500,"height":600,"color":"1","label":"大模型核心技术"},
+		{"id":"group002","type":"group","x":550,"y":300,"width":500,"height":600,"color":"4","label":"RAG与检索系统"},
+		{"id":"group003","type":"group","x":1100,"y":300,"width":500,"height":600,"color":"6","label":"MCP协议与扩展"},
+		{"id":"group004","type":"group","x":0,"y":1050,"width":500,"height":500,"color":"5","label":"AI认知与理论"},
+		{"id":"node001","type":"file","file":"AI大模型/大语言模型学习/ChatGPT本质与未来展望解析.md","x":20,"y":350,"width":450,"height":120},
+		{"id":"node004","type":"text","text":"## RAG系统要素\n\n- 向量数据库 (Milvus)\n- 文档分块策略\n- 检索与重排序","x":570,"y":350,"width":460,"height":100,"color":"3"},
+		{"id":"node008","type":"file","file":"AI大模型/mcp/Streamable HTTP 对比 SSE.md","x":1120,"y":350,"width":460,"height":100},
+		{"id":"node003","type":"file","file":"AI大模型/rag/RAG系统核心技术与实现.md","x":20,"y":730,"width":450,"height":80},
+		{"id":"node002","type":"text","text":"## 核心概念\n\n- **ChatGPT本质**: 文字接龙工具\n- **技术基础**: 神经网络与涌现能力\n- **作者视角**: Stephen Wolfram深度解析","x":20,"y":510,"width":450,"height":150,"color":"2"},
+		{"id":"node009","type":"text","text":"## MCP核心\n\n- **定义**: 模型上下文协议\n- **功能**: LLM与外部系统通信\n- **2025更新**: Streamable HTTP传输","x":1120,"y":500,"width":460,"height":170,"color":"3"},
+		{"id":"node007","type":"file","file":"AI大模型/rag/家装公司问答系统.md","x":570,"y":810,"width":460,"height":80},
+		{"id":"node006","type":"text","text":"## 搜索流水线\n\n- Elasticsearch架构\n- 查询解析 → 分词 → 索引 → 排序","x":570,"y":640,"width":460,"height":130,"color":"2"},
+		{"id":"node005","type":"file","file":"AI/深度学习/搜索引擎&ES流水线详解.md","x":570,"y":500,"width":460,"height":100},
+		{"id":"node013","type":"file","file":"AI/AIGC/NotebookLM/9个NotebookLM高级技巧.md","x":1265,"y":1100,"width":300,"height":80},
+		{"id":"node012","type":"file","file":"AI大模型/Skills/【万字长文】Claude Skills完全指南：从概念到实战.md","x":950,"y":1100,"width":300,"height":100},
+		{"id":"node015","type":"file","file":"AI/AIGC/NotebookLM/NotebookLM - PPT不同风格的提示词集合.md","x":1265,"y":1230,"width":300,"height":80},
+		{"id":"node014","type":"file","file":"AI/AIGC/NotebookLM/2025最新！NotebookLM一键出专业PPT，12套神级提示词直接抄.md","x":950,"y":1230,"width":300,"height":140},
+		{"id":"node016","type":"text","text":"## 实战工具\n\n- **Claude Skills**: 提示词工程与自动化\n- **NotebookLM**: AI辅助知识管理与PPT生成","x":950,"y":1400,"width":630,"height":120,"color":"1"},
+		{"id":"node010","type":"file","file":"AI/AI认知笔记&知识前沿/对人类仿生的智能理解(智源研究院).md","x":20,"y":1120,"width":460,"height":80},
+		{"id":"node011","type":"text","text":"## 仿生智能\n\n- 认知理解 → 感知视觉\n- 脉冲神经网络模型\n- 数字生命与具身智能","x":20,"y":1300,"width":460,"height":140,"color":"4"},
+		{"id":"root001","type":"text","text":"# AI 知识体系\n\n人工智能的全景学习框架","x":380,"y":40,"width":300,"height":100,"color":"5"}
+	],
+	"edges":[
+		{"id":"edge001","fromNode":"root001","fromSide":"bottom","toNode":"group001","toSide":"top"},
+		{"id":"edge002","fromNode":"root001","fromSide":"bottom","toNode":"group002","toSide":"top"},
+		{"id":"edge003","fromNode":"root001","fromSide":"bottom","toNode":"group003","toSide":"top"},
+		{"id":"edge004","fromNode":"root001","fromSide":"bottom","toNode":"group004","toSide":"top"},
+		{"id":"edge005","fromNode":"root001","fromSide":"bottom","toNode":"group005","toSide":"top"},
+		{"id":"edge006","fromNode":"node001","fromSide":"bottom","toNode":"node002","toSide":"top","color":"1","label":"包含"},
+		{"id":"edge007","fromNode":"node002","fromSide":"bottom","toNode":"node003","toSide":"top","color":"1","label":"进阶"},
+		{"id":"edge008","fromNode":"node004","fromSide":"bottom","toNode":"node005","toSide":"top","color":"4","label":"应用"},
+		{"id":"edge009","fromNode":"node005","fromSide":"bottom","toNode":"node006","toSide":"top","color":"4","label":"扩展"},
+		{"id":"edge010","fromNode":"node006","fromSide":"bottom","toNode":"node007","toSide":"top","color":"4","label":"实战"},
+		{"id":"edge011","fromNode":"group001","fromSide":"right","toNode":"group002","toSide":"left","color":"5","label":"技术结合"},
+		{"id":"edge012","fromNode":"group002","fromSide":"right","toNode":"group003","toSide":"left","color":"5","label":"协议支持"},
+		{"id":"edge013","fromNode":"node010","fromSide":"bottom","toNode":"node011","toSide":"top","color":"5","label":"理论基础"},
+		{"id":"edge014","toFloating":false,"fromFloating":false,"fromNode":"group001","fromSide":"bottom","toNode":"group005","toSide":"left","color":"6","label":"驱动应用"},
+		{
+			"id":"edge015",
+			"fromFloating":false,
+			"styleAttributes":{
+				"pathfindingMethod":null
+			},
+			"fromNode":"group004",
+			"fromSide":"right",
+			"toNode":"group005",
+			"toSide":"bottom",
+			"color":"6",
+			"label":"指导实践"
+		}
+	],
+	"metadata":{
+		"version":"1.0-1.0",
+		"frontmatter":{}
+	}
+}

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DeepSeek‑V4 四项核心优化 · 交互图解</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f5f7fb;--card:#fff;--fg:#1e293b;--mut:#64748b;--mut2:#94a3b8;--line:#d9e0ea;--a:#3b82f6;--b:#f59e0b;--c:#16a34a;--d:#dc2626;--soft:#eef2f8}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1520;--card:#18212f;--fg:#e5ebf5;--mut:#9aa8bd;--mut2:#5d6c84;--line:#2b384c;--a:#60a5fa;--b:#fbbf24;--c:#4ade80;--d:#f87171;--soft:#1f2a3b}}
+:root[data-theme="dark"]{--bg:#0f1520;--card:#18212f;--fg:#e5ebf5;--mut:#9aa8bd;--mut2:#5d6c84;--line:#2b384c;--a:#60a5fa;--b:#fbbf24;--c:#4ade80;--d:#f87171;--soft:#1f2a3b}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.65 system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif}
+.wrap{max-width:860px;margin:0 auto;padding:28px 16px 48px}
+h1{font-size:1.7rem;margin:0 0 6px;letter-spacing:-.02em}
+.sub{color:var(--mut);margin:0 0 18px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.chip{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 14px}
+.chip b{display:block;font-size:1.25rem;color:var(--a)}.chip span{font-size:.8rem;color:var(--mut)}
+.tabs{display:flex;gap:6px;overflow-x:auto;margin-bottom:14px}
+.tab{flex:1;min-width:84px;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:10px;padding:9px 6px;font:inherit;font-weight:600;cursor:pointer}
+.tab small{display:block;font-weight:400;color:var(--mut);font-size:.72rem}
+.tab[aria-selected=true]{border-color:var(--a);box-shadow:0 0 0 2px var(--a) inset}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px}
+.panel h2{margin:0 0 4px;font-size:1.3rem}.panel h2 small{font-weight:400;color:var(--mut);font-size:.85rem;margin-left:6px}
+.lead{margin:6px 0 12px}
+.f{background:var(--soft);border-left:4px solid var(--a);border-radius:8px;padding:8px 12px;margin:10px 0;font:.9rem/1.7 ui-monospace,Menlo,Consolas,monospace;overflow-x:auto}
+.viz{background:var(--soft);border-radius:12px;padding:12px;margin:12px 0}
+.viz svg{width:100%;height:auto;display:block}
+.ctl{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;margin-bottom:8px;font-size:.88rem}
+.ctl input[type=range]{flex:1;min-width:120px;accent-color:var(--a)}
+button.b{border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:8px;padding:5px 12px;font:inherit;cursor:pointer}
+.out{font-size:.9rem;color:var(--mut);margin-top:6px}.out b{color:var(--fg)}
+.lg{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.78rem;color:var(--mut);margin-top:6px}
+.lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+.why{margin:8px 0 0;padding-left:1.2em}.why li{margin:3px 0}
+.bar{display:grid;grid-template-columns:78px 1fr 64px;gap:8px;align-items:center;font-size:.82rem;margin:4px 0}
+.bar div.t{height:14px;background:var(--line);border-radius:7px;overflow:hidden}.bar div.t i{display:block;height:100%;border-radius:7px;transition:width .25s}
+.hm{display:grid;grid-template-columns:repeat(6,1fr);gap:3px;font:.75rem ui-monospace,monospace;text-align:center;max-width:420px}
+.hm div{padding:5px 0;border-radius:5px}
+.note{font-size:.8rem;color:var(--mut);margin-top:22px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>DeepSeek‑V4 · 四项核心优化</h1>
+<p class="sub">长上下文怎么变便宜（CSA / HCA），深层网络怎么训得稳（mHC / Muon）。每个模块都可以拖动参数亲手试。</p>
+<div class="chips">
+<div class="chip"><b>1M</b><span>token 上下文</span></div>
+<div class="chip"><b>27%</b><span>单 token 推理 FLOPs（对比 V3.2，1M 场景）</span></div>
+<div class="chip"><b>10%</b><span>KV 缓存占用（对比 V3.2，1M 场景）</span></div>
+</div>
+
+<div class="tabs" role="tablist">
+<button class="tab" aria-selected="true">CSA<small>压缩 + 稀疏</small></button>
+<button class="tab" aria-selected="false">HCA<small>重度压缩</small></button>
+<button class="tab" aria-selected="false">mHC<small>稳定残差</small></button>
+<button class="tab" aria-selected="false">Muon<small>正交化优化</small></button>
+</div>
+
+<!-- CSA -->
+<section class="panel">
+<h2>CSA <small>Compressed Sparse Attention</small></h2>
+<p class="lead">先把每 <b>m = 4</b> 个 token 的 KV 压成 1 条，再让每个查询只挑最相关的 <b>k</b> 条压缩项做注意力；另外再保留一小段最近 token 的滑动窗口，补上局部细节。</p>
+<div class="f">KV<sub>c</sub> = compress<sub>m=4</sub>(KV)　　I = TopK( score(q, KV<sub>c</sub>), k )<br>o = Attn( q, KV<sub>c</sub>[I] ∪ KV<sub>window</sub> )</div>
+<div class="viz">
+<div class="ctl"><label>Top‑k = <b id="kv">4</b></label><input id="k" type="range" min="1" max="10" value="4"><button class="b" id="rs">重新随机相关度</button></div>
+<svg id="csa" viewBox="0 0 640 200"></svg>
+<div class="lg"><span><i style="background:var(--mut2)"></i>历史 token</span><span><i style="background:var(--b)"></i>压缩块（越深越相关）</span><span><i style="background:var(--d)"></i>被 Top‑k 选中</span><span><i style="background:var(--c)"></i>滑动窗口（最近 token）</span></div>
+<div class="out" id="csaOut"></div>
+<div class="out">💡 点击任意压缩块可手动把它设为“最相关”。</div>
+</div>
+<ul class="why"><li>压缩把候选从 N 条降到 N/4，选择器扫描的成本也随之下降。</li><li>Top‑k 让真正做注意力的条目数与上下文长度脱钩（V4 配置里 k=1024）。</li><li>CSA 偏“精”：能精确找回远处的具体细节。</li></ul>
+</section>
+
+<!-- HCA -->
+<section class="panel" hidden>
+<h2>HCA <small>Heavily Compressed Attention</small></h2>
+<p class="lead">压缩比拉到 <b>m′ = 128</b>，压得很狠，所以剩下的条目很少，干脆<b>不做筛选</b>，对全部压缩项做稠密注意力，同样配一段滑动窗口。它是每层都有的“全局摘要”。</p>
+<div class="f">KV<sub>h</sub> = compress<sub>m′=128</sub>(KV)　　o = Attn( q, KV<sub>h</sub> ∪ KV<sub>window</sub> )　（无 TopK）</div>
+<div class="viz">
+<div class="ctl"><label>上下文长度 = <b id="nv">1M</b></label><input id="n" type="range" min="0" max="4" value="4"></div>
+<div class="out" style="margin:0 0 8px">柱子右侧的数字 = <b>KV 条目数</b>（1 条 = 1 个 token，或压缩后的 1 个块）。上下文长度按 2 的幂取值，所以 1M ≈ 1.05M 条。</div><div style="font-weight:600;font-size:.85rem">① KV 缓存要存多少条（对数刻度）</div><div id="b1"></div>
+<div style="font-weight:600;font-size:.85rem;margin-top:10px">② 每个查询实际要算多少条（对数刻度）</div><div id="b2"></div>
+<div class="out" id="hcaOut"></div>
+</div>
+<div style="font-weight:600;font-size:.88rem">层间排布示意（V4‑Pro 共 61 层）</div>
+<svg id="layers" viewBox="0 0 640 34" style="width:100%;margin-top:6px"></svg>
+<div class="lg"><span><i style="background:var(--a)"></i>HCA 层</span><span><i style="background:var(--b)"></i>CSA 层</span><span>前 2 层为 HCA，之后交错排布（示意）</span></div>
+<ul class="why"><li>CSA 与 HCA 互补：CSA 精准取细节，HCA 提供低成本的全局视野。</li><li>两者交错堆叠，合起来才把 1M 上下文做到实际可用。</li></ul>
+</section>
+
+<!-- mHC -->
+<section class="panel" hidden>
+<h2>mHC <small>Manifold‑Constrained Hyper‑Connections</small></h2>
+<p class="lead">超连接把一条残差流扩成 <b>n 条并行的流</b>，层与层之间用一个矩阵来混合。矩阵不受限时，叠几十层后信号容易爆炸或消失。mHC 把残差混合矩阵约束成<b>双随机矩阵</b>（元素非负，每行每列之和都为 1），信号范数就不会被放大。</p>
+<div class="f">X<sub>l+1</sub> = H<sub>res</sub> · X<sub>l</sub> + H<sub>post</sub><sup>T</sup> · F( H<sub>pre</sub> · X<sub>l</sub> )<br>H<sub>res</sub> ∈ 双随机（Sinkhorn‑Knopp 投影）⇒ ‖H<sub>res</sub>‖₂ ≤ 1</div>
+<div class="viz">
+<div class="ctl"><label>混合矩阵扰动强度 = <b id="sv">0.15</b></label><input id="s" type="range" min="3" max="30" value="15"><button class="b" id="rm">重新采样</button></div>
+<svg id="mhc" viewBox="0 0 640 230"></svg>
+<div class="lg"><span><i style="background:var(--d)"></i>无约束矩阵：连乘 60 层</span><span><i style="background:var(--c)"></i>双随机矩阵：连乘 60 层</span></div>
+<div class="out">纵轴 = 信号大小相对初值的倍数（对数刻度）：红线越过 100× 就是爆炸，绿线始终在 1× 附近就是稳定。</div><div class="out" style="margin-top:12px"><b>下表怎么读：</b>残差流有 4 个“通道”（4 个水桶），每过一层，新桶要由旧桶重新混合。表中第 i 行第 j 列的数 = 新桶 i 里有多少比例来自旧桶 j。<br>• <b>每行和 = 1</b>：新桶只是旧桶的加权平均，不会变得更大。<br>• <b>每列和 = 1</b>：每个旧桶的内容被完整分走，不会被吞掉。<br>• 对角线最深：每个通道主要保留自己，只混入少量其他通道。</div>
+<div id="hm" class="hm" style="margin-top:8px"></div>
+</div>
+<ul class="why"><li>上图只模拟残差混合矩阵的连乘，不含 F；目的是看“恒等路径”能否稳定传信号。</li><li>双随机矩阵的乘积仍是双随机矩阵，所以任意深度都有界。</li></ul>
+</section>
+
+<!-- Muon -->
+<section class="panel" hidden>
+<h2>Muon <small>Momentum + Newton‑Schulz 正交化</small></h2>
+<p class="lead">对权重矩阵的动量 <b>M = UΣVᵀ</b>，Muon 不直接用它更新，而是把所有奇异值“拉平”成 1，只保留方向 <b>UVᵀ</b>。这样没有哪个方向独占更新幅度。矩阵的正交化用 Newton‑Schulz 迭代近似，不必做 SVD。</p>
+<div class="f">X₀ = M / ‖M‖<sub>F</sub>　　X<sub>t+1</sub> = 1.5·X<sub>t</sub> − 0.5·X<sub>t</sub>X<sub>t</sub>ᵀX<sub>t</sub>　→　UVᵀ<br>作用在奇异值上：σ ← 1.5σ − 0.5σ³　（不动点 σ = 1）</div>
+<div class="viz" style="margin-top:0"><b>先看“方向”是什么：</b>任何矩阵都能拆成若干“方向 × 强度”之和：M = σ₁·u₁v₁ᵀ + σ₂·u₂v₂ᵀ + …。σ 就是强度。若 σ₁ = 10、σ₂ = 1，更新几乎只沿方向 1 走，方向 2 学得很慢。Muon 把所有 σ 换成 1，每个方向步长一样大。这就是“在整个矩阵层面”的含义：它调的是矩阵整体的奇异方向，而不是逐个元素。AdamW 则是每个元素独立除以自己的梯度尺度，看不到这种整体方向结构。</div>
+<div class="viz">
+<div class="ctl"><label>迭代步数 = <b id="tv">3</b></label><input id="t" type="range" min="0" max="14" value="3"></div>
+<svg id="mu" viewBox="0 0 640 210"></svg>
+<div class="lg"><span><i style="background:var(--mut2)"></i>原始动量的奇异值（归一化后）</span><span><i style="background:var(--c)"></i>迭代后的奇异值</span></div>
+<div class="out" id="muOut"></div>
+<div style="font-weight:600;font-size:.85rem;margin-top:12px">更新量的“形状”（二维简化：椭圆越扁，说明更新越偏向某个方向）</div>
+<svg id="mu2" viewBox="0 0 640 170" style="max-width:420px;margin:6px auto 0"></svg>
+<div class="out">灰色虚线 = 迭代前，绿色 = 当前。步数拉到足够大时，椭圆变成圆：各方向步长一致。</div>
+</div>
+<ul class="why"><li>这里用最经典的三次形式演示收敛过程；实际实现使用调过系数的多项式，几步就够。</li><li>V4 对大部分模块用 Muon，嵌入等少数参数仍用 AdamW。</li><li>相比 AdamW 的逐元素缩放，Muon 在整个矩阵层面均衡更新方向，目标是更快收敛、更稳定。</li></ul>
+</section>
+
+<p class="note">基于 DeepSeek‑V4 技术报告（arXiv:2606.19348）与 mHC 论文的公开描述制作；图中的 token 数、矩阵尺寸与随机数据均为教学示意，并非真实模型数值。</p>
+</div>
+
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+let seed=11;const rnd=()=>(seed=seed*16807%2147483647)/2147483647;
+const gauss=()=>Math.sqrt(-2*Math.log(rnd()+1e-9))*Math.cos(6.2832*rnd());
+const tabs=$$('.tab'),panels=$$('.panel');
+tabs.forEach((b,i)=>b.onclick=()=>{tabs.forEach(x=>x.setAttribute('aria-selected',x===b));panels.forEach((p,j)=>p.hidden=i!==j)});
+
+/* ---- CSA ---- */
+let rel=[];const newRel=()=>{rel=Array.from({length:16},rnd)};newRel();
+function csa(){
+  const k=+$('#k').value;$('#kv').textContent=k;
+  const sel=rel.map((v,i)=>[v,i]).sort((a,b)=>b[0]-a[0]).slice(0,k).map(x=>x[1]);
+  let h='<text x="0" y="8" font-size="11" fill="var(--mut)">64 个 token 的 KV</text>';
+  for(let t=0;t<64;t++){const w=t>=56;h+=`<rect x="${t*10}" y="14" width="8" height="20" rx="2" fill="${w?'var(--c)':'var(--mut2)'}" opacity="${w?1:.55}"/>`}
+  for(let b=0;b<16;b++){const s=sel.includes(b),x=b*40;
+    h+=`<path d="M${x+19} 36L${x+19} 70" stroke="var(--line)"/><g data-b="${b}" style="cursor:pointer"><rect x="${x+1}" y="70" width="36" height="32" rx="6" fill="var(--b)" fill-opacity="${.12+.75*rel[b]}" stroke="${s?'var(--d)':'var(--line)'}" stroke-width="${s?3:1}"/><text x="${x+19}" y="90" text-anchor="middle" font-size="10" fill="var(--fg)">${b+1}</text></g>`;
+    if(s)h+=`<path d="M${x+19} 104Q${x+19} 160 625 170" fill="none" stroke="var(--d)" stroke-width="1.5" opacity=".7"/>`}
+  h+=`<path d="M${58*10+4} 36Q 600 120 628 160" fill="none" stroke="var(--c)" stroke-width="1.5" opacity=".7"/>`;
+  h+=`<rect x="596" y="166" width="40" height="24" rx="8" fill="var(--a)"/><text x="616" y="183" text-anchor="middle" font-size="13" font-weight="700" fill="#fff">Q</text>`;
+  h+=`<text x="0" y="128" font-size="11" fill="var(--mut)">压缩块（每块 = 4 个 token）</text>`;
+  $('#csa').innerHTML=h;
+  $('#csaOut').innerHTML=`全量注意力需读 <b>64</b> 条 KV，CSA 只读 <b>${k}</b> 个压缩块 + <b>8</b> 个窗口 token = <b>${k+8}</b> 条（约 ${Math.round((k+8)/64*100)}%）`;
+}
+$('#k').oninput=csa;$('#rs').onclick=()=>{newRel();csa()};
+$('#csa').onclick=e=>{const g=e.target.closest('[data-b]');if(g){rel[+g.dataset.b]=1.5;csa()}};
+csa();
+
+/* ---- HCA ---- */
+const N=[4096,16384,65536,262144,1048576],fmt=n=>n>=1048576?'1M':n>=1024?Math.round(n/1024)+'K':n;
+const fm=n=>n>=1e6?(n/1e6).toFixed(2)+'M':n>=1e4?Math.round(n/1e3)+'K':n>=1e3?(n/1e3).toFixed(1)+'K':Math.round(n);
+function bars(id,rows){$(id).innerHTML=rows.map(r=>`<div class="bar"><span>${r[0]}</span><div class="t"><i style="width:${Math.max(2,Math.log10(Math.max(r[1],1))/6.1*100)}%;background:${r[2]}"></i></div><span>${fm(r[1])}</span></div>`).join('')}
+function hca(){
+  const n=N[+$('#n').value];$('#nv').textContent=fmt(n);
+  const csaS=n/4,hcaS=n/128,csaA=Math.min(1024+128,csaS+128),hcaA=hcaS+128;
+  bars('#b1',[['标准注意力',n,'var(--mut2)'],['CSA（÷4）',csaS,'var(--b)'],['HCA（÷128）',hcaS,'var(--a)']]);
+  bars('#b2',[['标准注意力',n,'var(--mut2)'],['CSA（Top‑k+窗口）',csaA,'var(--b)'],['HCA（全部+窗口）',hcaA,'var(--a)']]);
+  $('#hcaOut').innerHTML=`在 <b>${fmt(n)}</b> 上下文下：HCA 缓存只有标准的 <b>1/128</b>，CSA 单查询计算量上限固定在约 <b>1152</b> 条（k=1024 + 窗口 128），不再随长度增长。`;
+}
+$('#n').oninput=hca;hca();
+$('#layers').innerHTML=Array.from({length:61},(_,i)=>`<rect x="${i*10.4}" y="4" width="8.6" height="22" rx="2" fill="${i<2||i%2?'var(--a)':'var(--b)'}"/>`).join('');
+
+/* ---- mHC ---- */
+function sink(L){let M=L.map(r=>r.map(Math.exp));for(let it=0;it<25;it++){M=M.map(r=>{const s=r.reduce((a,b)=>a+b);return r.map(v=>v/s)});for(let j=0;j<4;j++){const s=M.reduce((a,r)=>a+r[j],0);M.forEach(r=>r[j]/=s)}}return M}
+const mv=(M,x)=>M.map(r=>r.reduce((a,v,j)=>a+v*x[j],0)),nrm=x=>Math.hypot(...x);
+function mhc(){
+  const s=+$('#s').value/100;$('#sv').textContent=s.toFixed(2);
+  let xu=[1,.5,-.5,1],xd=[1,.5,-.5,1];const n0=nrm(xu),pu=[1],pd=[1];let last;
+  for(let l=0;l<60;l++){
+    const Mu=[0,1,2,3].map(i=>[0,1,2,3].map(j=>(i===j?1:0)+s*gauss()));
+    last=sink([0,1,2,3].map(i=>[0,1,2,3].map(j=>(i===j?4:0)+s*10*gauss())));
+    xu=mv(Mu,xu);xd=mv(last,xd);pu.push(nrm(xu)/n0);pd.push(nrm(xd)/n0)}
+  const Y=v=>200*(1-(Math.log10(Math.min(Math.max(v,1e-2),1e4))+2)/6)+10,X=l=>40+l*10;
+  const line=(p,c)=>`<polyline fill="none" stroke="${c}" stroke-width="2.5" points="${p.map((v,l)=>X(l)+','+Y(v)).join(' ')}"/>`;
+  let h='';[[1e-2,'0.01×'],[1,'1×（初始）'],[100,'100×'],[1e4,'10⁴×']].forEach(([v,t])=>h+=`<path d="M40 ${Y(v)}H640" stroke="var(--line)" ${v===1?'stroke-dasharray="5 4"':''}/><text x="36" y="${Y(v)+4}" text-anchor="end" font-size="10" fill="var(--mut)">${t}</text>`);
+  h+=line(pu,'var(--d)')+line(pd,'var(--c)')+`<text x="340" y="226" text-anchor="middle" font-size="11" fill="var(--mut)">层数 →</text>`;
+  $('#mhc').innerHTML=h;
+  let g='<div></div>'+[1,2,3,4].map(j=>`<div style="color:var(--mut)">旧桶${j}</div>`).join('')+'<div style="color:var(--c)">行和</div>';
+  last.forEach((r,i)=>{g+=`<div style="color:var(--mut)">新桶${i+1}</div>`+r.map(v=>`<div style="background:rgba(59,130,246,${.1+.7*v})">${v.toFixed(2)}</div>`).join('')+`<div style="color:var(--c)">${r.reduce((a,b)=>a+b).toFixed(2)}</div>`});
+  g+='<div style="color:var(--c)">列和</div>'+[0,1,2,3].map(j=>`<div style="color:var(--c)">${last.reduce((a,r)=>a+r[j],0).toFixed(2)}</div>`).join('')+'<div></div>';
+  $('#hm').innerHTML=g;
+}
+$('#s').oninput=mhc;$('#rm').onclick=mhc;mhc();
+
+/* ---- Muon ---- */
+const s0=[1,.5,.25,.12,.06,.03,.015,.008],fro=Math.hypot(...s0),sn=s0.map(v=>v/fro);
+function mu(){
+  const t=+$('#t').value;$('#tv').textContent=t;
+  let s=sn.slice();for(let i=0;i<t;i++)s=s.map(v=>1.5*v-.5*v**3);
+  const Y=v=>190-v*170;let h=`<path d="M20 ${Y(1)}H640" stroke="var(--c)" stroke-dasharray="5 4"/><text x="22" y="${Y(1)-4}" font-size="10" fill="var(--c)">σ = 1（正交矩阵）</text>`;
+  s.forEach((v,i)=>{const x=50+i*75;
+    h+=`<rect x="${x}" y="${Y(sn[i])}" width="26" height="${190-Y(sn[i])}" rx="4" fill="var(--mut2)" opacity=".6"/><rect x="${x+28}" y="${Y(v)}" width="26" height="${190-Y(v)}" rx="4" fill="var(--c)"/><text x="${x+27}" y="204" text-anchor="middle" font-size="10" fill="var(--mut)">σ${i+1}</text>`});
+  $('#mu').innerHTML=h;
+  const m=Math.max(sn[0],s[0]);
+  $('#mu2').innerHTML=`<ellipse cx="320" cy="85" rx="${sn[0]/m*80}" ry="${Math.max(sn[7]/m*80,1.5)}" fill="none" stroke="var(--mut2)" stroke-dasharray="5 4" stroke-width="2"/><ellipse cx="320" cy="85" rx="${s[0]/m*80}" ry="${Math.max(s[7]/m*80,1.5)}" fill="var(--c)" fill-opacity=".2" stroke="var(--c)" stroke-width="2.5"/><text x="320" y="165" text-anchor="middle" font-size="11" fill="var(--mut)">横轴 = 最强方向 σ₁，纵轴 = 最弱方向 σ₈（两轴同一比例）</text>`;
+  $('#muOut').innerHTML=`最大 / 最小奇异值之比：<b>${(sn[0]/sn[7]).toFixed(0)}×</b> → <b>${(Math.max(...s)/Math.min(...s)).toFixed(2)}×</b>（越接近 1，各方向更新越均衡）`;
+}
+$('#t').oninput=mu;mu();
+</script>
+</body>
+</html>

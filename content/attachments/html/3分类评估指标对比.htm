@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3分类评估指标对比工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 30px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .info-box h3 {
+            margin-bottom: 10px;
+        }
+
+        .info-box ul {
+            margin-left: 20px;
+        }
+
+        .info-box li {
+            margin: 5px 0;
+        }
+
+        .matrix-section {
+            background: #f7fafc;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .matrix-section h2 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .confusion-matrix {
+            display: grid;
+            grid-template-columns: 100px repeat(3, 1fr);
+            gap: 10px;
+            max-width: 600px;
+            margin: 0 auto 20px;
+        }
+
+        .matrix-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #4a5568;
+            font-size: 0.9em;
+        }
+
+        .matrix-input {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .matrix-input label {
+            font-size: 0.75em;
+            color: #718096;
+            font-weight: bold;
+        }
+
+        .matrix-input input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 1.1em;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .matrix-input input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .preset-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .preset-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: bold;
+            transition: transform 0.2s;
+        }
+
+        .preset-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s;
+        }
+
+        .metric-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .metric-card h3 {
+            color: #2d3748;
+            margin-bottom: 5px;
+            font-size: 1.1em;
+        }
+
+        .metric-card .class-label {
+            color: #718096;
+            font-size: 0.85em;
+            margin-bottom: 15px;
+        }
+
+        .metric-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .metric-row:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            color: #4a5568;
+            font-size: 0.9em;
+        }
+
+        .metric-value {
+            font-weight: bold;
+            color: #2d3748;
+            font-family: monospace;
+            font-size: 1.1em;
+        }
+
+        .averaging-section {
+            margin-top: 40px;
+        }
+
+        .averaging-section h2 {
+            text-align: center;
+            color: #2d3748;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+        }
+
+        .avg-card {
+            background: linear-gradient(135deg, #f6f8fb 0%, #ffffff 100%);
+            border-radius: 12px;
+            padding: 25px;
+            border: 3px solid #e2e8f0;
+            transition: all 0.3s;
+        }
+
+        .avg-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.2);
+        }
+
+        .avg-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.5em;
+        }
+
+        .avg-card .description {
+            color: #718096;
+            font-size: 0.9em;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .avg-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .avg-metric-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #e2e8f0;
+        }
+
+        .avg-metric-item .label {
+            color: #718096;
+            font-size: 0.85em;
+            margin-bottom: 8px;
+        }
+
+        .avg-metric-item .value {
+            color: #2d3748;
+            font-size: 1.8em;
+            font-weight: bold;
+            font-family: monospace;
+        }
+
+        .formula-box {
+            background: #edf2f7;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-family: monospace;
+            font-size: 0.85em;
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        .formula-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #2d3748;
+        }
+
+        .tips-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 5px solid #f59e0b;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+
+        .tips-box h3 {
+            color: #92400e;
+            margin-bottom: 10px;
+        }
+
+        .tips-box ul {
+            margin-left: 20px;
+            color: #78350f;
+        }
+
+        .tips-box li {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .confusion-matrix {
+                grid-template-columns: 80px repeat(3, 1fr);
+                gap: 5px;
+            }
+
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 3分类评估指标对比工具</h1>
+        <p class="subtitle">直观对比 Macro、Weighted、Micro 三种平均模式</p>
+
+        <div class="info-box">
+            <h3>📚 工具说明</h3>
+            <ul>
+                <li><strong>混淆矩阵</strong>：输入3x3混淆矩阵，对角线是正确预测的样本数</li>
+                <li><strong>实时计算</strong>：修改任意数值，所有指标自动更新</li>
+                <li><strong>预设案例</strong>：点击下方按钮快速加载典型场景</li>
+                <li><strong>观察重点</strong>：<span style="color: #fbbf24; font-weight: bold;">Macro vs Weighted 的差异</span>（Weighted ≈ Micro 是数学事实）</li>
+            </ul>
+        </div>
+
+        <div class="matrix-section">
+            <h2>📊 混淆矩阵输入（3x3）</h2>
+            <div class="confusion-matrix">
+                <div class="matrix-label"></div>
+                <div class="matrix-label">预测类别1</div>
+                <div class="matrix-label">预测类别2</div>
+                <div class="matrix-label">预测类别3</div>
+
+                <div class="matrix-label">实际类别1</div>
+                <div class="matrix-input">
+                    <input type="number" id="c1-c1" value="85" min="0">
+                </div>
+                <div class="matrix-input">
+                    <input type="number" id="c1-c2" value="10" min="0">
+                </div>
+                <div class="matrix-input">
+                    <input type="number" id="c1-c3" value="5" min="0">
+                </div>
+
+                <div class="matrix-label">实际类别2</div>
+                <div class="matrix-input">
+                    <input type="number" id="c2-c1" value="8" min="0">
+                </div>
+                <div class="matrix-input">
+                    <input type="number" id="c2-c2" value="75" min="0">
+                </div>
+                <div class="matrix-input">
+                    <input type="number" id="c2-c3" value="12" min="0">
+                </div>
+
+                <div class="matrix-label">实际类别3</div>
+                <div class="matrix-input">
+                    <input type="number" id="c3-c1" value="7" min="0">
+                </div>
+                <div class="matrix-input">
+                    <input type="number" id="c3-c2" value="15" min="0">
+                </div>
+                <div class="matrix-input">
+                    <input type="number" id="c3-c3" value="83" min="0">
+                </div>
+            </div>
+
+            <div class="preset-buttons">
+                <button class="preset-btn" onclick="loadPreset('extremeImbalance')">🔥 极度不均衡</button>
+                <button class="preset-btn" onclick="loadPreset('minorityPoor')">🔍 少数类差 (Macro↓)</button>
+                <button class="preset-btn" onclick="loadPreset('majorityPoor')">📊 多数类差 (Weighted↓)</button>
+                <button class="preset-btn" onclick="loadPreset('balancedDiverse')">🎭 均衡但差异大</button>
+                <button class="preset-btn" onclick="loadPreset('balancedConsistent')">⚖️ 均衡且一致</button>
+                <button class="preset-btn" onclick="loadPreset('perfect')">🌟 完美分类</button>
+                <button class="preset-btn" onclick="loadPreset('random')">🎲 随机分类</button>
+                <button class="preset-btn" onclick="loadPreset('clear')">🔄 重置为0</button>
+            </div>
+        </div>
+
+        <h2 style="text-align: center; color: #2d3748; margin-bottom: 20px;">📈 各类别详细指标</h2>
+        <div class="metrics-grid" id="classMetrics"></div>
+
+        <div class="averaging-section">
+            <h2>🎭 三种平均模式对比</h2>
+            <div class="metrics-grid" id="averagingMetrics"></div>
+        </div>
+
+        <div class="tips-box">
+            <h3>💡 为什么 Weighted 和 Micro 如此接近？</h3>
+            <ul>
+                <li><strong>🔬 数学证明</strong>：
+                    <ul style="margin-top: 8px;">
+                        <li>• <strong>Weighted Recall</strong> = Σ(Recall_i × Support_i) / ΣSupport = Σ(TP_i/(TP_i+FN_i) × (TP_i+FN_i)) / ΣSupport = <strong>ΣTP_i / ΣSupport</strong></li>
+                        <li>• <strong>Micro Recall</strong> = ΣTP_i / (ΣTP_i + ΣFN_i) = ΣTP_i / ΣSupport（因为Support = TP+FN）</li>
+                        <li>• 结论：<strong>Weighted Recall ≡ Micro Recall</strong>（数学上完全相等！）</li>
+                    </ul>
+                </li>
+                <li><strong>📊 Precision 为什么也很接近？</strong>
+                    <ul style="margin-top: 8px;">
+                        <li>• Weighted Precision = Σ(TP_i/(TP_i+FP_i) × Support_i) / ΣSupport</li>
+                        <li>• Micro Precision = ΣTP_i / (ΣTP_i + ΣFP_i)</li>
+                        <li>• 在多分类中，这两个公式通常给出非常接近的结果（但不完全相等）</li>
+                        <li>• 只有在极端的、特定的混淆模式下，差异才会稍微明显（但仍然很小）</li>
+                    </ul>
+                </li>
+                <li><strong>🎯 那么 Macro 的意义是什么？</strong>
+                    <ul style="margin-top: 8px;">
+                        <li>• <strong>Macro</strong>：每个类别平等权重，<span style="color: #dc2626; font-weight: bold;">对少数类的表现非常敏感</span></li>
+                        <li>• <strong>Weighted/Micro</strong>：偏向样本多的类别，反映整体效果</li>
+                        <li>• 试试"🔍少数类差"案例：类别3样本少且表现差 → Macro显著降低，但Weighted/Micro影响很小</li>
+                        <li>• <strong>实际应用</strong>：如果 Macro ≪ Weighted，说明少数类表现很差；如果关心所有类别，应优化少数类</li>
+                    </ul>
+                </li>
+                <li><strong>🔍 观察建议</strong>：
+                    <ul style="margin-top: 8px;">
+                        <li>1. 点击不同预设按钮，重点观察 <strong>Macro vs Weighted</strong> 的差异（这才是关键对比）</li>
+                        <li>2. "Weighted vs Micro 差异分析"区域会验证 Recall 始终为 0.000%</li>
+                        <li>3. Precision 和 F1 的差异通常也在 0.1% 以内，除非极端场景</li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // 获取所有输入框
+        const inputs = {
+            c1_c1: document.getElementById('c1-c1'),
+            c1_c2: document.getElementById('c1-c2'),
+            c1_c3: document.getElementById('c1-c3'),
+            c2_c1: document.getElementById('c2-c1'),
+            c2_c2: document.getElementById('c2-c2'),
+            c2_c3: document.getElementById('c2-c3'),
+            c3_c1: document.getElementById('c3-c1'),
+            c3_c2: document.getElementById('c3-c2'),
+            c3_c3: document.getElementById('c3-c3')
+        };
+
+        // 预设案例 - 设计用于对比三种平均方式的典型场景
+        const presets = {
+            // 场景1: 极度不均衡 + 单向混淆 - 尝试拉开Weighted和Micro的差距
+            extremeImbalance: [200, 50, 0, 5, 40, 5, 0, 0, 10],
+            // 场景2: 极度不均衡，少数类表现差 - Macro被拉低
+            minorityPoor: [180, 10, 10, 5, 50, 15, 3, 7, 20],
+            // 场景3: 极度不均衡，多数类表现差 - Weighted被拉低
+            majorityPoor: [60, 30, 30, 8, 80, 12, 5, 10, 85],
+            // 场景4: 样本均衡，表现差异大 - Macro vs 其他
+            balancedDiverse: [90, 5, 5, 15, 60, 25, 10, 20, 70],
+            // 场景5: 样本均衡，表现一致 - 三者结果相同
+            balancedConsistent: [85, 10, 5, 10, 80, 10, 8, 12, 80],
+            // 场景6: 完美分类
+            perfect: [100, 0, 0, 0, 100, 0, 0, 0, 100],
+            // 场景7: 随机分类
+            random: [35, 32, 33, 30, 38, 32, 33, 35, 32],
+            // 场景8: 重置
+            clear: [0, 0, 0, 0, 0, 0, 0, 0, 0]
+        };
+
+        // 加载预设
+        function loadPreset(type) {
+            const values = presets[type];
+            const inputArray = Object.values(inputs);
+            inputArray.forEach((input, idx) => {
+                input.value = values[idx];
+            });
+            calculate();
+        }
+
+        // 读取混淆矩阵
+        function getMatrix() {
+            return [
+                [+inputs.c1_c1.value, +inputs.c1_c2.value, +inputs.c1_c3.value],
+                [+inputs.c2_c1.value, +inputs.c2_c2.value, +inputs.c2_c3.value],
+                [+inputs.c3_c1.value, +inputs.c3_c2.value, +inputs.c3_c3.value]
+            ];
+        }
+
+        // 计算单个类别的指标
+        function calcClassMetrics(classIdx, matrix) {
+            const tp = matrix[classIdx][classIdx];
+
+            // FP: 其他行该列的和
+            let fp = 0;
+            for (let i = 0; i < 3; i++) {
+                if (i !== classIdx) {
+                    fp += matrix[i][classIdx];
+                }
+            }
+
+            // FN: 该行其他列的和
+            let fn = 0;
+            for (let j = 0; j < 3; j++) {
+                if (j !== classIdx) {
+                    fn += matrix[classIdx][j];
+                }
+            }
+
+            // TN: 其他行其他列的和
+            let tn = 0;
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    if (i !== classIdx && j !== classIdx) {
+                        tn += matrix[i][j];
+                    }
+                }
+            }
+
+            const precision = (tp + fp) > 0 ? tp / (tp + fp) : 0;
+            const recall = (tp + fn) > 0 ? tp / (tp + fn) : 0;
+            const f1 = (precision + recall) > 0 ? (2 * precision * recall) / (precision + recall) : 0;
+            const accuracy = (tp + tn) / (tp + fp + fn + tn);
+            const support = tp + fn;
+
+            return { tp, fp, fn, tn, precision, recall, f1, accuracy, support };
+        }
+
+        // 格式化百分比
+        function formatPercent(val) {
+            return (val * 100).toFixed(1) + '%';
+        }
+
+        // 计算并更新显示
+        function calculate() {
+            const matrix = getMatrix();
+
+            // 计算三个类别的指标
+            const class1 = calcClassMetrics(0, matrix);
+            const class2 = calcClassMetrics(1, matrix);
+            const class3 = calcClassMetrics(2, matrix);
+
+            const classes = [class1, class2, class3];
+            const totalSupport = class1.support + class2.support + class3.support;
+            const totalSamples = matrix.flat().reduce((a, b) => a + b, 0);
+
+            // 显示各类别指标
+            const classMetricsHTML = classes.map((cls, idx) => `
+                <div class="metric-card">
+                    <h3>类别 ${idx + 1}</h3>
+                    <div class="class-label">样本数: ${cls.support} / 总计: ${totalSamples}</div>
+                    <div class="metric-row">
+                        <span class="metric-label">精确率 (Precision)</span>
+                        <span class="metric-value">${formatPercent(cls.precision)}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">召回率 (Recall)</span>
+                        <span class="metric-value">${formatPercent(cls.recall)}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">F1 分数</span>
+                        <span class="metric-value">${formatPercent(cls.f1)}</span>
+                    </div>
+                    <div class="metric-row">
+                        <span class="metric-label">准确率 (Accuracy)</span>
+                        <span class="metric-value">${formatPercent(cls.accuracy)}</span>
+                    </div>
+                    <div class="formula-box">
+                        <div class="formula-title">混淆矩阵元素:</div>
+                        TP=${cls.tp}, FP=${cls.fp}<br>
+                        FN=${cls.fn}, TN=${cls.tn}
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('classMetrics').innerHTML = classMetricsHTML;
+
+            // 计算 Macro 平均
+            const macroAvg = {
+                precision: (class1.precision + class2.precision + class3.precision) / 3,
+                recall: (class1.recall + class2.recall + class3.recall) / 3,
+                f1: (class1.f1 + class2.f1 + class3.f1) / 3,
+                accuracy: (class1.accuracy + class2.accuracy + class3.accuracy) / 3
+            };
+
+            // 计算 Weighted 平均
+            const weightedAvg = {
+                precision: totalSupport > 0 ?
+                    (class1.precision * class1.support + class2.precision * class2.support + class3.precision * class3.support) / totalSupport : 0,
+                recall: totalSupport > 0 ?
+                    (class1.recall * class1.support + class2.recall * class2.support + class3.recall * class3.support) / totalSupport : 0,
+                f1: totalSupport > 0 ?
+                    (class1.f1 * class1.support + class2.f1 * class2.support + class3.f1 * class3.support) / totalSupport : 0,
+                accuracy: (class1.accuracy + class2.accuracy + class3.accuracy) / 3
+            };
+
+            // 计算 Micro 平均
+            const microTP = class1.tp + class2.tp + class3.tp;
+            const microFP = class1.fp + class2.fp + class3.fp;
+            const microFN = class1.fn + class2.fn + class3.fn;
+            const microTN = class1.tn + class2.tn + class3.tn;
+
+            const microAvg = {
+                precision: (microTP + microFP) > 0 ? microTP / (microTP + microFP) : 0,
+                recall: (microTP + microFN) > 0 ? microTP / (microTP + microFN) : 0,
+                f1: 0,
+                accuracy: (microTP + microTN + microFP + microFN) > 0 ?
+                    (microTP + microTN) / (microTP + microTN + microFP + microFN) : 0
+            };
+            microAvg.f1 = (microAvg.precision + microAvg.recall) > 0 ?
+                (2 * microAvg.precision * microAvg.recall) / (microAvg.precision + microAvg.recall) : 0;
+
+            // 显示平均指标
+            const avgHTML = `
+                <div class="avg-card">
+                    <h3>🎯 Macro 平均</h3>
+                    <div class="description">对每个类别平等对待，计算简单算术平均值。适合关注所有类别（包括少数类）的场景。</div>
+                    <div class="avg-metrics">
+                        <div class="avg-metric-item">
+                            <div class="label">Precision</div>
+                            <div class="value">${formatPercent(macroAvg.precision)}</div>
+                        </div>
+                        <div class="avg-metric-item">
+                            <div class="label">Recall</div>
+                            <div class="value">${formatPercent(macroAvg.recall)}</div>
+                        </div>
+                        <div class="avg-metric-item">
+                            <div class="label">F1 Score</div>
+                            <div class="value">${formatPercent(macroAvg.f1)}</div>
+                        </div>
+                        <div class="avg-metric-item">
+                            <div class="label">Accuracy</div>
+                            <div class="value">${formatPercent(macroAvg.accuracy)}</div>
+                        </div>
+                    </div>
+                    <div class="formula-box">
+                        <div class="formula-title">计算公式:</div>
+                        Precision = (${formatPercent(class1.precision)} + ${formatPercent(class2.precision)} + ${formatPercent(class3.precision)}) / 3<br>
+                        Recall = (${formatPercent(class1.recall)} + ${formatPercent(class2.recall)} + ${formatPercent(class3.recall)}) / 3<br>
+                        F1 = (${formatPercent(class1.f1)} + ${formatPercent(class2.f1)} + ${formatPercent(class3.f1)}) / 3
+                    </div>
+                </div>
+
+                <div class="avg-card">
+                    <h3>⚖️ Weighted 平均</h3>
+                    <div class="description">按各类别的实际样本数进行加权平均。适合样本不均衡且关注整体效果的场景。</div>
+                    <div class="avg-metrics">
+                        <div class="avg-metric-item">
+                            <div class="label">Precision</div>
+                            <div class="value">${formatPercent(weightedAvg.precision)}</div>
+                        </div>
+                        <div class="avg-metric-item">
+                            <div class="label">Recall</div>
+                            <div class="value">${formatPercent(weightedAvg.recall)}</div>
+                        </div>
+                        <div class="avg-metric-item">
+                            <div class="label">F1 Score</div>
+                            <div class="value">${formatPercent(weightedAvg.f1)}</div>
+                        </div>
+                        <div class="avg-metric-item">
+                            <div class="label">Accuracy</div>
+                            <div class="value">${formatPercent(weightedAvg.accuracy)}</div>
+                        </div>
+                    </div>
+                    <div class="formula-box">
+                        <div class="formula-title">计算公式:</div>
+                        样本权重: 类别1=${class1.support}, 类别2=${class2.support}, 类别3=${class3.support}<br>
+                        Precision = (${formatPercent(class1.precision)}×${class1.support} + ${formatPercent(class2.precision)}×${class2.support} + ${formatPercent(class3.precision)}×${class3.support}) / ${totalSupport}<br>
+                        Recall同理按support加权
+                    </div>
+                </div>
+
+                <div class="avg-card">
+                    <h3>🔬 Micro 平均</h3>
+                    <div class="description">汇总所有类别的TP、FP、FN、TN后统一计算。在多分类中，Precision = Recall = F1（准确率需要包含TN）。</div>
+                    <div class="avg-metrics">
+                        <div class="avg-metric-item">
+                            <div class="label">Precision</div>
+                            <div class="value">${formatPercent(microAvg.precision)}</div>
+                        </div>
+                        <div class="avg-metric-item">
+                            <div class="label">Recall</div>
+                            <div class="value">${formatPercent(microAvg.recall)}</div>
+                        </div>
+                        <div class="avg-metric-item">
+                            <div class="label">F1 Score</div>
+                            <div class="value">${formatPercent(microAvg.f1)}</div>
+                        </div>
+                        <div class="avg-metric-item">
+                            <div class="label">Accuracy</div>
+                            <div class="value">${formatPercent(microAvg.accuracy)}</div>
+                        </div>
+                    </div>
+                    <div class="formula-box">
+                        <div class="formula-title">计算公式:</div>
+                        汇总: TP=${microTP}, FP=${microFP}, FN=${microFN}, TN=${microTN}<br>
+                        Precision = ${microTP} / (${microTP}+${microFP}) = ${formatPercent(microAvg.precision)}<br>
+                        Recall = ${microTP} / (${microTP}+${microFN}) = ${formatPercent(microAvg.recall)}<br>
+                        Accuracy = (${microTP}+${microTN}) / (${microTP}+${microTN}+${microFP}+${microFN}) = ${formatPercent(microAvg.accuracy)}<br>
+                        注: Precision = Recall = F1 (在多分类中)
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('averagingMetrics').innerHTML = avgHTML;
+
+            // 计算并显示 Weighted vs Micro 差异
+            const diffPrecision = Math.abs(weightedAvg.precision - microAvg.precision);
+            const diffRecall = Math.abs(weightedAvg.recall - microAvg.recall);
+            const diffF1 = Math.abs(weightedAvg.f1 - microAvg.f1);
+            const diffAccuracy = Math.abs(weightedAvg.accuracy - microAvg.accuracy);
+
+            const diffHTML = `
+                <div style="background: linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 100%); padding: 20px; border-radius: 10px; border: 2px solid #a78bfa; margin-top: 20px;">
+                    <h3 style="color: #5b21b6; margin-bottom: 15px; text-align: center;">📊 Weighted vs Micro 差异分析</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                        <div style="background: white; padding: 15px; border-radius: 8px; text-align: center;">
+                            <div style="color: #6b7280; font-size: 0.9em; margin-bottom: 5px;">Precision 差异</div>
+                            <div style="font-size: 1.5em; font-weight: bold; color: ${diffPrecision > 0.02 ? '#ef4444' : '#10b981'}; font-family: monospace;">
+                                ${(diffPrecision * 100).toFixed(3)}%
+                            </div>
+                        </div>
+                        <div style="background: white; padding: 15px; border-radius: 8px; text-align: center;">
+                            <div style="color: #6b7280; font-size: 0.9em; margin-bottom: 5px;">Recall 差异</div>
+                            <div style="font-size: 1.5em; font-weight: bold; color: ${diffRecall > 0.02 ? '#ef4444' : '#10b981'}; font-family: monospace;">
+                                ${(diffRecall * 100).toFixed(3)}%
+                            </div>
+                        </div>
+                        <div style="background: white; padding: 15px; border-radius: 8px; text-align: center;">
+                            <div style="color: #6b7280; font-size: 0.9em; margin-bottom: 5px;">F1 差异</div>
+                            <div style="font-size: 1.5em; font-weight: bold; color: ${diffF1 > 0.02 ? '#ef4444' : '#10b981'}; font-family: monospace;">
+                                ${(diffF1 * 100).toFixed(3)}%
+                            </div>
+                        </div>
+                        <div style="background: white; padding: 15px; border-radius: 8px; text-align: center;">
+                            <div style="color: #6b7280; font-size: 0.9em; margin-bottom: 5px;">Accuracy 差异</div>
+                            <div style="font-size: 1.5em; font-weight: bold; color: ${diffAccuracy > 0.02 ? '#ef4444' : '#10b981'}; font-family: monospace;">
+                                ${(diffAccuracy * 100).toFixed(3)}%
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px; padding: 12px; background: rgba(139, 92, 246, 0.1); border-radius: 6px; font-size: 0.9em; color: #5b21b6;">
+                        <strong>数学事实：</strong>在多分类中，Weighted Recall = Micro Recall（理论上完全相等），所以Recall差异应该是0.000%。
+                        Precision通常也非常接近，因此F1也很接近。差异>2%时用红色标记。
+                    </div>
+                </div>
+            `;
+
+            const existingDiff = document.getElementById('diffAnalysis');
+            if (existingDiff) {
+                existingDiff.innerHTML = diffHTML;
+            } else {
+                const avgSection = document.querySelector('.averaging-section');
+                const diffDiv = document.createElement('div');
+                diffDiv.id = 'diffAnalysis';
+                diffDiv.innerHTML = diffHTML;
+                avgSection.appendChild(diffDiv);
+            }
+        }
+
+        // 为所有输入框添加事件监听
+        Object.values(inputs).forEach(input => {
+            input.addEventListener('input', calculate);
+        });
+
+        // 初始计算
+        calculate();
+    </script>
+</body>
+</html>

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>8.8 多Agent智能体 · 七种协作方式全景图</title>
+<style>
+  :root {
+    --bg-main: #f8fafc;
+    --card-bg: #ffffff;
+    --border-color: #e2e8f0;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    --stroke-edge: #94a3b8;
+    --stroke-edge-hl: #2563eb;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 32px 24px;
+    background: var(--bg-main);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .container { max-width: 1200px; width: 100%; }
+  .header { margin-bottom: 20px; }
+
+  h1 { font-size: 22px; font-weight: 700; margin: 0 0 6px 0; color: var(--text-primary); letter-spacing: -0.02em; }
+  .sub { font-size: 13.5px; color: var(--text-secondary); margin: 0 0 16px 0; }
+  .sub code { background: #eff6ff; color: #1d4ed8; padding: 2px 6px; border-radius: 4px; font-family: "Fira Code", Consolas, Monaco, monospace; font-size: 12.5px; }
+
+  .canvas-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+    padding: 20px;
+    overflow: hidden;
+  }
+
+  svg { width: 100%; height: auto; display: block; }
+  text { user-select: none; }
+
+  .node-group { cursor: pointer; transition: transform 0.2s ease; }
+  .node-group:hover rect { filter: brightness(0.97); stroke-width: 2px; }
+
+  .axe { stroke: var(--stroke-edge); stroke-width: 2; stroke-linecap: round; }
+  .nmain { font-size: 13px; font-weight: 700; text-anchor: middle; }
+  .ndef { font-size: 11px; font-weight: 600; text-anchor: middle; }
+  .ntools { font-size: 10px; text-anchor: middle; }
+  .badge { font-size: 12px; font-weight: 700; text-anchor: middle; }
+
+  .route-table { margin-top: 20px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px 24px; font-size: 13.5px; color: var(--text-secondary); line-height: 1.8; }
+  .route-table p { margin: 6px 0; }
+  .route-table b { color: var(--text-primary); }
+  .route-table code { background: #f1f5f9; color: #0f172a; border: 1px solid #e2e8f0; border-radius: 4px; padding: 1px 6px; font-family: Consolas, Monaco, monospace; font-size: 12px; }
+  .vs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 10px; }
+  .vs-col { border: 1px solid var(--border-color); border-radius: 12px; padding: 16px 20px; }
+  .vs-col h3 { margin: 0 0 10px 0; font-size: 15px; }
+  .vs-col ul { margin: 0; padding-left: 18px; }
+  .vs-col li { margin: 4px 0; }
+  .vs-dir { color: var(--text-muted); font-size: 12.5px; margin-top: 10px; }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>8.8 多 Agent 智能体 · 七种协作方式全景图</h1>
+    <p class="sub">横轴 = 编排重心（静态/硬编码 → 动态/协商）｜ 纵轴 = 开放度（应用内/框架内 → 跨应用/开放）｜ 三个 ★ 为 8.8 重点对比方</p>
+  </div>
+
+  <div class="canvas-card">
+    <svg viewBox="0 0 1180 640" aria-label="多Agent七种协作方式定位图" xmlns="http://www.w3.org/2000/svg">
+
+      <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+          <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#94a3b8"/>
+        </marker>
+        <filter id="shadow" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+          <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity="0.06" />
+        </filter>
+        <pattern id="bandOpen" width="1180" height="1" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="1180" y2="0" stroke="#f0f9ff" stroke-width="1"/>
+        </pattern>
+      </defs>
+
+      <!-- 图例 -->
+      <g id="legend" filter="url(#shadow)">
+        <rect x="30" y="28" width="1120" height="52" rx="12" fill="#ffffff" stroke="#e2e8f0" stroke-width="1"/>
+        <text x="52" y="52" font-size="13" font-weight="700" fill="#0f172a" dominant-baseline="middle">图例</text>
+        <rect x="120" y="40" width="16" height="16" rx="4" fill="#fff7ed" stroke="#f59e0b" stroke-width="1.2"/>
+        <text x="144" y="52" font-size="12.5" fill="#334155" dominant-baseline="middle">★ ① 第8章 · Orchestrator（应用内 · 静态）</text>
+        <rect x="450" y="40" width="16" height="16" rx="4" fill="#eff6ff" stroke="#2563eb" stroke-width="1.2"/>
+        <text x="474" y="52" font-size="12.5" fill="#334155" dominant-baseline="middle">★ ② AI-Coding · 主Agent+子Agent池</text>
+        <rect x="750" y="40" width="16" height="16" rx="4" fill="#ecfdf5" stroke="#10b981" stroke-width="1.2"/>
+        <text x="774" y="52" font-size="12.5" fill="#334155" dominant-baseline="middle">★ ⑦ 跨应用 · A2A+MCP</text>
+        <text x="1000" y="52" font-size="11" fill="#7c3aed" dominant-baseline="middle" font-weight="600">卡片底行＝LangGraph API</text>
+      </g>
+
+      <!-- 象限背景分带：上=跨应用开放，下=应用内框架内 -->
+      <rect x="95" y="100" width="1050" height="248" fill="#f0f9ff" opacity="0.5"/>
+      <rect x="95" y="348" width="1050" height="192" fill="#f8fafc" opacity="0.6"/>
+
+      <!-- 坐标轴 -->
+      <line class="axe" x1="95" y1="545" x2="1145" y2="545" marker-end="url(#arr)"/>
+      <line class="axe" x1="95" y1="545" x2="95" y2="100" marker-end="url(#arr)"/>
+      <text x="1120" y="565" font-size="12.5" font-weight="700" fill="#475569" text-anchor="end">编排重心 → 动态 / 协商</text>
+      <text x="330" y="565" font-size="12" fill="#94a3b8" text-anchor="middle">静态 / 硬编码</text>
+      <text x="70" y="112" font-size="12.5" font-weight="700" fill="#475569" text-anchor="middle">开</text>
+      <text x="70" y="128" font-size="12.5" font-weight="700" fill="#475569" text-anchor="middle">放</text>
+      <text x="70" y="144" font-size="12.5" font-weight="700" fill="#475569" text-anchor="middle">度</text>
+      <text x="84" y="582" font-size="12" fill="#94a3b8">应用内 / 框架内</text>
+      <text x="96" y="108" font-size="12" fill="#7dd3fc">跨应用 / 开放</text>
+
+      <!-- 七个协作方式卡片：名称 / 一句话机制 / 代表工具 / LangGraph API -->
+      <g id="nodes">
+        <!-- ① Orchestrator（★第8章）· 底部左 -->
+        <g class="node-group">
+          <rect x="140" y="398" width="230" height="104" rx="12" fill="#fff7ed" stroke="#f59e0b" stroke-width="1.8" filter="url(#shadow)"/>
+          <text x="255" y="418" class="nmain" fill="#b45309">① Orchestrator / Supervisor</text>
+          <text x="255" y="440" class="ndef" fill="#b45309">中心调度器定"下一步派给谁"</text>
+          <text x="255" y="458" class="ntools" fill="#d97706">★ 第8章 · LangGraph supervisor · CrewAI</text>
+          <text x="255" y="478" class="ntools" fill="#d97706">进程内直调 · 硬编码 Pipeline</text>
+          <text x="255" y="494" class="ntools" fill="#7c3aed">LangGraph: create_supervisor</text>
+        </g>
+
+        <!-- ④ 图/DAG 流水线 · 底部中左 -->
+        <g class="node-group">
+          <rect x="395" y="398" width="230" height="104" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.2" filter="url(#shadow)"/>
+          <text x="510" y="418" class="nmain" fill="#334155">④ 图 / DAG 流水线</text>
+          <text x="510" y="440" class="ndef" fill="#334155">把任务画成有向图，沿边依次执行</text>
+          <text x="510" y="458" class="ntools" fill="#64748b">LangGraph · Temporal</text>
+          <text x="510" y="478" class="ntools" fill="#64748b">编译期顺序 · 确定可重放</text>
+          <text x="510" y="494" class="ntools" fill="#7c3aed">LangGraph: 子图作为节点</text>
+        </g>
+
+        <!-- ③ Swarm / Handoff 委派 · 底部中右 -->
+        <g class="node-group">
+          <rect x="650" y="398" width="230" height="104" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.2" filter="url(#shadow)"/>
+          <text x="765" y="418" class="nmain" fill="#334155">③ Swarm / Handoff（对等移交）</text>
+          <text x="765" y="440" class="ndef" fill="#334155">无监督者 · Agent 间直接移交控制权</text>
+          <text x="765" y="458" class="ntools" fill="#64748b">OpenAI Swarm · langgraph-swarm</text>
+          <text x="765" y="478" class="ntools" fill="#64748b">对等 · 无固定中心</text>
+          <text x="765" y="494" class="ntools" fill="#7c3aed">LangGraph: Command(goto, PARENT)</text>
+        </g>
+
+        <!-- ② 主Agent+子Agent池（★AI-Coding主流）· 底部右 -->
+        <g class="node-group">
+          <rect x="905" y="398" width="230" height="104" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="1.8" filter="url(#shadow)"/>
+          <text x="1020" y="418" class="nmain" fill="#1d4ed8">② 主 Agent + 子 Agent 池</text>
+          <text x="1020" y="440" class="ndef" fill="#1d4ed8">主Agent运行时临时spawn子Agent干活</text>
+          <text x="1020" y="458" class="ntools" fill="#2563eb">★ AI-Coding主流 · Claude Code · Codex</text>
+          <text x="1020" y="478" class="ntools" fill="#2563eb">OpenCode · Hermes · 干完回收</text>
+          <text x="1020" y="494" class="ntools" fill="#7c3aed">LangGraph: create_subagent</text>
+        </g>
+
+        <!-- ⑥ 分层 Supervisor · 顶部左 -->
+        <g class="node-group">
+          <rect x="150" y="240" width="230" height="104" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.2" filter="url(#shadow)"/>
+          <text x="265" y="260" class="nmain" fill="#334155">⑥ 分层 Supervisor</text>
+          <text x="265" y="282" class="ndef" fill="#334155">Supervisor 下再有 Supervisor</text>
+          <text x="265" y="300" class="ntools" fill="#64748b">LangGraph 嵌套 · Bedrock</text>
+          <text x="265" y="320" class="ntools" fill="#64748b">Claude Agent SDK · 树状策略</text>
+          <text x="265" y="336" class="ntools" fill="#7c3aed">LangGraph: 嵌套 create_supervisor</text>
+        </g>
+
+        <!-- ⑤ 群聊 / 黑板 · 顶中 -->
+        <g class="node-group">
+          <rect x="430" y="240" width="230" height="104" rx="12" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.2" filter="url(#shadow)"/>
+          <text x="545" y="260" class="nmain" fill="#334155">⑤ 群聊 / 黑板</text>
+          <text x="545" y="282" class="ndef" fill="#334155">共享空间互相发言/投票，协商推进</text>
+          <text x="545" y="300" class="ntools" fill="#64748b">MS Agent Framework（原AutoGen）</text>
+          <text x="545" y="320" class="ntools" fill="#64748b">CrewAI · 多对多</text>
+          <text x="545" y="336" class="ntools" fill="#7c3aed">LangGraph: 群聊需自建/用其它框架</text>
+        </g>
+
+        <!-- ⑦ A2A + MCP（★跨应用互操作）· 顶右 -->
+        <g class="node-group">
+          <rect x="905" y="240" width="230" height="104" rx="12" fill="#ecfdf5" stroke="#10b981" stroke-width="1.8" filter="url(#shadow)"/>
+          <text x="1020" y="260" class="nmain" fill="#047857">⑦ A2A + MCP（联邦协议）</text>
+          <text x="1020" y="282" class="ndef" fill="#047857">跨厂商Agent用开放协议发现+派任务</text>
+          <text x="1020" y="300" class="ntools" fill="#059669">★ 跨应用 · Agent Card 发现</text>
+          <text x="1020" y="320" class="ntools" fill="#059669">Agent↔Agent · JSON-RPC 任务</text>
+          <text x="1020" y="336" class="ntools" fill="#7c3aed">非框架 · A2A 开放协议</text>
+        </g>
+
+        <!-- 高亮连线：三个★的归属 -->
+        <g>
+          <path d="M 255 502 L 255 545" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.6"/>
+          <path d="M 1020 502 L 1020 545" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.6"/>
+          <path d="M 1020 344 L 1020 380" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.6"/>
+        </g>
+      </g>
+
+      <!-- 底部读取方向提示 -->
+      <text x="600" y="610" font-size="12.5" fill="#64748b" text-anchor="middle">越靠右 = 编排越动态（LLM 运行时决定） ｜ 越靠上 = 开放度越高（可跨系统互操作）</text>
+    </svg>
+  </div>
+
+  <div class="route-table">
+    <p><b>第 8 章 vs A2A —— 一个「导演」，一个「外交协议」</b></p>
+    <div class="vs-grid">
+      <div class="vs-col">
+        <h3>🎬 第 8 章 Orchestrator（应用内）</h3>
+        <ul>
+          <li>通信：<code>进程内直调</code> <code>graph.ainvoke</code></li>
+          <li>编排：中心调度器 + <b>硬编码</b> Pipeline</li>
+          <li>发现：<code>_LABEL_TO_AGENT</code> 映射表（写死）</li>
+          <li>开放度：<b>封闭</b> · 同框架 LangGraph · 单进程</li>
+          <li>状态：共享 MemorySaver 检查点（thread_id）</li>
+        </ul>
+        <p class="vs-dir">→ 高效、可控、省；但只在「这个剧组」内有效。</p>
+      </div>
+      <div class="vs-col">
+        <h3>🤝 A2A 协议（跨应用）</h3>
+        <ul>
+          <li>通信：<code>JSON-RPC 2.0</code> 走 HTTP/SSE/WebSocket</li>
+          <li>编排：去中心 · 任何 Agent 都能给任何 Agent 派任务</li>
+          <li>发现：<b>动态</b> Agent Card（Well-Known URL）+ 目录</li>
+          <li>开放度：<b>开放</b> · 框架无关 · 跨厂商</li>
+          <li>状态：任务级状态机（working/completed/…）</li>
+        </ul>
+        <p class="vs-dir">→ 开放、标准、可扩展；但不管「内部怎么编排」。</p>
+      </div>
+    </div>
+    <p style="margin-top:12px; color:var(--text-primary);"><b>二者互补</b>：对内（同框架同进程）用 Orchestrator，对外（跨系统互操作）用 A2A —— <b>MCP 管 Agent↔Tool，A2A 管 Agent↔Agent</b>。</p>
+  </div>
+</div>
+
+</body>
+</html>

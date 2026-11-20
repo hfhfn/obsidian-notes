@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>召回率 · 精确率 · F1 — 阈值直觉</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg0: #f7f6f2;
+  --bg1: #ffffff;
+  --bg2: #f0efe9;
+  --txt0: #1c1c1a;
+  --txt1: #6b6961;
+  --txt2: #9c9a92;
+  --border: rgba(0,0,0,0.10);
+  --border2: rgba(0,0,0,0.06);
+  --r: #c0392b;   --r-bg: #fdf0ef; --r-mid: #e74c3c;
+  --b: #185fa5;   --b-bg: #eef5fc; --b-mid: #2980b9;
+  --g: #27a05c;   --g-bg: #edfaf3; --g-mid: #2ecc71;
+  --gray: #888780; --gray-bg: #f4f3ee;
+  --tp: #1a6b3c;  --tp-bg: #d4f0e2;
+  --fp: #8b2500;  --fp-bg: #fde8e2;
+  --fn: #1a4a7a;  --fn-bg: #deeaf8;
+  --tn: #4a4a46;  --tn-bg: #eeede8;
+  --thresh: #7c3aed;
+  --radius: 10px;
+  --font: -apple-system, "Helvetica Neue", sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg0: #141412; --bg1: #1e1e1b; --bg2: #252522;
+    --txt0: #e8e6de; --txt1: #9c9a91; --txt2: #6b6960;
+    --border: rgba(255,255,255,0.09); --border2: rgba(255,255,255,0.05);
+    --r: #e07070; --r-bg: #3a1a1a; --r-mid: #c0504a;
+    --b: #6aabee; --b-bg: #0d2540; --b-mid: #3a7bbf;
+    --g: #5dbd8a; --g-bg: #0d2e1e; --g-mid: #2e9e60;
+    --gray: #8a8880; --gray-bg: #252420;
+    --tp: #5dbd8a; --tp-bg: #0d2e1e;
+    --fp: #e07070; --fp-bg: #3a1a1a;
+    --fn: #6aabee; --fn-bg: #0d2540;
+    --tn: #7a7870; --tn-bg: #1e1e1b;
+    --thresh: #a78bfa;
+  }
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg0);
+  color: var(--txt0);
+  min-height: 100vh;
+  padding: 32px 20px 60px;
+}
+
+.page { max-width: 820px; margin: 0 auto; }
+
+h1 {
+  font-size: 21px; font-weight: 600; letter-spacing: -.02em;
+  margin-bottom: 6px; color: var(--txt0);
+}
+.subtitle {
+  font-size: 13.5px; color: var(--txt1); line-height: 1.65;
+  margin-bottom: 28px; max-width: 600px;
+}
+
+.card {
+  background: var(--bg1);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 22px;
+  margin-bottom: 14px;
+}
+
+.section-label {
+  font-size: 11px; font-weight: 600; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--txt2);
+  margin-bottom: 14px;
+}
+
+/* === SCENARIO SELECTOR === */
+.scenario-row {
+  display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 4px;
+}
+.sc-btn {
+  font-size: 12px; font-family: var(--font);
+  padding: 5px 13px; border-radius: 20px; cursor: pointer;
+  border: 0.5px solid var(--border);
+  background: var(--bg2); color: var(--txt1);
+  transition: all .15s;
+}
+.sc-btn.active {
+  background: var(--txt0); color: var(--bg1); border-color: var(--txt0);
+}
+
+/* === DOT FIELD === */
+#arena {
+  position: relative;
+  height: 240px;
+  background: var(--bg2);
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: ew-resize;
+  user-select: none;
+  margin-bottom: 6px;
+}
+
+/* zone labels */
+.zone-label {
+  position: absolute; top: 10px;
+  font-size: 11px; font-weight: 600; letter-spacing: .05em;
+  text-transform: uppercase; opacity: .5;
+  pointer-events: none;
+}
+
+/* threshold line */
+#thresh-line {
+  position: absolute; top: 0; bottom: 0;
+  width: 2px; background: var(--thresh);
+  cursor: ew-resize;
+  z-index: 10;
+}
+#thresh-handle {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 20px; height: 20px;
+  background: var(--thresh);
+  border-radius: 50%;
+  border: 2px solid var(--bg1);
+}
+#thresh-label {
+  position: absolute; bottom: 8px; left: 50%;
+  transform: translateX(-50%);
+  font-size: 11px; font-weight: 600;
+  color: var(--thresh);
+  background: var(--bg1);
+  border: 0.5px solid var(--thresh);
+  border-radius: 12px;
+  padding: 2px 8px;
+  white-space: nowrap;
+}
+
+.doc-dot {
+  position: absolute;
+  width: 34px; height: 34px;
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600;
+  transition: background .2s, border-color .2s, color .2s, opacity .2s;
+  border: 1.5px solid transparent;
+  cursor: default;
+}
+
+/* === CONFUSION MATRIX === */
+.matrix-grid {
+  display: grid;
+  grid-template-columns: 80px 1fr 1fr;
+  grid-template-rows: 28px 1fr 1fr;
+  gap: 6px;
+  font-size: 12px;
+}
+.mat-head {
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; letter-spacing: .04em;
+  text-transform: uppercase; color: var(--txt2);
+}
+.mat-row-head {
+  display: flex; align-items: center; justify-content: flex-end; padding-right: 10px;
+  font-size: 11px; font-weight: 600; letter-spacing: .04em;
+  text-transform: uppercase; color: var(--txt2);
+}
+.mat-cell {
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex; flex-direction: column;
+  justify-content: center;
+}
+.mat-cell .count {
+  font-size: 26px; font-weight: 600; line-height: 1;
+}
+.mat-cell .name {
+  font-size: 11px; font-weight: 600; letter-spacing: .05em;
+  text-transform: uppercase; margin-bottom: 2px;
+}
+.mat-cell .desc {
+  font-size: 11px; margin-top: 4px; opacity: .75;
+}
+
+/* === METRICS BAR === */
+.metrics-row {
+  display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px;
+  margin-bottom: 14px;
+}
+.metric-block {
+  background: var(--bg2); border-radius: 8px; padding: 12px 14px;
+  border: 0.5px solid var(--border2);
+}
+.metric-block .label {
+  font-size: 11px; font-weight: 600; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--txt2); margin-bottom: 6px;
+}
+.metric-block .formula {
+  font-size: 11px; color: var(--txt1); margin-bottom: 8px;
+  font-variant-numeric: tabular-nums;
+}
+.metric-block .value {
+  font-size: 28px; font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.metric-block .bar-track {
+  height: 4px; background: var(--border);
+  border-radius: 2px; margin-top: 8px; overflow: hidden;
+}
+.metric-block .bar-fill {
+  height: 100%; border-radius: 2px;
+  transition: width .3s ease;
+}
+
+/* === F1 EXPLANATION === */
+.f1-explain {
+  font-size: 13px; line-height: 1.7; color: var(--txt1);
+  background: var(--bg2); border-radius: 8px;
+  padding: 12px 14px; margin-top: 10px;
+  border-left: 3px solid var(--thresh);
+}
+.f1-explain strong { color: var(--txt0); font-weight: 600; }
+
+/* === CURVE === */
+#curve-wrap { position: relative; height: 220px; }
+canvas { display: block; }
+
+/* === AXIS LABELS === */
+.x-axis-label { font-size: 11px; color: var(--txt2); text-align: center; margin-top: 4px; }
+
+/* === PRESETS === */
+.preset-row { display: flex; gap: 8px; }
+.preset-btn {
+  font-size: 12px; font-family: var(--font);
+  padding: 5px 13px; border-radius: 6px; cursor: pointer;
+  border: 0.5px solid var(--border);
+  background: var(--bg2); color: var(--txt1);
+  transition: all .15s;
+}
+.preset-btn:hover { background: var(--bg1); color: var(--txt0); }
+
+/* === SLIDER === */
+.slider-row {
+  display: flex; align-items: center; gap: 12px;
+  font-size: 13px; color: var(--txt1);
+}
+.slider-row input[type=range] { flex: 1; accent-color: var(--thresh); }
+.slider-val { font-weight: 600; min-width: 32px; text-align: right; color: var(--txt0); }
+
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>召回率、精确率与 F1 的直觉</h1>
+<p class="subtitle">拖动紫色阈值线，观察同一个动作如何同时改变两个指标——它们被绑在同一根绳子上，无法独立优化。</p>
+
+<!-- ARENA CARD -->
+<div class="card">
+  <div class="section-label">检索系统 — 相关性得分空间</div>
+  <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center;">
+    <span style="font-size:12px;color:var(--txt2)">场景：</span>
+    <button class="sc-btn active" data-scene="separated" onclick="setScene('separated',this)">① 完全分离</button>
+    <button class="sc-btn" data-scene="midoverlap" onclick="setScene('midoverlap',this)">② 中间过渡</button>
+    <button class="sc-btn" data-scene="overlap" onclick="setScene('overlap',this)">③ 完全重叠</button>
+  </div>
+  <div id="scene-desc" style="font-size:12px;color:var(--txt1);line-height:1.6;margin-bottom:10px;padding:8px 12px;background:var(--bg2);border-radius:6px;"></div>
+  </div>
+
+  <div id="arena">
+    <div id="thresh-line">
+      <div id="thresh-handle"></div>
+      <div id="thresh-label">阈值 0.50</div>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--txt2);padding:0 4px;margin-top:4px;">
+    <span>← 未检索 &nbsp;·&nbsp; 得分 0.0</span>
+    <span>← 相关性得分（低→高）→</span>
+    <span>得分 1.0 &nbsp;·&nbsp; 已检索 →</span>
+  </div>
+
+  <div style="margin-top:14px;" class="slider-row">
+    <span>阈值</span>
+    <input type="range" id="thresh-slider" min="0" max="100" value="50" step="1">
+    <span class="slider-val" id="thresh-disp">0.50</span>
+  </div>
+</div>
+
+<!-- METRICS ROW -->
+<div class="metrics-row">
+  <div class="metric-block">
+    <div class="label" style="color:#9b2226;">召回率 Recall</div>
+    <div class="formula" id="r-formula">TP / (TP+FN) = –/–</div>
+    <div class="value" id="r-val" style="color:#c0392b;">–%</div>
+    <div class="bar-track"><div class="bar-fill" id="r-bar" style="background:#c0392b;width:0%"></div></div>
+  </div>
+  <div class="metric-block">
+    <div class="label" style="color:#144a82;">精确率 Precision</div>
+    <div class="formula" id="p-formula">TP / (TP+FP) = –/–</div>
+    <div class="value" id="p-val" style="color:#185fa5;">–%</div>
+    <div class="bar-track"><div class="bar-fill" id="p-bar" style="background:#185fa5;width:0%"></div></div>
+  </div>
+  <div class="metric-block">
+    <div class="label" style="color:#1a5c38;">F1 调和平均</div>
+    <div class="formula" id="f-formula">2·R·P/(R+P) = –</div>
+    <div class="value" id="f-val" style="color:#27a05c;">–%</div>
+    <div class="bar-track"><div class="bar-fill" id="f-bar" style="background:#27a05c;width:0%"></div></div>
+  </div>
+</div>
+
+<!-- CONFUSION MATRIX -->
+<div class="card">
+  <div class="section-label">混淆矩阵</div>
+  <div class="matrix-grid">
+    <div></div>
+    <div class="mat-head">已检索（B圈内）</div>
+    <div class="mat-head">未检索（B圈外）</div>
+
+    <div class="mat-row-head">相关（A圈内）</div>
+    <div class="mat-cell" style="background:var(--tp-bg);color:var(--tp);">
+      <div class="name">TP 真正例</div>
+      <div class="count" id="tp-count">–</div>
+      <div class="desc">正确命中 = C区域</div>
+    </div>
+    <div class="mat-cell" style="background:var(--fn-bg);color:var(--fn);">
+      <div class="name">FN 假负例</div>
+      <div class="count" id="fn-count">–</div>
+      <div class="desc">漏掉的相关文档</div>
+    </div>
+
+    <div class="mat-row-head">无关（A圈外）</div>
+    <div class="mat-cell" style="background:var(--fp-bg);color:var(--fp);">
+      <div class="name">FP 假正例</div>
+      <div class="count" id="fp-count">–</div>
+      <div class="desc">误捞的无关噪声</div>
+    </div>
+    <div class="mat-cell" style="background:var(--tn-bg);color:var(--tn);">
+      <div class="name">TN 真负例</div>
+      <div class="count" id="tn-count">–</div>
+      <div class="desc">正确排除的噪声</div>
+    </div>
+  </div>
+</div>
+
+<!-- COST VISUALIZATION -->
+<div class="card">
+  <div class="section-label">当前阈值的代价 — 调和平均为何比算术平均更严苛</div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+    <div>
+      <div style="font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--fn);margin-bottom:8px;">
+        漏掉的相关文档 FN <span id="fn-pill" style="font-size:13px;font-weight:700;margin-left:4px;">–</span>
+      </div>
+      <div id="fn-dots" style="display:flex;flex-wrap:wrap;gap:4px;min-height:32px;"></div>
+      <div style="font-size:11px;color:var(--txt2);margin-top:6px;">↑ 召回率损失：这些本该找到却遗漏了</div>
+    </div>
+    <div>
+      <div style="font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--fp);margin-bottom:8px;">
+        误捞的无关噪声 FP <span id="fp-pill" style="font-size:13px;font-weight:700;margin-left:4px;">–</span>
+      </div>
+      <div id="fp-dots" style="display:flex;flex-wrap:wrap;gap:4px;min-height:32px;"></div>
+      <div style="font-size:11px;color:var(--txt2);margin-top:6px;">↑ 精确率损失：这些不相关却混进结果里</div>
+    </div>
+  </div>
+
+  <div style="margin-bottom:14px;">
+    <div style="font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--txt2);margin-bottom:10px;">F1 调和平均 vs 算术平均——对极端的惩罚</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <div style="background:var(--bg2);border-radius:8px;padding:12px 14px;">
+        <div style="font-size:11px;color:var(--txt2);margin-bottom:4px;">算术平均 (R + P) / 2</div>
+        <div style="font-size:22px;font-weight:600;" id="amean-val">–%</div>
+        <div style="height:6px;background:var(--border);border-radius:3px;margin-top:8px;overflow:hidden;">
+          <div id="amean-bar" style="height:100%;border-radius:3px;background:var(--txt2);transition:width .3s;width:0%"></div>
+        </div>
+        <div style="font-size:11px;color:var(--txt2);margin-top:6px;line-height:1.5;">允许一高一低互相稀释</div>
+      </div>
+      <div style="background:var(--bg2);border-radius:8px;padding:12px 14px;border:1.5px solid #27a05c22;">
+        <div style="font-size:11px;color:var(--txt2);margin-bottom:4px;">F1 调和平均 2RP / (R+P)</div>
+        <div style="font-size:22px;font-weight:600;color:#27a05c;" id="fmean-val">–%</div>
+        <div style="height:6px;background:var(--border);border-radius:3px;margin-top:8px;overflow:hidden;">
+          <div id="fmean-bar" style="height:100%;border-radius:3px;background:#27a05c;transition:width .3s;width:0%"></div>
+        </div>
+        <div style="font-size:11px;color:var(--txt2);margin-top:6px;line-height:1.5;">任意一个极低，整体骤降</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-bottom:14px;">
+    <div style="font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--txt2);margin-bottom:8px;">差距 = 调和平均对"短板"施加的额外惩罚</div>
+    <div style="position:relative;height:28px;background:var(--bg2);border-radius:6px;overflow:hidden;">
+      <div id="f-bar-vis" style="position:absolute;left:0;top:0;height:100%;background:#27a05c;border-radius:6px;transition:width .3s;"></div>
+      <div id="a-bar-vis" style="position:absolute;left:0;top:0;height:100%;background:transparent;border-right:2px dashed var(--txt2);transition:width .3s;"></div>
+      <div id="gap-label" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:600;color:var(--txt1);">差距 –%</div>
+    </div>
+  </div>
+
+  <div class="f1-explain" id="f1-insight">移动阈值线，观察两个代价如何此消彼长。</div>
+</div>
+
+</div>
+
+<script>
+const SCENES = {
+  separated: {
+    label: '完全分离',
+    desc: 'R 全在右侧高分区，N 全在左侧低分区。阈值设在中间即可干净切割，召回和精确可以同时接近 100%。',
+    rel:   [0.62,0.67,0.71,0.75,0.79,0.83,0.87,0.90,0.93,0.96],
+    irrel: [0.04,0.08,0.12,0.17,0.21,0.25,0.30,0.34,0.38,0.42]
+  },
+  midoverlap: {
+    label: '中间过渡',
+    desc: '两端清晰，但 0.42–0.62 区间 R 和 N 得分交错。阈值切在两端效果好，一旦进入模糊地带就必然误判。',
+    rel:   [0.70,0.76,0.81,0.86,0.91,0.95,  0.44,0.48,0.53,0.57,0.61],
+    irrel: [0.05,0.10,0.15,0.20,0.26,0.32,  0.42,0.46,0.51,0.55,0.59,0.63]
+  },
+  overlap: {
+    label: '完全重叠',
+    desc: 'R 和 N 的得分分布几乎完全相同。任何阈值都无法区分，F1 天花板由数据本身决定，调参无济于事。',
+    rel:   [0.10,0.18,0.26,0.34,0.42,0.50,0.58,0.66,0.74,0.82,0.90],
+    irrel: [0.08,0.16,0.24,0.32,0.40,0.48,0.56,0.64,0.72,0.80,0.88,0.94]
+  }
+};
+
+let currentScene = 'mixed';
+let thresh = 0.50;
+let dots = [];
+let dragging = false;
+
+const arena = document.getElementById('arena');
+const threshLine = document.getElementById('thresh-line');
+
+function setScene(name, btn) {
+  currentScene = name;
+  document.querySelectorAll('.sc-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  buildDots();
+  update();
+}
+
+function buildDots() {
+  arena.querySelectorAll('.doc-dot').forEach(d => d.remove());
+  arena.querySelectorAll('.row-label').forEach(d => d.remove());
+  dots = [];
+  const sc = SCENES[currentScene];
+  const H = arena.clientHeight || 220;
+  const W = arena.clientWidth || 700;
+  const dotH = 34;
+
+  const relLabel = document.createElement('div');
+  relLabel.className = 'row-label';
+  relLabel.style.cssText = 'position:absolute;right:8px;top:16px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--fn);opacity:.8;pointer-events:none;background:var(--bg2);padding:1px 6px;border-radius:4px;';
+  relLabel.textContent = '相关 R';
+  arena.appendChild(relLabel);
+
+  const irrelLabel = document.createElement('div');
+  irrelLabel.className = 'row-label';
+  irrelLabel.style.cssText = 'position:absolute;right:8px;bottom:16px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--fp);opacity:.8;pointer-events:none;background:var(--bg2);padding:1px 6px;border-radius:4px;';
+  irrelLabel.textContent = '无关 N';
+  arena.appendChild(irrelLabel);
+
+  const divider = document.createElement('div');
+  divider.className = 'row-label';
+  divider.style.cssText = `position:absolute;left:0;right:0;top:${H/2}px;height:1px;background:var(--border);pointer-events:none;`;
+  arena.appendChild(divider);
+
+  function placeGroup(scores, topY, bandH) {
+    const cols = {};
+    scores.forEach(s => {
+      const col = Math.round(s * 20);
+      if (!cols[col]) cols[col] = [];
+      cols[col].push(s);
+    });
+    return scores.map((s, i) => {
+      const col = Math.round(s * 20);
+      const slot = cols[col].indexOf(s);
+      const rowsInCol = cols[col].length;
+      const centerY = topY + bandH / 2;
+      const totalH = rowsInCol * (dotH + 4) - 4;
+      return centerY - totalH / 2 + slot * (dotH + 4);
+    });
+  }
+
+  const relBandTop = 8, relBandH = H / 2 - 12;
+  const irrelBandTop = H / 2 + 4, irrelBandH = H / 2 - 12;
+
+  const relYs = placeGroup(sc.rel, relBandTop, relBandH);
+  const irrelYs = placeGroup(sc.irrel, irrelBandTop, irrelBandH);
+
+  sc.rel.forEach((score, i) => {
+    const el = makeDot(true, score);
+    el.style.left = (score * (W - 44)) + 'px';
+    el.style.top  = Math.max(relBandTop, Math.min(relBandTop + relBandH - dotH, relYs[i])) + 'px';
+    arena.appendChild(el);
+    dots.push({el, score, rel: true});
+  });
+  sc.irrel.forEach((score, i) => {
+    const el = makeDot(false, score);
+    el.style.left = (score * (W - 44)) + 'px';
+    el.style.top  = Math.max(irrelBandTop, Math.min(irrelBandTop + irrelBandH - dotH, irrelYs[i])) + 'px';
+    arena.appendChild(el);
+    dots.push({el, score, rel: false});
+  });
+}
+
+function makeDot(rel, score) {
+  const el = document.createElement('div');
+  el.className = 'doc-dot';
+  el.textContent = rel ? 'R' : 'N';
+  el.title = (rel ? '相关文档' : '无关文档') + `  得分: ${score.toFixed(2)}`;
+  return el;
+}
+
+function colorDot(d, thresh) {
+  const retrieved = d.score >= thresh;
+  let bg, border, color;
+  if (d.rel && retrieved)  { bg='var(--tp-bg)'; border='var(--tp)'; color='var(--tp)'; }
+  else if (!d.rel && retrieved) { bg='var(--fp-bg)'; border='var(--fp)'; color='var(--fp)'; }
+  else if (d.rel && !retrieved) { bg='var(--fn-bg)'; border='var(--fn)'; color='var(--fn)'; }
+  else { bg='var(--tn-bg)'; border='var(--tn)'; color='var(--tn)'; }
+  d.el.style.background = bg;
+  d.el.style.borderColor = border;
+  d.el.style.color = color;
+  d.el.style.opacity = (!d.rel && !retrieved) ? '0.5' : '1';
+}
+
+function computeMetrics(dots, thresh) {
+  let tp=0,fp=0,fn=0,tn=0;
+  dots.forEach(d => {
+    const r = d.score >= thresh;
+    if (d.rel && r) tp++;
+    else if (!d.rel && r) fp++;
+    else if (d.rel && !r) fn++;
+    else tn++;
+  });
+  const recall    = (tp+fn)===0 ? 0 : tp/(tp+fn);
+  const precision = (tp+fp)===0 ? 0 : tp/(tp+fp);
+  const f1        = (recall+precision)===0 ? 0 : 2*recall*precision/(recall+precision);
+  return {tp,fp,fn,tn,recall,precision,f1};
+}
+
+function pct(v) { return Math.round(v*100); }
+
+function update() {
+  const W = arena.clientWidth || 700;
+  const x = thresh * W;
+  threshLine.style.left = x + 'px';
+  document.getElementById('thresh-label').textContent = '阈值 ' + thresh.toFixed(2);
+  document.getElementById('thresh-disp').textContent = thresh.toFixed(2);
+  document.getElementById('thresh-slider').value = Math.round(thresh * 100);
+
+  dots.forEach(d => {
+    d.el.style.left = (d.score * (W - 44)) + 'px';
+    colorDot(d, thresh);
+  });
+
+  const {tp,fp,fn,tn,recall,precision,f1} = computeMetrics(dots, thresh);
+
+  document.getElementById('tp-count').textContent = tp;
+  document.getElementById('fp-count').textContent = fp;
+  document.getElementById('fn-count').textContent = fn;
+  document.getElementById('tn-count').textContent = tn;
+
+  document.getElementById('r-formula').textContent = `TP/(TP+FN) = ${tp}/${tp+fn}`;
+  document.getElementById('p-formula').textContent = `TP/(TP+FP) = ${tp}/${tp+fp}`;
+  document.getElementById('f-formula').textContent = `2·R·P/(R+P)`;
+
+  document.getElementById('r-val').textContent = pct(recall) + '%';
+  document.getElementById('p-val').textContent = pct(precision) + '%';
+  document.getElementById('f-val').textContent = pct(f1) + '%';
+
+  document.getElementById('r-bar').style.width = pct(recall) + '%';
+  document.getElementById('p-bar').style.width = pct(precision) + '%';
+  document.getElementById('f-bar').style.width = pct(f1) + '%';
+
+  updateInsight(recall, precision, f1, tp, fp, fn);
+  updateCostViz(tp, fp, fn, recall, precision, f1);
+}
+
+function updateInsight(r, p, f1, tp, fp, fn) {
+  const el = document.getElementById('f1-insight');
+  const rp = pct(r), pp = pct(p), fp1 = pct(f1);
+  const amean = pct((r+p)/2);
+
+  let msg = '';
+  if (rp > 85 && pp < 45) {
+    msg = `<strong>阈值太低，召回极高（${rp}%）但精确率仅 ${pp}%：</strong>你捞到了大部分相关文档，但同时把 ${fp} 份无关文档也拖了进来。算术平均给出 ${amean}%，看起来还行；F1 的调和平均只有 ${fp1}%——它对低精确率毫不留情。`;
+  } else if (pp > 85 && rp < 45) {
+    msg = `<strong>阈值太高，精确率极高（${pp}%）但召回率仅 ${rp}%：</strong>检索到的几乎都是真正相关的，但有 ${fn} 份相关文档被遗漏。算术平均给出 ${amean}%；F1 只有 ${fp1}%——高精确率同样救不了低召回率。`;
+  } else if (fp1 > 70) {
+    msg = `<strong>当前 R=${rp}% P=${pp}% F1=${fp1}%，相对均衡。</strong>调和平均迫使两个指标同时保持合理水平。算术平均（${amean}%）与 F1 差距不大，说明两边确实都还不错。`;
+  } else if (rp === 0) {
+    msg = `<strong>阈值过高，没有任何文档被检索到。</strong>召回率 0%，精确率无意义，F1 = 0。`;
+  } else {
+    msg = `<strong>R=${rp}% P=${pp}% F1=${fp1}%。</strong>调和平均 = 2RP/(R+P)。算术平均会给出 ${amean}%，但 F1 强制要求两边都不能太低——任意一个趋近于 0，整体就骤降，无法通过另一个高分来补救。`;
+  }
+  el.innerHTML = msg;
+}
+
+function makeMiniDot(color, bg, label) {
+  const d = document.createElement('div');
+  d.style.cssText = `width:24px;height:24px;border-radius:5px;background:${bg};color:${color};border:1.5px solid ${color};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;`;
+  d.textContent = label;
+  return d;
+}
+
+function updateCostViz(tp, fp, fn, recall, precision, f1) {
+  const fnDots = document.getElementById('fn-dots');
+  const fpDots = document.getElementById('fp-dots');
+  fnDots.innerHTML = '';
+  fpDots.innerHTML = '';
+
+  const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const fnColor = isDark ? '#6aabee' : '#1a4a7a';
+  const fnBg    = isDark ? '#0d2540' : '#deeaf8';
+  const fpColor = isDark ? '#e07070' : '#8b2500';
+  const fpBg    = isDark ? '#3a1a1a' : '#fde8e2';
+
+  const totalRel = tp + fn;
+  const totalRetr = tp + fp;
+
+  for (let i = 0; i < fn; i++) fnDots.appendChild(makeMiniDot(fnColor, fnBg, 'R'));
+  for (let i = 0; i < fp; i++) fpDots.appendChild(makeMiniDot(fpColor, fpBg, 'N'));
+
+  if (fn === 0) {
+    const ok = document.createElement('span');
+    ok.style.cssText = 'font-size:12px;color:var(--txt2);line-height:32px;';
+    ok.textContent = '无遗漏';
+    fnDots.appendChild(ok);
+  }
+  if (fp === 0) {
+    const ok = document.createElement('span');
+    ok.style.cssText = 'font-size:12px;color:var(--txt2);line-height:32px;';
+    ok.textContent = '无噪声';
+    fpDots.appendChild(ok);
+  }
+
+  document.getElementById('fn-pill').textContent = fn;
+  document.getElementById('fp-pill').textContent = fp;
+
+  const amean = (recall + precision) / 2;
+  const ap = pct(amean), fp1 = pct(f1);
+  const gap = Math.max(0, ap - fp1);
+
+  document.getElementById('amean-val').textContent = ap + '%';
+  document.getElementById('fmean-val').textContent = fp1 + '%';
+  document.getElementById('amean-bar').style.width = ap + '%';
+  document.getElementById('fmean-bar').style.width = fp1 + '%';
+  document.getElementById('f-bar-vis').style.width = fp1 + '%';
+  document.getElementById('a-bar-vis').style.width = ap + '%';
+  document.getElementById('gap-label').textContent = gap > 0 ? `调和平均少了 ${gap}%` : '两者接近，指标均衡';
+}
+
+function buildCurveData(scene) { return []; }
+function initCurve() {}
+function updateCurveMarker() {}
+function rebuildCurve() {}
+
+function setScene(name, btn) {
+  currentScene = name;
+  document.querySelectorAll('.sc-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const sc = SCENES[name];
+  document.getElementById('scene-desc').textContent = sc.desc;
+  buildDots();
+  update();
+}
+
+function getThreshFromX(clientX) {
+  const rect = arena.getBoundingClientRect();
+  const x = clientX - rect.left;
+  return Math.max(0, Math.min(1, x / rect.width));
+}
+
+arena.addEventListener('mousedown', e => {
+  if (e.target.closest('.sc-btn')) return;
+  dragging = true;
+  thresh = getThreshFromX(e.clientX);
+  update();
+});
+window.addEventListener('mousemove', e => {
+  if (!dragging) return;
+  thresh = getThreshFromX(e.clientX);
+  update();
+});
+window.addEventListener('mouseup', () => { dragging = false; });
+
+arena.addEventListener('touchstart', e => {
+  dragging = true;
+  thresh = getThreshFromX(e.touches[0].clientX);
+  update();
+}, {passive: true});
+window.addEventListener('touchmove', e => {
+  if (!dragging) return;
+  thresh = getThreshFromX(e.touches[0].clientX);
+  update();
+}, {passive: true});
+window.addEventListener('touchend', () => { dragging = false; });
+
+document.getElementById('thresh-slider').addEventListener('input', function() {
+  thresh = this.value / 100;
+  update();
+});
+
+window.addEventListener('load', () => {
+  currentScene = 'separated';
+  document.getElementById('scene-desc').textContent = SCENES['separated'].desc;
+  buildDots();
+  update();
+});
+window.addEventListener('resize', () => {
+  buildDots();
+  update();
+});
+</script>
+</body>
+</html>
