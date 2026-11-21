@@ -116,10 +116,34 @@ PUBLIC_DIRS = ["AI", "AI大模型", "AIGC", "工作", "应用&工具笔记"]
 
 自建插件（`quartz/plugins-local/`）：
 
-| 插件 | 功能 |
-|---|---|
-| `nx-toolbar` | 收藏 / 分享 / 浏览足迹 / 4 套主题切换（存 `localStorage`） |
-| `nx-tabs` | 把目录与漫步笔记合并为标签页 |
+| 插件 | 位置 | 功能 |
+|---|---|---|
+| `nx-actions` | 标题下方 | 收藏 / 点赞 / 分享 + 阅读数 |
+| `nx-personal` | 左栏 | 我的收藏 / 我的足迹 / 4 套主题 |
+| `nx-tabs` | 右栏 | 目录与漫步笔记合并为标签页 |
+
+## 互动数据（D1）
+
+收藏、点赞、足迹、阅读数存在 Cloudflare D1，由 Pages Functions 提供接口。
+
+| 动作 | 需登录 | 说明 |
+|---|---|---|
+| 阅读 / 阅读数 +1 | ❌ | 公开 |
+| 点赞 / 取消赞 | ✅ | 按 Access 邮箱，可取消 |
+| 收藏 | ✅ | 跨设备 |
+| 足迹 | ✅ | 跨设备 |
+
+```
+functions/api/     Pages Functions（_auth / stats / bookmarks / history）
+db/schema.sql      建表脚本（唯一入库的数据库文件）
+wrangler.jsonc     D1 绑定声明
+```
+
+数据库本体在 Cloudflare，不进仓库。改表结构后：
+
+```powershell
+npx wrangler d1 execute notes-db --remote --file=db/schema.sql
+```
 
 ## 部署
 
