@@ -1,13 +1,4 @@
-/**
- * /my/bookmarks 与 /my/history —— 独立的「我的」页面
- *
- * 不用弹窗：收藏/足迹是成百条的列表，弹窗里翻起来很难受，
- * 也无法分享链接、无法刷新。做成独立页面更合理。
- *
- * 这些页面同样受 Cloudflare Access 保护（与私有站一致）。
- */
-
-const SHELL = (title, body) => `<!doctype html>
+export const SHELL = (title, body) => `<!doctype html>
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
@@ -74,20 +65,20 @@ const SHELL = (title, body) => `<!doctype html>
 </body>
 </html>`
 
-function html(body, status = 200) {
+export function html(body, status = 200) {
   return new Response(body, {
     status,
     headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" },
   })
 }
 
-function esc(s) {
+export function esc(s) {
   return String(s ?? "").replace(/[&<>"']/g, (c) => ({
     "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
   })[c])
 }
 
-function getUser(request) {
+export function getUser(request) {
   const token =
     request.headers.get("Cf-Access-Jwt-Assertion") ||
     (request.headers.get("Cookie") || "")
@@ -107,45 +98,13 @@ function getUser(request) {
   }
 }
 
-const LOGIN_EMPTY = (path) => `<div class="empty">
+
+export const LOGIN_EMPTY = (path) => `<div class="empty">
   这个页面需要登录才能查看。<br><br>
   <a href="/cdn-cgi/access/login?redirect_url=${encodeURIComponent(path)}">点此登录</a>
 </div>`
 
-export async function onRequestGet({ request, env, params }) {
-  const url = new URL(request.url)
-  const path = url.pathname.replace(/\/$/, "")
-  const page = params.page
-  const isBookmarks = page === "bookmarks"
-  const isHistory = page === "history"
-
-  if (!isBookmarks && !isHistory) {
-    return html(`<!doctype html><html><head><meta charset="utf-8"><title>未找到</title></head>
-      <body style="font-family:sans-serif;padding:4rem;text-align:center">
-      <h1>404</h1><p>没有这个页面。</p><p><a href="/">回首页</a></p></body></html>`, 404)
-  }
-
-  const title = isBookmarks ? "我的收藏" : "我的足迹"
-  const user = getUser(request)
-
-  if (!user) return html(SHELL(title, LOGIN_EMPTY(path)))
-
-  if (isBookmarks) {
-    const rows = await env.DB.prepare(
-      `SELECT slug, title, created_at FROM bookmarks
-       WHERE email = ? ORDER BY created_at DESC LIMIT 1000`,
-    ).bind(user.email).all()
-    return html(SHELL(title, renderBookmarks(rows.results ?? [])))
-  }
-
-  const rows = await env.DB.prepare(
-    `SELECT slug, title, visits, last_seen FROM history
-     WHERE email = ? ORDER BY last_seen DESC LIMIT 500`,
-  ).bind(user.email).all()
-  return html(SHELL(title, renderHistory(rows.results ?? [])))
-}
-
-function renderBookmarks(items) {
+export function renderBookmarks(items) {
   const head = `<h1>我的收藏</h1>
     <p class="sub">共 ${items.length} 条${items.length ? "，按收藏时间倒序" : ""}</p>`
   if (!items.length) {
@@ -159,7 +118,7 @@ function renderBookmarks(items) {
   return head + `<ul class="list">${lis}</ul>`
 }
 
-function renderHistory(items) {
+export function renderHistory(items) {
   const head = `<h1>我的足迹</h1>
     <p class="sub">最近 ${items.length} 篇${items.length ? "，按访问时间倒序" : ""}</p>`
   if (!items.length) {
