@@ -82,15 +82,26 @@ PUBLIC_DIRS = ["AI", "AI大模型", "AIGC", "工作", "应用&工具笔记"]
 
 ## 域名与访问控制
 
-两个子域需要手动在 Cloudflare 面板配置（API 凭据没有 DNS / Zero Trust 权限）：
+### DNS
 
-1. **DNS** → 加两条 CNAME，都开橙色云代理：
-   - `notes` → `hfhfn-notes.pages.dev`
-   - `private` → `hfhfn-notes-private.pages.dev`
-2. **Zero Trust → Access → Applications** → 建 Self-hosted 应用，
-   域名 `private.hfhfn.dpdns.org`，策略 Include = 你的邮箱。
+在 Cloudflare → DNS 加两条 CNAME，都开橙色云代理：
+
+- `notes` → `hfhfn-notes.pages.dev`
+- `private` → `hfhfn-notes-private.pages.dev`
 
 > 根域 `hfhfn.dpdns.org` 已被 `substracker` Worker 占用，所以用子域。
+
+### 访问控制
+
+| 站点 | 保护方式 |
+|---|---|
+| 公开站 `notes.hfhfn.dpdns.org` | **无 Access**。全站匿名可读；收藏/足迹走自建登录（见下节） |
+| 私有站 `private.hfhfn.dpdns.org` | **Cloudflare Access**，应用名 `Notes Owner`，策略 Include = 站主邮箱 |
+
+> ⚠️ **公开站不要再挂 Access 应用**。早期用 `Notes Personal` 保护 `/api/*` 和 `/my/*`，
+> 结果撞上 Zero Trust 免费版 50 席位上限，且 Access 策略配错时会**静默不发验证码**
+> （页面照样显示"已发送"）。现已改为自建登录，`Notes Personal` 应用应删除。
+> 若 Access 应用未删，`/api/*` 与 `/my/*` 会被 302 拦到 Access 登录页，自建登录无法生效。
 
 
 
@@ -261,3 +272,80 @@ npx wrangler login      # 只需一次
 - **大 PDF 不发布**：`>5MB` 的 PDF 只在本地可见（当前 11 个，含 77MB 的 StatQuest）。
 - **LaTeX 警告**：少数笔记把中文写进了 `$...$`，KaTeX 会告警但不影响页面。
 - **关系图谱只含已发布笔记**，`工作` 之外未发布的目录不出现。
+
+---
+
+## 运维踩坑记录
+
+这些都是实际踩过、排查了很久才定位的问题，改配置前先读一遍。
+
+### 1. `wrangler pages deploy` 会清空 Plain text 环境变量
+
+**现象**：面板里配好的环境变量，本地部署一次后全部消失，接口报"未配置"。
+
+**原因**：Direct Upload（`wrangler pages deploy`）会把项目的 `deployment_configs`
+按当前 CLI 环境重写，**`plain_text` 类型的变量被清空，只有 `secret_text` 保留**。
+
+**规则**：所有变量一律建成 **Secret（加密）类型**，即使 `MAIL_FROM` 这种非敏感值也一样。
+用 API 写入时 `"type": "secret_text"`。
+
+**副作用**：环境变量是**部署时快照**的。在面板加完变量，必须**重新部署一次**才生效。
+
+### 2. CSS Cascade Layers：未分层样式永远赢
+
+**现象**：同一页面三个按钮，两个 12px、一个 16px。无痕模式正常，硬刷新无效。
+
+**原因**：Quartz 把组件样式打包进 `@layer quartz-base { ... }`。CSS 规范规定
+**未分层（unlayered）样式优先于任何 `@layer` 内的样式，与选择器特异性无关**。
+浏览器扩展注入一条普通 `button { font-size: 16px }` 就能压掉 `.pb-btn` 的字号。
+因为「收藏/足迹」是 `<a>`、「主题」是 `<button>`，只有后者被命中 → 一大两小。
+
+**规则**：本地插件里凡是必须固定的关键属性（字号、尺寸），加 `!important`。
+已应用于 `.pb-btn` 和 `.pb-btn span`。
+
+### 3. Access 策略配错时静默不发验证码
+
+**现象**：登录页显示"验证码已发送"，邮箱永远收不到，也没有任何报错。
+
+**原因**：Cloudflare Access 只给**策略允许的邮箱**发 OTP。策略不匹配时按设计
+静默丢弃，但页面文案不变。典型错误：Include 选择器选「电子邮件」却填了字符串
+`Everyone`（不是合法邮箱）→ 零匹配。
+
+**规则**：这是放弃 Access、改自建登录的主因之一。若仍要用 Access，
+「所有人」必须用 `Include: Everyone` 选择器，不能用「电子邮件」手填。
+
+### 4. `rem` 字号会被浏览器字体设置放大
+
+**现象**：用户反馈"字比无痕模式大"，但 CSS 里写的是固定 `rem`。
+
+**原因**：`rem` 基于 `html` 根字号，用户把 Chrome 字体调大后根字号变化，
+所有 `rem` 等比放大。无痕模式用默认设置所以正常。
+
+**规则**：诊断时先查 `getComputedStyle(document.documentElement).fontSize`
+是否为 `16px`。若不是，说明是浏览器设置，不是站点 bug。
+
+### 5. HTML 附件标签不闭合会让 `npm run check` 失败
+
+**现象**：`npm run check` 退出码 2，报
+`SyntaxError: Unexpected closing tag "div"`。
+
+**原因**：`content-*/attachments/html/*.htm` 来自笔记里的交互式 HTML，
+Prettier 会解析它们。一个多余的 `</div>` 就报错。
+
+**规则**：修**源文件**（`D:\private\obsidian` 里的 `.html`），不要改 `content-*`
+里的副本——下次 `sync_content.py` 会覆盖。定位方法：
+
+```python
+# 用栈逐行跟踪 div 开闭，栈空时遇到 </div> 就是多余的
+```
+
+### 6. `/my/[page].js` 动态路由线上 404
+
+静态目录 `my/bookmarks/index.js` 正常，`[param].js` 形式本地能跑但线上 404。
+新增服务端页面一律用显式目录。
+
+### 7. `npm test` 的 2 个 gitLoader 失败是环境问题
+
+`gitLoader.peers.test.ts` 的两个测试会真跑 `npm install`，与全局 `~/.npmrc` 里的
+`allow-scripts` 配置冲突（npm 12 起不允许在 project-scoped install 里使用）。
+换台机器或 npm 10/11 就会通过，**与站点代码无关**，不用修。
