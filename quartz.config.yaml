@@ -6,7 +6,7 @@ configuration:
   enablePopovers: true
   analytics: null
   locale: zh-CN
-  baseUrl: hfhfn-notes.pages.dev
+  baseUrl: notes.hfhfn.dpdns.org
   ignorePatterns:
     - private
     - templates

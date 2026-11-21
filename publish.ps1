@@ -34,22 +34,36 @@ python scripts/sync_content.py
 if ($LASTEXITCODE -ne 0) { throw "同步失败" }
 
 # -Check 与 -LocalDeploy 才需要本地构建；日常发布交给 CI。
-if ($Check -or $LocalDeploy) {
-    Step 2 "本地构建校验"
-    npm run build
-    if ($LASTEXITCODE -ne 0) { throw "构建失败" }
-}
-
 if ($Check) {
+    Step 2 "本地构建校验（公开站 + 完整站）"
+    npm run build:public
+    if ($LASTEXITCODE -ne 0) { throw "公开站构建失败" }
+    npm run build
+    if ($LASTEXITCODE -ne 0) { throw "完整站构建失败" }
     Step 3 "仅校验，不推送。本地预览：npm run preview"
     exit 0
 }
 
 if ($LocalDeploy) {
-    Step 3 "直接部署到 Cloudflare Pages"
-    npx wrangler pages deploy public --project-name hfhfn-notes --branch main
-    if ($LASTEXITCODE -ne 0) { throw "部署失败" }
-    Write-Host "`n完成 ✅  https://hfhfn-notes.pages.dev" -ForegroundColor Green
+    Step 2 "构建公开站"
+    npm run build:public
+    if ($LASTEXITCODE -ne 0) { throw "公开站构建失败" }
+
+    Step 3 "构建完整站"
+    npm run build
+    if ($LASTEXITCODE -ne 0) { throw "完整站构建失败" }
+
+    Step 4 "部署公开站"
+    npx wrangler pages deploy public-public --project-name hfhfn-notes --branch main
+    if ($LASTEXITCODE -ne 0) { throw "公开站部署失败" }
+
+    Step 5 "部署完整站（需 Cloudflare Access 保护）"
+    npx wrangler pages deploy public --project-name hfhfn-notes-private --branch main
+    if ($LASTEXITCODE -ne 0) { throw "完整站部署失败" }
+
+    Write-Host "`n完成 ✅" -ForegroundColor Green
+    Write-Host "  公开站：https://notes.hfhfn.dpdns.org" -ForegroundColor Green
+    Write-Host "  私有站：https://private.hfhfn.dpdns.org（需登录）" -ForegroundColor Green
     exit 0
 }
 

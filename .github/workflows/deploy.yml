@@ -33,11 +33,6 @@ jobs:
       - name: Install Quartz plugins
         run: npx quartz plugin install --from-config
 
-      - name: Build site
-        run: npm run build
-        env:
-          CF_ANALYTICS_TOKEN: ${{ secrets.CF_ANALYTICS_TOKEN }}
-
       - name: Check Cloudflare credentials
         id: creds
         run: |
@@ -45,13 +40,38 @@ jobs:
             echo "ready=true" >> "$GITHUB_OUTPUT"
           else
             echo "ready=false" >> "$GITHUB_OUTPUT"
-            echo "::warning::CLOUDFLARE_API_TOKEN is not set — build only, skipping deploy. See README for setup."
+            echo "::warning::CLOUDFLARE_API_TOKEN is not set — build only, skipping deploy."
           fi
 
-      - name: Deploy to Cloudflare Pages
+      # ---------- 公开站：只含白名单目录 ----------
+      - name: Build public site
+        run: npm run build:public
+        env:
+          CF_ANALYTICS_TOKEN: ${{ secrets.CF_ANALYTICS_TOKEN }}
+
+      - name: Deploy public site
         if: steps.creds.outputs.ready == 'true'
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy public --project-name=hfhfn-notes --branch=main
+          command: pages deploy public-public --project-name=hfhfn-notes --branch=main
+
+      # ---------- 私有站：完整内容，由 Cloudflare Access 保护 ----------
+      - name: Point config at private domain
+        run: |
+          sed -i 's|baseUrl: .*|baseUrl: private.hfhfn.dpdns.org|' quartz.config.yaml
+          grep baseUrl quartz.config.yaml
+
+      - name: Build private site
+        run: npm run build
+        env:
+          CF_ANALYTICS_TOKEN: ${{ secrets.CF_ANALYTICS_TOKEN }}
+
+      - name: Deploy private site
+        if: steps.creds.outputs.ready == 'true'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy public --project-name=hfhfn-notes-private --branch=main

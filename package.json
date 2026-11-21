@@ -15,7 +15,7 @@
     "quartz": "./quartz/bootstrap-cli.mjs",
     "sync": "python scripts/sync_content.py",
     "sync:dry": "python scripts/sync_content.py --dry-run",
-    "build": "npx quartz build && python scripts/inject_analytics.py --dir public",
+    "build": "npx quartz build -o public && python scripts/inject_analytics.py --dir public",
     "publish": "npm run sync && npm run build",
     "preview": "python scripts/preview_server.py -p 8080",
     "deploy": "npx wrangler pages deploy public --project-name hfhfn-notes",
@@ -28,7 +28,9 @@
     "prebuild": "npm run install-plugins",
     "changeset": "changeset",
     "version-packages": "changeset version && npm install --package-lock-only --ignore-scripts --no-audit --no-fund",
-    "analytics": "python scripts/inject_analytics.py --dir public"
+    "analytics": "python scripts/inject_analytics.py --dir public",
+    "build:public": "python scripts/make_public_subset.py && npx quartz build -d content-public -o public-public && python scripts/inject_analytics.py --dir public-public",
+    "subset": "python scripts/make_public_subset.py"
   },
   "engines": {
     "npm": ">=10.9.2",
