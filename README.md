@@ -15,8 +15,10 @@
 
 ```
 obsidian-site/
-├─ content/                  # ← 自动生成，勿手改（每次同步会重建）
-├─ content-public/           # ← 自动生成，公开站用的白名单子集
+├─ content-all/              # ← 自动生成：完整内容（私有站）
+├─ content-public/           # ← 自动生成：白名单子集（公开站）
+├─ dist-all/                 # ← 构建产物：私有站，不入库
+├─ dist-public/              # ← 构建产物：公开站，不入库
 ├─ scripts/
 │  ├─ sync_content.py        # 同步脚本：白名单复制 + 清洗 + WebP 转换
 │  ├─ make_public_subset.py  # 从 content 抽出可公开子集
@@ -35,10 +37,10 @@ obsidian-site/
 .\publish.ps1 -DryRun # 只看同步报告，不改文件
 .\publish.ps1 -LocalDeploy  # 本地构建并直接部署两站
 
-npm run sync          # 只同步笔记到 content/
+npm run sync          # 只同步笔记到 content-all/
 npm run subset        # 只生成公开子集 content-public/
-npm run build         # 构建完整站 → public/
-npm run build:public  # 构建公开站 → public-public/
+npm run build         # 构建完整站 → dist-all/
+npm run build:public  # 构建公开站 → dist-public/
 npm run preview       # 本地预览（默认预览完整站）
 ```
 

@@ -42,7 +42,7 @@ Image.MAX_IMAGE_PIXELS = None
 
 VAULT = Path(os.environ.get("OBSIDIAN_VAULT", r"D:\private\obsidian")).resolve()
 SITE = Path(__file__).resolve().parent.parent
-CONTENT = SITE / "content"
+CONTENT = SITE / "content-all"
 
 INCLUDE_DIRS = [
     "AI",

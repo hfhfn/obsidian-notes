@@ -19,7 +19,7 @@ import shutil
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-CONTENT = ROOT / "content"
+CONTENT = ROOT / "content-all"
 OUT = ROOT / "content-public"
 
 # 未登录访客可以看到的目录
