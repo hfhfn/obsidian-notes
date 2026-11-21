@@ -121,7 +121,7 @@ PUBLIC_DIRS = ["AI", "AI大模型", "AIGC", "工作", "应用&工具笔记"]
 | `nx-actions` | 标题下方 | 收藏 / 点赞 / 分享 + 阅读数 |
 | `nx-personal` | 左栏 | 收藏 / 足迹（独立页） / 4 套主题 |
 | `nx-tabs` | 右栏 | 目录与漫步笔记合并为标签页 |
-| `nx-subscribe` | 页尾 | 邮箱订阅表单 |
+| `nx-subscribe` | 页尾 | 邮箱订阅表单（`/api/public/subscribe`） |
 
 收藏和足迹是独立页面：`/my/bookmarks`、`/my/history`，由 Functions 服务端渲染。
 
@@ -137,14 +137,15 @@ PUBLIC_DIRS = ["AI", "AI大模型", "AIGC", "工作", "应用&工具笔记"]
 | 足迹 | ✅ | 跨设备 |
 
 ```
-functions/api/     Pages Functions（_auth / stats / bookmarks / history）
+functions/api/       Pages Functions（_auth / stats / bookmarks / history）
+functions/api/public/  免登录接口（stats / subscribe）
 db/schema.sql      建表脚本（唯一入库的数据库文件）
 wrangler.jsonc     D1 绑定声明
 ```
 
 页面路由（服务端渲染）：`/my/bookmarks`、`/my/history`
 
-邮件订阅：`/api/subscribe` 把邮箱存入 D1；配了 `RESEND_API_KEY` 才会发确认信。
+邮件订阅：`/api/public/subscribe` 把邮箱存入 D1；配了 `RESEND_API_KEY` 才会发确认信。
 
 在 Cloudflare 面板 → Workers & Pages → `hfhfn-notes` → Settings →
 Environment variables 里加（Production 与 Preview 都要）：
