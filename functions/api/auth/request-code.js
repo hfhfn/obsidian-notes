@@ -28,17 +28,16 @@ export async function onRequestPost({ request, env }) {
     return json({ ok: false, error: "bad_json" }, 400)
   }
 
-  const email = String(body?.email ?? "").trim().toLowerCase()
+  const email = String(body?.email ?? "")
+    .trim()
+    .toLowerCase()
   if (!EMAIL_RE.test(email) || email.length > 254) {
     return json({ ok: false, error: "invalid_email", message: "邮箱格式不对" }, 400)
   }
 
   // 没配发信后端时直接告诉运维，而不是假装成功
   if (!mailerConfigured(env)) {
-    return json(
-      { ok: false, error: "mail_not_configured", message: "服务端未配置发信" },
-      503,
-    )
+    return json({ ok: false, error: "mail_not_configured", message: "服务端未配置发信" }, 503)
   }
 
   const db = env.DB
@@ -77,9 +76,7 @@ export async function onRequestPost({ request, env }) {
     .replace("T", " ")
 
   await db
-    .prepare(
-      `INSERT INTO login_codes (email, code_hash, expires_at) VALUES (?, ?, ?)`,
-    )
+    .prepare(`INSERT INTO login_codes (email, code_hash, expires_at) VALUES (?, ?, ?)`)
     .bind(email, codeHash, expiresAt)
     .run()
 
@@ -121,7 +118,5 @@ function randomCode(len) {
 async function sha256Hex(input) {
   const data = new TextEncoder().encode(input)
   const digest = await crypto.subtle.digest("SHA-256", data)
-  return [...new Uint8Array(digest)]
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("")
+  return [...new Uint8Array(digest)].map((b) => b.toString(16).padStart(2, "0")).join("")
 }

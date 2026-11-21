@@ -56,12 +56,7 @@ export async function verifySession(secret, token) {
 
   try {
     const key = await hmacKey(secret)
-    const ok = await crypto.subtle.verify(
-      "HMAC",
-      key,
-      b64urlDecode(sig),
-      encoder.encode(body),
-    )
+    const ok = await crypto.subtle.verify("HMAC", key, b64urlDecode(sig), encoder.encode(body))
     if (!ok) return null
 
     const payload = JSON.parse(new TextDecoder().decode(b64urlDecode(body)))
