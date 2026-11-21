@@ -1,5 +1,5 @@
 /**
- * GET /api/public-stats?slug=xxx  → { views, likes }
+ * GET /api/public/stats?slug=xxx  → { views, likes }
  *
  * 只返回公开计数，不含「我是否已赞」这类个人状态。
  * 这个接口**不受 Access 保护**（见 README 的 Access 配置说明），
@@ -7,7 +7,7 @@
  *
  * 写操作（点赞、收藏）仍然走 /api/stats 和 /api/bookmarks，需要登录。
  */
-import { json } from "./_auth.js"
+import { json } from "../_auth.js"
 
 export async function onRequestGet({ request, env }) {
   const url = new URL(request.url)

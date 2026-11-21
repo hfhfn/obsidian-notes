@@ -115,7 +115,7 @@ const RUNTIME = `
 
     // 1) 公开计数：无需登录，访客也能看到
     try {
-      var r0 = await fetch(API + "/public-stats?slug=" + slug);
+      var r0 = await fetch(API + "/public/stats?slug=" + slug);
       if (r0.ok) {
         var d0 = await r0.json();
         state.likes = d0.likes || 0;

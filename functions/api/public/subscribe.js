@@ -1,12 +1,12 @@
 /**
- * POST /api/subscribe   { email }  → 订阅邮件推送
- * GET  /api/subscribe?token=xxx    → 退订
+ * POST /api/public/subscribe  { email }  → 订阅邮件推送
+ * GET  /api/public/subscribe?token=xxx    → 退订
  *
  * 只存邮箱；实际发信由 Resend 完成（见 README 的配置说明）。
  * 订阅成功后立刻发一封欢迎邮件，确认地址可达。
  */
 
-import { json } from "./_auth.js"
+import { json } from "../_auth.js"
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
@@ -92,7 +92,7 @@ async function sendWelcome(env, email, token) {
           <p>你已订阅 <a href="${origin}">HFH 的笔记</a> 的更新推送。</p>
           <p>以后有新笔记时会邮件通知你。</p>
           <p style="color:#888;font-size:13px;margin-top:2rem">
-            不想再收到？<a href="${origin}/api/subscribe?token=${token}">点此退订</a>
+            不想再收到？<a href="${origin}/api/public/subscribe?token=${token}">点此退订</a>
           </p>`,
       }),
     })

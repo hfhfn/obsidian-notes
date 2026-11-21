@@ -3,7 +3,7 @@
  *
  * 外观参考常见的「输入邮箱 + 订阅按钮」样式：
  * 标题、说明、输入框与按钮同排，深色下自适应。
- * 提交走 /api/subscribe，成功后原地提示。
+ * 提交走 /api/public/subscribe，成功后原地提示。
  */
 import { h } from "preact"
 
@@ -106,7 +106,7 @@ const RUNTIME = `
     msg.textContent = "";
 
     try {
-      var r = await fetch("/api/subscribe", {
+      var r = await fetch("/api/public/subscribe", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ email: email }),

@@ -25,6 +25,9 @@ const CSS = `
   background: transparent;
   color: var(--darkgray);
   font-size: 0.76rem;
+  /* 显式统一字重：Quartz 全局给 a 设了 600，而 button 默认 400，
+     不写会导致「收藏/足迹」比「主题」看起来更粗更大。 */
+  font-weight: 400;
   font-family: var(--bodyFont);
   cursor: pointer;
   text-decoration: none;
