@@ -1,6 +1,11 @@
 # Obsidian 笔记发布站
 
-把 `D:\private\obsidian` 笔记库中的指定目录，构建成可公开访问的静态网站（Quartz 5 + Cloudflare Pages）。
+把 `D:\private\obsidian` 笔记库构建成**两个站**（Quartz 5 + Cloudflare Pages）：
+
+| 站点 | 地址 | 内容 | 访问控制 |
+|---|---|---|---|
+| 公开站 | `notes.hfhfn.dpdns.org` | 白名单目录（246 篇） | 任何人 |
+| 私有站 | `private.hfhfn.dpdns.org` | 全部（291 篇） | Cloudflare Access |
 
 > ⚠️ 这个仓库**只包含可公开内容**。原始私有库（含 `private/` 密钥文件）不在本仓库，也永远不会被同步。
 
@@ -11,25 +16,42 @@
 ```
 obsidian-site/
 ├─ content/                  # ← 自动生成，勿手改（每次同步会重建）
+├─ content-public/           # ← 自动生成，公开站用的白名单子集
 ├─ scripts/
 │  ├─ sync_content.py        # 同步脚本：白名单复制 + 清洗 + WebP 转换
+│  ├─ make_public_subset.py  # 从 content 抽出可公开子集
 │  ├─ inject_analytics.py    # 构建后注入 Cloudflare 统计信标
 │  └─ preview_server.py      # 本地预览服务器（模拟 Cloudflare 的 URL 规则）
 ├─ quartz.config.yaml        # 站点配置（标题、语言、主题、插件）
-├─ publish.ps1               # 一键：同步 → 构建 → 推送（CI 部署）
+├─ publish.ps1               # 一键：同步 → 推送（CI 构建并部署两站）
 └─ .github/workflows/        # 推送到 GitHub 后的自动部署
 ```
 
 ## 常用命令
 
 ```powershell
-.\publish.ps1        # 日常发布：同步 + 推送，CI 构建部署（不需要本地构建）
-.\publish.ps1 -Check  # 同步 + 本地构建校验，不推送
+.\publish.ps1         # 日常发布：同步 + 推送，CI 构建部署两站
+.\publish.ps1 -Check  # 同步 + 本地构建两站校验，不推送
 .\publish.ps1 -DryRun # 只看同步报告，不改文件
-npm run sync         # 只同步笔记到 content/
-npm run preview      # 想在本地看效果时才需要
-npm run deploy       # CI 故障时兜底：直接部署
+.\publish.ps1 -LocalDeploy  # 本地构建并直接部署两站
+
+npm run sync          # 只同步笔记到 content/
+npm run subset        # 只生成公开子集 content-public/
+npm run build         # 构建完整站 → public/
+npm run build:public  # 构建公开站 → public-public/
+npm run preview       # 本地预览（默认预览完整站）
 ```
+
+## 公开范围
+
+编辑 `scripts/make_public_subset.py` 顶部的 `PUBLIC_DIRS`：
+
+```python
+PUBLIC_DIRS = ["AI", "AI大模型", "AIGC", "工作", "应用&工具笔记"]
+```
+
+未列出的目录只出现在私有站。指向私有笔记的链接会自动降级为纯文本，
+避免标题泄漏进公开站的搜索索引。
 
 ## 定时自动发布
 
@@ -56,16 +78,19 @@ npm run deploy       # CI 故障时兜底：直接部署
 
 未配置 `CLOUDFLARE_API_TOKEN` 时，CI 只构建不部署并给出一条 warning，不会报红。
 
+## 域名与访问控制
 
-## 发布范围
+两个子域需要手动在 Cloudflare 面板配置（API 凭据没有 DNS / Zero Trust 权限）：
 
-**会发布**：`AI`、`AI大模型`、`AIGC`、`CS(计科)`、`应用&工具笔记`、`文学&认知`、
-`问题&资料收集`、`归档`、`Clippings`、`工作`，以及根目录 `README.md`（作为首页）。
+1. **DNS** → 加两条 CNAME，都开橙色云代理：
+   - `notes` → `hfhfn-notes.pages.dev`
+   - `private` → `hfhfn-notes-private.pages.dev`
+2. **Zero Trust → Access → Applications** → 建 Self-hosted 应用，
+   域名 `private.hfhfn.dpdns.org`，策略 Include = 你的邮箱。
 
-**永不发布**：`private/`（密钥、密码）、`00_Inbox/`、`00_系统/`、`template/`、
-`00_附件/HTML源码/`（源文件目录）、`.obsidian/`、`.claudian/`。
+> 根域 `hfhfn.dpdns.org` 已被 `substracker` Worker 占用，所以用子域。
 
-调整范围请改 `scripts/sync_content.py` 顶部的 `INCLUDE_DIRS`。
+
 
 ## 同步时做了什么
 
