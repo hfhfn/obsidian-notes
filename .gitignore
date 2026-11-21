@@ -31,3 +31,6 @@ dist-public/
 # Python
 __pycache__/
 *.pyc
+
+# 抓取的候选清单（临时产物，随时可重新抓）
+scripts/candidates/
