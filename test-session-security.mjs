@@ -11,10 +11,17 @@ const env = { DB: makeD1(sqlite), SESSION_SECRET: "real-secret" }
 const { onRequestGet } = await import("./functions/api/bookmarks.js")
 
 let fail = 0
-const check = (c, l, e) => { console.log(`  ${c ? "✅" : "❌"} ${l}${!c && e ? "  → " + e : ""}`); if (!c) fail++ }
+const check = (c, l, e) => {
+  console.log(`  ${c ? "✅" : "❌"} ${l}${!c && e ? "  → " + e : ""}`)
+  if (!c) fail++
+}
 
 function b64url(s) {
-  return Buffer.from(s, "utf8").toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "")
+  return Buffer.from(s, "utf8")
+    .toString("base64")
+    .replace(/\+/g, "-")
+    .replace(/\//g, "_")
+    .replace(/=+$/, "")
 }
 
 async function call(cookieValue) {
@@ -35,14 +42,20 @@ console.log("[A] 结构合法但签名是瞎编的（能被 atob 解析）")
 
 console.log("\n[B] 用错误的密钥签名")
 {
-  const wrongKeyToken = await signSession("attacker-guessed-secret", { email: "hacker@evil.com", exp: futureExp })
+  const wrongKeyToken = await signSession("attacker-guessed-secret", {
+    email: "hacker@evil.com",
+    exp: futureExp,
+  })
   const res = await call(wrongKeyToken)
   check(res.status === 401, "401 —— 换密钥签的也不行")
 }
 
 console.log("\n[C] 正确密钥但已过期")
 {
-  const expired = await signSession("real-secret", { email: "old@example.com", exp: Math.floor(Date.now() / 1000) - 10 })
+  const expired = await signSession("real-secret", {
+    email: "old@example.com",
+    exp: Math.floor(Date.now() / 1000) - 10,
+  })
   const res = await call(expired)
   check(res.status === 401, "401 —— 过期会话被拒")
 }

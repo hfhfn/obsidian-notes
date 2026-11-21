@@ -19,31 +19,46 @@ function freshDb() {
 const { onRequestPost } = await import("./functions/api/public/subscribe.js")
 
 let fail = 0
-const check = (c, l, e) => { console.log(`  ${c ? "✅" : "❌"} ${l}${!c && e ? "  → " + e : ""}`); if (!c) fail++ }
+const check = (c, l, e) => {
+  console.log(`  ${c ? "✅" : "❌"} ${l}${!c && e ? "  → " + e : ""}`)
+  if (!c) fail++
+}
 
 async function run(label, envExtra, email, sharedDb) {
   sent.length = 0
-  const env = { DB: sharedDb || freshDb(), MAIL_FROM: "noreply@test.local", MAIL_FROM_NAME: "测试", ...envExtra }
+  const env = {
+    DB: sharedDb || freshDb(),
+    MAIL_FROM: "noreply@test.local",
+    MAIL_FROM_NAME: "测试",
+    ...envExtra,
+  }
   const req = new Request("https://x.test/api/public/subscribe", {
-    method: "POST", headers: { "content-type": "application/json" },
+    method: "POST",
+    headers: { "content-type": "application/json" },
     body: JSON.stringify({ email }),
   })
   const res = await onRequestPost({ request: req, env })
   const body = await res.json()
   console.log(`\n[${label}]`)
   console.log(`   message: ${JSON.stringify(body.message)}`)
-  console.log(`   fetch:   ${sent.length ? sent.map(s => new URL(s.url).host).join(", ") : "无"}`)
+  console.log(`   fetch:   ${sent.length ? sent.map((s) => new URL(s.url).host).join(", ") : "无"}`)
   return { body, sent: [...sent] }
 }
 
 const sharedDb = freshDb()
 const a = await run("只有 BREVO_API_KEY", { BREVO_API_KEY: "k" }, "a@example.com", sharedDb)
 check(a.body.message.includes("请查收确认邮件"), "提示已发确认信")
-check(a.sent.some(s => s.url.includes("brevo.com")), "调用 Brevo")
+check(
+  a.sent.some((s) => s.url.includes("brevo.com")),
+  "调用 Brevo",
+)
 
 const b = await run("只有 RESEND_API_KEY", { RESEND_API_KEY: "k" }, "b@example.com")
 check(b.body.message.includes("请查收确认邮件"), "提示已发确认信")
-check(b.sent.some(s => s.url.includes("resend.com")), "调用 Resend")
+check(
+  b.sent.some((s) => s.url.includes("resend.com")),
+  "调用 Resend",
+)
 
 const c = await run("两个都配", { BREVO_API_KEY: "k", RESEND_API_KEY: "k" }, "c@example.com")
 check(c.sent.length === 1 && c.sent[0].url.includes("brevo.com"), "优先 Brevo 且只发一次")

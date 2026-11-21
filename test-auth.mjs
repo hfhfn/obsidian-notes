@@ -129,7 +129,11 @@ console.log("\n[4] 正确的验证码应登录成功")
 console.log("\n[5] 会话可用：收藏一篇笔记")
 {
   const res = await bookmarksApi.onRequestPost({
-    request: post("https://test.local/api/bookmarks", { slug: "AI/test", title: "测试笔记" }, cookie),
+    request: post(
+      "https://test.local/api/bookmarks",
+      { slug: "AI/test", title: "测试笔记" },
+      cookie,
+    ),
     env,
   })
   const body = await res.json()
@@ -200,12 +204,18 @@ console.log("\n[12] 连续错 5 次后锁定")
   const wrong = real === "000000" ? "111111" : "000000"
   for (let i = 0; i < 5; i++) {
     await verifyCode({
-      request: post("https://test.local/api/auth/verify-code", { email: "lock@example.com", code: wrong }),
+      request: post("https://test.local/api/auth/verify-code", {
+        email: "lock@example.com",
+        code: wrong,
+      }),
       env,
     })
   }
   const res = await verifyCode({
-    request: post("https://test.local/api/auth/verify-code", { email: "lock@example.com", code: real }),
+    request: post("https://test.local/api/auth/verify-code", {
+      email: "lock@example.com",
+      code: real,
+    }),
     env,
   })
   const body = await res.json()

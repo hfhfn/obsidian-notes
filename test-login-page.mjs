@@ -2,7 +2,10 @@
 import { onRequestGet } from "./functions/login/index.js"
 
 let fail = 0
-const check = (c, l, e) => { console.log(`  ${c ? "✅" : "❌"} ${l}${!c && e ? "  → " + e : ""}`); if (!c) fail++ }
+const check = (c, l, e) => {
+  console.log(`  ${c ? "✅" : "❌"} ${l}${!c && e ? "  → " + e : ""}`)
+  if (!c) fail++
+}
 
 async function page(qs = "") {
   const req = new Request("https://x.test/login" + qs)
