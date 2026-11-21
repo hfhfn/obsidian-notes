@@ -31,6 +31,7 @@ import hashlib
 import json
 import os
 import sys
+import urllib.parse
 from pathlib import Path
 
 VAULT = Path(r"D:\private\obsidian")
@@ -128,12 +129,23 @@ def upload_one(pdf: dict, env: dict, dry_run: bool) -> bool:
 
 
 def write_manifest(pdfs: list[dict], env: dict) -> None:
-    """生成 key → 公开 URL 的映射，供 sync_content.py 替换链接。"""
+    """生成 key → 公开 URL 的映射，供 sync_content.py 替换链接。
+
+    注意：对象键含中文/空格/括号时，URL 必须百分号编码，
+    否则浏览器和 curl 都会返回 400（R2 的公开域名不做自动解码）。
+    这里只编码路径部分，保留 https:// 和 / 分隔符。
+    """
     base = env.get("R2_PUBLIC_BASE", "").rstrip("/")
-    manifest = {
-        pdf["name"]: f"{base}/{pdf['key']}" if base else ""
-        for pdf in pdfs
-    }
+    manifest = {}
+    for pdf in pdfs:
+        if not base:
+            manifest[pdf["name"]] = ""
+            continue
+        # 逐段编码，保留 / 作为路径分隔符
+        encoded_key = "/".join(
+            urllib.parse.quote(seg, safe="") for seg in pdf["key"].split("/")
+        )
+        manifest[pdf["name"]] = f"{base}/{encoded_key}"
     MANIFEST.parent.mkdir(parents=True, exist_ok=True)
     MANIFEST.write_text(
         json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8"

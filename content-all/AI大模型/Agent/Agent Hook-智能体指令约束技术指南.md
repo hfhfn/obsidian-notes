@@ -21,8 +21,7 @@ modified: '2026-08-30T17:12:19+08:00'
 
 > [!info] 原始素材
 > - 图解总览：![[AI大模型/Agent/智能体指令约束技术指南.webp]]
-> - 原版 PDF 已归档：> [!warning] PDF 暂未发布
-> 原文件 `Mastering_Agent_Hooks.pdf` 约 10.0 MB，超过发布阈值；可在本地 Obsidian 中查看。（12 页 · Claude Code / Codex / DeepSeek Harness）
+> - 原版 PDF 已归档：[打开 PDF（10 MB）](https://pdf.hfhfn.dpdns.org/Mastering_Agent_Hooks.pdf)（12 页 · Claude Code / Codex / DeepSeek Harness）
 
 ---
 

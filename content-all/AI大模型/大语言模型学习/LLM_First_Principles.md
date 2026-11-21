@@ -10,8 +10,7 @@ modified: '2026-08-30T15:13:49+08:00'
 
 > 已归档到 `00_附件/PDF/`。PDF 本体见下方嵌入；可点开阅读。
 
-> [!warning] PDF 暂未发布
-> 原文件 `LLM_First_Principles.pdf` 约 16.8 MB，超过发布阈值；可在本地 Obsidian 中查看。
+[打开 PDF（17 MB）](https://pdf.hfhfn.dpdns.org/LLM_First_Principles.pdf)
 
 ## 一句话定位
 由 Gemini Notebook 生成的 15 页中文可视化图解，从第一性原理拆解 Transformer 与 Agent 生态：**内核永远是「输入 → 转换 → 输出」`y=f(x)`**。

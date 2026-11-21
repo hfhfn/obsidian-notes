@@ -22,8 +22,7 @@ modified: '2026-08-30T16:15:03+08:00'
 > [!info] 原始素材
 > - 图解（十大挑战总览）：![[AI大模型/Agent/大模型Agent系统架构挑战.webp]]
 > - 原版 PPT 出处：「大厂 Agent 系统架构与工程落地 · 十连问核心解密」
-> - 原版 PDF 已归档：> [!warning] PDF 暂未发布
-> 原文件 `Production_Agent_Engineering_Blueprint.pdf` 约 15.7 MB，超过发布阈值；可在本地 Obsidian 中查看。（14 页 · Gemini Notebook 参考架构 · SENIOR 级）
+> - 原版 PDF 已归档：[打开 PDF（16 MB）](https://pdf.hfhfn.dpdns.org/Production_Agent_Engineering_Blueprint.pdf)（14 页 · Gemini Notebook 参考架构 · SENIOR 级）
 
 ---
 
