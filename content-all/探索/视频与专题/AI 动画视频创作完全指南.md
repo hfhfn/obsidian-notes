@@ -8,14 +8,13 @@ status: 已整理
 progress: 100
 created: 2026-11-08
 derived:
-- mindmap
-- slides
-- infographic
+  - mindmap
+  - slides
+  - infographic
 tags:
-- video
-- AIGC
-- 动画
-modified: '2026-11-22T04:18:36+08:00'
+  - video
+  - AIGC
+  - 动画
 ---
 
 # AI 动画视频创作完全指南

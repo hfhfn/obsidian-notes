@@ -83,17 +83,41 @@
 
 .book-cover-link {
   display: block;
+  position: relative;
   border-radius: 5px;
   overflow: hidden;
   background: var(--lightgray);
+  /* 统一封面框比例。书封多为 2:3，影视海报也接近，用一个框保证整齐 */
   aspect-ratio: 2 / 3;
+  width: 100%;
+  /* 图片是绝对定位铺满，避免 inline 元素底部留白 */
+  line-height: 0;
 }
 
 .book-cover {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  /* contain 保证整张图都看得见，不裁掉书名/人脸；
+     cover 会裁切，此前封面「和框不对齐」的观感就来自这里 */
+  object-fit: contain;
+  object-position: center;
   display: block;
+  background: var(--lightgray);
+}
+
+/* 无封面占位 */
+.book-cover-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gray);
+  font-size: 0.68rem;
+  line-height: 1.2;
+  text-align: center;
 }
 
 /* 「笔记」角标 */

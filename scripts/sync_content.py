@@ -43,6 +43,7 @@ Image.MAX_IMAGE_PIXELS = None
 VAULT = Path(os.environ.get("OBSIDIAN_VAULT", r"D:\private\obsidian")).resolve()
 SITE = Path(__file__).resolve().parent.parent
 CONTENT = SITE / "content-all"
+MODULES = SITE / "modules"
 
 INCLUDE_DIRS = [
     "AI",
@@ -55,11 +56,15 @@ INCLUDE_DIRS = [
     "归档",
     "Clippings",
     "工作",
-    "藏书馆",
-    "观影库",
-    "视频与专题",
 ]
 INCLUDE_ROOT_FILES = ["README.md"]
+
+# 站点自有模块：不从 vault 同步，内容放在 obsidian-site/modules/。
+# 这样它们不会进 D:\private\obsidian（源笔记仓库），也不会被
+# sync_content.py 的 rmtree(content-all) 清掉。
+MODULE_DIRS = ["探索/藏书馆", "探索/观影库", "探索/视频与专题"]
+# 模块根目录下的散文件（如 探索/探索.md 索引页）也要带上
+MODULE_ROOT_FILES = ["探索/探索.md"]
 
 # Directories never copied / indexed for publishable content.
 SKIP_DIRS = {
@@ -928,6 +933,58 @@ class Sync:
 
     # -- main -------------------------------------------------------------
 
+    def inject_modules(self):
+        """把 obsidian-site/modules/ 下的站点自有模块复制进 content-all。
+
+        这些模块（藏书馆/观影库/视频与专题）不属于笔记库：
+        - 源 vault 里没有它们，不会进 D:\\private\\obsidian
+        - sync 每次 rmtree(content-all)，所以必须在这里重新注入
+
+        同时处理模块内的本地图片：复制到 attachments/modules/<模块>/ 并改写引用。
+        """
+        if not MODULES.exists():
+            return
+
+        # 先复制模块根目录下的散文件（索引页等）
+        for rel in MODULE_ROOT_FILES:
+            src = MODULES / rel
+            if not src.is_file():
+                continue
+            dst = CONTENT / rel
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(src, dst)
+
+        for name in MODULE_DIRS:
+            src = MODULES / name
+            if not src.is_dir():
+                self.report["warnings"].append(f"模块目录不存在：modules/{name}")
+                continue
+            dst = CONTENT / name
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copytree(src, dst, dirs_exist_ok=True)
+            self.report["modules"] = self.report.get("modules", 0) + 1
+
+            # 模块内若有本地图片/附件，搬到 attachments/modules/<name>/ 并改写 md
+            for dp, dn, fn in os.walk(dst):
+                dn[:] = [x for x in dn if x not in {".obsidian", ".git"}]
+                for f in fn:
+                    p = Path(dp) / f
+                    if p.suffix.lower() not in (IMAGE_EXTS | {".pdf", ".pptx", ".xmind"}):
+                        continue
+                    out_rel = f"attachments/modules/{name}/{p.name}"
+                    dest = CONTENT / out_rel
+                    dest.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.copy2(p, dest)
+                    self.report["images"] += 1
+                    # 改写同目录及上级 md 里对该文件的引用
+                    for md in Path(dp).glob("*.md"):
+                        text = md.read_text(encoding="utf-8")
+                        new = text.replace(f"]({p.name})", f"](/../{out_rel})")
+                        new = new.replace(f"](_assets/{p.parent.name}/{p.name})", f"](/../{out_rel})")
+                        if new != text:
+                            md.write_text(new, encoding="utf-8", newline="\n")
+                    p.unlink()
+
     def run(self):
         if not VAULT.exists():
             raise SystemExit(f"Vault not found: {VAULT}")
@@ -935,6 +992,10 @@ class Sync:
             if CONTENT.exists():
                 shutil.rmtree(CONTENT)
             CONTENT.mkdir(parents=True, exist_ok=True)
+
+        # 0) 站点自有模块（藏书馆/观影库/视频与专题）：从 modules/ 复制进来。
+        #    它们不属于笔记库，必须放在 rmtree 之后注入。
+        self.inject_modules()
 
         # 1) Copy all images inside allow-listed folders.
         for d in INCLUDE_DIRS:

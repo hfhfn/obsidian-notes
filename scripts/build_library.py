@@ -23,6 +23,9 @@ from pathlib import Path
 
 VAULT = Path(r"D:\private\obsidian")
 SITE = Path(__file__).resolve().parent.parent
+# 站点自有模块的源目录。三个卡片库不属于笔记库，只存在于 site 仓库，
+# 因此扫描源是 modules/ 而不是 vault。
+MODULES = SITE / "modules"
 CONTENT_DIRS = [SITE / "content-all", SITE / "content-public"]
 
 FM_RE = re.compile(r"^---\r?\n(.*?)\r?\n---", re.S)
@@ -30,7 +33,7 @@ FM_RE = re.compile(r"^---\r?\n(.*?)\r?\n---", re.S)
 # 两类媒体的差异都收敛到这张表，逻辑共用
 KINDS: dict[str, dict] = {
     "book": {
-        "dir": "藏书馆",
+        "dir": "探索/藏书馆",
         "json": "_books.json",
         "tag": "book",
         "label": "本书",
@@ -54,7 +57,7 @@ KINDS: dict[str, dict] = {
         "creator_label": "",
     },
     "movie": {
-        "dir": "观影库",
+        "dir": "探索/观影库",
         "json": "_movies.json",
         "tag": "movie",
         "label": "部",
@@ -79,7 +82,7 @@ KINDS: dict[str, dict] = {
         "creator_label": "",
     },
     "video": {
-        "dir": "视频与专题",
+        "dir": "探索/视频与专题",
         "json": "_videos.json",
         "tag": "video",
         "label": "条",
@@ -220,7 +223,7 @@ def pick_creator(fm: dict, cfg: dict) -> str:
 
 def collect(kind: str, dry_run: bool = False) -> list[dict]:
     cfg = KINDS[kind]
-    base = VAULT / cfg["dir"]
+    base = MODULES / cfg["dir"]
     if not base.exists():
         print(f"[{kind}] 目录不存在: {base}")
         return []
@@ -243,7 +246,7 @@ def collect(kind: str, dry_run: bool = False) -> list[dict]:
 
         item = {
             "title": title,
-            "slug": md.relative_to(VAULT).with_suffix("").as_posix(),
+            "slug": md.relative_to(MODULES).with_suffix("").as_posix(),
             "creator": pick_creator(fm, cfg),
             "cover": fm.get("cover", ""),
             "rating": fm.get("rating", ""),
@@ -251,6 +254,15 @@ def collect(kind: str, dry_run: bool = False) -> list[dict]:
             "status": normalize_status(fm.get("status", ""), cfg),
             "progress": fm.get("progress", ""),
             "douban": fm.get("douban", ""),
+            # 数据源链接：缩略图点击跳到这本书/这部电影的原始页面。
+            # 优先用笔记里显式写的 source_url，其次 douban / openlibrary / tvmaze。
+            "source_url": (
+                fm.get("source_url")
+                or fm.get("douban")
+                or fm.get("openlibrary")
+                or fm.get("tvmaze")
+                or ""
+            ),
             "info": info,
         }
         # 视频类特有：原视频链接 + 衍生笔记类型

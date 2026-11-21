@@ -7,9 +7,7 @@ cover: https://covers.openlibrary.org/b/id/460968-L.jpg
 rating: 4.1
 status: 想读
 tags:
-- book
-created: '2026-11-22T04:26:01+08:00'
-modified: '2026-11-22T04:26:01+08:00'
+  - book
 ---
 
 # Code

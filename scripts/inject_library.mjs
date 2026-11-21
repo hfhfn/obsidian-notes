@@ -15,7 +15,7 @@ import { fileURLToPath } from "node:url"
 // 两类媒体的差异集中在这张表，渲染逻辑共用
 const KINDS = {
   book: {
-    dir: "藏书馆",
+    dir: "探索/藏书馆",
     json: "_books.json",
     label: "本书",
     tabs: [
@@ -29,7 +29,7 @@ const KINDS = {
     infoOrder: ["页数", "开始", "读完"],
   },
   movie: {
-    dir: "观影库",
+    dir: "探索/观影库",
     json: "_movies.json",
     label: "部",
     tabs: [
@@ -42,7 +42,7 @@ const KINDS = {
     infoOrder: ["年份", "导演", "片长", "集数", "开始", "看完"],
   },
   video: {
-    dir: "视频与专题",
+    dir: "探索/视频与专题",
     json: "_videos.json",
     label: "条",
     tabs: [
@@ -136,14 +136,20 @@ function renderCard(item, cfg, depth) {
   const cover = coverSrc(item, depth)
   const href = noteHref(item, depth)
   const hasNote = Boolean(item.slug)
+  // 封面点击优先跳数据源（豆瓣/OpenLibrary/TVMaze 原页面），没有才跳笔记
+  const coverHref = item.source_url || href
+  const coverIsExternal = Boolean(item.source_url)
 
   const coverInner = cover
     ? `<img src="${cover}" alt="${esc(item.title)}" class="book-cover" loading="lazy">`
-    : `<div class="book-cover" style="display:flex;align-items:center;justify-content:center;color:var(--gray);font-size:.7rem">无封面</div>`
+    : `<div class="book-cover book-cover-empty">无封面</div>`
 
-  const coverBlock = hasNote
-    ? `<a href="${href}" class="book-cover-link" title="${esc(item.title)}">${coverInner}<span class="note-badge">笔记</span></a>`
-    : `<span class="book-cover-link" title="${esc(item.title)}">${coverInner}</span>`
+  const coverBadge = hasNote ? `<span class="note-badge">笔记</span>` : ""
+  const coverBlock = coverHref
+    ? `<a href="${esc(coverHref)}" class="book-cover-link" title="${esc(item.title)}${
+        coverIsExternal ? "（打开数据源）" : ""
+      }"${coverIsExternal ? ' target="_blank" rel="noopener"' : ""}>${coverInner}${coverBadge}</a>`
+    : `<span class="book-cover-link" title="${esc(item.title)}">${coverInner}${coverBadge}</span>`
 
   const titleBlock = hasNote
     ? `<a href="${href}" title="${esc(item.title)}">${esc(item.title)}</a>`
@@ -294,8 +300,9 @@ export function injectKind(distDir, kind) {
     return 0
   }
 
-  // 页面在 dist/<目录>/index.html，到站点根是 1 层
-  const depth = 1
+  // 页面在 dist/<目录>/index.html。目录可能是 探索/藏书馆 这样的多层，
+  // 所以层数要按 cfg.dir 里的路径段数算，不能硬编码。
+  const depth = cfg.dir.split("/").length
   const cards = items.map((it) => renderCard(it, cfg, depth)).join("")
   const tabs = renderTabs(cfg, "全部")
 

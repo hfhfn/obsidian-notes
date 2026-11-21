@@ -1,7 +1,7 @@
 [
   {
     "title": "三体（腾讯版）",
-    "slug": "观影库/三体（腾讯版）",
+    "slug": "探索/观影库/三体（腾讯版）",
     "creator": "杨磊",
     "cover": "https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2886838313.jpg",
     "rating": "8.7",
@@ -9,6 +9,7 @@
     "status": "在看",
     "progress": "40",
     "douban": "https://movie.douban.com/subject/26647087/",
+    "source_url": "https://movie.douban.com/subject/26647087/",
     "info": {
       "年份": "2023",
       "导演": "杨磊",
@@ -20,7 +21,7 @@
   },
   {
     "title": "沙丘2",
-    "slug": "观影库/沙丘2",
+    "slug": "探索/观影库/沙丘2",
     "creator": "丹尼斯·维伦纽瓦",
     "cover": "https://img9.doubanio.com/view/photo/s_ratio_poster/public/p2905235391.jpg",
     "rating": "8.2",
@@ -28,6 +29,7 @@
     "status": "已看",
     "progress": "100",
     "douban": "https://movie.douban.com/subject/35575567/",
+    "source_url": "https://movie.douban.com/subject/35575567/",
     "info": {
       "年份": "2024",
       "导演": "丹尼斯·维伦纽瓦",

@@ -31,9 +31,8 @@ PUBLIC_DIRS = [
     "CS(计科)",
     "工作",
     "应用&工具笔记",
-    "藏书馆",
-    "观影库",
-    "视频与专题",
+    # 站点自有模块（源在 obsidian-site/modules/，经 sync_content 注入 content-all）
+    "探索",
 ]
 
 # 始终保留的顶层文件/目录（导航与静态资源）
