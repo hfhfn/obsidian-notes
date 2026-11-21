@@ -119,8 +119,11 @@ PUBLIC_DIRS = ["AI", "AI大模型", "AIGC", "工作", "应用&工具笔记"]
 | 插件 | 位置 | 功能 |
 |---|---|---|
 | `nx-actions` | 标题下方 | 收藏 / 点赞 / 分享 + 阅读数 |
-| `nx-personal` | 左栏 | 我的收藏 / 我的足迹 / 4 套主题 |
+| `nx-personal` | 左栏 | 收藏 / 足迹（独立页） / 4 套主题 |
 | `nx-tabs` | 右栏 | 目录与漫步笔记合并为标签页 |
+| `nx-subscribe` | 页尾 | 邮箱订阅表单 |
+
+收藏和足迹是独立页面：`/my/bookmarks`、`/my/history`，由 Functions 服务端渲染。
 
 ## 互动数据（D1）
 
@@ -138,6 +141,14 @@ functions/api/     Pages Functions（_auth / stats / bookmarks / history）
 db/schema.sql      建表脚本（唯一入库的数据库文件）
 wrangler.jsonc     D1 绑定声明
 ```
+
+页面路由（服务端渲染）：`/my/bookmarks`、`/my/history`
+
+邮件订阅：`/api/subscribe` 把邮箱存入 D1；配了 `RESEND_API_KEY` 才会发确认信。
+需要在 Cloudflare 环境变量里设置 `RESEND_API_KEY`、`MAIL_FROM`、`SITE_ORIGIN`。
+
+> 注意：`/my/[page].js` 这类动态路由线上会 404，必须用 `my/bookmarks/index.js`
+> 这样的静态目录。
 
 数据库本体在 Cloudflare，不进仓库。改表结构后：
 
