@@ -30,6 +30,11 @@ const CSS = `
 .nx-tab:hover { color: var(--secondary); }
 .nx-tab.is-active { color: var(--secondary); border-bottom-color: var(--secondary); }
 
+/* 关键：.toc 自带 display:flex，会覆盖 hidden 属性的 UA 样式，
+   必须显式声明，否则切换标签时目录不会真正隐藏。 */
+.nx-tabs-host ~ .toc[hidden],
+.nx-tabs-host ~ .backlinks[hidden] { display: none !important; }
+
 /* 标签页已经提供了标题，隐藏各组件自带的重复标题 */
 .nx-tabs-host ~ .toc > button.toc-header > h3,
 .nx-tabs-host ~ .backlinks > h3 { display: none; }
