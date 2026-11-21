@@ -1,4 +1,4 @@
-import { json, requireUser } from "./_auth.js"
+import { json, requireUser, getUser } from "./_auth.js"
 
 /**
  * GET  /api/stats?slug=xxx  → { likes, views, liked }
@@ -17,7 +17,7 @@ export async function onRequestGet({ request, env }) {
     env.DB.prepare("SELECT COUNT(*) AS c FROM likes WHERE slug = ?").bind(slug).first(),
   ])
 
-  const user = getUserSafe(request)
+  const user = await getUser(request, env)
   let liked = false
   if (user) {
     const mine = await env.DB.prepare(
@@ -63,7 +63,7 @@ export async function onRequestPost({ request, env }) {
   }
 
   // 点赞 / 取消点赞需要登录
-  const { user, response } = requireUser(request)
+  const { user, response } = await requireUser(request, env)
   if (!user) return response
 
   if (action === "like") {
@@ -89,25 +89,4 @@ export async function onRequestPost({ request, env }) {
     likes: row?.c ?? 0,
     liked: action === "like",
   })
-}
-
-function getUserSafe(request) {
-  try {
-    const token =
-      request.headers.get("Cf-Access-Jwt-Assertion") ||
-      (request.headers.get("Cookie") || "")
-        .split(";")
-        .map((s) => s.trim())
-        .find((s) => s.startsWith("CF_Authorization="))
-        ?.slice("CF_Authorization=".length)
-    if (!token) return null
-    const [, payload] = token.split(".")
-    const b64 = payload.replace(/-/g, "+").replace(/_/g, "/")
-    const json = atob(b64 + "=".repeat((4 - (b64.length % 4)) % 4))
-    const data = JSON.parse(json)
-    const email = data.email || data.sub
-    return email ? { email: String(email).toLowerCase() } : null
-  } catch {
-    return null
-  }
 }

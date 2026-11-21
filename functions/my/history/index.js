@@ -2,7 +2,7 @@ import { SHELL, html, getUser, LOGIN_EMPTY, renderHistory } from "../_shared.js"
 
 export async function onRequestGet({ request, env }) {
   const path = "/my/history"
-  const user = getUser(request)
+  const user = await getUser(request, env)
   if (!user) return html(SHELL("我的足迹", LOGIN_EMPTY(path)))
 
   const rows = await env.DB.prepare(

@@ -2,7 +2,7 @@ import { SHELL, html, getUser, LOGIN_EMPTY, renderBookmarks } from "../_shared.j
 
 export async function onRequestGet({ request, env }) {
   const path = "/my/bookmarks"
-  const user = getUser(request)
+  const user = await getUser(request, env)
   if (!user) return html(SHELL("我的收藏", LOGIN_EMPTY(path)))
 
   const rows = await env.DB.prepare(

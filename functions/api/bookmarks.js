@@ -5,7 +5,7 @@ import { json, requireUser, touchUser } from "./_auth.js"
  * POST /api/bookmarks        { slug, title } → 切换收藏，返回 { bookmarked }
  */
 export async function onRequestGet({ request, env }) {
-  const { user, response } = requireUser(request)
+  const { user, response } = await requireUser(request, env)
   if (!user) return response
 
   const rows = await env.DB.prepare(
@@ -19,7 +19,7 @@ export async function onRequestGet({ request, env }) {
 }
 
 export async function onRequestPost({ request, env }) {
-  const { user, response } = requireUser(request)
+  const { user, response } = await requireUser(request, env)
   if (!user) return response
 
   let body

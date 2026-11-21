@@ -78,30 +78,16 @@ export function esc(s) {
   })[c])
 }
 
-export function getUser(request) {
-  const token =
-    request.headers.get("Cf-Access-Jwt-Assertion") ||
-    (request.headers.get("Cookie") || "")
-      .split(";")
-      .map((s) => s.trim())
-      .find((s) => s.startsWith("CF_Authorization="))
-      ?.slice("CF_Authorization=".length)
-  if (!token) return null
-  try {
-    const [, payload] = token.split(".")
-    const b64 = payload.replace(/-/g, "+").replace(/_/g, "/")
-    const data = JSON.parse(atob(b64 + "=".repeat((4 - (b64.length % 4)) % 4)))
-    const email = data.email || data.sub
-    return email ? { email: String(email).toLowerCase() } : null
-  } catch {
-    return null
-  }
-}
+/**
+ * 身份解析统一走 _auth.js，避免这里和 API 层各维护一份。
+ * 重新导出是为了让 /my/* 页面少改一行 import。
+ */
+export { getUser } from "../api/_auth.js"
 
 
 export const LOGIN_EMPTY = (path) => `<div class="empty">
   这个页面需要登录才能查看。<br><br>
-  <a href="/cdn-cgi/access/login?redirect_url=${encodeURIComponent(path)}">点此登录</a>
+  <a href="/login?redirect=${encodeURIComponent(path)}">用邮箱验证码登录 →</a>
 </div>`
 
 export function renderBookmarks(items) {

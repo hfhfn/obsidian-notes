@@ -2,11 +2,12 @@
  * POST /api/public/subscribe  { email }  → 订阅邮件推送
  * GET  /api/public/subscribe?token=xxx    → 退订
  *
- * 只存邮箱；实际发信由 Resend 完成（见 README 的配置说明）。
+ * 只存邮箱；发信逻辑在 ../_mail.js（Brevo 优先，回退 Resend）。
  * 订阅成功后立刻发一封欢迎邮件，确认地址可达。
  */
 
 import { json } from "../_auth.js"
+import { sendMail, mailerConfigured } from "../_mail.js"
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 
@@ -39,9 +40,9 @@ export async function onRequestPost({ request, env }) {
     "INSERT INTO subscribers (email, unsub_token) VALUES (?, ?)",
   ).bind(email, token).run()
 
-  // 有 Resend 配置就发确认信；没有也不报错，只是不发送
+  // 配了任一邮件后端就发确认信；都没有也不报错，只是不发送
   let mailed = false
-  if (env.RESEND_API_KEY) {
+  if (mailerConfigured(env)) {
     mailed = await sendWelcome(env, email, token)
   }
 
@@ -75,13 +76,7 @@ export async function onRequestGet({ request, env }) {
   )
 }
 
-/**
- * 发确认信。优先用 Brevo（支持公共域名），回退到 Resend。
- *
- * 需要的环境变量：
- *   BREVO_API_KEY  + MAIL_FROM / MAIL_FROM_NAME   → Brevo
- *   RESEND_API_KEY + MAIL_FROM                    → Resend
- */
+/** 发确认信 */
 async function sendWelcome(env, email, token) {
   const origin = env.SITE_ORIGIN || "https://notes.hfhfn.dpdns.org"
   const html = `<p>你好，</p>
@@ -92,64 +87,5 @@ async function sendWelcome(env, email, token) {
     </p>`
   const subject = "订阅成功 · HFH 的笔记"
 
-  if (env.BREVO_API_KEY) {
-    return sendViaBrevo(env, email, subject, html)
-  }
-  if (env.RESEND_API_KEY) {
-    return sendViaResend(env, email, subject, html)
-  }
-  return false
-}
-
-async function sendViaBrevo(env, email, subject, html) {
-  try {
-    const senderEmail = env.MAIL_FROM || "noreply@hfhfn.dpdns.org"
-    const senderName = env.MAIL_FROM_NAME || "HFH 的笔记"
-    const r = await fetch("https://api.brevo.com/v3/smtp/email", {
-      method: "POST",
-      headers: {
-        "api-key": env.BREVO_API_KEY,
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify({
-        sender: { email: senderEmail, name: senderName },
-        to: [{ email }],
-        subject,
-        htmlContent: html,
-      }),
-    })
-    if (!r.ok) {
-      const detail = await r.text().catch(() => "")
-      console.error("[subscribe] brevo failed", r.status, detail.slice(0, 300))
-    }
-    return r.ok
-  } catch (err) {
-    console.error("[subscribe] brevo error", err)
-    return false
-  }
-}
-
-async function sendViaResend(env, email, subject, html) {
-  try {
-    const from = env.MAIL_FROM_NAME
-      ? `${env.MAIL_FROM_NAME} <${env.MAIL_FROM}>`
-      : env.MAIL_FROM || "HFH 的笔记 <onboarding@resend.dev>"
-    const r = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${env.RESEND_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ from, to: [email], subject, html }),
-    })
-    if (!r.ok) {
-      const detail = await r.text().catch(() => "")
-      console.error("[subscribe] resend failed", r.status, detail.slice(0, 300))
-    }
-    return r.ok
-  } catch (err) {
-    console.error("[subscribe] resend error", err)
-    return false
-  }
+  return sendMail(env, { to: email, subject, html })
 }

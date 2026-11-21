@@ -55,3 +55,21 @@ CREATE TABLE IF NOT EXISTS subscribers (
   confirmed  INTEGER NOT NULL DEFAULT 1,
   unsub_token TEXT NOT NULL
 );
+
+-- 自建邮箱登录的一次性验证码
+--
+-- 一张表同时承担两个角色：
+--   1. 待验证的验证码（code_hash 非空，consumed = 0）
+--   2. 限流记录（每次请求都插一行，code_hash 为空）
+-- 这样「每小时每邮箱最多 5 次」只需 COUNT 即可，不用额外维护计数器。
+CREATE TABLE IF NOT EXISTS login_codes (
+  id         INTEGER PRIMARY KEY AUTOINCREMENT,
+  email      TEXT NOT NULL,
+  code_hash  TEXT,
+  expires_at TEXT,
+  attempts   INTEGER NOT NULL DEFAULT 0,
+  consumed   INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_login_codes_email ON login_codes(email, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_login_codes_pending ON login_codes(email, consumed, expires_at);

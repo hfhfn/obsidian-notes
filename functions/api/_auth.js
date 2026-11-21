@@ -1,21 +1,43 @@
 /**
- * 从 Cloudflare Access 的 JWT 中取出用户邮箱。
+ * 身份解析：同时支持两种来源
  *
- * 说明：这里只做「解码」，不做签名校验。原因：
- * - 请求已由 Cloudflare Access 在边缘拦截，未登录根本到不了 Functions
- * - 如果日后要自己校验，用 jose 验证 Cf-Access-Jwt-Assertion 即可
+ *   1. 自建会话 Cookie（notes_session，HMAC 签名）—— 公开站读者走这条
+ *   2. Cloudflare Access JWT（Cf-Access-Jwt-Assertion / CF_Authorization）
+ *      —— 私有站 private.hfhfn.dpdns.org 由 Access 在边缘拦截，仍走这条
  *
+ * 这样同一套业务代码能同时服务两个站，不必分叉。
+ *
+ * 注意：getUser 现在是 async（自建会话要验签名）。
+ */
+import { verifySession, readSessionCookie } from "./_session.js"
+
+/**
  * 返回 { email, name } 或 null。
  */
-export function getUser(request) {
-  // 首选 header，Access 保证会带上；cookie 作为兜底
-  const token =
+export async function getUser(request, env) {
+  // --- 1) 自建会话 ---
+  const secret = env?.SESSION_SECRET
+  if (secret) {
+    const token = readSessionCookie(request)
+    if (token) {
+      const payload = await verifySession(secret, token)
+      if (payload?.email) {
+        return {
+          email: String(payload.email).toLowerCase(),
+          name: payload.name || null,
+        }
+      }
+    }
+  }
+
+  // --- 2) Cloudflare Access ---
+  const accessToken =
     request.headers.get("Cf-Access-Jwt-Assertion") ||
     readCookie(request.headers.get("Cookie"), "CF_Authorization")
 
-  if (!token) return null
+  if (!accessToken) return null
 
-  const payload = decodeJwtPayload(token)
+  const payload = decodeJwtPayload(accessToken)
   if (!payload) return null
 
   const email = payload.email || payload.sub
@@ -57,14 +79,17 @@ export function json(data, status = 200) {
   })
 }
 
-/** 需要登录的接口：未登录返回 401，前端据此弹登录提示 */
-export function requireUser(request) {
-  const user = getUser(request)
+/**
+ * 需要登录的接口：未登录返回 401，前端据此跳登录页。
+ * 注意是 async —— 调用方必须 await。
+ */
+export async function requireUser(request, env) {
+  const user = await getUser(request, env)
   if (!user) {
     return {
       user: null,
       response: json(
-        { ok: false, error: "login_required", loginUrl: "/cdn-cgi/access/login" },
+        { ok: false, error: "login_required", loginUrl: "/login" },
         401,
       ),
     }

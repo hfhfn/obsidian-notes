@@ -6,7 +6,7 @@ import { json, requireUser, touchUser } from "./_auth.js"
  * DELETE /api/history      → 清空我的足迹
  */
 export async function onRequestGet({ request, env }) {
-  const { user, response } = requireUser(request)
+  const { user, response } = await requireUser(request, env)
   if (!user) return response
 
   const rows = await env.DB.prepare(
@@ -20,7 +20,7 @@ export async function onRequestGet({ request, env }) {
 }
 
 export async function onRequestPost({ request, env }) {
-  const { user, response } = requireUser(request)
+  const { user, response } = await requireUser(request, env)
   if (!user) return response
 
   let body
@@ -50,7 +50,7 @@ export async function onRequestPost({ request, env }) {
 }
 
 export async function onRequestDelete({ request, env }) {
-  const { user, response } = requireUser(request)
+  const { user, response } = await requireUser(request, env)
   if (!user) return response
 
   await env.DB.prepare("DELETE FROM history WHERE email = ?").bind(user.email).run()
