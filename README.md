@@ -354,14 +354,17 @@ Prettier 会解析它们。一个多余的 `</div>` 就报错。
 
 ## 藏书馆 / 观影库 / 视频与专题
 
-三个卡片网格页面，数据从 Obsidian 笔记的 frontmatter 自动生成。
-三者在左侧导航「探索」下同级。
+三个卡片网格页面，在左侧导航「探索」下作为子项。
+
+**它们不属于笔记库**：内容源在 `obsidian-site/modules/探索/`，
+不进入 `D:\private\obsidian`，也不会被 `sync_content.py` 的清空操作影响
+（`inject_modules()` 在 `rmtree(content-all)` 之后注入）。
 
 | 页面 | 数据源 | 标签 | 状态 |
 |---|---|---|---|
-| `/藏书馆` | `藏书馆/*.md` | `#book` | 在读 / 已读 / 想读 / 未读完 |
-| `/观影库` | `观影库/*.md` | `#movie` | 在看 / 已看 / 想看 / 弃剧 |
-| `/视频与专题` | `视频与专题/*.md` | `#video` | 已整理 / 整理中 / 待整理 |
+| `/探索/藏书馆` | `modules/探索/藏书馆/*.md` | `#book` | 在读 / 已读 / 想读 / 未读完 |
+| `/探索/观影库` | `modules/探索/观影库/*.md` | `#movie` | 在看 / 已看 / 想看 / 弃剧 |
+| `/探索/视频与专题` | `modules/探索/视频与专题/*.md` | `#video` | 已整理 / 整理中 / 待整理 |
 
 ### 怎么写一条
 
@@ -419,6 +422,77 @@ node scripts/inject_library.mjs dist-public  # 构建后注入卡片
 ```
 
 已接入 `npm run build` / `npm run build:public`，日常不用单独跑。
+
+### 缩略图跳数据源
+
+封面点击跳**数据源页面**（豆瓣 / OpenLibrary / TVMaze），标题点击跳站内笔记页。
+数据源 URL 的取值优先级：
+
+```
+source_url → douban → openlibrary → tvmaze
+```
+
+所以只要笔记里写了其中一个字段，封面就自动可点。
+
+### 封面与图片框对齐
+
+封面容器是固定 `aspect-ratio: 2/3` 的框，图片用
+`position:absolute; inset:0; object-fit:contain` 铺满。
+
+**为什么用 contain 不用 cover**：`cover` 会裁掉图片边缘（书名的字、海报的
+人脸），视觉上就是「封面和框不对齐」。`contain` 保证整张图完整可见、
+居中、不裁切。容器再加 `line-height:0` 消除 inline 图片底部的空隙。
+
+---
+
+## NotebookLM 视频笔记导入
+
+NotebookLM 没有公开写入 API，所以走「手工导出 + 脚本整理」。
+
+### 三种用法
+
+```powershell
+# 1) 单条新建（生成骨架，你再粘贴摘要）
+python scripts/import_notebooklm.py new `
+    --title "AI 动画视频创作完全指南" `
+    --video "https://www.youtube.com/watch?v=xxx" `
+    --platform youtube --channel "经验开源" --duration "42分钟"
+
+# 2) 从 CSV 批量新建
+python scripts/import_notebooklm.py batch --csv notes.csv
+
+# 3) 归档导出的 PPT / XMind / 信息图
+python scripts/import_notebooklm.py attach `
+    --title "AI 动画视频创作完全指南" `
+    --mindmap ~/Downloads/mindmap.png `
+    --slides  ~/Downloads/slides.pdf `
+    --infographic ~/Downloads/info.png
+```
+
+### CSV 格式
+
+```csv
+title,video_url,platform,channel,duration,status,summary
+AI 动画视频创作完全指南,https://youtube.com/watch?v=xxx,youtube,经验开源,42分钟,已整理,这里放摘要
+```
+
+### attach 做了什么
+
+1. 把文件复制到 `modules/探索/视频与专题/_assets/<标题>/`
+2. 在 frontmatter 写 `derived: [mindmap, slides, infographic]`（卡片上显示角标）
+3. 在正文「## 衍生笔记」小节插入文件链接
+
+支持的 `derived` 类型：`mindmap` / `slides` / `infographic` / `audio` /
+`report` / `flashcards` / `quiz`。
+
+### 从 NotebookLM 拿文件
+
+| 类型 | 怎么导出 |
+|---|---|
+| 思维导图 | 右上「…」→ 导出图片，或截图 |
+| 演示文稿 | 导出为 PDF |
+| 信息图 | 直接下载 PNG |
+| 摘要 | 复制正文，粘到笔记的「## 摘要」 |
 
 ---
 
