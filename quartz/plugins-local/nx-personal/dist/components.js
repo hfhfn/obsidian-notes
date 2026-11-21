@@ -25,7 +25,12 @@ const CSS = `
   border-radius: 7px;
   background: transparent;
   color: var(--darkgray);
-  font-size: 0.76rem;
+  /* 必须 !important：Quartz 把组件样式打进 @layer quartz-base，
+     而 CSS 规范里未分层样式永远优先于 @layer 内的样式（与特异性无关）。
+     浏览器扩展注入一条普通的 button { font-size: 16px } 就能压掉这里，
+     导致「主题」（<button>）变成 16px，而「收藏/足迹」（<a>）不受影响，
+     三个按钮看起来一大两小。用 !important 让字号不受任何外部规则影响。 */
+  font-size: 0.76rem !important;
   /* 显式统一字重：Quartz 全局给 a 设了 600，而 button 默认 400，
      不写会导致「收藏/足迹」比「主题」看起来更粗更大。 */
   font-weight: 400;
@@ -38,7 +43,8 @@ const CSS = `
 }
 .pb-btn:hover { border-color: var(--secondary); color: var(--secondary); background: var(--highlight); }
 .pb-btn svg { width: 13px; height: 13px; flex: 0 0 auto; }
-.pb-btn span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* span 也锁定字号：即使外部规则命中 button 的后代，也不会放大文字 */
+.pb-btn span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: inherit !important; }
 
 /* 主题弹层 */
 .pb-pop {
