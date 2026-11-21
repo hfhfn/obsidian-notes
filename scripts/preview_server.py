@@ -49,7 +49,7 @@ class PrettyHandler(http.server.SimpleHTTPRequestHandler):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("-d", "--directory", default="public")
+    ap.add_argument("-d", "--directory", default="dist-all")
     ap.add_argument("-p", "--port", type=int, default=8080)
     args = ap.parse_args()
     handler = lambda *a, **kw: PrettyHandler(*a, directory=args.directory, **kw)  # noqa: E731

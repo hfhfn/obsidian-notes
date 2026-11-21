@@ -39,7 +39,7 @@ const CSS = `
 /* 主题弹层 */
 .pb-pop {
   position: fixed; z-index: 70;
-  width: 12rem; padding: .4rem;
+  width: 16rem; padding: .45rem;
   border: 1px solid var(--lightgray); border-radius: 9px;
   background: var(--light); box-shadow: 0 10px 30px rgba(0,0,0,.14);
 }
@@ -50,9 +50,10 @@ const CSS = `
   color: var(--gray); font-size: .7rem;
   text-transform: uppercase; letter-spacing: .06em;
 }
+.pb-pop .pb-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .15rem; }
 .pb-theme {
   display: block; width: 100%; text-align: left;
-  padding: .34rem .45rem; margin: .08rem 0;
+  padding: .34rem .45rem; margin: 0;
   border: none; border-radius: 6px; background: none;
   color: var(--darkgray); font-size: 0.76rem;
   font-family: var(--bodyFont); cursor: pointer;
@@ -86,7 +87,29 @@ const THEMES = {
     light: { light:"#fdf6e3", lightgray:"#eee8d5", gray:"#93a1a1", darkgray:"#586e75", dark:"#073642", secondary:"#268bd2", tertiary:"#2aa198", highlight:"rgba(38,139,210,0.09)", textHighlight:"rgba(181,137,0,0.38)" },
     dark:  { light:"#002b36", lightgray:"#073642", gray:"#586e75", darkgray:"#93a1a1", dark:"#fdf6e3", secondary:"#268bd2", tertiary:"#2aa198", highlight:"rgba(38,139,210,0.14)", textHighlight:"rgba(181,137,0,0.32)" },
   },
+  // —— 以下四套白天模式差异明显 ——
+  mint: {
+    label: "薄荷",
+    light: { light:"#f2fbf7", lightgray:"#cfe9de", gray:"#8fae9f", darkgray:"#2f4a3f", dark:"#12332a", secondary:"#0f8a5f", tertiary:"#1aa3a3", highlight:"rgba(15,138,95,0.10)", textHighlight:"rgba(120,220,180,0.45)" },
+    dark:  { light:"#0e1f1a", lightgray:"#1d3a30", gray:"#5f8478", darkgray:"#c3ded3", dark:"#e8f5ef", secondary:"#4fd1a5", tertiary:"#5ecfcf", highlight:"rgba(79,209,165,0.13)", textHighlight:"rgba(120,220,180,0.26)" },
+  },
+  rose: {
+    label: "玫瑰",
+    light: { light:"#fff7f9", lightgray:"#f0dae0", gray:"#b99aa4", darkgray:"#4a2f38", dark:"#2e1520", secondary:"#b83b5e", tertiary:"#d4778c", highlight:"rgba(184,59,94,0.09)", textHighlight:"rgba(255,170,190,0.45)" },
+    dark:  { light:"#1e1116", lightgray:"#37202a", gray:"#8a6373", darkgray:"#e0c4ce", dark:"#f7eaf0", secondary:"#e8799a", tertiary:"#d99cb0", highlight:"rgba(232,121,154,0.13)", textHighlight:"rgba(255,170,190,0.26)" },
+  },
+  midnight: {
+    label: "深海",
+    light: { light:"#f5f8fc", lightgray:"#d8e2ef", gray:"#93a3b8", darkgray:"#2a3a52", dark:"#0f1a2b", secondary:"#2a5fa8", tertiary:"#3f8fbf", highlight:"rgba(42,95,168,0.10)", textHighlight:"rgba(140,190,255,0.42)" },
+    dark:  { light:"#0a1220", lightgray:"#1a2536", gray:"#5a6b85", darkgray:"#c0cfe0", dark:"#e8f0fa", secondary:"#5b9de8", tertiary:"#4fc3d9", highlight:"rgba(91,157,232,0.14)", textHighlight:"rgba(140,190,255,0.26)" },
+  },
+  forest: {
+    label: "森林",
+    light: { light:"#f7f8f2", lightgray:"#dfe3d0", gray:"#9aa384", darkgray:"#38402a", dark:"#1c2415", secondary:"#4d6b2f", tertiary:"#7a9440", highlight:"rgba(77,107,47,0.10)", textHighlight:"rgba(190,220,120,0.45)" },
+    dark:  { light:"#141a10", lightgray:"#28331f", gray:"#6b7a5a", darkgray:"#ccd6bd", dark:"#f0f5e8", secondary:"#93b862", tertiary:"#a8c47a", highlight:"rgba(147,184,98,0.14)", textHighlight:"rgba(190,220,120,0.26)" },
+  },
 }
+
 
 const ICONS = {
   bookmark: "M6 3h12a1 1 0 0 1 1 1v16l-7-4-7 4V4a1 1 0 0 1 1-1z",
@@ -180,11 +203,12 @@ export function PersonalBar() {
         }, icon(ICONS.palette), h("span", {}, "主题")),
         h("div", { class: "pb-pop", "data-pb-theme-panel": "", hidden: true },
           h("div", { class: "pb-head" }, "主题"),
-          Object.keys(THEMES).map((name) =>
-            h("button", {
-              class: "pb-theme", "data-pb-theme": name,
-              onclick: `window.__pbSetTheme('${name}');window.__pbCloseTheme();`,
-            }, THEMES[name].label)),
+          h("div", { class: "pb-grid" },
+            Object.keys(THEMES).map((name) =>
+              h("button", {
+                class: "pb-theme", "data-pb-theme": name,
+                onclick: `window.__pbSetTheme('${name}');window.__pbCloseTheme();`,
+              }, THEMES[name].label))),
         ),
       ),
     )
