@@ -55,6 +55,7 @@ INCLUDE_DIRS = [
     "归档",
     "Clippings",
     "工作",
+    "藏书馆",
 ]
 INCLUDE_ROOT_FILES = ["README.md"]
 
