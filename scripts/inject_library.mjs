@@ -41,6 +41,21 @@ const KINDS = {
     ],
     infoOrder: ["年份", "导演", "片长", "集数", "开始", "看完"],
   },
+  video: {
+    dir: "视频与专题",
+    json: "_videos.json",
+    label: "条",
+    tabs: [
+      { key: "已整理", label: "已整理" },
+      { key: "整理中", label: "整理中" },
+      { key: "待整理", label: "待整理" },
+      { key: "全部", label: "全部" },
+    ],
+    infoOrder: ["时长", "频道", "平台", "整理"],
+    // 视频类特有：卡片上显示「看原视频」和衍生笔记角标
+    showSourceLink: true,
+    showDerived: true,
+  },
 }
 
 const PLACEHOLDER = "<!-- LIBRARY_GRID -->"
@@ -158,6 +173,38 @@ function renderCard(item, cfg, depth) {
       <div class="book-progress-text">${p}%</div>`
   }
 
+  // 视频类：原视频链接
+  let sourceLink = ""
+  if (cfg.showSourceLink && item.source_url) {
+    const platformLabel =
+      item.platform === "bilibili"
+        ? "看 B 站"
+        : item.platform === "youtube"
+          ? "看 YouTube"
+          : "看原视频"
+    sourceLink = `<a class="book-source-link" href="${esc(item.source_url)}" target="_blank" rel="noopener">${esc(platformLabel)}</a>`
+  }
+
+  // 视频类：衍生笔记角标（思维导图 / 演示文稿 / 信息图）
+  const DERIVED_LABELS = {
+    mindmap: "思维导图",
+    slides: "演示文稿",
+    infographic: "信息图",
+    audio: "音频概览",
+    report: "报告",
+    flashcards: "闪卡",
+    quiz: "测验",
+  }
+  let derivedBadges = ""
+  if (cfg.showDerived && Array.isArray(item.derived) && item.derived.length) {
+    derivedBadges =
+      `<div class="derived-badges">` +
+      item.derived
+        .map((d) => `<span class="derived-badge">${esc(DERIVED_LABELS[d] || d)}</span>`)
+        .join("") +
+      `</div>`
+  }
+
   return `
     <div class="book-card${hasNote ? " has-note" : ""}" data-status="${esc(item.status)}">
       <div class="book-header">
@@ -169,7 +216,9 @@ function renderCard(item, cfg, depth) {
       </div>
       ${rating}
       ${infoRows.length ? `<div class="book-info">${infoRows.join("")}</div>` : ""}
+      ${derivedBadges}
       ${progress}
+      ${sourceLink}
     </div>`
 }
 

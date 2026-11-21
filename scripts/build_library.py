@@ -78,6 +78,27 @@ KINDS: dict[str, dict] = {
         "creator_fields": ("director", "导演", "author"),
         "creator_label": "",
     },
+    "video": {
+        "dir": "视频与专题",
+        "json": "_videos.json",
+        "tag": "video",
+        "label": "条",
+        "referer": "",
+        "status_map": {
+            "已整理": "已整理", "完成": "已整理", "done": "已整理",
+            "整理中": "整理中", "进行中": "整理中", "draft": "整理中",
+            "待整理": "待整理", "未整理": "待整理", "todo": "待整理",
+        },
+        "default_status": "待整理",
+        "info_fields": [
+            ("时长", "duration"),
+            ("频道", "channel"),
+            ("平台", "platform"),
+            ("整理", "created"),
+        ],
+        "creator_fields": ("channel", "频道", "author"),
+        "creator_label": "",
+    },
 }
 
 # 两个索引页本身不该被当成条目
@@ -123,6 +144,44 @@ def parse_frontmatter(text: str) -> dict:
         if val != "null":
             data[key] = val
     return data
+
+
+def parse_list_field(text: str, field: str) -> list[str]:
+    """把 frontmatter 里某个列表字段解析成数组。
+
+    parse_frontmatter 会把列表拼成空格分隔的字符串（便于正则匹配），
+    但像 derived: [mindmap, slides] 这种需要还原成数组给前端用。
+    同时支持 YAML 行内数组 `[a, b]` 和块列表 `- a` 两种写法。
+    """
+    m = FM_RE.match(text)
+    if not m:
+        return []
+    lines = m.group(1).split("\n")
+    for i, line in enumerate(lines):
+        stripped = line.strip()
+        if not stripped.startswith(field + ":"):
+            continue
+        inline = stripped.split(":", 1)[1].strip()
+        # 行内数组：[mindmap, slides, infographic]
+        if inline.startswith("[") and inline.endswith("]"):
+            inner = inline[1:-1]
+            return [
+                x.strip().strip("'\"")
+                for x in inner.split(",")
+                if x.strip()
+            ]
+        # 块列表：往下收集 "- xxx"
+        out = []
+        for nxt in lines[i + 1 :]:
+            s = nxt.strip()
+            if not s:
+                continue
+            if s.startswith("- "):
+                out.append(s[2:].strip().strip("'\""))
+            else:
+                break
+        return out
+    return []
 
 
 def has_tag(text: str, fm: dict, tag: str) -> bool:
@@ -194,6 +253,11 @@ def collect(kind: str, dry_run: bool = False) -> list[dict]:
             "douban": fm.get("douban", ""),
             "info": info,
         }
+        # 视频类特有：原视频链接 + 衍生笔记类型
+        if kind == "video":
+            item["source_url"] = fm.get("source_url", "")
+            item["platform"] = fm.get("platform", "")
+            item["derived"] = parse_list_field(text, "derived")
         items.append(item)
         if dry_run:
             print(f"  {item['status']:4} {title}  ({item['creator'][:24]})")

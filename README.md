@@ -352,24 +352,28 @@ Prettier 会解析它们。一个多余的 `</div>` 就报错。
 
 ---
 
-## 藏书馆 / 观影库
+## 藏书馆 / 观影库 / 视频与专题
 
-两个卡片网格页面，数据从 Obsidian 笔记的 frontmatter 自动生成。
+三个卡片网格页面，数据从 Obsidian 笔记的 frontmatter 自动生成。
+三者在左侧导航「探索」下同级。
 
 | 页面 | 数据源 | 标签 | 状态 |
 |---|---|---|---|
 | `/藏书馆` | `藏书馆/*.md` | `#book` | 在读 / 已读 / 想读 / 未读完 |
 | `/观影库` | `观影库/*.md` | `#movie` | 在看 / 已看 / 想看 / 弃剧 |
+| `/视频与专题` | `视频与专题/*.md` | `#video` | 已整理 / 整理中 / 待整理 |
 
 ### 怎么写一条
+
+**书 / 影**：
 
 ```yaml
 ---
 title: 书名或片名
 author: 作者          # 书用
 director: 导演        # 影用（兜底认 导演 / author）
-cover: 封面图 URL     # 豆瓣图床可直接填
-rating: 8.4           # 豆瓣 10 分制，自动换算 5 星
+cover: 封面图 URL
+rating: 8.4           # 10 分制，自动换算 5 星
 status: 已读
 progress: 100         # 进度百分比，显示进度条
 pages: 424            # 书：页数
@@ -378,46 +382,105 @@ duration: 166分钟      # 影：片长
 episodes: 10          # 影：集数
 started: 2026-01-15
 finished: 2026-02-20
-douban: https://book.douban.com/subject/xxx/
 tags:
   - book              # 或 movie
 ---
 ```
 
-正文写读后感。有正文的卡片会显示「笔记」角标。
+**视频**（NotebookLM 笔记）：
+
+```yaml
+---
+title: 视频标题
+source_url: https://www.youtube.com/watch?v=xxx
+platform: youtube          # youtube / bilibili，决定「看 YouTube」还是「看 B 站」
+duration: 42分钟
+channel: 频道名
+status: 已整理
+created: 2026-11-08
+derived:                   # 衍生笔记类型，卡片上显示角标
+  - mindmap                # 思维导图
+  - slides                 # 演示文稿
+  - infographic            # 信息图
+tags:
+  - video
+---
+```
+
+`derived` 支持的值：`mindmap` / `slides` / `infographic` / `audio` /
+`report` / `flashcards` / `quiz`，也接受任意自定义字符串（原样显示）。
 
 ### 生成流程
 
 ```powershell
-python scripts/build_library.py              # 两类都生成
-python scripts/build_library.py --kind movie # 只生成观影库
-python scripts/build_library.py --dry-run    # 只看会处理哪些条目
+python scripts/build_library.py              # 三类都生成
+python scripts/build_library.py --kind movie # 只生成某一类
 node scripts/inject_library.mjs dist-public  # 构建后注入卡片
 ```
 
 已接入 `npm run build` / `npm run build:public`，日常不用单独跑。
 
-### 设计要点
+---
 
-**两类共用一套逻辑**：`build_library.py` 和 `inject_library.mjs` 顶部各有一张
-`KINDS` 表描述差异（目录、JSON 名、标签、状态映射、信息字段），
-解析和渲染逻辑完全共用。加第三类（比如播客）只需在两张表里各加一项。
+## 免费资源抓取（无需 API Key / 无需登录）
 
-**封面必须手动复制到 dist**：Quartz 只复制被 Markdown 引用的附件，
-而封面是构建后注入的 `<img>` 用的，Quartz 不知道它的存在。
-`inject_library.mjs` 的 `copyCovers()` 负责把 `cover_local` 指向的文件
-从 `content-*/` 搬到 `dist/`。
+手动维护书单和影单很累。这两个脚本能从免费公开 API 拉「经典 / 热门」条目，
+自动生成 Obsidian 笔记。
 
-**封面按类别分目录**：`attachments/covers/book/`、`attachments/covers/movie/`，
-防止同名标题互相覆盖。
+### 数据源
 
-**豆瓣图床防盗链**：不带 `Referer: https://book.douban.com/`（影视用
-`movie.douban.com`）会返回 **418 I'm a Teapot**。
+| 类型 | 来源 | 是否需要 key | 提供什么 |
+|---|---|---|---|
+| 书 | [OpenLibrary](https://openlibrary.org/search.json) | ❌ 免费 | 书名、作者、初版年、评分、评分人数、封面 |
+| 影视 | [TVMaze](https://api.tvmaze.com) | ❌ 免费 | 剧名、类型、首播年、评分、封面、简介 |
 
-**注入是幂等的**：重复运行会先清掉上次注入的块，不会出现两组标签页。
+**为什么不用豆瓣**：`book.douban.com/j/search_subjects` 直接返回 **400**，
+且豆瓣图床有防盗链（无 Referer 返回 **418 I'm a Teapot**）。
+OpenLibrary / TVMaze 的封面**无 Referer 也能下载**，更适合自动化。
 
-**筛选逻辑内联**：Quartz 不复制 `quartz/static/` 下的 JS，所以标签页筛选
-代码直接内联进注入的 HTML 块。
+**为什么不用 Google Books**：实测返回 **429**（限流），且需要配额的稳定性差。
+
+**TVMaze 的限制**：它只有**剧集**（含迷你剧），**没有院线电影**；
+且只有搜索接口，**没有「榜单」接口**，所以要按关键词搜，
+或给多个关键词批量跑。
+
+### 用法
+
+```powershell
+# 抓经典计算机书（评分 × 评价人数 × 年代加权）
+python scripts/fetch_candidates.py --kind book --subject computer_science --classic --limit 20
+
+# 抓热门（按评价人数排序）
+python scripts/fetch_candidates.py --kind book --subject fiction --limit 20
+
+# 抓剧集（按名字搜）
+python scripts/fetch_candidates.py --kind movie --query "breaking bad" --limit 5
+
+# 查看候选后按序号导入（会生成完整的 Obsidian 笔记）
+python scripts/import_candidates.py --kind book --pick 1,3,5
+python scripts/import_candidates.py --kind book --all
+```
+
+候选落在 `scripts/candidates/{book,movie}.json`，导入前可以先看。
+
+### 「经典度」怎么算
+
+`--classic` 用 `评分 × log(1+评价人数) × 年代加权` 排序，年代越久加权越高
+（最多 +50%）。这样能把真正沉淀下来的经典顶上来，而不是刚出版的新书。
+
+实测效果（`--subject computer_science --classic`）：
+SICP、Code、Hackers、Snow Crash、I, Robot 等真经典会排在前面。
+
+### 导入后的流程
+
+```powershell
+python scripts/sync_content.py       # 同步到 content-*
+python scripts/build_library.py      # 生成 JSON + 下载封面
+npm run build:public                 # 构建 + 注入卡片
+```
+
+导入脚本生成的笔记 `status` 默认是 `想读` / `想看`，封面已填好，
+你只需要打开笔记补「为什么想读」和正文。
 
 ---
 

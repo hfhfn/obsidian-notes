@@ -1,5 +1,31 @@
 [
   {
+    "title": "Code",
+    "slug": "藏书馆/Code",
+    "creator": "Charles Petzold",
+    "cover": "https://covers.openlibrary.org/b/id/460968-L.jpg",
+    "rating": "4.1",
+    "stars": "⭐⭐",
+    "status": "想读",
+    "progress": "",
+    "douban": "",
+    "info": {},
+    "cover_local": "attachments/covers/book/Code.jpg"
+  },
+  {
+    "title": "Mona Lisa Overdrive",
+    "slug": "藏书馆/Mona Lisa Overdrive",
+    "creator": "William Gibson",
+    "cover": "https://covers.openlibrary.org/b/id/3327832-L.jpg",
+    "rating": "4.0",
+    "stars": "⭐⭐",
+    "status": "想读",
+    "progress": "",
+    "douban": "",
+    "info": {},
+    "cover_local": "attachments/covers/book/Mona_Lisa_Overdrive.jpg"
+  },
+  {
     "title": "如何阅读一本书",
     "slug": "藏书馆/如何阅读一本书",
     "creator": "莫提默·J·艾德勒 / 查尔斯·范多伦",

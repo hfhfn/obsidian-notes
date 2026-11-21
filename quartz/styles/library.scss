@@ -41,6 +41,9 @@
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 1rem;
   margin: 1.2rem 0;
+  /* 所有行等高：信息量不同的卡片（有无进度条/日期）也整齐 */
+  grid-auto-rows: 1fr;
+  align-items: stretch;
 }
 
 /* 单张卡片 */
@@ -56,6 +59,8 @@
     border-color 0.15s,
     transform 0.15s,
     box-shadow 0.15s;
+  /* 撑满网格单元高度，底部信息行自然对齐 */
+  height: 100%;
 }
 
 .book-card:hover {
@@ -210,6 +215,46 @@
   border: 1px dashed var(--lightgray);
   border-radius: 10px;
   margin: 1.2rem 0;
+}
+
+/* 衍生笔记角标（视频类：思维导图 / 演示文稿 / 信息图） */
+.derived-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-top: 0.1rem;
+}
+
+.derived-badge {
+  padding: 0.12rem 0.42rem;
+  border: 1px solid var(--lightgray);
+  border-radius: 4px;
+  background: var(--highlight);
+  color: var(--gray);
+  font-size: 0.66rem !important;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+/* 原视频链接（视频类） */
+.book-source-link {
+  display: inline-block;
+  margin-top: 0.35rem;
+  padding: 0.22rem 0.6rem;
+  border: 1px solid var(--secondary);
+  border-radius: 5px;
+  color: var(--secondary) !important;
+  background: transparent !important;
+  font-size: 0.72rem !important;
+  text-decoration: none !important;
+  transition:
+    background-color 0.15s,
+    color 0.15s;
+}
+
+.book-source-link:hover {
+  background: var(--secondary) !important;
+  color: var(--light) !important;
 }
 
 /* 窄屏适配 */

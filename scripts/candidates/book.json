@@ -1,0 +1,122 @@
+[
+  {
+    "title": "I, Robot",
+    "creator": "Isaac Asimov",
+    "year": 1950,
+    "rating": 4.2,
+    "rating_count": 190,
+    "cover_url": "https://covers.openlibrary.org/b/id/12385229-L.jpg",
+    "openlibrary_key": "/works/OL46241W",
+    "source": "openlibrary"
+  },
+  {
+    "title": "Snow Crash",
+    "creator": "Neal Stephenson",
+    "year": 1992,
+    "rating": 4.1,
+    "rating_count": 205,
+    "cover_url": "https://covers.openlibrary.org/b/id/392508-L.jpg",
+    "openlibrary_key": "/works/OL38501W",
+    "source": "openlibrary"
+  },
+  {
+    "title": "2001",
+    "creator": "Arthur C. Clarke",
+    "year": 1968,
+    "rating": 4.2,
+    "rating_count": 124,
+    "cover_url": "https://covers.openlibrary.org/b/id/11344400-L.jpg",
+    "openlibrary_key": "/works/OL17365W",
+    "source": "openlibrary"
+  },
+  {
+    "title": "The player of games",
+    "creator": "Iain Banks",
+    "year": 1988,
+    "rating": 4.2,
+    "rating_count": 83,
+    "cover_url": "https://covers.openlibrary.org/b/id/44077-L.jpg",
+    "openlibrary_key": "/works/OL100779W",
+    "source": "openlibrary"
+  },
+  {
+    "title": "Steve Jobs",
+    "creator": "Walter Isaacson",
+    "year": 2011,
+    "rating": 4.2,
+    "rating_count": 179,
+    "cover_url": "https://covers.openlibrary.org/b/id/12374726-L.jpg",
+    "openlibrary_key": "/works/OL16085155W",
+    "source": "openlibrary"
+  },
+  {
+    "title": "Mona Lisa Overdrive",
+    "creator": "William Gibson",
+    "year": 1987,
+    "rating": 4.0,
+    "rating_count": 63,
+    "cover_url": "https://covers.openlibrary.org/b/id/3327832-L.jpg",
+    "openlibrary_key": "/works/OL27253W",
+    "source": "openlibrary"
+  },
+  {
+    "title": "Structure and Interpretation of Computer Programs (SICP)",
+    "creator": "Harold Abelson, Gerald Jay Sussman",
+    "year": 1985,
+    "rating": 4.4,
+    "rating_count": 28,
+    "cover_url": "https://covers.openlibrary.org/b/id/149338-L.jpg",
+    "openlibrary_key": "/works/OL3267304W",
+    "source": "openlibrary"
+  },
+  {
+    "title": "Rogue Protocol",
+    "creator": "Martha Wells",
+    "year": 2018,
+    "rating": 4.2,
+    "rating_count": 91,
+    "cover_url": "https://covers.openlibrary.org/b/id/12013488-L.jpg",
+    "openlibrary_key": "/works/OL19753589W",
+    "source": "openlibrary"
+  },
+  {
+    "title": "Daemon",
+    "creator": "Daniel Suarez",
+    "year": 2009,
+    "rating": 4.1,
+    "rating_count": 48,
+    "cover_url": "https://covers.openlibrary.org/b/id/6404884-L.jpg",
+    "openlibrary_key": "/works/OL13646905W",
+    "source": "openlibrary"
+  },
+  {
+    "title": "Hackers",
+    "creator": "Steven Levy",
+    "year": 1984,
+    "rating": 4.1,
+    "rating_count": 26,
+    "cover_url": "https://covers.openlibrary.org/b/id/106396-L.jpg",
+    "openlibrary_key": "/works/OL804638W",
+    "source": "openlibrary"
+  },
+  {
+    "title": "Player Piano",
+    "creator": "Kurt Vonnegut, Christian Rummel",
+    "year": 1952,
+    "rating": 3.8,
+    "rating_count": 29,
+    "cover_url": "https://covers.openlibrary.org/b/id/280246-L.jpg",
+    "openlibrary_key": "/works/OL98484W",
+    "source": "openlibrary"
+  },
+  {
+    "title": "Code",
+    "creator": "Charles Petzold",
+    "year": 1999,
+    "rating": 4.1,
+    "rating_count": 25,
+    "cover_url": "https://covers.openlibrary.org/b/id/460968-L.jpg",
+    "openlibrary_key": "/works/OL1972516W",
+    "source": "openlibrary"
+  }
+]
