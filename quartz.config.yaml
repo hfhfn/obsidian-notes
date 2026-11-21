@@ -117,9 +117,12 @@ plugins:
   - source: "@quartz-community/quartz-fonts"
     enabled: true
     options:
-      # Self-hosted: fonts are fetched at build time and served from the site,
-      # so the page never blocks on fonts.googleapis.com (slow/blocked in CN).
-      fontOrigin: selfHosted
+      # Fonts are committed under quartz/static/fonts/ and served from the
+      # site itself: no network access at build time, no request to
+      # fonts.googleapis.com at page load (slow/blocked in CN).
+      # "selfHosted" would re-download from Google on every build and fails
+      # when that request is flaky in CI.
+      fontOrigin: local
   - source: "@quartz-themes/core"
     enabled: false
     options:
