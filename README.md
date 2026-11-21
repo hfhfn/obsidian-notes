@@ -354,39 +354,43 @@ Prettier 会解析它们。一个多余的 `</div>` 就报错。
 
 ## 大 PDF 发布（Cloudflare R2）
 
-Pages 单文件上限 25MB，且带宽计入 100GB/月。vault 里 16 个 PDF 合计 300MB，
-最大的 77MB，直接发布既超限又吃带宽。改用 R2：
+Pages 单文件上限 25MB，且带宽计入 100GB/月。vault 里 16 个 PDF 合计 299MB，
+最大的 77MB，直接发布既超限又吃带宽。改用 R2。
 
-### 一次性配置
+### 当前配置（已完成）
 
-1. **开通 R2**：Cloudflare 面板 → R2 → 开通（需绑支付方式，免费额度内不扣费）
-2. **创建桶**：例如 `hfhfn-pdf`
-3. **绑定自定义域**：桶 → Settings → Public access → 绑定
-   `pdf.hfhfn.dpdns.org`（与 Pages 同账号，DNS 会自动加）
-4. **创建 API Token**：My Profile → API Tokens → 权限选
-   `Account > Workers R2 Storage > Edit`
-5. **写凭据**到 `obsidian-site/.env`：
-
-```ini
-R2_ACCOUNT_ID=你的账号ID
-R2_ACCESS_KEY_ID=Token的AccessKeyID
-R2_SECRET_ACCESS_KEY=Token的SecretAccessKey
-R2_BUCKET=hfhfn-pdf
-R2_PUBLIC_BASE=https://pdf.hfhfn.dpdns.org
-```
-
-> ⚠️ `wrangler login` 拿到的 OAuth token **没有 R2 权限**（403），
-> 必须单独建 API Token。这和 Zero Trust 权限缺失是同一类问题。
+| 项目 | 值 |
+|---|---|
+| 桶 | `obsidian-pdf` |
+| 公开域名 | `https://pdf.hfhfn.dpdns.org` |
+| 凭据位置 | `obsidian-site/.env`（已 gitignore） |
+| 已上传 | 16 个 PDF / 299MB |
 
 ### 日常使用
 
 ```powershell
-pip install boto3                              # 首次
-python scripts/upload_pdfs.py --dry-run        # 看会传哪些
-python scripts/upload_pdfs.py                  # 上传 + 生成 pdf_manifest.json
-python scripts/sync_content.py                 # 同步时会自动把大 PDF 换成 R2 链接
+python scripts/upload_pdfs.py --dry-run   # 看会传哪些
+python scripts/upload_pdfs.py             # 上传 + 重新生成 pdf_manifest.json
+python scripts/sync_content.py            # 同步时自动把大 PDF 换成 R2 链接
 ```
 
-`pdf_manifest.json` 是「文件名 → R2 公网 URL」的映射。同步脚本读它，
-命中就把 `> [!warning] PDF 暂未发布` 替换成可点击的 R2 链接。
-没配 R2 时行为不变，仍是提示去本地看。
+`pdf_manifest.json`（文件名 → R2 公网 URL）**会提交进仓库**——它只有 URL 没有凭据，
+这样 GitHub Actions 构建时也能拿到链接。
+
+### 关键坑：URL 必须百分号编码
+
+R2 公开域名**不做自动解码**。对象键含中文、空格、括号时，未编码的 URL 返回 **400**。
+`write_manifest` 里逐段 `urllib.parse.quote(seg, safe="")` 再拼接，
+保留 `/` 作路径分隔符。改了编码逻辑后务必抽查一个中文文件名的 URL。
+
+### 若要换桶或域名
+
+1. 改 `.env` 里的 `R2_BUCKET` / `R2_PUBLIC_BASE`
+2. 重跑 `python scripts/upload_pdfs.py`
+
+### 若 Token 权限不足
+
+`wrangler login` 拿到的 OAuth token **没有 R2 权限**（403），必须单独建
+API Token，权限选 `Account > Workers R2 Storage > Edit`。
+另外只给「Object Read & Write」的 Token **不能列桶**（`ListBuckets` 会 AccessDenied），
+这是正常的——直接按已知桶名操作即可。
