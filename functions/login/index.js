@@ -8,11 +8,33 @@
  * 纯手写，不引入前端框架，保持和其他 /my/* 页面一致的体量。
  */
 import { SHELL, html, esc } from "../my/_shared.js"
+import { providerConfigured } from "../api/auth/_oauth.js"
 
 export async function onRequestGet({ request, env }) {
   const url = new URL(request.url)
   const redirect = safeRedirect(url.searchParams.get("redirect"))
   const siteName = env?.MAIL_FROM_NAME || "HFH 的笔记"
+
+  // 只有配置了凭据的 OAuth 才显示按钮，避免点了报错
+  const providers = []
+  if (providerConfigured(env, "google")) providers.push("google")
+  if (providerConfigured(env, "github")) providers.push("github")
+
+  const oauthBlock = providers.length
+    ? `<div class="oauth">
+    <div class="oauth-sep"><span>或</span></div>
+    ${providers
+      .map((p) => {
+        const label = p === "google" ? "使用 Google 登录" : "使用 GitHub 登录"
+        const icon = p === "google" ? GOOGLE_ICON : GITHUB_ICON
+        return `<a class="oauth-btn oauth-${p}"
+             href="/api/auth/oauth/${p}?redirect=${encodeURIComponent(redirect)}">
+          ${icon}<span>${label}</span>
+        </a>`
+      })
+      .join("\n    ")}
+  </div>`
+    : ""
 
   const body = `
 <h1>登录</h1>
@@ -41,6 +63,8 @@ export async function onRequestGet({ request, env }) {
 </form>
 
 <p class="msg" id="msg" role="status" aria-live="polite"></p>
+
+${oauthBlock}
 
 <p class="foot">
   登录后即可收藏笔记、查看浏览足迹。我们只用你的邮箱区分身份，不发任何推广邮件。
@@ -75,6 +99,24 @@ export async function onRequestGet({ request, env }) {
   .msg.err { color:#c0392b; }
   .msg.ok { color:var(--tertiary); }
   .foot { font-size:.8rem; color:var(--gray); border-top:1px solid var(--lightgray); padding-top:1rem; }
+
+  /* OAuth 区块 */
+  .oauth { display:flex; flex-direction:column; gap:.5rem; margin:0 0 1.4rem; }
+  .oauth-sep {
+    display:flex; align-items:center; gap:.75rem;
+    color:var(--gray); font-size:.78rem; margin:.2rem 0 .5rem;
+  }
+  .oauth-sep::before, .oauth-sep::after {
+    content:""; flex:1; height:1px; background:var(--lightgray);
+  }
+  .oauth-btn {
+    display:flex; align-items:center; justify-content:center; gap:.55rem;
+    padding:.58rem .9rem; border:1px solid var(--lightgray); border-radius:9px;
+    background:transparent; color:var(--darkgray); text-decoration:none;
+    font-size:.9rem; font-family:var(--bodyFont); transition:.15s;
+  }
+  .oauth-btn:hover { border-color:var(--secondary); color:var(--secondary); background:var(--highlight); }
+  .oauth-btn svg { width:17px; height:17px; flex:0 0 auto; }
 </style>
 
 <script>
@@ -191,3 +233,16 @@ function safeRedirect(raw) {
   if (!s.startsWith("/") || s.startsWith("//")) return fallback
   return s
 }
+
+/* Google 官方多色 G 标 */
+const GOOGLE_ICON = `<svg viewBox="0 0 48 48" aria-hidden="true">
+  <path fill="#4285F4" d="M45.1 24.5c0-1.6-.1-2.8-.4-4H24v7.3h12.1c-.2 2-1.6 5-4.5 7l-.1.3 6.6 5.1.5.1c4.2-3.9 6.5-9.6 6.5-15.8z"/>
+  <path fill="#34A853" d="M24 46c5.9 0 10.9-1.9 14.5-5.3l-6.9-5.4c-1.9 1.3-4.4 2.2-7.6 2.2-5.8 0-10.7-3.8-12.5-9.1l-.3.1-6.8 5.3-.1.3C7.9 41.1 15.3 46 24 46z"/>
+  <path fill="#FBBC05" d="M11.5 28.4c-.5-1.4-.8-2.9-.8-4.4s.3-3 .7-4.4l-.1-.3-6.9-5.4-.2.1C2.8 16.6 2 20.2 2 24s.8 7.4 2.2 10.6l7.3-6.2z"/>
+  <path fill="#EA4335" d="M24 9.5c4.1 0 6.9 1.8 8.5 3.3l6.2-6C34.9 3.2 29.9 1 24 1 15.3 1 7.9 5.9 4.2 13.4l7.2 5.6C13.2 13.7 18.1 9.5 24 9.5z"/>
+</svg>`
+
+/* GitHub 官方 mark */
+const GITHUB_ICON = `<svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+  <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+</svg>`
