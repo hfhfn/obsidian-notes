@@ -1,8 +1,8 @@
 /**
- * 藏书馆页面渲染
+ * 藏书馆 / 观影库 页面渲染
  *
- * 在 Quartz 构建后，把 `藏书馆/index.html` 里的占位符替换成卡片网格。
- * 数据来自 scripts/build_library.py 生成的 `_books.json`。
+ * 在 Quartz 构建后，把 `<目录>/index.html` 里的占位符替换成卡片网格。
+ * 数据来自 scripts/build_library.py 生成的 `_books.json` / `_movies.json`。
  *
  * 为什么在构建后处理而不是写 Quartz 插件：
  * 卡片网格是纯静态展示，不需要交互；用后处理脚本最简单，
@@ -12,13 +12,36 @@ import fs from "node:fs"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 
-const STATUS_TABS = [
-  { key: "在读", label: "在读" },
-  { key: "已读", label: "已读" },
-  { key: "想读", label: "想读" },
-  { key: "未读完", label: "未读完" },
-  { key: "全部", label: "全部" },
-]
+// 两类媒体的差异集中在这张表，渲染逻辑共用
+const KINDS = {
+  book: {
+    dir: "藏书馆",
+    json: "_books.json",
+    label: "本书",
+    tabs: [
+      { key: "在读", label: "在读" },
+      { key: "已读", label: "已读" },
+      { key: "想读", label: "想读" },
+      { key: "未读完", label: "未读完" },
+      { key: "全部", label: "全部" },
+    ],
+    // 卡片上的信息行顺序（与 build_library.py 的 info_fields 对应）
+    infoOrder: ["页数", "开始", "读完"],
+  },
+  movie: {
+    dir: "观影库",
+    json: "_movies.json",
+    label: "部",
+    tabs: [
+      { key: "在看", label: "在看" },
+      { key: "已看", label: "已看" },
+      { key: "想看", label: "想看" },
+      { key: "弃剧", label: "弃剧" },
+      { key: "全部", label: "全部" },
+    ],
+    infoOrder: ["年份", "导演", "片长", "集数", "开始", "看完"],
+  },
+}
 
 const PLACEHOLDER = "<!-- LIBRARY_GRID -->"
 
@@ -39,7 +62,7 @@ const FILTER_JS = `
       if (!empty) {
         empty = document.createElement('div');
         empty.className = 'library-empty';
-        empty.textContent = '这个分类下还没有书。';
+        empty.textContent = '这个分类下还没有内容。';
         grid.parentNode.insertBefore(empty, grid.nextSibling);
       }
       empty.style.display = '';
@@ -79,74 +102,69 @@ function esc(s) {
     .replace(/"/g, "&quot;")
 }
 
-function coverSrc(book, depth) {
-  const rel = book.cover_local || ""
+function coverSrc(item, depth) {
+  const rel = item.cover_local || ""
   if (!rel) return ""
-  // 从当前页面到站点根的相对路径
   const up = "../".repeat(depth)
   return up + rel.split("/").map(encodeURIComponent).join("/")
 }
 
-function noteHref(book, depth) {
-  if (!book.slug) return ""
+function noteHref(item, depth) {
+  if (!item.slug) return ""
   const up = "../".repeat(depth)
-  // slug 形如 "藏书馆/如何阅读一本书"
-  const parts = book.slug.split("/")
-  // 最后一段是文件名，需要小写化（Quartz 的 slug 规则）
+  const parts = item.slug.split("/")
   const last = parts.pop().toLowerCase().replace(/\s+/g, "-")
   return up + [...parts, last].map(encodeURIComponent).join("/")
 }
 
-function renderCard(book, depth) {
-  const cover = coverSrc(book, depth)
-  const href = noteHref(book, depth)
-  const hasNote = Boolean(book.slug)
+function renderCard(item, cfg, depth) {
+  const cover = coverSrc(item, depth)
+  const href = noteHref(item, depth)
+  const hasNote = Boolean(item.slug)
 
   const coverInner = cover
-    ? `<img src="${cover}" alt="${esc(book.title)}" class="book-cover" loading="lazy">`
+    ? `<img src="${cover}" alt="${esc(item.title)}" class="book-cover" loading="lazy">`
     : `<div class="book-cover" style="display:flex;align-items:center;justify-content:center;color:var(--gray);font-size:.7rem">无封面</div>`
 
   const coverBlock = hasNote
-    ? `<a href="${href}" class="book-cover-link" title="${esc(book.title)}">${coverInner}${hasNote ? '<span class="note-badge">笔记</span>' : ""}</a>`
-    : `<span class="book-cover-link" title="${esc(book.title)}">${coverInner}</span>`
+    ? `<a href="${href}" class="book-cover-link" title="${esc(item.title)}">${coverInner}<span class="note-badge">笔记</span></a>`
+    : `<span class="book-cover-link" title="${esc(item.title)}">${coverInner}</span>`
 
   const titleBlock = hasNote
-    ? `<a href="${href}" title="${esc(book.title)}">${esc(book.title)}</a>`
-    : esc(book.title)
+    ? `<a href="${href}" title="${esc(item.title)}">${esc(item.title)}</a>`
+    : esc(item.title)
 
-  const rating = book.stars
-    ? `<div class="book-rating"><span class="stars">${book.stars}</span>${book.rating ? `<span class="score">${esc(book.rating)}</span>` : ""}</div>`
+  const rating = item.stars
+    ? `<div class="book-rating"><span class="stars">${item.stars}</span>${item.rating ? `<span class="score">${esc(item.rating)}</span>` : ""}</div>`
     : ""
 
+  // info 是 {标签: 值} 的字典，按 cfg.infoOrder 排序输出
+  const info = item.info || {}
   const infoRows = []
-  if (book.pages)
-    infoRows.push(
-      `<div class="info-row"><span class="label">页数:</span><span>${esc(book.pages)}</span></div>`,
-    )
-  if (book.started)
-    infoRows.push(
-      `<div class="info-row"><span class="label">开始:</span><span>${esc(book.started)}</span></div>`,
-    )
-  if (book.finished)
-    infoRows.push(
-      `<div class="info-row"><span class="label">读完:</span><span>${esc(book.finished)}</span></div>`,
-    )
+  for (const label of cfg.infoOrder) {
+    const val = info[label]
+    if (val) {
+      infoRows.push(
+        `<div class="info-row"><span class="label">${esc(label)}:</span><span>${esc(val)}</span></div>`,
+      )
+    }
+  }
 
   let progress = ""
-  const p = Number(book.progress)
-  if (book.progress !== "" && !Number.isNaN(p)) {
+  const p = Number(item.progress)
+  if (item.progress !== "" && !Number.isNaN(p)) {
     progress = `
       <div class="book-progress"><div class="book-progress-bar" style="width:${Math.max(0, Math.min(100, p))}%"></div></div>
       <div class="book-progress-text">${p}%</div>`
   }
 
   return `
-    <div class="book-card${hasNote ? " has-note" : ""}" data-status="${esc(book.status)}">
+    <div class="book-card${hasNote ? " has-note" : ""}" data-status="${esc(item.status)}">
       <div class="book-header">
         <div class="book-cover-wrapper">${coverBlock}</div>
         <div class="book-title-section">
           <h3 class="book-title">${titleBlock}</h3>
-          <div class="book-subtitle" title="${esc(book.author)}">${esc(book.author)}</div>
+          <div class="book-subtitle" title="${esc(item.creator)}">${esc(item.creator)}</div>
         </div>
       </div>
       ${rating}
@@ -155,47 +173,85 @@ function renderCard(book, depth) {
     </div>`
 }
 
-function renderTabs(active) {
-  return STATUS_TABS.map(
-    (t) =>
-      `<button type="button" role="tab" data-target="${esc(t.key)}" aria-selected="${t.key === active}">${esc(t.label)}</button>`,
-  ).join("")
+function renderTabs(cfg, active) {
+  return cfg.tabs
+    .map(
+      (t) =>
+        `<button type="button" role="tab" data-target="${esc(t.key)}" aria-selected="${t.key === active}">${esc(t.label)}</button>`,
+    )
+    .join("")
 }
 
-export function injectLibrary(dir) {
-  const pagePath = path.join(dir, "藏书馆", "index.html")
-  const dataPath = path.join(dir, "藏书馆", "_books.json")
+/**
+ * 把封面图从 content 目录复制到构建产物。
+ *
+ * 为什么需要手动复制：Quartz 只复制被 Markdown 引用的附件，
+ * 而封面是我们在构建后注入的 <img> 里用的，Quartz 不知道它的存在。
+ */
+function copyCovers(distDir, items) {
+  let copied = 0
+  for (const it of items) {
+    const rel = it.cover_local
+    if (!rel) continue
+    const dest = path.join(distDir, rel)
+    if (fs.existsSync(dest)) continue
+    // 封面源在 content-all（build_library.py 下载到这里）
+    const candidates = [
+      path.join(distDir, "..", "content-all", rel),
+      path.join(distDir, "..", "content-public", rel),
+    ]
+    const src = candidates.find((p) => fs.existsSync(p))
+    if (!src) continue
+    fs.mkdirSync(path.dirname(dest), { recursive: true })
+    fs.copyFileSync(src, dest)
+    copied++
+  }
+  return copied
+}
+
+/**
+ * 把某一类媒体注入到它的页面。
+ * @returns {number} 注入的条目数，跳过时返回 0
+ */
+export function injectKind(distDir, kind) {
+  const cfg = KINDS[kind]
+  if (!cfg) {
+    console.error(`[library] 未知类别: ${kind}`)
+    return 0
+  }
+
+  const pagePath = path.join(distDir, cfg.dir, "index.html")
+  const dataPath = path.join(distDir, cfg.dir, cfg.json)
 
   if (!fs.existsSync(pagePath)) {
-    console.log(`[library] 跳过：${pagePath} 不存在`)
+    console.log(`[${kind}] 跳过：${pagePath} 不存在`)
     return 0
   }
   if (!fs.existsSync(dataPath)) {
-    console.log(`[library] 跳过：${dataPath} 不存在`)
+    console.log(`[${kind}] 跳过：${dataPath} 不存在`)
     return 0
   }
 
-  let books
+  let items
   try {
-    books = JSON.parse(fs.readFileSync(dataPath, "utf-8"))
+    items = JSON.parse(fs.readFileSync(dataPath, "utf-8"))
   } catch (e) {
-    console.error(`[library] JSON 解析失败: ${e.message}`)
+    console.error(`[${kind}] JSON 解析失败: ${e.message}`)
     return 0
   }
 
-  if (!Array.isArray(books) || books.length === 0) {
-    console.log("[library] 没有书籍数据，跳过")
+  if (!Array.isArray(items) || items.length === 0) {
+    console.log(`[${kind}] 没有数据，跳过`)
     return 0
   }
 
-  // 页面在 dist/藏书馆/index.html，到站点根是 1 层
+  // 页面在 dist/<目录>/index.html，到站点根是 1 层
   const depth = 1
-
-  const cards = books.map((b) => renderCard(b, depth)).join("")
-  const tabs = renderTabs("全部")
+  const cards = items.map((it) => renderCard(it, cfg, depth)).join("")
+  const tabs = renderTabs(cfg, "全部")
 
   const block = `
-    <div class="library-tabs" data-for="book" role="tablist">${tabs}</div>
+    <div class="library-tabs" data-for="${kind}" role="tablist">${tabs}</div>
     <div class="book-grid" data-active="全部">${cards}</div>
     <script>${FILTER_JS}</script>
   `
@@ -212,37 +268,51 @@ export function injectLibrary(dir) {
 
   if (html.includes(PLACEHOLDER)) {
     html = html.replace(PLACEHOLDER, block)
-  } else if (hadInjected) {
-    // 占位符已被上次注入消耗掉，插回原来的位置：找到正文里第一个 <hr/> 或 article 末尾
-    const m = html.match(/<article[^>]*>[\s\S]*?<\/h1>/)
-    if (m) {
-      html = html.replace(m[0], m[0] + block)
-    } else {
-      console.log("[library] 找不到插入点，跳过")
-      return 0
-    }
   } else {
-    // 没有占位符时，插到 <article> 的第一个 h1 之后
+    // 占位符已被上次注入消耗掉，或笔记里本来就没写占位符：
+    // 插到 <article> 里第一个 </h1> 之后
     const m = html.match(/<article[^>]*>[\s\S]*?<\/h1>/)
     if (!m) {
-      console.log("[library] 找不到插入点，跳过")
+      console.log(`[${kind}] 找不到插入点，跳过`)
       return 0
     }
     html = html.replace(m[0], m[0] + block)
   }
 
   fs.writeFileSync(pagePath, html, "utf-8")
-  console.log(`[library] 已注入 ${books.length} 本书到 藏书馆/index.html`)
-  return books.length
+
+  // 封面图不在 Markdown 里引用，Quartz 不会复制，必须手动搬过去
+  const covers = copyCovers(distDir, items)
+
+  console.log(
+    `[${kind}] 已注入 ${items.length} ${cfg.label}到 ${cfg.dir}/index.html` +
+      (covers ? `（复制封面 ${covers} 张）` : ""),
+  )
+  return items.length
 }
 
-// 直接运行时：node scripts/inject_library.mjs dist-public
-const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+/** 注入所有类别。 */
+export function injectLibrary(distDir) {
+  let total = 0
+  for (const kind of Object.keys(KINDS)) {
+    total += injectKind(distDir, kind)
+  }
+  return total
+}
+
+// 直接运行时：node scripts/inject_library.mjs dist-public [kind]
+const isMain =
+  process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 if (isMain) {
   const target = process.argv[2]
+  const kind = process.argv[3]
   if (!target) {
-    console.error("用法: node scripts/inject_library.mjs <dist-dir>")
+    console.error("用法: node scripts/inject_library.mjs <dist-dir> [book|movie]")
     process.exit(1)
   }
-  injectLibrary(path.resolve(target))
+  if (kind) {
+    injectKind(path.resolve(target), kind)
+  } else {
+    injectLibrary(path.resolve(target))
+  }
 }

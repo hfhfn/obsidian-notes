@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
-"""从 Obsidian 的 `#book` 笔记生成藏书馆页面数据。
+"""从 Obsidian 笔记生成「藏书馆 / 观影库」页面数据。
 
-扫描 vault 里所有带 `#book` 标签的 Markdown，提取 frontmatter，
-输出 JSON 供 Quartz 页面渲染，同时把封面图复制到站点。
+扫描 vault 里带 `#book` 或 `#movie` 标签的 Markdown，提取 frontmatter，
+输出 JSON 供 Quartz 页面渲染，同时把封面图下载到站点本地。
 
 用法：
-    python scripts/build_library.py            # 生成 content-*/藏书馆/_books.json
-    python scripts/build_library.py --dry-run  # 只看会处理哪些书
+    python scripts/build_library.py                 # 两种都生成
+    python scripts/build_library.py --kind book     # 只生成藏书馆
+    python scripts/build_library.py --kind movie    # 只生成观影库
+    python scripts/build_library.py --dry-run       # 只看会处理哪些条目
+    python scripts/build_library.py --skip-covers   # 跳过封面下载（离线时用）
 """
 
 from __future__ import annotations
@@ -14,7 +17,6 @@ from __future__ import annotations
 import argparse
 import json
 import re
-import shutil
 import urllib.parse
 import urllib.request
 from pathlib import Path
@@ -23,12 +25,66 @@ VAULT = Path(r"D:\private\obsidian")
 SITE = Path(__file__).resolve().parent.parent
 CONTENT_DIRS = [SITE / "content-all", SITE / "content-public"]
 
-# 读书笔记所在目录（相对 vault）
-BOOK_DIR = VAULT / "藏书馆"
-COVER_OUT = "attachments/covers"
-
 FM_RE = re.compile(r"^---\r?\n(.*?)\r?\n---", re.S)
 
+# 两类媒体的差异都收敛到这张表，逻辑共用
+KINDS: dict[str, dict] = {
+    "book": {
+        "dir": "藏书馆",
+        "json": "_books.json",
+        "tag": "book",
+        "label": "本书",
+        "referer": "https://book.douban.com/",
+        # frontmatter status 各种写法 → 站内统一值
+        "status_map": {
+            "在读": "在读", "reading": "在读", "正在阅读": "在读",
+            "已读": "已读", "读完": "已读", "已读完": "已读", "finished": "已读",
+            "想读": "想读", "待读": "想读", "未开始": "想读", "wishlist": "想读",
+            "未读完": "未读完", "abandoned": "未读完", "弃读": "未读完",
+        },
+        "default_status": "在读",
+        # 卡片上的信息行：(标签, frontmatter 字段)
+        "info_fields": [
+            ("页数", "pages"),
+            ("开始", "started"),
+            ("读完", "finished"),
+        ],
+        # 作者字段候选名（豆瓣导出常见 author / 作者）
+        "creator_fields": ("author", "作者"),
+        "creator_label": "",
+    },
+    "movie": {
+        "dir": "观影库",
+        "json": "_movies.json",
+        "tag": "movie",
+        "label": "部",
+        "referer": "https://movie.douban.com/",
+        "status_map": {
+            "在看": "在看", "watching": "在看", "追剧中": "在看",
+            "已看": "已看", "看完": "已看", "已看完": "已看", "看过": "已看",
+            "watched": "已看", "finished": "已看",
+            "想看": "想看", "待看": "想看", "wishlist": "想看",
+            "弃剧": "弃剧", "弃了": "弃剧", "abandoned": "弃剧", "未看完": "弃剧",
+        },
+        "default_status": "在看",
+        "info_fields": [
+            ("年份", "year"),
+            ("导演", "director"),
+            ("片长", "duration"),
+            ("集数", "episodes"),
+            ("开始", "started"),
+            ("看完", "finished"),
+        ],
+        "creator_fields": ("director", "导演", "author"),
+        "creator_label": "",
+    },
+}
+
+# 两个索引页本身不该被当成条目
+INDEX_STEMS = {"藏书馆", "观影库"}
+
+
+# ---------------------------------------------------------------- 解析
 
 def parse_frontmatter(text: str) -> dict:
     """极简 YAML frontmatter 解析。
@@ -69,33 +125,26 @@ def parse_frontmatter(text: str) -> dict:
     return data
 
 
-def has_book_tag(text: str, fm: dict) -> bool:
-    """frontmatter 的 tags 里含 book，或正文有 #book。"""
+def has_tag(text: str, fm: dict, tag: str) -> bool:
+    """frontmatter 的 tags 里含该标签，或正文有 #tag。"""
     tags = fm.get("tags", "")
-    if re.search(r"\bbook\b", tags):
+    if re.search(rf"\b{re.escape(tag)}\b", tags):
         return True
-    return bool(re.search(r"(?<!\w)#book(?!\w)", text))
+    return bool(re.search(rf"(?<!\w)#{re.escape(tag)}(?!\w)", text))
 
 
-def normalize_status(raw: str) -> str:
-    """把各种写法归一到 在读 / 已读 / 想读 / 未读完。"""
+def normalize_status(raw: str, cfg: dict) -> str:
     r = (raw or "").strip()
-    mapping = {
-        "在读": "在读", "reading": "在读", "正在阅读": "在读",
-        "已读": "已读", "读完": "已读", "已读完": "已读", "finished": "已读",
-        "想读": "想读", "待读": "想读", "未开始": "想读", "wishlist": "想读",
-        "未读完": "未读完", "abandoned": "未读完", "弃读": "未读完",
-    }
-    return mapping.get(r, "在读" if not r else r)
+    return cfg["status_map"].get(r, cfg["default_status"] if not r else r)
 
 
 def stars_from_rating(rating: str) -> str:
-    """豆瓣 10 分制 → 5 星。"""
+    """豆瓣 10 分制 → 5 星（保留半星）。"""
     try:
         r = float(rating)
     except (TypeError, ValueError):
         return ""
-    half = round(r / 2 * 2) / 2  # 保留半星
+    half = round(r / 2 * 2) / 2
     full = int(half)
     s = "⭐" * full
     if half - full >= 0.5:
@@ -103,50 +152,70 @@ def stars_from_rating(rating: str) -> str:
     return s
 
 
-def collect_books(dry_run: bool = False) -> list[dict]:
-    if not BOOK_DIR.exists():
-        print(f"[library] 目录不存在: {BOOK_DIR}")
+def pick_creator(fm: dict, cfg: dict) -> str:
+    for key in cfg["creator_fields"]:
+        if fm.get(key):
+            return fm[key]
+    return ""
+
+
+def collect(kind: str, dry_run: bool = False) -> list[dict]:
+    cfg = KINDS[kind]
+    base = VAULT / cfg["dir"]
+    if not base.exists():
+        print(f"[{kind}] 目录不存在: {base}")
         return []
 
-    books = []
-    for md in sorted(BOOK_DIR.rglob("*.md")):
-        # 跳过藏书馆索引页本身
-        if md.stem in ("藏书馆", "观影库"):
+    items = []
+    for md in sorted(base.rglob("*.md")):
+        if md.stem in INDEX_STEMS:
             continue
         text = md.read_text(encoding="utf-8", errors="ignore")
         fm = parse_frontmatter(text)
-        if not has_book_tag(text, fm):
+        if not has_tag(text, fm, cfg["tag"]):
             continue
 
         title = fm.get("title") or md.stem
-        book = {
+        info = {}
+        for label, field in cfg["info_fields"]:
+            val = fm.get(field, "")
+            if val:
+                info[label] = val
+
+        item = {
             "title": title,
             "slug": md.relative_to(VAULT).with_suffix("").as_posix(),
-            "author": fm.get("author", ""),
+            "creator": pick_creator(fm, cfg),
             "cover": fm.get("cover", ""),
             "rating": fm.get("rating", ""),
             "stars": stars_from_rating(fm.get("rating", "")),
-            "status": normalize_status(fm.get("status", "")),
+            "status": normalize_status(fm.get("status", ""), cfg),
             "progress": fm.get("progress", ""),
-            "pages": fm.get("pages", ""),
-            "started": fm.get("started", ""),
-            "finished": fm.get("finished", ""),
             "douban": fm.get("douban", ""),
+            "info": info,
         }
-        books.append(book)
+        items.append(item)
         if dry_run:
-            print(f"  {book['status']:4} {title}  ({book['author'][:24]})")
+            print(f"  {item['status']:4} {title}  ({item['creator'][:24]})")
 
-    return books
+    return items
 
 
-def download_covers(books: list[dict]) -> int:
-    """把远程封面下载到站点本地，避免豆瓣图床防盗链。"""
-    out_dir = SITE / "content-all" / COVER_OUT
+# ---------------------------------------------------------------- 封面
+
+def download_covers(kind: str, items: list[dict]) -> int:
+    """把远程封面下载到站点本地，避免豆瓣图床防盗链。
+
+    按类别分目录（covers/book/、covers/movie/），防止同名标题互相覆盖。
+    """
+    cfg = KINDS[kind]
+    rel_dir = f"attachments/covers/{kind}"
+    out_dir = SITE / "content-all" / rel_dir
     out_dir.mkdir(parents=True, exist_ok=True)
+
     ok = 0
-    for b in books:
-        url = b.get("cover", "")
+    for it in items:
+        url = it.get("cover", "")
         if not url.startswith("http"):
             continue
         ext = ".jpg"
@@ -154,10 +223,10 @@ def download_covers(books: list[dict]) -> int:
             if url.lower().endswith(cand):
                 ext = cand
                 break
-        safe = re.sub(r"[^\w\u4e00-\u9fff-]", "_", b["title"])[:60]
+        safe = re.sub(r"[^\w\u4e00-\u9fff-]", "_", it["title"])[:60]
         dest = out_dir / f"{safe}{ext}"
-        if dest.exists():
-            b["cover_local"] = f"{COVER_OUT}/{dest.name}"
+        if dest.exists() and dest.stat().st_size > 0:
+            it["cover_local"] = f"{rel_dir}/{dest.name}"
             ok += 1
             continue
         try:
@@ -170,7 +239,7 @@ def download_covers(books: list[dict]) -> int:
                         "AppleWebKit/537.36 (KHTML, like Gecko) "
                         "Chrome/120.0.0.0 Safari/537.36"
                     ),
-                    "Referer": "https://book.douban.com/",
+                    "Referer": cfg["referer"],
                     "Accept": "image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
                 },
             )
@@ -179,48 +248,65 @@ def download_covers(books: list[dict]) -> int:
             if not data:
                 raise ValueError("空响应")
             dest.write_bytes(data)
-            b["cover_local"] = f"{COVER_OUT}/{dest.name}"
+            it["cover_local"] = f"{rel_dir}/{dest.name}"
             ok += 1
         except Exception as e:
-            print(f"[library] 封面下载失败 {b['title']}: {e}")
+            print(f"[{kind}] 封面下载失败 {it['title']}: {e}")
     return ok
 
 
-def write_json(books: list[dict]) -> None:
+# ---------------------------------------------------------------- 输出
+
+def write_json(kind: str, items: list[dict]) -> None:
+    cfg = KINDS[kind]
+    payload = json.dumps(items, ensure_ascii=False, indent=2)
     for d in CONTENT_DIRS:
         if not d.exists():
             continue
-        target = d / "藏书馆" / "_books.json"
+        target = d / cfg["dir"] / cfg["json"]
         target.parent.mkdir(parents=True, exist_ok=True)
         # newline="\n" 固定 LF：Windows 默认写 CRLF，会让 prettier 报格式不一致
         with open(target, "w", encoding="utf-8", newline="\n") as f:
-            f.write(json.dumps(books, ensure_ascii=False, indent=2))
+            f.write(payload)
             f.write("\n")
+
+
+def build(kind: str, dry_run: bool, skip_covers: bool) -> int:
+    cfg = KINDS[kind]
+    items = collect(kind, dry_run)
+    print(f"[{kind}] 找到 {len(items)} {cfg['label']}")
+
+    if dry_run or not items:
+        return len(items)
+
+    if not skip_covers:
+        n = download_covers(kind, items)
+        print(f"[{kind}] 封面本地化 {n} 张")
+
+    write_json(kind, items)
+
+    from collections import Counter
+
+    dist = Counter(i["status"] for i in items)
+    print(f"[{kind}] 状态分布: {dict(dist)}")
+    return len(items)
 
 
 def main() -> int:
     ap = argparse.ArgumentParser()
+    ap.add_argument(
+        "--kind",
+        choices=[*KINDS, "all"],
+        default="all",
+        help="生成哪一类（默认全部）",
+    )
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--skip-covers", action="store_true")
     args = ap.parse_args()
 
-    books = collect_books(args.dry_run)
-    print(f"[library] 找到 {len(books)} 本书")
-
-    if args.dry_run:
-        return 0
-
-    if not args.skip_covers:
-        n = download_covers(books)
-        print(f"[library] 封面本地化 {n} 张")
-
-    write_json(books)
-    print(f"[library] 已写入 {', '.join(str(d.name) for d in CONTENT_DIRS if d.exists())}")
-
-    # 统计
-    from collections import Counter
-    c = Counter(b["status"] for b in books)
-    print(f"[library] 状态分布: {dict(c)}")
+    kinds = list(KINDS) if args.kind == "all" else [args.kind]
+    for kind in kinds:
+        build(kind, args.dry_run, args.skip_covers)
     return 0
 
 
