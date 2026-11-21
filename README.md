@@ -352,6 +352,75 @@ Prettier 会解析它们。一个多余的 `</div>` 就报错。
 
 ---
 
+## 藏书馆 / 观影库
+
+两个卡片网格页面，数据从 Obsidian 笔记的 frontmatter 自动生成。
+
+| 页面 | 数据源 | 标签 | 状态 |
+|---|---|---|---|
+| `/藏书馆` | `藏书馆/*.md` | `#book` | 在读 / 已读 / 想读 / 未读完 |
+| `/观影库` | `观影库/*.md` | `#movie` | 在看 / 已看 / 想看 / 弃剧 |
+
+### 怎么写一条
+
+```yaml
+---
+title: 书名或片名
+author: 作者          # 书用
+director: 导演        # 影用（兜底认 导演 / author）
+cover: 封面图 URL     # 豆瓣图床可直接填
+rating: 8.4           # 豆瓣 10 分制，自动换算 5 星
+status: 已读
+progress: 100         # 进度百分比，显示进度条
+pages: 424            # 书：页数
+year: 2024            # 影：年份
+duration: 166分钟      # 影：片长
+episodes: 10          # 影：集数
+started: 2026-01-15
+finished: 2026-02-20
+douban: https://book.douban.com/subject/xxx/
+tags:
+  - book              # 或 movie
+---
+```
+
+正文写读后感。有正文的卡片会显示「笔记」角标。
+
+### 生成流程
+
+```powershell
+python scripts/build_library.py              # 两类都生成
+python scripts/build_library.py --kind movie # 只生成观影库
+python scripts/build_library.py --dry-run    # 只看会处理哪些条目
+node scripts/inject_library.mjs dist-public  # 构建后注入卡片
+```
+
+已接入 `npm run build` / `npm run build:public`，日常不用单独跑。
+
+### 设计要点
+
+**两类共用一套逻辑**：`build_library.py` 和 `inject_library.mjs` 顶部各有一张
+`KINDS` 表描述差异（目录、JSON 名、标签、状态映射、信息字段），
+解析和渲染逻辑完全共用。加第三类（比如播客）只需在两张表里各加一项。
+
+**封面必须手动复制到 dist**：Quartz 只复制被 Markdown 引用的附件，
+而封面是构建后注入的 `<img>` 用的，Quartz 不知道它的存在。
+`inject_library.mjs` 的 `copyCovers()` 负责把 `cover_local` 指向的文件
+从 `content-*/` 搬到 `dist/`。
+
+**封面按类别分目录**：`attachments/covers/book/`、`attachments/covers/movie/`，
+防止同名标题互相覆盖。
+
+**豆瓣图床防盗链**：不带 `Referer: https://book.douban.com/`（影视用
+`movie.douban.com`）会返回 **418 I'm a Teapot**。
+
+**注入是幂等的**：重复运行会先清掉上次注入的块，不会出现两组标签页。
+
+**筛选逻辑内联**：Quartz 不复制 `quartz/static/` 下的 JS，所以标签页筛选
+代码直接内联进注入的 HTML 块。
+
+---
+
 ## 大 PDF 发布（Cloudflare R2）
 
 Pages 单文件上限 25MB，且带宽计入 100GB/月。vault 里 16 个 PDF 合计 299MB，

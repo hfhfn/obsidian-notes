@@ -301,8 +301,7 @@ export function injectLibrary(distDir) {
 }
 
 // 直接运行时：node scripts/inject_library.mjs dist-public [kind]
-const isMain =
-  process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 if (isMain) {
   const target = process.argv[2]
   const kind = process.argv[3]
