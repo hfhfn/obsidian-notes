@@ -424,7 +424,13 @@ const SCENES = {
   }
 };
 
-let currentScene = 'mixed';
+// 默认场景必须存在于 SCENES 里（separated / midoverlap / overlap）。
+// 原来写的是 'mixed'，SCENES 里没有这个 key，导致 buildDots() 里
+// SCENES[currentScene] 为 undefined 而抛 TypeError: reading 'rel'，
+// 点阵、TP/FP/FN/TN 计数、三项指标全部停在占位符 "-%"。
+// 之前只在 window load 事件里改成 'separated' 掩盖了问题，
+// 一旦脚本在 load 之后执行（或 load 未触发）就会崩。
+let currentScene = 'separated';
 let thresh = 0.50;
 let dots = [];
 let dragging = false;
@@ -444,7 +450,10 @@ function buildDots() {
   arena.querySelectorAll('.doc-dot').forEach(d => d.remove());
   arena.querySelectorAll('.row-label').forEach(d => d.remove());
   dots = [];
-  const sc = SCENES[currentScene];
+  // 防御：场景名不存在时回退到第一个，避免 SCENES[x] 为 undefined 后
+  // 访问 .rel / .irrel 抛错，让整页指标停在 "-%"
+  const sc = SCENES[currentScene] || SCENES[Object.keys(SCENES)[0]];
+  if (!sc) return;
   const H = arena.clientHeight || 220;
   const W = arena.clientWidth || 700;
   const dotH = 34;

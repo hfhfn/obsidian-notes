@@ -16,6 +16,7 @@ from __future__ import annotations
 import argparse
 import re
 import shutil
+import urllib.parse
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -81,6 +82,10 @@ def prune_private_links(out_dir: Path, private_prefixes: set[str]) -> int:
         t = target.strip().lstrip("/").replace("\\", "/")
         if t.startswith("./"):
             t = t[2:]
+        # 链接里的路径是 URL 编码的（中文附件名尤其明显），
+        # 而 public_files 存的是磁盘上的真实文件名，必须先解码再比对，
+        # 否则「检索精确率….htm」这类中文附件会被误判成未发布而降级为纯文本。
+        t = urllib.parse.unquote(t)
         if t.lower().endswith(".md"):
             t = t[:-3]
         head = t.split("/", 1)[0]
