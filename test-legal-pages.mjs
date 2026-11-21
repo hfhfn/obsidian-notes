@@ -69,5 +69,22 @@ console.log("\n[6] 无 XSS 风险：页面不含用户输入")
   check(!html.includes("[object"), "没有对象泄漏")
 }
 
+console.log("\n[7] 结构与 SHELL 不重复（SHELL 已提供 .wrap 和 .crumb）")
+{
+  for (const [name, fn] of [
+    ["privacy", privacyPage],
+    ["terms", termsPage],
+  ]) {
+    const html = await (await fn()).text()
+    const wrap = (html.match(/class="wrap"/g) || []).length
+    const crumb = (html.match(/class="crumb"/g) || []).length
+    const openDiv = (html.match(/<div/g) || []).length
+    const closeDiv = (html.match(/<\/div>/g) || []).length
+    check(wrap === 1, `${name}: 只有一层 .wrap`, `实际 ${wrap}`)
+    check(crumb === 1, `${name}: 只有一个面包屑`, `实际 ${crumb}`)
+    check(openDiv === closeDiv, `${name}: div 标签配对`, `${openDiv}/${closeDiv}`)
+  }
+}
+
 console.log(`\n${fail === 0 ? "全部通过 ✅" : `${fail} 项失败 ❌`}`)
 process.exit(fail === 0 ? 0 : 1)

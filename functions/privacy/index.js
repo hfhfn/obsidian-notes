@@ -14,9 +14,6 @@ import { SHELL, html } from "../my/_shared.js"
 const UPDATED = "2026-11-22"
 
 const body = `
-<div class="wrap">
-  <p class="crumb"><a href="/">← 返回首页</a></p>
-
   <h1>隐私政策</h1>
   <p class="meta">最后更新：${UPDATED}</p>
 
@@ -125,8 +122,7 @@ const body = `
     <a href="mailto:me@hfhfn.dpdns.org">me@hfhfn.dpdns.org</a>。
   </p>
 
-  <p class="foot"><a href="/">返回首页</a> · <a href="/terms">服务条款</a></p>
-</div>
+<p class="foot"><a href="/">返回首页</a> · <a href="/terms">服务条款</a></p>
 `
 
 export async function onRequestGet() {
