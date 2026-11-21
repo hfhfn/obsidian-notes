@@ -31,7 +31,7 @@
     "analytics": "python scripts/inject_analytics.py --dir dist-all",
     "build:public": "python scripts/make_public_subset.py && npx quartz build -d content-public -o dist-public && python scripts/inject_fonts.py --dir dist-public && python scripts/inject_analytics.py --dir dist-public",
     "subset": "python scripts/make_public_subset.py",
-    "test:auth": "node test-auth.mjs && node test-session-security.mjs && node test-login-page.mjs && node test-subscribe.mjs && node test-oauth.mjs"
+    "test:auth": "node test-auth.mjs && node test-session-security.mjs && node test-login-page.mjs && node test-subscribe.mjs && node test-oauth.mjs && node test-legal-pages.mjs"
   },
   "engines": {
     "npm": ">=10.9.2",

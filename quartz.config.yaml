@@ -252,6 +252,10 @@ plugins:
       # 站点来源说明放在页尾
       message: "本站内容来自我的 Obsidian 笔记库，由 Quartz 自动构建发布。"
       links:
+        # Google OAuth 发布要求：首页必须有指向隐私政策的链接，
+        # 且该链接必须与 Cloud Console 里填写的一致。
+        隐私政策: /privacy
+        服务条款: /terms
         GitHub: https://github.com/hfhfn
         RSS: /index.xml
     layout:
