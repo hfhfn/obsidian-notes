@@ -7,6 +7,18 @@
       "commit": "local",
       "installedAt": "2026-11-21T03:30:47.839Z"
     },
+    "nx-actions": {
+      "source": "./quartz/plugins-local/nx-actions",
+      "resolved": "D:\\private\\obsidian-site\\quartz\\plugins-local\\nx-actions",
+      "commit": "local",
+      "installedAt": "2026-11-21T06:09:01.215Z"
+    },
+    "nx-personal": {
+      "source": "./quartz/plugins-local/nx-personal",
+      "resolved": "D:\\private\\obsidian-site\\quartz\\plugins-local\\nx-personal",
+      "commit": "local",
+      "installedAt": "2026-11-21T06:09:01.212Z"
+    },
     "nx-tabs": {
       "source": "./quartz/plugins-local/nx-tabs",
       "resolved": "D:\\private\\obsidian-site\\quartz\\plugins-local\\nx-tabs",

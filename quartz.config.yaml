@@ -106,13 +106,10 @@ plugins:
   - source: "@quartz-community/roam"
     enabled: false
     order: 92
-  - source: "./quartz/plugins-local/nx-toolbar"
+  - source: "./quartz/plugins-local/nx-personal"
     enabled: true
-    options:
-      themes: [default, nord, sepia, solarized]
-      enableBookmarks: true
-      enableShare: true
-      enableHistory: true
+  - source: "./quartz/plugins-local/nx-actions"
+    enabled: true
   - source: "./quartz/plugins-local/nx-tabs"
     enabled: true
   - source: "@quartz-community/quartz-fonts"

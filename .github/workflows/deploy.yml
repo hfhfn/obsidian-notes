@@ -55,7 +55,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist-public --project-name=hfhfn-notes --branch=main
+          command: pages deploy dist-public --project-name=hfhfn-notes --branch=main --commit-dirty=true
 
       # ---------- 私有站：完整内容，由 Cloudflare Access 保护 ----------
       - name: Point config at private domain

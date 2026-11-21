@@ -16,6 +16,9 @@ scripts/last-sync.json
 qa/
 qa-*.png
 
+# Wrangler local state
+.wrangler/
+
 # Build outputs (regenerated on every run, never committed)
 dist-all/
 dist-public/

@@ -1,0 +1,13 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "hfhfn-notes",
+  "pages_build_output_dir": "dist-all",
+  "compatibility_date": "2026-11-01",
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "notes-db",
+      "database_id": "2d72f4e5-2b60-4847-9925-2eb63b503bd9"
+    }
+  ]
+}
