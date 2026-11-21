@@ -147,9 +147,10 @@ def write_manifest(pdfs: list[dict], env: dict) -> None:
         )
         manifest[pdf["name"]] = f"{base}/{encoded_key}"
     MANIFEST.parent.mkdir(parents=True, exist_ok=True)
-    MANIFEST.write_text(
-        json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8"
-    )
+    # newline="\n" 固定 LF：Windows 默认写 CRLF，会让 prettier 报格式不一致
+    with open(MANIFEST, "w", encoding="utf-8", newline="\n") as f:
+        f.write(json.dumps(manifest, ensure_ascii=False, indent=2))
+        f.write("\n")
     print(f"[pdf] 已写入 {MANIFEST}（{len(manifest)} 条）")
 
 

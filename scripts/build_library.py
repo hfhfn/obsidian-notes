@@ -192,9 +192,10 @@ def write_json(books: list[dict]) -> None:
             continue
         target = d / "藏书馆" / "_books.json"
         target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(
-            json.dumps(books, ensure_ascii=False, indent=2), encoding="utf-8"
-        )
+        # newline="\n" 固定 LF：Windows 默认写 CRLF，会让 prettier 报格式不一致
+        with open(target, "w", encoding="utf-8", newline="\n") as f:
+            f.write(json.dumps(books, ensure_ascii=False, indent=2))
+            f.write("\n")
 
 
 def main() -> int:
