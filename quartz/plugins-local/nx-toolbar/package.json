@@ -1,0 +1,46 @@
+{
+  "name": "nx-toolbar",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./components": {
+      "types": "./dist/components.d.ts",
+      "import": "./dist/components.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "license": "MIT",
+  "quartz": {
+    "name": "nx-toolbar",
+    "displayName": "Notes Toolbar",
+    "category": "component",
+    "version": "1.0.0",
+    "quartzVersion": ">=5.1.0",
+    "dependencies": [],
+    "defaultOrder": 60,
+    "defaultEnabled": false,
+    "defaultOptions": {
+      "themes": [
+        "default",
+        "nord",
+        "sepia",
+        "solarized"
+      ],
+      "enableBookmarks": true,
+      "enableShare": true,
+      "enableHistory": true
+    },
+    "components": {
+      "NotesToolbar": {
+        "displayName": "NotesToolbar",
+        "defaultPosition": "left",
+        "defaultPriority": 45
+      }
+    }
+  }
+}

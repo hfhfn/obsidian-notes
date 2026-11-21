@@ -1,4 +1,23 @@
 {
   "version": "1.0.0",
-  "plugins": {}
+  "plugins": {
+    "notes-extras": {
+      "source": "./quartz/plugins-local/notes-extras",
+      "resolved": "D:\\private\\obsidian-site\\quartz\\plugins-local\\notes-extras",
+      "commit": "local",
+      "installedAt": "2026-11-21T03:30:47.839Z"
+    },
+    "nx-tabs": {
+      "source": "./quartz/plugins-local/nx-tabs",
+      "resolved": "D:\\private\\obsidian-site\\quartz\\plugins-local\\nx-tabs",
+      "commit": "local",
+      "installedAt": "2026-11-21T03:33:44.361Z"
+    },
+    "nx-toolbar": {
+      "source": "./quartz/plugins-local/nx-toolbar",
+      "resolved": "D:\\private\\obsidian-site\\quartz\\plugins-local\\nx-toolbar",
+      "commit": "local",
+      "installedAt": "2026-11-21T03:33:44.359Z"
+    }
+  }
 }

@@ -106,6 +106,15 @@ plugins:
   - source: "@quartz-community/roam"
     enabled: false
     order: 92
+  - source: "./quartz/plugins-local/nx-toolbar"
+    enabled: true
+    options:
+      themes: [default, nord, sepia, solarized]
+      enableBookmarks: true
+      enableShare: true
+      enableHistory: true
+  - source: "./quartz/plugins-local/nx-tabs"
+    enabled: true
   - source: "@quartz-community/quartz-fonts"
     enabled: true
     options:
@@ -156,7 +165,8 @@ plugins:
     enabled: true
     options:
       # 归档放最后；其余保持「文件夹在前、同级按名称」的默认顺序
-      sortFn: '(a, b) => { const rank = (n) => (n.slugSegment === "归档" ? 1 : 0); const ra = rank(a), rb = rank(b); if (ra !== rb) return ra - rb; if ((!a.isFolder && !b.isFolder) || (a.isFolder && b.isFolder)) return (a.displayName || "").localeCompare(b.displayName || "", undefined, { numeric: true, sensitivity: "base" }); return a.isFolder ? -1 : 1; }'
+      # 置底顺序：应用&工具笔记 在最底，归档次之，其余按名称
+      sortFn: '(a, b) => { const rank = (n) => { const s = n.slugSegment; if (s === "应用&工具笔记" || s === "应用-and-工具笔记") return 2; if (s === "归档") return 1; return 0; }; const ra = rank(a), rb = rank(b); if (ra !== rb) return ra - rb; if ((!a.isFolder && !b.isFolder) || (a.isFolder && b.isFolder)) return (a.displayName || "").localeCompare(b.displayName || "", undefined, { numeric: true, sensitivity: "base" }); return a.isFolder ? -1 : 1; }'
     layout:
       position: left
       priority: 50
@@ -237,6 +247,8 @@ plugins:
   - source: "@quartz-community/footer"
     enabled: true
     options:
+      # 站点来源说明放在页尾
+      message: "本站内容来自我的 Obsidian 笔记库，由 Quartz 自动构建发布。<br><a href=\"https://blogtrottr.com/?subscribe=https%3A%2F%2Fnotes.hfhfn.dpdns.org%2Findex.xml\" target=\"_blank\" rel=\"noopener\">📧 订阅更新到邮箱</a>"
       links:
         GitHub: https://github.com/hfhfn
         RSS: /index.xml

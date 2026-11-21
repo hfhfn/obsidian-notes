@@ -895,10 +895,7 @@ class Sync:
             # Internal workspace docs are not published; drop their bullet too.
             body = re.sub(r"(?m)^-\s*`00_系统/`.*\n?", "", body)
             body = body.lstrip("\n")
-            body = (
-                "> [!info] 本站内容来自我的 Obsidian 笔记库，"
-                "由 Quartz 自动构建发布。\n\n" + body
-            )
+            # 站点来源说明已移到页尾，见 quartz.config.yaml 的 footer.options.message
 
         body = self.fix_broken_fences(body)
         body = self.rewrite_links(body, src_rel, out_rel)
