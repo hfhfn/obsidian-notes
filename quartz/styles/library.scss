@@ -52,7 +52,10 @@
   border: 1px solid var(--lightgray);
   border-radius: 10px;
   background: var(--light);
-  transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+  transition:
+    border-color 0.15s,
+    transform 0.15s,
+    box-shadow 0.15s;
 }
 
 .book-card:hover {

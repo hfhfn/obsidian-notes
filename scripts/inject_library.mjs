@@ -119,9 +119,18 @@ function renderCard(book, depth) {
     : ""
 
   const infoRows = []
-  if (book.pages) infoRows.push(`<div class="info-row"><span class="label">页数:</span><span>${esc(book.pages)}</span></div>`)
-  if (book.started) infoRows.push(`<div class="info-row"><span class="label">开始:</span><span>${esc(book.started)}</span></div>`)
-  if (book.finished) infoRows.push(`<div class="info-row"><span class="label">读完:</span><span>${esc(book.finished)}</span></div>`)
+  if (book.pages)
+    infoRows.push(
+      `<div class="info-row"><span class="label">页数:</span><span>${esc(book.pages)}</span></div>`,
+    )
+  if (book.started)
+    infoRows.push(
+      `<div class="info-row"><span class="label">开始:</span><span>${esc(book.started)}</span></div>`,
+    )
+  if (book.finished)
+    infoRows.push(
+      `<div class="info-row"><span class="label">读完:</span><span>${esc(book.finished)}</span></div>`,
+    )
 
   let progress = ""
   const p = Number(book.progress)
@@ -228,8 +237,7 @@ export function injectLibrary(dir) {
 }
 
 // 直接运行时：node scripts/inject_library.mjs dist-public
-const isMain =
-  process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 if (isMain) {
   const target = process.argv[2]
   if (!target) {
