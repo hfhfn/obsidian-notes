@@ -145,7 +145,17 @@ wrangler.jsonc     D1 绑定声明
 页面路由（服务端渲染）：`/my/bookmarks`、`/my/history`
 
 邮件订阅：`/api/subscribe` 把邮箱存入 D1；配了 `RESEND_API_KEY` 才会发确认信。
-需要在 Cloudflare 环境变量里设置 `RESEND_API_KEY`、`MAIL_FROM`、`SITE_ORIGIN`。
+
+在 Cloudflare 面板 → Workers & Pages → `hfhfn-notes` → Settings →
+Environment variables 里加（Production 与 Preview 都要）：
+
+| 变量 | 说明 |
+|---|---|
+| `RESEND_API_KEY` | resend.com 的 API Key（免费 100 封/天） |
+| `SITE_ORIGIN` | `https://notes.hfhfn.dpdns.org` |
+| `MAIL_FROM` | `HFH 的笔记 <onboarding@resend.dev>`，发自己邮箱可用；发任意人需验证域名 |
+
+加完要重新部署一次才生效。
 
 > 注意：`/my/[page].js` 这类动态路由线上会 404，必须用 `my/bookmarks/index.js`
 > 这样的静态目录。
