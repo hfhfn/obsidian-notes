@@ -184,10 +184,45 @@ Environment variables 里加（Production 与 Preview 都要）：
 | `SITE_ORIGIN` | `https://notes.hfhfn.dpdns.org` |
 | `MAIL_FROM` | 发件邮箱，必须是已验证域名的地址，如 `noreply@hfhfn.dpdns.org` |
 | `MAIL_FROM_NAME` | 发件人显示名，如 `HFH 的笔记` |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | 可选。Google OAuth 凭据，配了才显示「使用 Google 登录」 |
+| `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` | 可选。GitHub OAuth 凭据，配了才显示「使用 GitHub 登录」 |
 
 > ⚠️ **变量必须建成 Secret（加密）类型**，不要用 Plain text。
 > `wrangler pages deploy`（Direct Upload）每次部署都会把 Plain text 变量清空，
 > 只有 Secret 类型能保留。加完变量**必须重新部署一次**才生效。
+
+### Google / GitHub 登录（可选）
+
+除邮箱验证码外，还可以接第三方登录。两者都**免费、无用户数限制**，
+同样不经过 Cloudflare Access。
+
+**Google**（https://console.cloud.google.com/apis/credentials）
+
+1. 创建项目 → 创建凭据 → OAuth 客户端 ID → 类型选「Web 应用」
+2. 已获授权的重定向 URI：
+   `https://notes.hfhfn.dpdns.org/api/auth/oauth/google/callback`
+3. 拿到 Client ID / Secret 填进 Pages 环境变量
+
+> 只请求 `openid email profile` 时**不需要 Google 审核**，可直接在
+> 「OAuth 同意屏幕」点「发布应用」开放给所有用户。未发布时只有你手动
+> 添加的测试账号（上限 100）能登录。
+
+**GitHub**（https://github.com/settings/developers → New OAuth App）
+
+1. Homepage URL：`https://notes.hfhfn.dpdns.org`
+2. Authorization callback URL：
+   `https://notes.hfhfn.dpdns.org/api/auth/oauth/github/callback`
+3. 拿到 Client ID / Secret 填进 Pages 环境变量
+
+**实现说明**：`functions/api/auth/_oauth.js` 统一处理授权跳转与回调；
+state 用 HMAC 签名 Cookie 承载，回调时校验签名与 provider，不需要
+服务端存 state 表。Google 会拒绝 `email_verified=false` 的地址，
+GitHub 在 `/user` 无公开邮箱时回退查 `/user/emails` 取 primary+verified。
+拿到邮箱后复用同一套 `signSession`，因此 `bookmarks` / `history`
+（以 email 为主键）无需任何改动。
+
+**关于微信登录**：微信开放平台的「网站应用」扫码登录要求
+**企业/个体工商户主体 + 300 元/年认证费**，个人主体无法申请，故未实现。
 
 > 注意：`/my/[page].js` 这类动态路由线上会 404，必须用 `my/bookmarks/index.js`
 > 这样的静态目录。
