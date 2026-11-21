@@ -141,6 +141,20 @@ const RUNTIME = `
     } catch (e) {}
   }
 
+  // 记录浏览足迹（未登录会 401，静默忽略）
+  async function recordHistory() {
+    var slug = slugOf();
+    if (slug === "/" || !slug) return;
+    var title = (document.querySelector("h1.article-title") || {}).textContent || document.title;
+    try {
+      await fetch(API + "/history", {
+        method: "POST", credentials: "include",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ slug: slug, title: title.trim() }),
+      });
+    } catch (e) {}
+  }
+
   window.__naToggleBookmark = async function () {
     var slug = slugOf();
     var title = (document.querySelector("h1.article-title") || {}).textContent || document.title;
@@ -195,6 +209,7 @@ const RUNTIME = `
     lastSlug = slug;
     load();
     countView();
+    recordHistory();
   }
 
   document.addEventListener("nav", init);

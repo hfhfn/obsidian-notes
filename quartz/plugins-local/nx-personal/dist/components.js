@@ -38,7 +38,7 @@ const CSS = `
 
 /* 主题弹层 */
 .pb-pop {
-  position: absolute; z-index: 70;
+  position: fixed; z-index: 70;
   width: 12rem; padding: .4rem;
   border: 1px solid var(--lightgray); border-radius: 9px;
   background: var(--light); box-shadow: 0 10px 30px rgba(0,0,0,.14);
@@ -54,7 +54,7 @@ const CSS = `
   display: block; width: 100%; text-align: left;
   padding: .34rem .45rem; margin: .08rem 0;
   border: none; border-radius: 6px; background: none;
-  color: var(--darkgray); font-size: .82rem;
+  color: var(--darkgray); font-size: 0.76rem;
   font-family: var(--bodyFont); cursor: pointer;
   transition: background-color .15s, color .15s;
 }
@@ -139,8 +139,13 @@ const RUNTIME = `
     p.hidden = !willOpen;
     if (willOpen) {
       var r = btn.getBoundingClientRect();
-      p.style.top = (r.bottom + window.scrollY + 6) + "px";
-      p.style.left = Math.max(8, r.left + window.scrollX) + "px";
+      p.style.top = (r.bottom + 6) + "px";
+      p.style.left = Math.max(8, r.left) + "px";
+      // 防止超出视口右边
+      var w = p.offsetWidth || 192;
+      if (r.left + w > window.innerWidth - 8) {
+        p.style.left = Math.max(8, window.innerWidth - w - 8) + "px";
+      }
     }
   };
   document.addEventListener("click", function (e) {

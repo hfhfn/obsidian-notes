@@ -371,3 +371,38 @@ article {
     max-width: 100%;
   }
 }
+
+/* ---------- 7. 站点头像 ---------- */
+
+/* 页标题左侧显示头像 */
+.page-title a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.page-title a::before {
+  content: "";
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background-image: url("/static/avatar.png");
+  background-size: cover;
+  background-position: center;
+  border: 1px solid var(--lightgray);
+}
+
+/* 头像随主题轻微调整，避免暗色下显得突兀 */
+:root[saved-theme="dark"] .page-title a::before {
+  border-color: var(--gray);
+  opacity: 0.92;
+}
+
+@media all and ($mobile) {
+  .page-title a::before {
+    width: 1.7rem;
+    height: 1.7rem;
+  }
+}
