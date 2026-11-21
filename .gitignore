@@ -26,3 +26,4 @@ dist-public/
 # NOTE: content-public/ must NOT be listed here.
 # Quartz's file glob honours .gitignore, so ignoring it makes the public
 # build find zero files. It is excluded through .git/info/exclude instead.
+.env

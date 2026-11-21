@@ -294,6 +294,14 @@ class Sync:
         self.index = VaultIndex(VAULT)
         self.asset_map: dict[str, str] = {}  # source rel -> output rel
         self.used_outputs: set[str] = set()
+        # 大 PDF 的 R2 公网链接映射（由 upload_pdfs.py 生成，文件名 -> URL）
+        self.pdf_manifest: dict[str, str] = {}
+        manifest_path = Path(__file__).resolve().parent / "pdf_manifest.json"
+        if manifest_path.exists():
+            try:
+                self.pdf_manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+            except Exception as e:
+                print(f"[sync] pdf_manifest.json 解析失败，忽略: {e}")
         self.report = {
             "notes": 0,
             "images": 0,
@@ -710,10 +718,18 @@ class Sync:
             if out_rel is None:
                 out_rel = self.copy_pdf(src)
             if not out_rel:
+                # 大 PDF 不进 Pages（单文件上限 25MB，且吃带宽）。
+                # 若已通过 upload_pdfs.py 传到 R2，就用 R2 的公网链接；
+                # 否则给出提示，引导读者去本地看。
                 size_mb = (VAULT / src).stat().st_size / 1024 / 1024
+                name = posixpath.basename(src)
+                r2_url = self.pdf_manifest.get(name, "")
+                if r2_url:
+                    text = alias or f"打开 PDF（{size_mb:.0f} MB）"
+                    return f"[{text}]({r2_url})"
                 return (
                     f"> [!warning] PDF 暂未发布\n"
-                    f"> 原文件 `{posixpath.basename(src)}` 约 {size_mb:.1f} MB，超过发布阈值；可在本地 Obsidian 中查看。"
+                    f"> 原文件 `{name}` 约 {size_mb:.1f} MB，超过发布阈值；可在本地 Obsidian 中查看。"
                 )
             return self._asset_link(out_rel, note_out, alias, embed, "pdf")
 

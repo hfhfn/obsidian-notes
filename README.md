@@ -269,7 +269,7 @@ npx wrangler login      # 只需一次
 ## 已知限制
 
 - **Dataview 是快照**：站上的"最近更新"是发布那一刻的结果，重新发布才更新。
-- **大 PDF 不发布**：`>5MB` 的 PDF 只在本地可见（当前 11 个，含 77MB 的 StatQuest）。
+- **大 PDF 走 R2**：`>5MB` 的 PDF 不塞进 Pages（单文件上限 25MB），改传 Cloudflare R2，站内直接链接打开。未配置 R2 时降级为「暂未发布」提示。
 - **LaTeX 警告**：少数笔记把中文写进了 `$...$`，KaTeX 会告警但不影响页面。
 - **关系图谱只含已发布笔记**，`工作` 之外未发布的目录不出现。
 
@@ -349,3 +349,44 @@ Prettier 会解析它们。一个多余的 `</div>` 就报错。
 `gitLoader.peers.test.ts` 的两个测试会真跑 `npm install`，与全局 `~/.npmrc` 里的
 `allow-scripts` 配置冲突（npm 12 起不允许在 project-scoped install 里使用）。
 换台机器或 npm 10/11 就会通过，**与站点代码无关**，不用修。
+
+---
+
+## 大 PDF 发布（Cloudflare R2）
+
+Pages 单文件上限 25MB，且带宽计入 100GB/月。vault 里 16 个 PDF 合计 300MB，
+最大的 77MB，直接发布既超限又吃带宽。改用 R2：
+
+### 一次性配置
+
+1. **开通 R2**：Cloudflare 面板 → R2 → 开通（需绑支付方式，免费额度内不扣费）
+2. **创建桶**：例如 `hfhfn-pdf`
+3. **绑定自定义域**：桶 → Settings → Public access → 绑定
+   `pdf.hfhfn.dpdns.org`（与 Pages 同账号，DNS 会自动加）
+4. **创建 API Token**：My Profile → API Tokens → 权限选
+   `Account > Workers R2 Storage > Edit`
+5. **写凭据**到 `obsidian-site/.env`：
+
+```ini
+R2_ACCOUNT_ID=你的账号ID
+R2_ACCESS_KEY_ID=Token的AccessKeyID
+R2_SECRET_ACCESS_KEY=Token的SecretAccessKey
+R2_BUCKET=hfhfn-pdf
+R2_PUBLIC_BASE=https://pdf.hfhfn.dpdns.org
+```
+
+> ⚠️ `wrangler login` 拿到的 OAuth token **没有 R2 权限**（403），
+> 必须单独建 API Token。这和 Zero Trust 权限缺失是同一类问题。
+
+### 日常使用
+
+```powershell
+pip install boto3                              # 首次
+python scripts/upload_pdfs.py --dry-run        # 看会传哪些
+python scripts/upload_pdfs.py                  # 上传 + 生成 pdf_manifest.json
+python scripts/sync_content.py                 # 同步时会自动把大 PDF 换成 R2 链接
+```
+
+`pdf_manifest.json` 是「文件名 → R2 公网 URL」的映射。同步脚本读它，
+命中就把 `> [!warning] PDF 暂未发布` 替换成可点击的 R2 链接。
+没配 R2 时行为不变，仍是提示去本地看。
