@@ -75,29 +75,81 @@ export async function onRequestGet({ request, env }) {
   )
 }
 
+/**
+ * 发确认信。优先用 Brevo（支持公共域名），回退到 Resend。
+ *
+ * 需要的环境变量：
+ *   BREVO_API_KEY  + MAIL_FROM / MAIL_FROM_NAME   → Brevo
+ *   RESEND_API_KEY + MAIL_FROM                    → Resend
+ */
 async function sendWelcome(env, email, token) {
+  const origin = env.SITE_ORIGIN || "https://notes.hfhfn.dpdns.org"
+  const html = `<p>你好，</p>
+    <p>你已订阅 <a href="${origin}">HFH 的笔记</a> 的更新推送。</p>
+    <p>以后有新笔记时会邮件通知你。</p>
+    <p style="color:#888;font-size:13px;margin-top:2rem">
+      不想再收到？<a href="${origin}/api/public/subscribe?token=${token}">点此退订</a>
+    </p>`
+  const subject = "订阅成功 · HFH 的笔记"
+
+  if (env.BREVO_API_KEY) {
+    return sendViaBrevo(env, email, subject, html)
+  }
+  if (env.RESEND_API_KEY) {
+    return sendViaResend(env, email, subject, html)
+  }
+  return false
+}
+
+async function sendViaBrevo(env, email, subject, html) {
   try {
-    const origin = env.SITE_ORIGIN || "https://notes.hfhfn.dpdns.org"
+    const senderEmail = env.MAIL_FROM || "noreply@hfhfn.dpdns.org"
+    const senderName = env.MAIL_FROM_NAME || "HFH 的笔记"
+    const r = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: {
+        "api-key": env.BREVO_API_KEY,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        sender: { email: senderEmail, name: senderName },
+        to: [{ email }],
+        subject,
+        htmlContent: html,
+      }),
+    })
+    if (!r.ok) {
+      const detail = await r.text().catch(() => "")
+      console.error("[subscribe] brevo failed", r.status, detail.slice(0, 300))
+    }
+    return r.ok
+  } catch (err) {
+    console.error("[subscribe] brevo error", err)
+    return false
+  }
+}
+
+async function sendViaResend(env, email, subject, html) {
+  try {
+    const from = env.MAIL_FROM_NAME
+      ? `${env.MAIL_FROM_NAME} <${env.MAIL_FROM}>`
+      : env.MAIL_FROM || "HFH 的笔记 <onboarding@resend.dev>"
     const r = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${env.RESEND_API_KEY}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        from: env.MAIL_FROM || "HFH 的笔记 <onboarding@resend.dev>",
-        to: [email],
-        subject: "订阅成功 · HFH 的笔记",
-        html: `<p>你好，</p>
-          <p>你已订阅 <a href="${origin}">HFH 的笔记</a> 的更新推送。</p>
-          <p>以后有新笔记时会邮件通知你。</p>
-          <p style="color:#888;font-size:13px;margin-top:2rem">
-            不想再收到？<a href="${origin}/api/public/subscribe?token=${token}">点此退订</a>
-          </p>`,
-      }),
+      body: JSON.stringify({ from, to: [email], subject, html }),
     })
+    if (!r.ok) {
+      const detail = await r.text().catch(() => "")
+      console.error("[subscribe] resend failed", r.status, detail.slice(0, 300))
+    }
     return r.ok
-  } catch {
+  } catch (err) {
+    console.error("[subscribe] resend error", err)
     return false
   }
 }
