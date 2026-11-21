@@ -1,8 +1,9 @@
 /**
  * Personal Bar — 个人记录入口（左栏）
  *
- * 只放「我的」内容：我的收藏、我的足迹、主题切换。
- * 每篇笔记的收藏/点赞按钮在 nx-actions 里，不在这里。
+ * 收藏 / 足迹 是独立页面（/my/bookmarks、/my/history），不是弹窗：
+ * 列表可能上百条，弹窗里翻不方便，也无法收藏链接。
+ * 主题是轻量切换，仍用弹层。
  */
 import { h } from "preact"
 
@@ -10,7 +11,6 @@ const CSS = `
 .pb-bar {
   display: flex;
   flex-direction: row;
-  flex-wrap: nowrap;
   gap: 0.3rem;
   margin: 0.45rem 0 0.1rem;
 }
@@ -18,8 +18,8 @@ const CSS = `
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.28rem;
-  padding: 0.3rem 0.45rem;
+  gap: 0.3rem;
+  padding: 0.34rem 0.5rem;
   border: 1px solid var(--lightgray);
   border-radius: 7px;
   background: transparent;
@@ -27,6 +27,7 @@ const CSS = `
   font-size: 0.76rem;
   font-family: var(--bodyFont);
   cursor: pointer;
+  text-decoration: none;
   transition: border-color .15s, color .15s, background-color .15s;
   flex: 1 1 0;
   min-width: 0;
@@ -35,37 +36,31 @@ const CSS = `
 .pb-btn svg { width: 13px; height: 13px; flex: 0 0 auto; }
 .pb-btn span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
+/* 主题弹层 */
 .pb-pop {
   position: absolute; z-index: 70;
-  width: 20rem; max-width: calc(100vw - 2rem); max-height: 62vh; overflow-y: auto;
-  padding: 0.55rem;
+  width: 12rem; padding: .4rem;
   border: 1px solid var(--lightgray); border-radius: 9px;
   background: var(--light); box-shadow: 0 10px 30px rgba(0,0,0,.14);
-  font-size: .82rem;
 }
 .pb-pop[hidden] { display: none; }
 .pb-pop .pb-head {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: .1rem .3rem .45rem; margin-bottom: .3rem;
+  padding: .1rem .35rem .4rem; margin-bottom: .25rem;
   border-bottom: 1px solid var(--lightgray);
-  color: var(--gray); font-size: .72rem;
+  color: var(--gray); font-size: .7rem;
   text-transform: uppercase; letter-spacing: .06em;
 }
-.pb-pop .pb-head button {
-  border: none; background: none; color: var(--gray);
-  font-size: .72rem; cursor: pointer; padding: 0 .2rem;
+.pb-theme {
+  display: block; width: 100%; text-align: left;
+  padding: .34rem .45rem; margin: .08rem 0;
+  border: none; border-radius: 6px; background: none;
+  color: var(--darkgray); font-size: .82rem;
+  font-family: var(--bodyFont); cursor: pointer;
+  transition: background-color .15s, color .15s;
 }
-.pb-pop .pb-head button:hover { color: var(--secondary); }
-.pb-pop ul { list-style: none; margin: 0; padding: 0; }
-.pb-pop li a {
-  display: block; padding: .34rem .4rem; border-radius: 6px;
-  color: var(--darkgray); text-decoration: none; font-size: .82rem;
-  line-height: 1.4;
-}
-.pb-pop li a:hover { background: var(--highlight); color: var(--secondary); }
-.pb-pop .pb-sub { display: block; color: var(--gray); font-size: .72rem; margin-top: .1rem; }
-.pb-pop .pb-empty { padding: .7rem .4rem; color: var(--gray); text-align: center; font-size: .8rem; }
-.pb-pop .pb-empty a { color: var(--secondary); }
+.pb-theme:hover { background: var(--highlight); color: var(--secondary); }
+.pb-theme.is-on { color: var(--secondary); font-weight: 600; }
+.pb-theme.is-on::after { content: " ✓"; }
 .pb-wrap { position: relative; display: flex; flex: 1 1 0; }
 .pb-wrap > .pb-btn { width: 100%; }
 `
@@ -113,7 +108,6 @@ const RUNTIME = `
   var root = document.documentElement;
 
   function isDark() { return root.getAttribute("saved-theme") === "dark"; }
-
   function applyTheme(name) {
     var t = THEMES[name] || THEMES.default;
     var vars = isDark() ? t.dark : t.light;
@@ -134,67 +128,23 @@ const RUNTIME = `
       b.classList.toggle("is-on", b.getAttribute("data-pb-theme") === cur);
     });
   }
-
-  window.__pbClose = function () {
-    document.querySelectorAll("[data-pb-panel]").forEach(function (p) { p.hidden = true; });
+  window.__pbCloseTheme = function () {
+    var p = document.querySelector("[data-pb-theme-panel]");
+    if (p) p.hidden = true;
   };
-
-  window.__pbOpen = function (name, btn) {
-    var panel = document.querySelector('[data-pb-panel="' + name + '"]');
-    if (!panel) return;
-    var willOpen = panel.hidden;
-    window.__pbClose();
-    if (!willOpen) return;
-    panel.hidden = false;
-    var r = btn.getBoundingClientRect();
-    panel.style.top = (r.bottom + window.scrollY + 6) + "px";
-    panel.style.left = Math.max(8, r.left + window.scrollX) + "px";
-    if (name === "bookmarks" || name === "history") renderList(panel, name);
-  };
-
-  async function renderList(panel, kind) {
-    var ul = panel.querySelector("ul");
-    if (!ul) { ul = document.createElement("ul"); panel.appendChild(ul); }
-    ul.innerHTML = '<li class="pb-empty">加载中…</li>';
-    var url = kind === "bookmarks" ? "/api/bookmarks" : "/api/history";
-    try {
-      var r = await fetch(url, { credentials: "include" });
-      if (r.status === 401) {
-        ul.innerHTML = '<li class="pb-empty">' +
-          '登录后才能保存' + (kind === "bookmarks" ? "收藏" : "足迹") +
-          '。<br><a href="/cdn-cgi/access/login?redirect_url=' +
-          encodeURIComponent(location.pathname) + '">点此登录</a></li>';
-        return;
-      }
-      var d = await r.json();
-      var items = d.items || [];
-      if (!items.length) {
-        ul.innerHTML = '<li class="pb-empty">还没有' +
-          (kind === "bookmarks" ? "收藏" : "浏览记录") + '</li>';
-        return;
-      }
-      ul.innerHTML = "";
-      items.forEach(function (it) {
-        var li = document.createElement("li");
-        var a = document.createElement("a");
-        a.href = "/" + it.slug;
-        a.textContent = it.title || it.slug;
-        if (kind === "history" && it.last_seen) {
-          var s = document.createElement("span");
-          s.className = "pb-sub";
-          s.textContent = (it.visits > 1 ? "访问 " + it.visits + " 次 · " : "") + it.last_seen.slice(0, 10);
-          a.appendChild(s);
-        }
-        li.appendChild(a);
-        ul.appendChild(li);
-      });
-    } catch (e) {
-      ul.innerHTML = '<li class="pb-empty">加载失败</li>';
+  window.__pbToggleTheme = function (btn) {
+    var p = document.querySelector("[data-pb-theme-panel]");
+    if (!p) return;
+    var willOpen = p.hidden;
+    p.hidden = !willOpen;
+    if (willOpen) {
+      var r = btn.getBoundingClientRect();
+      p.style.top = (r.bottom + window.scrollY + 6) + "px";
+      p.style.left = Math.max(8, r.left + window.scrollX) + "px";
     }
-  }
-
+  };
   document.addEventListener("click", function (e) {
-    if (!e.target.closest(".pb-wrap")) window.__pbClose();
+    if (!e.target.closest(".pb-wrap")) window.__pbCloseTheme();
   });
   document.addEventListener("nav", syncTheme);
   document.addEventListener("themechange", function () {
@@ -210,38 +160,26 @@ const RUNTIME = `
 export function PersonalBar() {
   const Bar = () =>
     h("div", { class: "pb-bar" },
-      h("div", { class: "pb-wrap" },
-        h("button", {
-          class: "pb-btn", title: "我的收藏",
-          onclick: "window.__pbOpen('bookmarks', this)",
-        }, icon(ICONS.bookmark), h("span", {}, "收藏")),
-        h("div", { class: "pb-pop", "data-pb-panel": "bookmarks", hidden: true },
-          h("div", { class: "pb-head" }, "我的收藏"),
-          h("ul", {})),
-      ),
-      h("div", { class: "pb-wrap" },
-        h("button", {
-          class: "pb-btn", title: "浏览足迹",
-          onclick: "window.__pbOpen('history', this)",
-        }, icon(ICONS.history), h("span", {}, "足迹")),
-        h("div", { class: "pb-pop", "data-pb-panel": "history", hidden: true },
-          h("div", { class: "pb-head" }, "浏览足迹"),
-          h("ul", {})),
-      ),
+      h("a", {
+        class: "pb-btn", href: "/my/bookmarks", title: "我的收藏",
+      }, icon(ICONS.bookmark), h("span", {}, "收藏")),
+
+      h("a", {
+        class: "pb-btn", href: "/my/history", title: "浏览足迹",
+      }, icon(ICONS.history), h("span", {}, "足迹")),
+
       h("div", { class: "pb-wrap" },
         h("button", {
           class: "pb-btn", title: "切换主题",
-          onclick: "window.__pbOpen('theme', this)",
+          onclick: "window.__pbToggleTheme(this)",
         }, icon(ICONS.palette), h("span", {}, "主题")),
-        h("div", { class: "pb-pop", "data-pb-panel": "theme", hidden: true },
+        h("div", { class: "pb-pop", "data-pb-theme-panel": "", hidden: true },
           h("div", { class: "pb-head" }, "主题"),
-          h("ul", {}, Object.keys(THEMES).map((name) =>
-            h("li", {},
-              h("button", {
-                class: "pb-btn", "data-pb-theme": name,
-                style: "width:100%;justify-content:flex-start;margin:.12rem 0;",
-                onclick: `window.__pbSetTheme('${name}');window.__pbClose();`,
-              }, THEMES[name].label)))),
+          Object.keys(THEMES).map((name) =>
+            h("button", {
+              class: "pb-theme", "data-pb-theme": name,
+              onclick: `window.__pbSetTheme('${name}');window.__pbCloseTheme();`,
+            }, THEMES[name].label)),
         ),
       ),
     )

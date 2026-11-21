@@ -19,6 +19,12 @@
       "commit": "local",
       "installedAt": "2026-11-21T06:09:01.212Z"
     },
+    "nx-subscribe": {
+      "source": "./quartz/plugins-local/nx-subscribe",
+      "resolved": "D:\\private\\obsidian-site\\quartz\\plugins-local\\nx-subscribe",
+      "commit": "local",
+      "installedAt": "2026-11-21T06:44:28.417Z"
+    },
     "nx-tabs": {
       "source": "./quartz/plugins-local/nx-tabs",
       "resolved": "D:\\private\\obsidian-site\\quartz\\plugins-local\\nx-tabs",

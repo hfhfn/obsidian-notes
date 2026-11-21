@@ -112,6 +112,8 @@ plugins:
     enabled: true
   - source: "./quartz/plugins-local/nx-tabs"
     enabled: true
+  - source: "./quartz/plugins-local/nx-subscribe"
+    enabled: true
   - source: "@quartz-community/quartz-fonts"
     enabled: true
     options:
@@ -245,7 +247,7 @@ plugins:
     enabled: true
     options:
       # 站点来源说明放在页尾
-      message: "本站内容来自我的 Obsidian 笔记库，由 Quartz 自动构建发布。<br><a href=\"https://blogtrottr.com/?subscribe=https%3A%2F%2Fnotes.hfhfn.dpdns.org%2Findex.xml\" target=\"_blank\" rel=\"noopener\">📧 订阅更新到邮箱</a>"
+      message: "本站内容来自我的 Obsidian 笔记库，由 Quartz 自动构建发布。"
       links:
         GitHub: https://github.com/hfhfn
         RSS: /index.xml

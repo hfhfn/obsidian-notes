@@ -47,3 +47,11 @@ CREATE TABLE IF NOT EXISTS views (
   count INTEGER NOT NULL DEFAULT 0,
   updated_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
+
+-- 邮件订阅
+CREATE TABLE IF NOT EXISTS subscribers (
+  email      TEXT PRIMARY KEY,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  confirmed  INTEGER NOT NULL DEFAULT 1,
+  unsub_token TEXT NOT NULL
+);
