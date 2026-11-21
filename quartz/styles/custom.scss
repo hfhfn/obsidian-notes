@@ -406,3 +406,30 @@ article {
     height: 1.7rem;
   }
 }
+
+/* ---------- 8. 页脚：说明与版权同一行 ---------- */
+
+/* Footer 组件把「Created with Quartz…」和自定义 message 各输出一个 <p>，
+   默认上下两行。这里让它们并排，中间留一个间隔。 */
+footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 0.5rem;
+}
+
+footer > p {
+  margin: 0;
+  /* 两段文字要并排，必须允许收缩且不换行；
+     同时压到 .82rem，否则 16px 下两段合计超宽会挤到第二行。 */
+  flex: 0 1 auto;
+  min-width: 0;
+  white-space: nowrap;
+  font-size: 0.82rem;
+}
+
+/* 链接列表本来靠负 margin-top 抵消段落间距，改成 flex 后不再需要 */
+footer > ul {
+  flex-basis: 100%;
+  margin-top: 0.4rem;
+}

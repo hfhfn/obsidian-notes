@@ -16,6 +16,7 @@ const CSS = `
 }
 .pb-btn {
   display: inline-flex;
+  box-sizing: border-box;
   align-items: center;
   justify-content: center;
   gap: 0.3rem;
@@ -65,8 +66,16 @@ const CSS = `
 .pb-theme:hover { background: var(--highlight); color: var(--secondary); }
 .pb-theme.is-on { color: var(--secondary); font-weight: 600; }
 .pb-theme.is-on::after { content: " ✓"; }
-.pb-wrap { position: relative; display: flex; flex: 1 1 0; }
+.pb-wrap { position: relative; display: flex; flex: 1 1 0; min-width: 0; }
 .pb-wrap > .pb-btn { width: 100%; }
+
+/* 三个入口平分宽度。直接按百分比分配，避免 <a> 与 <div> 在 flex 收缩
+   上的细微差异导致「主题」比其他两个窄、字显得更大。 */
+.pb-bar > .pb-btn,
+.pb-bar > .pb-wrap {
+  flex: 0 0 calc((100% - 0.6rem) / 3);
+  width: calc((100% - 0.6rem) / 3);
+}
 `
 
 const THEMES = {

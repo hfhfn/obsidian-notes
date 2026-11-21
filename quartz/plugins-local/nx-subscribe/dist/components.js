@@ -143,8 +143,13 @@ const RUNTIME = `
 `
 
 export function SubscribeBox() {
-  const Box = () =>
-    h("section", { class: "sb-wrap" },
+  // 只在首页渲染订阅框：订阅是站点级入口，每篇文章页尾再放一次是噪音。
+  // 用组件内部判断而不是 layout.condition，因为内置条件只有 not-index，
+  // 没有 index-only，注册自定义条件又需要改动构建期代码。
+  const Box = (props) => {
+    if (props?.fileData?.slug !== "index") return null
+
+    return h("section", { class: "sb-wrap" },
       h("h3", { class: "sb-title" }, "订阅", icon(ICONS.link)),
       h("p", { class: "sb-desc" }, "免费订阅获取最新推送"),
       h("form", { class: "sb-form", onsubmit: "return false" },
@@ -156,6 +161,7 @@ export function SubscribeBox() {
       ),
       h("div", { class: "sb-msg" }),
     )
+  }
 
   Box.css = CSS
   Box.afterDOMLoaded = RUNTIME
