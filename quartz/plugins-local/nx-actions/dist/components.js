@@ -111,16 +111,31 @@ const RUNTIME = `
 
   async function load() {
     state.slug = slugOf();
+    var slug = encodeURIComponent(state.slug);
+
+    // 1) 公开计数：无需登录，访客也能看到
     try {
-      var r = await fetch(API + "/stats?slug=" + encodeURIComponent(state.slug), { credentials: "include" });
-      if (r.ok) {
-        var d = await r.json();
-        state.likes = d.likes || 0;
-        state.views = d.views || 0;
-        state.liked = !!d.liked;
+      var r0 = await fetch(API + "/public-stats?slug=" + slug);
+      if (r0.ok) {
+        var d0 = await r0.json();
+        state.likes = d0.likes || 0;
+        state.views = d0.views || 0;
       }
     } catch (e) {}
-    // 收藏状态单独取（未登录会 401，静默忽略）
+    paint();
+
+    // 2) 个人状态：需要登录，未登录时静默跳过（不打扰访客）
+    try {
+      var r = await fetch(API + "/stats?slug=" + slug, { credentials: "include" });
+      if (r.ok) {
+        var d = await r.json();
+        state.liked = !!d.liked;
+        if (d.likes != null) state.likes = d.likes;
+        if (d.views != null) state.views = d.views;
+      }
+    } catch (e) {}
+
+    // 3) 收藏状态
     try {
       var r2 = await fetch(API + "/bookmarks", { credentials: "include" });
       if (r2.ok) {
