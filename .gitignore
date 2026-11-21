@@ -27,3 +27,7 @@ dist-public/
 # Quartz's file glob honours .gitignore, so ignoring it makes the public
 # build find zero files. It is excluded through .git/info/exclude instead.
 .env
+
+# Python
+__pycache__/
+*.pyc
