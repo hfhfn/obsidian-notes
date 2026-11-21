@@ -143,20 +143,51 @@ db/schema.sql      建表脚本（唯一入库的数据库文件）
 wrangler.jsonc     D1 绑定声明
 ```
 
-页面路由（服务端渲染）：`/my/bookmarks`、`/my/history`
+页面路由（服务端渲染）：`/my/bookmarks`、`/my/history`、`/login`
 
-邮件订阅：`/api/public/subscribe` 把邮箱存入 D1；配了 `RESEND_API_KEY` 才会发确认信。
+## 登录（自建邮箱验证码）
+
+公开站的收藏 / 足迹用**自建邮箱验证码登录**，不依赖 Cloudflare Access：
+
+```
+functions/api/auth/request-code.js   发 6 位验证码
+functions/api/auth/verify-code.js    校验并下发会话 Cookie
+functions/api/auth/logout.js         登出
+functions/api/_session.js            HMAC-SHA256 自签会话
+functions/api/_mail.js               发信（Brevo 优先，Resend 回退）
+functions/login/index.js            /login 登录页
+```
+
+设计要点：
+
+| 项 | 做法 |
+|---|---|
+| 会话 | HMAC-SHA256 签名的 `notes_session` Cookie，30 天，HttpOnly + Secure + SameSite=Lax |
+| 验证码 | 只存 SHA-256 哈希；10 分钟过期；一码一用；最多试 5 次后作废 |
+| 限流 | 每邮箱每小时 5 次；超限仍返回同样的成功文案 |
+| 防枚举 | 无论邮箱是否存在、是否发信成功，响应完全一致 |
+| 身份兼容 | `_auth.getUser` 先认自建会话，再认 Access JWT，私有站仍可交给 Access |
+
+> 为什么不直接用 Access：Zero Trust Free 只有 **50 个席位**，每个登录过的人占一个，
+> 公开站读者会很快撞墙；而且 Access 策略配错时会静默不发信，很难排查。
+
+邮件订阅：`/api/public/subscribe` 把邮箱存入 D1；配了任一邮件后端就会发确认信。
 
 在 Cloudflare 面板 → Workers & Pages → `hfhfn-notes` → Settings →
 Environment variables 里加（Production 与 Preview 都要）：
 
 | 变量 | 说明 |
 |---|---|
-| `RESEND_API_KEY` | resend.com 的 API Key（免费 100 封/天） |
+| `BREVO_API_KEY` | brevo.com 的 API Key（**优先使用**，免费 300 封/天） |
+| `RESEND_API_KEY` | resend.com 的 API Key（Brevo 不可用时的回退） |
+| `SESSION_SECRET` | 会话签名密钥，随便一串长随机字符串（如 `openssl rand -base64 48`） |
 | `SITE_ORIGIN` | `https://notes.hfhfn.dpdns.org` |
-| `MAIL_FROM` | `HFH 的笔记 <onboarding@resend.dev>`，发自己邮箱可用；发任意人需验证域名 |
+| `MAIL_FROM` | 发件邮箱，必须是已验证域名的地址，如 `noreply@hfhfn.dpdns.org` |
+| `MAIL_FROM_NAME` | 发件人显示名，如 `HFH 的笔记` |
 
-加完要重新部署一次才生效。
+> ⚠️ **变量必须建成 Secret（加密）类型**，不要用 Plain text。
+> `wrangler pages deploy`（Direct Upload）每次部署都会把 Plain text 变量清空，
+> 只有 Secret 类型能保留。加完变量**必须重新部署一次**才生效。
 
 > 注意：`/my/[page].js` 这类动态路由线上会 404，必须用 `my/bookmarks/index.js`
 > 这样的静态目录。
