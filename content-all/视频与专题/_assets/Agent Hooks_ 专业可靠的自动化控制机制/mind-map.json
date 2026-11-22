@@ -1,0 +1,149 @@
+{
+  "name": "Agent Hook 深度教程",
+  "children": [
+    {
+      "name": "核心定義與價值",
+      "children": [
+        {
+          "name": "強制性約束機制"
+        },
+        {
+          "name": "凌駕於提示詞與系統指令"
+        },
+        {
+          "name": "由智能體而非大模型觸發"
+        },
+        {
+          "name": "解決 AI 不遵守約定的穩定性問題"
+        }
+      ]
+    },
+    {
+      "name": "四大核心機制",
+      "children": [
+        {
+          "name": "事件 (Event)",
+          "children": [
+            {
+              "name": "觸發時機 (生命週期節點)"
+            },
+            {
+              "name": "示例: user prompt submit"
+            }
+          ]
+        },
+        {
+          "name": "匹配條件 (Match)",
+          "children": [
+            {
+              "name": "篩選需要處理的操作"
+            },
+            {
+              "name": "示例: 僅對命令行工具觸發"
+            }
+          ]
+        },
+        {
+          "name": "處理器 (Processor)",
+          "children": [
+            {
+              "name": "執行腳本 (Python/Nodejs)"
+            },
+            {
+              "name": "AI 輔助代碼編寫"
+            }
+          ]
+        },
+        {
+          "name": "最終決策 (Decision)",
+          "children": [
+            {
+              "name": "阻止當前操作"
+            },
+            {
+              "name": "允許並繼續下一步"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "主流智能體支持對比",
+      "children": [
+        {
+          "name": "Cloud Code",
+          "children": [
+            {
+              "name": "支持 31 個事件"
+            },
+            {
+              "name": "Prompt Handler (調用一次 AI)"
+            },
+            {
+              "name": "Agent Handler (派發子智能體)"
+            }
+          ]
+        },
+        {
+          "name": "Codex",
+          "children": [
+            {
+              "name": "基礎 Hook 支持"
+            },
+            {
+              "name": "暫不具備內置 AI 處理器"
+            }
+          ]
+        },
+        {
+          "name": "Deepstick Harness",
+          "children": [
+            {
+              "name": "插件化機制"
+            },
+            {
+              "name": "推薦使用橋接插件連接現有 Hook"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "應用場景",
+      "children": [
+        {
+          "name": "動態安全檢查"
+        },
+        {
+          "name": "敏感文件權限控制"
+        },
+        {
+          "name": "對話開始前注入背景信息"
+        },
+        {
+          "name": "內容二次加工 (如去 AI 味)"
+        },
+        {
+          "name": "對話狀態存檔 (Checkpoint)"
+        }
+      ]
+    },
+    {
+      "name": "構建流程",
+      "children": [
+        {
+          "name": "明確功能需求"
+        },
+        {
+          "name": "讓 AI 拆解規則與編寫腳本"
+        },
+        {
+          "name": "配置 hooks.json 文件"
+        },
+        {
+          "name": "針對性提示詞功能測試"
+        }
+      ]
+    }
+  ]
+}

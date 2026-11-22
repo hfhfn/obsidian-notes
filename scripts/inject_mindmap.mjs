@@ -158,6 +158,105 @@ const RUNTIME = `
       // 把 SVG 画进 canvas 时 foreignObject 不会渲染（浏览器安全限制），
       // 导出的 PNG 只有线和圆点、没有文字。SVG 本身能完整保留文字。
       // 为了脱离页面也能看，把关键样式内联进去。
+      // 导出独立 HTML：内嵌 markmap + 数据 + 全部 JS，
+      // 双击打开就能拖动、缩放、折叠 —— 比静态 SVG 有用得多。
+      // 依赖走 CDN（离线打开时若没网会退化成纯文本，所以也把数据写进页面）。
+      function exportHtml(){
+        var dataEl = wrap.querySelector('script.mm-data');
+        if (!dataEl) return;
+
+        var title = wrap.getAttribute('data-mm-title') || 'mindmap';
+        var fsEl = wrap.querySelector('.mm-font');
+        var fs = fsEl ? fsEl.value : 15;
+
+        var html = [
+          '<!DOCTYPE html>',
+          '<html lang="zh-CN">',
+          '<head>',
+          '<meta charset="utf-8">',
+          '<meta name="viewport" content="width=device-width,initial-scale=1">',
+          '<title>' + title + '</title>',
+          '<style>',
+          'html,body{margin:0;height:100%;font-family:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif}',
+          '#bar{display:flex;gap:.5rem;align-items:center;padding:.6rem .9rem;background:#f4f4f5;border-bottom:1px solid #ddd;font-size:.82rem;color:#444}',
+          '#bar button{padding:.22rem .6rem;border:1px solid #bbb;border-radius:5px;background:#fff;cursor:pointer;font-size:.78rem}',
+          '#bar button:hover{border-color:#0d7d74;color:#0d7d74}',
+          '#bar label{display:inline-flex;gap:.3rem;align-items:center}',
+          '#bar input[type=range]{width:70px;accent-color:#0d7d74}',
+          '#mm{width:100%;height:calc(100% - 44px);display:block;cursor:grab}',
+          '#mm:active{cursor:grabbing}',
+          '.markmap-foreign>div>div{color:#222 !important}',
+          '</style>',
+          '</head>',
+          '<body>',
+          '<div id="bar">',
+          '<strong>' + title + '</strong>',
+          '<button id="fit">适应窗口</button>',
+          '<button id="expand">全部展开</button>',
+          '<button id="collapse">折叠到底</button>',
+          '<label>字号 <input id="fs" type="range" min="11" max="24" value="' + fs + '"></label>',
+          '<span style="color:#888;font-size:.75rem">拖动平移 · 滚轮缩放 · 点节点折叠</span>',
+          '</div>',
+          '<svg id="mm"></svg>',
+          '<script type="application/json" id="data">' + dataEl.textContent + '<' + '/script>',
+          '<script src="https://cdn.jsdelivr.net/npm/d3@7"><' + '/script>',
+          '<script src="https://cdn.jsdelivr.net/npm/markmap-view@0.18.0/dist/browser/index.min.js"><' + '/script>',
+          '<script>',
+          'window.addEventListener("load", function(){',
+          '  if (!window.markmap || !window.markmap.Markmap) {',
+          '    document.getElementById("mm").outerHTML = String.fromCharCode(60) + "p style=" + String.fromCharCode(34) + "padding:2rem" + String.fromCharCode(34) + ">markmap 加载失败（需要联网）。数据已内嵌在页面源码里。";',
+          '    return;',
+          '  }',
+          '  var tree = JSON.parse(document.getElementById("data").textContent);',
+          '  function conv(n){ return { content: String(n.name||""), children: (n.children||[]).map(conv) }; }',
+          '  var root = conv(tree);',
+          '  var mm = window.markmap.Markmap.create("#mm", {',
+          '    autoFit: true, duration: 260, spacingVertical: 14, spacingHorizontal: 100,',
+          '    paddingX: 14, initialExpandLevel: 2, colorFreezeLevel: 2, maxWidth: 220',
+          '  }, root);',
+          '  document.getElementById("fit").onclick = function(){ mm.fit(); };',
+          '  document.getElementById("expand").onclick = function(){',
+          '    (function w(n){ n.payload = { fold: 0 }; (n.children||[]).forEach(w); })(mm.state.data);',
+          '    mm.renderData(root, mm.state.data); mm.fit();',
+          '  };',
+          '  document.getElementById("collapse").onclick = function(){',
+          '    (function w(n,d){ if(d>=2) n.payload={fold:1}; (n.children||[]).forEach(function(c){ w(c,d+1); }); })(mm.state.data,0);',
+          '    mm.renderData(root, mm.state.data); mm.fit();',
+          '  };',
+          '  document.getElementById("fs").oninput = function(e){',
+          '    var s = document.createElement("style");',
+          '    s.textContent = ".markmap-foreign>div>div{font-size:" + e.target.value + "px !important}";',
+          '    document.head.appendChild(s);',
+          '    mm.renderData(root, mm.state.data); mm.fit();',
+          '  };',
+          '  if (window.ResizeObserver) new ResizeObserver(function(){ mm.fit(); }).observe(document.getElementById("mm"));',
+          '});',
+          '<' + '/script>',
+          '</body>',
+          '</html>',
+        ].join(String.fromCharCode(10));
+
+        var fname = title.replace(/[\\/:*?"<>|]/g, '_').trim() || 'mindmap';
+        var blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+        var objUrl = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = objUrl;
+        a.download = fname + '.html';
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function(){
+          document.body.removeChild(a);
+          URL.revokeObjectURL(objUrl);
+        }, 4000);
+
+        var hint = document.createElement('div');
+        hint.className = 'mm-export-hint';
+        hint.textContent = '已导出 ' + fname + '.html（双击打开，可拖动折叠）';
+        wrap.appendChild(hint);
+        setTimeout(function(){ hint.remove(); }, 4000);
+      }
+
       function exportSvg(){
         // canvas 本身就是 <svg class="mm-canvas">，不是它的子元素。
         // 之前写 canvas.querySelector('svg') 拿到 null，导出静默失败。
@@ -252,6 +351,8 @@ const RUNTIME = `
             else if (wrap.requestFullscreen) wrap.requestFullscreen();
           } else if (act === 'svg') {
             exportSvg();
+          } else if (act === 'html') {
+            exportHtml();
           }
         });
       });

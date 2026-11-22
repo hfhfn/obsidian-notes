@@ -14,6 +14,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import shutil
 import urllib.parse
@@ -160,6 +161,45 @@ def clean_homepage(out_dir: Path, private_prefixes: set[str]) -> int:
     return removed
 
 
+def fetch_hidden_slugs() -> set[str]:
+    """从 D1 读公开站隐藏列表。
+
+    用 wrangler d1 execute 拿 JSON。失败返回空集合 ——
+    构建不能因为 D1 不可达就整体失败。
+    """
+    import subprocess
+
+    sql = "SELECT slug FROM video_visibility WHERE hidden = 1"
+    try:
+        r = subprocess.run(
+            [
+                "npx", "--no-install", "wrangler", "d1", "execute", "notes-db",
+                "--remote", "--json", "--command", sql,
+            ],
+            capture_output=True,
+            text=True,
+            timeout=120,
+            shell=True,
+        )
+        if r.returncode != 0:
+            print(f"  [warn] 读隐藏列表失败，按无隐藏处理")
+            return set()
+
+        # wrangler 输出前面有 npm notice 之类的噪音，取第一个 JSON 数组
+        out = r.stdout
+        start = out.find("[")
+        if start < 0:
+            return set()
+        data = json.loads(out[start:])
+        rows = []
+        for block in data:
+            rows.extend(block.get("results") or [])
+        return {row["slug"] for row in rows if row.get("slug")}
+    except Exception as e:
+        print(f"  [warn] 读隐藏列表异常：{e}")
+        return set()
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
@@ -177,6 +217,13 @@ def main() -> int:
     copied_md: list[Path] = []
     copied_dirs: list[str] = []
 
+    # 公开站隐藏列表：管理员在站点上标记 hidden 的视频笔记。
+    # 用 wrangler 查 D1（构建机有 CF 凭据），查不到就当作空列表 ——
+    # 不能让 D1 查询失败阻断整个构建。
+    hidden_slugs = fetch_hidden_slugs()
+    if hidden_slugs:
+        print(f"  公开站隐藏 {len(hidden_slugs)} 条视频笔记")
+
     for name in PUBLIC_DIRS:
         src = CONTENT / name
         if not src.is_dir():
@@ -185,6 +232,16 @@ def main() -> int:
         dst = OUT / name
         if not args.dry_run:
             shutil.copytree(src, dst)
+            # 剔除 hidden 的视频笔记（只影响公开站）
+            if hidden_slugs:
+                removed = 0
+                for slug in hidden_slugs:
+                    target = dst / f"{slug}.md"
+                    if target.exists():
+                        target.unlink()
+                        removed += 1
+                if removed:
+                    print(f"    {name}: 剔除 {removed} 条")
         copied_dirs.append(name)
         copied_md.extend(src.rglob("*.md"))
 

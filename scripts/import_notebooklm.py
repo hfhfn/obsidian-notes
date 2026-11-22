@@ -269,7 +269,7 @@ def render_mindmap(json_path, title="mindmap"):
         '<label>间距 <input class="mm-space" type="range" min="4" max="40" value="12"></label>'
         '<span class="mm-sep"></span>'
         '<button data-mm-act="full">全屏</button>'
-        '<button data-mm-act="svg">导出</button>'
+        '<button data-mm-act="html" title="导出可交互 HTML（可拖动/折叠）">导出 HTML</button>''<button data-mm-act="svg" title="导出静态 SVG 图片">导出 SVG</button>'
         '</div>'
         '<svg class="mm-canvas"></svg>'
         '<div class="mm-hint">拖动平移 · 滚轮缩放 · 点击节点折叠</div>'

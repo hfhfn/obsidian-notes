@@ -307,15 +307,28 @@ function renderCard(item, cfg, depth, kind) {
       ${progress}
       ${sourceLink}`
 
-  // 笔记卡也能移除。item_key 由 build_library 生成：
-  // 有豆瓣 id 用 id，没有就用 标题+作者哈希，保证每张卡都有。
+  // 书/影：右上角「× 移除」（从我的书架去掉）
+  // 视频：右上角「👁 隐藏」（只在公开站隐藏，私有站仍显示）
   const itemKey = item.item_key || ""
+  const isVideo = Boolean(cfg.coverRatio)
+  const slug = item.slug || ""
+
+  let cornerBtn = ""
+  if (isVideo) {
+    // slug 是相对 modules 的路径，去掉 .md
+    cornerBtn = slug
+      ? `<button class="vid-hide" data-slug="${esc(slug)}" title="在公开站隐藏这条" aria-label="隐藏">👁</button>`
+      : ""
+  } else if (itemKey) {
+    cornerBtn = `<button class="shelf-remove" data-item="${esc(itemKey)}" title="从书架移除" aria-label="移除">×</button>`
+  }
 
   return `
     <div class="book-card${hasNote ? " has-note" : ""}${wide ? " book-card-wide" : ""}"
          data-status="${esc(item.status)}"
-         ${itemKey ? `data-item="${esc(itemKey)}"` : ""}>
-      ${itemKey ? `<button class="shelf-remove" data-item="${esc(itemKey)}" title="从书架移除" aria-label="移除">×</button>` : ""}
+         ${itemKey ? `data-item="${esc(itemKey)}"` : ""}
+         ${slug ? `data-slug="${esc(slug)}"` : ""}>
+      ${cornerBtn}
       ${cardBody}
     </div>`
 }

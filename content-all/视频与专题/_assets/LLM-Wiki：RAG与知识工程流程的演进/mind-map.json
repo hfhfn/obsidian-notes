@@ -1,0 +1,170 @@
+{
+  "name": "LLM Wiki (LMwiki)",
+  "children": [
+    {
+      "name": "Core Concept",
+      "children": [
+        {
+          "name": "Knowledge Engineering System"
+        },
+        {
+          "name": "Ingestion-driven vs. Query-driven"
+        },
+        {
+          "name": "Compilation into Long-term Assets"
+        },
+        {
+          "name": "Knowledge Runtime"
+        }
+      ]
+    },
+    {
+      "name": "Evolutionary Path",
+      "children": [
+        {
+          "name": "2020: RAG (External Knowledge Access)"
+        },
+        {
+          "name": "2024: GraphRAG (Global Relationships)"
+        },
+        {
+          "name": "2026: LMwiki (Incremental Compilation)"
+        }
+      ]
+    },
+    {
+      "name": "Architecture (Three Layers)",
+      "children": [
+        {
+          "name": "Raw Materials (Immutable PDF/Code/Logs)"
+        },
+        {
+          "name": "Wiki Derived Layer (Entities/Concepts/Synthesis)"
+        },
+        {
+          "name": "Schema Constraint Layer (Rules/Naming/Sourcing)"
+        }
+      ]
+    },
+    {
+      "name": "Operation Control Plane",
+      "children": [
+        {
+          "name": "Index.md (Navigation & Categories)"
+        },
+        {
+          "name": "Log.md (Event & Audit Trail)"
+        },
+        {
+          "name": "Front Matter (Metadata & Hard Constraints)"
+        },
+        {
+          "name": "Overview.md (Cognitive Snapshot)"
+        }
+      ]
+    },
+    {
+      "name": "Page Types",
+      "children": [
+        {
+          "name": "Source & Entity"
+        },
+        {
+          "name": "Concept & Comparison"
+        },
+        {
+          "name": "Question & Synthesis"
+        },
+        {
+          "name": "Decision & Knowledge Gap"
+        }
+      ]
+    },
+    {
+      "name": "Core Workflows",
+      "children": [
+        {
+          "name": "Ingest",
+          "children": [
+            {
+              "name": "Normalization"
+            },
+            {
+              "name": "Cross-referencing"
+            },
+            {
+              "name": "Incremental Update"
+            }
+          ]
+        },
+        {
+          "name": "Crystallization (Chat to Wiki)"
+        },
+        {
+          "name": "Lint (Structural & Semantic Health)"
+        },
+        {
+          "name": "Deep Research (Active Discovery)"
+        }
+      ]
+    },
+    {
+      "name": "Advanced Strategies",
+      "children": [
+        {
+          "name": "Adversarial Ingest",
+          "children": [
+            {
+              "name": "Multi-agent Verification"
+            },
+            {
+              "name": "Explicit Verdicts (Supported/Contradicted)"
+            }
+          ]
+        },
+        {
+          "name": "Adaptive Retrieval",
+          "children": [
+            {
+              "name": "Query Routing"
+            },
+            {
+              "name": "Hybrid Search (BM25/Vector/Graph)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Risks & Challenges",
+      "children": [
+        {
+          "name": "Hallucination Loop (Self-reinforcement)"
+        },
+        {
+          "name": "Fine-grained Information Loss"
+        },
+        {
+          "name": "Shift in Maintenance Costs"
+        }
+      ]
+    },
+    {
+      "name": "Application Scenarios",
+      "children": [
+        {
+          "name": "Long-term Theme Research"
+        },
+        {
+          "name": "Codebase & Literature Understanding"
+        },
+        {
+          "name": "Competitive Intelligence"
+        },
+        {
+          "name": "Personal Second Brain"
+        }
+      ]
+    }
+  ]
+}

@@ -251,6 +251,34 @@ const CSS = `
 .shelf-remove:hover { opacity: 1 !important; background: #d9534f; }
 .shelf-remove:disabled { opacity: 0.4; cursor: default; }
 
+/* 视频卡「公开站隐藏」按钮：和 shelf-remove 同位置同形态 */
+.vid-hide {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 3;
+  width: 1.35rem;
+  height: 1.35rem;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff !important;
+  font-size: 0.78rem !important;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s;
+}
+.book-card:hover .vid-hide { opacity: 0.75; }
+.vid-hide:hover { opacity: 1 !important; background: #e8a33d; }
+.vid-hide[data-hidden="1"] { opacity: 0.85; background: #d9534f; }
+.vid-hide:disabled { opacity: 0.4; cursor: default; }
+
+/* 公开站已隐藏的卡片：加一层淡红描边提示管理员 */
+.book-card.is-hidden-public { outline: 2px dashed #d9534f; outline-offset: 2px; }
+.book-card.is-hidden-public .book-cover { opacity: 0.55; }
+
 /* 进度条 */
 .lc-prog {
   height: 3px;
@@ -312,19 +340,24 @@ function renderCell(it, kind, prefix) {
     ? `<img class="lc-cover" src="${esc(prefix + local)}" alt="${name}" loading="lazy">`
     : `<div class="lc-cover-empty">无封面</div>`
 
-  // 副标题：书 = 作者 · ★评分 · 年份，影视 = ★评分 · 类型 · 地区 · 年份。
-  // 之前书只有作者、影视没有年份，导致「标记后复制到书架」的卡片
-  // 只有状态没有年份/评分（用户截图反馈）。
+  // 副标题：评分用 ⭐ 星星串（和笔记卡一致），豆瓣 10 分制 → 5 星。
+  const starStr = (score) => {
+    const s = parseFloat(score)
+    if (!s || isNaN(s)) return ""
+    const n = Math.round(s / 2)
+    return "⭐".repeat(Math.max(1, Math.min(5, n)))
+  }
+
   let sub = ""
   if (kind === "book") {
     const bits = []
     if (it.author) bits.push(esc(it.author))
-    if (it.score) bits.push(`★${it.score}`)
+    if (it.score) bits.push(`${starStr(it.score)} ${it.score}`)
     if (it.year) bits.push(esc(it.year))
     sub = bits.join(" · ")
   } else {
     const bits = []
-    if (it.score) bits.push(`★${it.score}`)
+    if (it.score) bits.push(`${starStr(it.score)} ${it.score}`)
     if (it.types && it.types.length) bits.push(esc(it.types[0]))
     if (it.regions && it.regions.length) bits.push(esc(it.regions[0]))
     if (it.year) bits.push(esc(it.year))
@@ -620,13 +653,24 @@ const RUNTIME = `
       ? '<img class="book-cover" src="' + cover + '" alt="" loading="lazy">'
       : '<div class="book-cover book-cover-empty">无封面</div>';
 
-    // 副标题：书用作者，影视用 评分 · 类型 · 地区
+    // 评分统一用 ⭐ 星星串（用户要求保留 ⭐ 显示，和笔记卡一致）
+    function starStr(score){
+      var s = parseFloat(score);
+      if (!s || isNaN(s)) return '';
+      var n = Math.round(s / 2);   // 豆瓣 10 分制 → 5 星
+      return '⭐'.repeat(Math.max(1, Math.min(5, n)));
+    }
+
+    // 副标题：书 = 作者 · ⭐评分，影视 = ⭐评分 · 类型 · 地区
     var sub = '';
     if (kind === 'book') {
-      sub = meta.author || '';
+      var b = [];
+      if (meta.author) b.push(meta.author);
+      if (meta.score) b.push(starStr(meta.score) + ' ' + meta.score);
+      sub = b.join(' · ');
     } else {
       var bits = [];
-      if (meta.score) bits.push('★' + meta.score);
+      if (meta.score) bits.push(starStr(meta.score) + ' ' + meta.score);
       if (meta.types && meta.types.length) bits.push(meta.types[0]);
       if (meta.regions && meta.regions.length) bits.push(meta.regions[0]);
       sub = bits.join(' · ');
@@ -640,15 +684,15 @@ const RUNTIME = `
     }
     function joinArr(a){ return (a && a.length) ? a.join(' / ') : ''; }
 
+    // 不显示「状态」行：状态由顶部标签页表达，卡片上重复是噪音。
+    // 「评分」也不在这显示 —— 已用 ⭐ 放在副标题里，和笔记卡一致。
     row('年份', meta.year);
-    row('评分', meta.score);
     if (kind === 'book') {
       row('作者', meta.author);
     } else {
       row('类型', joinArr(meta.types));
       row('地区', joinArr(meta.regions));
     }
-    row('状态', tab);
 
     var infoHtml = rows.length ? '<div class="book-info">' + rows.join('') + '</div>' : '';
 
@@ -816,11 +860,91 @@ const RUNTIME = `
     });
   }
 
+  // 视频卡的「👁 隐藏」：只在公开站隐藏，私有站不受影响。
+  // 需要管理员权限（这个开关改的是公开站，不是个人书架）。
+  function bindVideoHide(){
+    document.querySelectorAll('.vid-hide').forEach(function(btn){
+      if (btn.dataset.hideBound) return;
+      btn.dataset.hideBound = '1';
+
+      btn.addEventListener('click', async function(ev){
+        ev.preventDefault();
+        ev.stopPropagation();
+
+        var slug = btn.getAttribute('data-slug');
+        if (!slug) return;
+
+        var nowHidden = btn.getAttribute('data-hidden') === '1';
+        var next = !nowHidden;
+        var msg = next
+          ? '在公开站隐藏《' + (btn.closest('.book-card').querySelector('.book-title') || {}).textContent + '》？\n\n私有站仍会显示。'
+          : '恢复在公开站显示这条笔记？';
+        if (!confirm(msg)) return;
+
+        btn.disabled = true;
+        try {
+          var r = await fetch('/api/video-visibility', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ slug: slug, hidden: next })
+          });
+          var d = null;
+          try { d = await r.json(); } catch (e) {}
+
+          if (d && d.ok) {
+            btn.setAttribute('data-hidden', next ? '1' : '0');
+            btn.textContent = next ? '🚫' : '👁';
+            btn.title = next ? '已在公开站隐藏（点击恢复）' : '在公开站隐藏这条';
+            var card = btn.closest('.book-card');
+            if (card) card.classList.toggle('is-hidden-public', next);
+          } else if (d && d.code === 'forbidden') {
+            alert('只有管理员能设置公开/隐藏');
+          } else if (d && d.error === 'login_required') {
+            alert('请先登录（需要管理员账号）');
+            location.href = '/login';
+          } else {
+            alert('操作失败：' + ((d && d.error) || '未知错误'));
+          }
+        } catch (e) {
+          alert('操作失败：' + e);
+        } finally {
+          btn.disabled = false;
+        }
+      });
+    });
+  }
+
+  // 页面加载后回填隐藏状态
+  async function hydrateVideoHide(){
+    var btns = document.querySelectorAll('.vid-hide');
+    if (!btns.length) return;
+    try {
+      var r = await fetch('/api/video-visibility', { credentials: 'same-origin' });
+      if (!r.ok) return;
+      var d = await r.json();
+      var set = {};
+      (d.hidden || []).forEach(function(s){ set[s] = 1; });
+      btns.forEach(function(btn){
+        var slug = btn.getAttribute('data-slug');
+        if (set[slug]) {
+          btn.setAttribute('data-hidden', '1');
+          btn.textContent = '🚫';
+          btn.title = '已在公开站隐藏（点击恢复）';
+          var card = btn.closest('.book-card');
+          if (card) card.classList.add('is-hidden-public');
+        }
+      });
+    } catch (e) {}
+  }
+
   function init(){
     bind();
     bindMarks();
     bindShelfRemoves();
+    bindVideoHide();
     hydrateMarks();
+    hydrateVideoHide();
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);

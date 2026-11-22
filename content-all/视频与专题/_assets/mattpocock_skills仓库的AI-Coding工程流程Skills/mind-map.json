@@ -1,0 +1,129 @@
+{
+  "name": "Claude Code 高级开发技巧",
+  "children": [
+    {
+      "name": "核心理念",
+      "children": [
+        {
+          "name": "流程化管理"
+        },
+        {
+          "name": "解决 AI 无记忆问题"
+        },
+        {
+          "name": "提升代码质量"
+        },
+        {
+          "name": "将 AI 视为人类工程师"
+        }
+      ]
+    },
+    {
+      "name": "五大关键技能",
+      "children": [
+        {
+          "name": "Grill Me (深度盘问)",
+          "children": [
+            {
+              "name": "建立共同理解"
+            },
+            {
+              "name": "遍历设计树分支"
+            },
+            {
+              "name": "解析决策依赖"
+            },
+            {
+              "name": "探索现有代码库"
+            }
+          ]
+        },
+        {
+          "name": "Write a PRD (撰写需求文档)",
+          "children": [
+            {
+              "name": "描述功能终点"
+            },
+            {
+              "name": "定义用户故事 (User Stories)"
+            },
+            {
+              "name": "记录实现决策"
+            },
+            {
+              "name": "提交为 GitHub Issue"
+            }
+          ]
+        },
+        {
+          "name": "PRD to Issues (拆分任务)",
+          "children": [
+            {
+              "name": "规划实现路径"
+            },
+            {
+              "name": "垂直切片 (Vertical Slices)"
+            },
+            {
+              "name": "识别未知领域"
+            },
+            {
+              "name": "建立任务阻塞关系"
+            }
+          ]
+        },
+        {
+          "name": "TDD (测试驱动开发)",
+          "children": [
+            {
+              "name": "红-绿-重构循环"
+            },
+            {
+              "name": "先写测试再写代码"
+            },
+            {
+              "name": "设计可测试的接口"
+            },
+            {
+              "name": "提高输出稳定性"
+            }
+          ]
+        },
+        {
+          "name": "Improve Architecture (重构架构)",
+          "children": [
+            {
+              "name": "消除认知负担"
+            },
+            {
+              "name": "深化浅层模块"
+            },
+            {
+              "name": "多智能体并行设计接口"
+            },
+            {
+              "name": "生成重构 RFC"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "工程实践工具",
+      "children": [
+        {
+          "name": "Ralph Loop (执行循环)"
+        },
+        {
+          "name": "GitHub Issues 管理"
+        },
+        {
+          "name": "示踪弹 (Tracer Bullets) 理念"
+        },
+        {
+          "name": "上下文窗口优化"
+        }
+      ]
+    }
+  ]
+}

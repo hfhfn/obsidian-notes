@@ -1,0 +1,87 @@
+{
+  "name": "Qwen 3.8-27B Local Deployment (8GB VRAM)",
+  "children": [
+    {
+      "name": "Hardware Environment",
+      "children": [
+        {
+          "name": "GPU: RTX 2070 (8GB VRAM)"
+        },
+        {
+          "name": "CPU: Threads set to P-core count"
+        },
+        {
+          "name": "Memory: Offload destination for layers"
+        }
+      ]
+    },
+    {
+      "name": "Quantization Strategy",
+      "children": [
+        {
+          "name": "Selected: IQ4_XS (Better logic and speed)"
+        },
+        {
+          "name": "Avoided: IQ1/IQ2 (Looping and context issues)"
+        },
+        {
+          "name": "Avoided: Q3 (Slower than Q4/IQ4)"
+        }
+      ]
+    },
+    {
+      "name": "Configuration Parameters",
+      "children": [
+        {
+          "name": "GPU Offload: 26 layers"
+        },
+        {
+          "name": "KV Cache: Q4 quantization"
+        },
+        {
+          "name": "Predictive Decoding: MTP set to 2"
+        },
+        {
+          "name": "Dify: Increased timeout judgment"
+        }
+      ]
+    },
+    {
+      "name": "Reasoning (Thinking) Optimization",
+      "children": [
+        {
+          "name": "Thinking Mode: Enable for Q4+ models"
+        },
+        {
+          "name": "Problem: Max token overflow/infinite loops"
+        },
+        {
+          "name": "Solution: Fixed reasoning budget/budget value"
+        },
+        {
+          "name": "Benefit: Richer content and detail"
+        }
+      ]
+    },
+    {
+      "name": "Testing and Results",
+      "children": [
+        {
+          "name": "Logical Reasoning: Passes contradiction tests"
+        },
+        {
+          "name": "Image Recognition: High accuracy (locations/details)"
+        },
+        {
+          "name": "Speed: 1 token/sec (8GB VRAM limit)"
+        },
+        {
+          "name": "Requirement: 16GB VRAM for smooth workflow"
+        },
+        {
+          "name": "Advantage: Better for local use than 3.8-Flash-Next"
+        }
+      ]
+    }
+  ]
+}

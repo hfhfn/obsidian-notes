@@ -2,8 +2,8 @@
 tags:
 - 首页
 - 导航
-created: '2026-11-22T05:08:32+08:00'
-modified: '2026-11-22T05:08:32+08:00'
+created: '2026-11-22T12:41:58+08:00'
+modified: '2026-11-22T12:41:58+08:00'
 title: 首页
 ---
 
@@ -22,9 +22,9 @@ title: 首页
 | 📝 AI / AIGC | 认知笔记、开场白、NotebookLM、生图模板 | [[AI/AI-MOC\|AI MOC]] · [[AIGC/AIGC-MOC\|AIGC MOC]] |
 | 📥 Clippings | 网页剪藏（待消化） | [[Clippings/Windows Docker Desktop占用C盘空间过大解决办法\|Docker 占空间]] |
 | 📚 文学&认知 | 思维模型、金句、读书 | [[文学&认知/认知-MOC\|文学&认知 MOC]] |
-| 📖 藏书馆 | 在读 / 已读 / 想读的书，带封面评分 | [站点页](https://notes.hfhfn.dpdns.org/探索/藏书馆) |
-| 🎬 观影库 | 在看 / 已看 / 想看的影视 | [站点页](https://notes.hfhfn.dpdns.org/探索/观影库) |
-| 🎥 视频与专题 | YouTube / B 站视频的 NotebookLM 笔记 | [站点页](https://notes.hfhfn.dpdns.org/探索/视频与专题) |
+| 📖 藏书馆 | 在读 / 已读 / 想读的书，带封面评分 | <a href="./藏书馆/" data-router-ignore>站点页</a> |
+| 🎬 观影库 | 在看 / 已看 / 想看的影视 | <a href="./观影库/" data-router-ignore>站点页</a> |
+| 🎥 视频与专题 | YouTube / B 站视频的 NotebookLM 笔记 | <a href="./视频与专题/" data-router-ignore>站点页</a> |
 | ❓ 问题收集 | 问题库（待解决/已解决） | [[问题&资料收集/问题收集-MOC\|问题&资料收集 MOC]] |
 
 ---
