@@ -583,15 +583,33 @@ const RUNTIME = `
       status: status,
       progress: progress || 0
     };
-    var r = await fetch('/api/collections', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'same-origin',
-      body: JSON.stringify(payload)
-    });
+    var r;
+    try {
+      r = await fetch('/api/collections', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify(payload)
+      });
+    } catch (e) {
+      window.__lastMark = { stage: 'fetch-threw', error: String(e), payload: payload };
+      return { ok: false, error: 'fetch_failed' };
+    }
+
     // 401 也要把 body 读出来（含 login_required），否则无法区分
     // 「未登录」和「网络失败」，用户只看到按钮没反应。
-    try { return await r.json(); } catch (e) { return { ok: false, error: 'http_' + r.status }; }
+    var body = null;
+    try { body = await r.json(); } catch (e) { body = { ok: false, error: 'http_' + r.status }; }
+
+    // 诊断：把这次请求的完整结果留在 window 上，方便排查
+    window.__lastMark = {
+      stage: 'done',
+      httpStatus: r.status,
+      ok: r.ok,
+      requestPayload: payload,
+      response: body
+    };
+    return body;
   }
 
   async function remove(btn){
@@ -799,6 +817,36 @@ const RUNTIME = `
   }
 
   // 页面加载后，把用户已有的标记回填到按钮，并同步到书架
+  // 带重试的 fetch：登录跳转刚完成时，cookie 可能有几十毫秒的延迟，
+  // 第一次请求会拿到 authed:false。之前直接 continue 不重试，
+  // 导致「登录后必须手动刷新才看到已标记的书」。
+  async function fetchWithRetry(url, opts, tries){
+    tries = tries || 3;
+    for (var i = 0; i < tries; i++) {
+      try {
+        var r = await fetch(url, opts);
+        if (r.ok) {
+          var d = await r.json();
+          if (d && d.authed === false && i < tries - 1) {
+            // 可能是 cookie 还没就绪，等一会儿重试
+            await new Promise(function(res){ setTimeout(res, 300); });
+            continue;
+          }
+          return d;
+        }
+        if (r.status === 401 && i < tries - 1) {
+          await new Promise(function(res){ setTimeout(res, 300); });
+          continue;
+        }
+        try { return await r.json(); } catch (e) { return null; }
+      } catch (e) {
+        if (i === tries - 1) return null;
+        await new Promise(function(res){ setTimeout(res, 300); });
+      }
+    }
+    return null;
+  }
+
   async function hydrateMarks(){
     var btns = Array.from(document.querySelectorAll('.lc-mark'));
     if (!btns.length) return;
@@ -811,10 +859,8 @@ const RUNTIME = `
 
     for (var kind of Object.keys(byKind)) {
       try {
-        var r = await fetch('/api/collections?kind=' + kind, { credentials: 'same-origin' });
-        if (!r.ok) continue;
-        var d = await r.json();
-        if (!d.authed) continue;
+        var d = await fetchWithRetry('/api/collections?kind=' + kind, { credentials: 'same-origin' });
+        if (!d || !d.authed) continue;
 
         var map = {};
         (d.items || []).forEach(function(it){ map[it.item_key] = it; });
@@ -888,8 +934,8 @@ const RUNTIME = `
               paint(b, null, 0);
             });
           } else if (d && d.error === 'login_required') {
+            // 只弹提示，不自动跳转 —— 自动跳走会让用户以为什么都没发生
             toast('移除需要先登录', { actionLabel: '去登录', onAction: function(){ location.href = '/login'; }, duration: 8000 });
-            location.href = '/login';
           } else {
             toast('移除失败：' + ((d && d.error) || '未知错误'), { kind: 'error' });
             btn.disabled = false;
@@ -1036,14 +1082,101 @@ const RUNTIME = `
     hydrateMarks();
     hydrateVideoHide();
   }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
+  // Quartz 是 SPA：点导航只替换 body，不重新加载页面。
+  //
+  // 之前只监听 'nav' 事件 —— 实测从首页点进藏书馆时按钮 0 绑定，
+  // 必须手动刷新。原因是 nav 事件在新 DOM 就绪前后触发时机不稳，
+  // 且监听器在某些路径下失效。
+  //
+  // 现在用三层保障，任一层命中都能让按钮立即可用：
+  //   1. MutationObserver 盯 body —— DOM 一变就补 init（主力）
+  //   2. nav / popstate 事件
+  //   3. 定时轮询兜底（每 800ms，最多 12 次）
+  var moTimer = null;
+  var lastInitAt = 0;
+
+  function needsInit(){
+    var marks = document.querySelectorAll('.lc-mark');
+    if (!marks.length) return false;
+    for (var i = 0; i < marks.length; i++) {
+      if (!marks[i].dataset.mkBound) return true;
+    }
+    return false;
   }
-  document.addEventListener('nav', init);
+
+  function safeInit(){
+    var now = Date.now();
+    if (now - lastInitAt < 200) return;
+    lastInitAt = now;
+    try { init(); } catch (e) { console.error('[charts] init failed', e); }
+  }
+
+  function watchDom(){
+    if (window.__chartsMO) return;
+    window.__chartsMO = new MutationObserver(function(){
+      clearTimeout(moTimer);
+      moTimer = setTimeout(function(){
+        if (needsInit()) safeInit();
+      }, 150);
+    });
+    window.__chartsMO.observe(document.body, { childList: true, subtree: true });
+  }
+
+  function boot(){
+    safeInit();
+    watchDom();
+    setTimeout(function(){ if (needsInit()) safeInit(); }, 150);
+    setTimeout(function(){ if (needsInit()) safeInit(); }, 600);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+  document.addEventListener('nav', boot);
+  window.addEventListener('popstate', boot);
+
+  (function poll(n){
+    if (n <= 0) return;
+    if (needsInit()) safeInit();
+    setTimeout(function(){ poll(n - 1); }, 800);
+  })(12);
 })();
 `
+
+// 把 RUNTIME 注入到站内所有页面。
+//
+// 为什么必须全站注入：Quartz 是 SPA，从首页/任意笔记点进藏书馆时
+// 只替换 body，目标页面的 <script> 不会重新执行。之前只在
+// 藏书馆/观影库两个 index.html 里注入 —— 从别处点进来时脚本不存在，
+// 59 个按钮全部无反应，必须手动刷新。这就是用户反复反馈的问题。
+const RUNTIME_MARKER = "/* charts-runtime */";
+
+function injectRuntimeEverywhere(distDir) {
+  let touched = 0;
+  const walk = (dir) => {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, e.name);
+      if (e.isDirectory()) {
+        if (e.name === "vendor" || e.name === "static") continue;
+        walk(full);
+      } else if (e.name.endsWith(".html")) {
+        let h = fs.readFileSync(full, "utf-8");
+        if (h.includes(RUNTIME_MARKER)) continue;      // 幂等
+        if (!h.includes("</body>")) continue;
+        h = h.replace(
+          "</body>",
+          `<script>${RUNTIME_MARKER}\n${RUNTIME}</script></body>`,
+        );
+        fs.writeFileSync(full, h);
+        touched++;
+      }
+    }
+  };
+  walk(distDir);
+  return touched;
+}
 
 function inject(distDir) {
   const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)))
@@ -1072,7 +1205,8 @@ function inject(distDir) {
       "",
     )
 
-    const block = renderCharts(data, kind) + `<script>${RUNTIME}</script>`
+    // 只插数据渲染，RUNTIME 由 injectRuntimeEverywhere 统一注入全站
+    const block = renderCharts(data, kind)
 
     if (html.includes(PLACEHOLDER)) {
       html = html.replace(PLACEHOLDER, block)
@@ -1093,6 +1227,11 @@ function inject(distDir) {
     console.log(`[charts:${kind}] ${total} 条（本地封面 ${withCover}）→ 标签页 ${cfg.dir}/index.html`)
     n++
   }
+
+  // 关键：RUNTIME 注入全站，否则从别的页面 SPA 导航进来时脚本不存在
+  const touched = injectRuntimeEverywhere(distDir)
+  console.log(`[charts] runtime 注入 ${touched} 个页面`)
+
   return n
 }
 
