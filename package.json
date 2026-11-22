@@ -15,7 +15,7 @@
     "quartz": "./quartz/bootstrap-cli.mjs",
     "sync": "python scripts/sync_content.py",
     "sync:dry": "python scripts/sync_content.py --dry-run",
-    "build": "npx quartz build -d content-all -o dist-all && python scripts/build_library.py && node scripts/inject_library.mjs dist-all && python scripts/inject_fonts.py --dir dist-all && python scripts/inject_analytics.py --dir dist-all",
+    "build": "npx quartz build -d content-all -o dist-all && python scripts/build_library.py && node scripts/inject_library.mjs dist-all && node scripts/rewrite_tags_index.mjs dist-all && python scripts/inject_fonts.py --dir dist-all && python scripts/inject_analytics.py --dir dist-all",
     "publish": "npm run sync && npm run build",
     "preview": "python scripts/preview_server.py -d dist-all -p 8080",
     "deploy": "npx wrangler pages deploy dist-public --project-name hfhfn-notes",
@@ -29,7 +29,7 @@
     "changeset": "changeset",
     "version-packages": "changeset version && npm install --package-lock-only --ignore-scripts --no-audit --no-fund",
     "analytics": "python scripts/inject_analytics.py --dir dist-all",
-    "build:public": "python scripts/make_public_subset.py && python scripts/build_library.py && npx quartz build -d content-public -o dist-public && node scripts/inject_library.mjs dist-public && python scripts/inject_fonts.py --dir dist-public && python scripts/inject_analytics.py --dir dist-public",
+    "build:public": "python scripts/make_public_subset.py && python scripts/build_library.py && npx quartz build -d content-public -o dist-public && node scripts/inject_library.mjs dist-public && node scripts/rewrite_tags_index.mjs dist-public && python scripts/inject_fonts.py --dir dist-public && python scripts/inject_analytics.py --dir dist-public",
     "subset": "python scripts/make_public_subset.py",
     "test:auth": "node test-auth.mjs && node test-session-security.mjs && node test-login-page.mjs && node test-subscribe.mjs && node test-oauth.mjs && node test-legal-pages.mjs",
     "library": "python scripts/build_library.py"

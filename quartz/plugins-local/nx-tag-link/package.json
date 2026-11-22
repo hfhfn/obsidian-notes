@@ -1,29 +1,35 @@
 {
-  "name": "nx-explore-links",
+  "name": "nx-tag-link",
   "version": "1.0.0",
   "type": "module",
   "main": "./dist/index.js",
   "exports": {
-    ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
-    "./components": { "types": "./dist/components.d.ts", "import": "./dist/components.js" },
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./components": {
+      "types": "./dist/components.d.ts",
+      "import": "./dist/components.js"
+    },
     "./package.json": "./package.json"
   },
   "license": "MIT",
   "quartz": {
-    "name": "nx-explore-links",
-    "displayName": "Explore Links",
+    "name": "nx-tag-link",
+    "displayName": "Tag Link",
     "category": "component",
     "version": "1.0.0",
     "quartzVersion": ">=5.1.0",
     "dependencies": [],
-    "defaultOrder": 48,
+    "defaultOrder": 51,
     "defaultEnabled": false,
     "defaultOptions": {},
     "components": {
-      "ExploreLinks": {
-        "displayName": "ExploreLinks",
+      "TagLink": {
+        "displayName": "TagLink",
         "defaultPosition": "left",
-        "defaultPriority": 48
+        "defaultPriority": 51
       }
     }
   }
