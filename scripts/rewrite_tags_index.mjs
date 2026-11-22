@@ -84,6 +84,15 @@ function renderPage(tags, page, totalPages, basePrefix) {
 }
 
 const TAG_CSS = `
+/* 标签索引页是检索工具，不是文章：隐藏收藏/点赞/分享行和阅读数 */
+body.tag-index-page .na-bar,
+body.tag-index-page .content-meta,
+body.tag-index-page .note-properties,
+body.tag-index-page .giscus,
+body.tag-index-page iframe.giscus-frame,
+body.tag-index-page .comments {
+  display: none !important;
+}
 .tag-index-head { margin: 0.6rem 0 1rem; }
 .tag-index-total { color: var(--gray); font-size: 0.85rem; margin: 0; }
 .tag-cloud {
@@ -126,6 +135,26 @@ const TAG_CSS = `
   justify-content: center;
   gap: 1rem;
   margin: 1.5rem 0;
+}
+.tag-pager-top {
+  margin: 0 0 1rem;
+  justify-content: flex-start;
+}
+.tag-pager-bottom {
+  margin: 1.5rem 0 0;
+}
+/* 顶部返回入口：静态页也能一键回首页，不依赖浏览器后退 */
+.tag-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin: 0 0 0.8rem;
+  color: var(--gray) !important;
+  font-size: 0.8rem !important;
+  text-decoration: none !important;
+}
+.tag-back:hover {
+  color: var(--secondary) !important;
 }
 .tag-page-btn {
   padding: 0.32rem 0.8rem;
@@ -185,7 +214,16 @@ function rewrite(distDir) {
         var m = new RegExp('[?&]'+k+'=([^&]*)').exec(location.search);
         return m ? parseInt(decodeURIComponent(m[1]),10) : 1;
       }
+      function pagerHTML(page, total, cls){
+        if(total<=1) return '';
+        var prev = page>1 ? '<a class="tag-page-btn" href="?page='+(page-1)+'">← 上一页</a>' : '<span class="tag-page-btn disabled">← 上一页</span>';
+        var next = page<total ? '<a class="tag-page-btn" href="?page='+(page+1)+'">下一页 →</a>' : '<span class="tag-page-btn disabled">下一页 →</span>';
+        return '<nav class="tag-pager '+(cls||'')+'">'+prev+'<span class="tag-page-info">第 '+page+' / '+total+' 页</span>'+next+'</nav>';
+      }
       function render(){
+        // 标记本页，让 CSS 隐藏收藏/点赞行
+        document.body.classList.add('tag-index-page');
+
         var total = Math.max(1, Math.ceil(ALL.length/PER));
         var page = Math.min(Math.max(param('page')||1,1), total);
         var start = (page-1)*PER;
@@ -195,14 +233,14 @@ function rewrite(distDir) {
         var cards = slice.map(function(t){
           return '<a class="tag-card" href="'+esc(t.h)+'"><span class="tag-name">'+esc(t.n)+'</span><span class="tag-count">'+t.c+'</span></a>';
         }).join('');
-        var pager = '';
-        if(total>1){
-          var prev = page>1 ? '<a class="tag-page-btn" href="?page='+(page-1)+'">← 上一页</a>' : '<span class="tag-page-btn disabled">← 上一页</span>';
-          var next = page<total ? '<a class="tag-page-btn" href="?page='+(page+1)+'">下一页 →</a>' : '<span class="tag-page-btn disabled">下一页 →</span>';
-          pager = '<nav class="tag-pager">'+prev+'<span class="tag-page-info">第 '+page+' / '+total+' 页</span>'+next+'</nav>';
-        }
-        root.innerHTML = '<div class="tag-index-head"><p class="tag-index-total">共 '+ALL.length+' 个标签</p></div>'
-          + '<div class="tag-cloud">'+cards+'</div>' + pager;
+        // 顶部和底部都有翻页：页面很长时不用滚到底才能翻
+        var bp = (document.body && document.body.dataset && document.body.dataset.basepath) || '';
+        var back = '<a class="tag-back" href="'+bp+'/">← 返回首页</a>';
+        root.innerHTML = back
+          + '<div class="tag-index-head"><p class="tag-index-total">共 '+ALL.length+' 个标签</p></div>'
+          + pagerHTML(page, total, 'tag-pager-top')
+          + '<div class="tag-cloud">'+cards+'</div>'
+          + pagerHTML(page, total, 'tag-pager-bottom');
       }
       render();
       document.addEventListener('nav', render);

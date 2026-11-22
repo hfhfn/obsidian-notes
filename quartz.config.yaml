@@ -170,21 +170,28 @@ plugins:
       title: "探索"
       # 归档放最后；其余保持「文件夹在前、同级按名称」的默认顺序
       # 置底顺序：应用&工具笔记 在最底，归档次之，其余按名称
-      # explorer 默认把 tags 节点过滤掉（filterFn: slugSegment !== "tags"）。
-      # 我们保持过滤：标签索引有 320 个标签，在导航里展开会把整个目录树挤爆。
-      # 它改由 nx-tag-link 组件在「探索」面板底部渲染成单个链接。
-      filterFn: '(node) => node.slugSegment !== "tags"'
+      # 过滤掉不属于笔记分类的节点：
+      # - tags：320 个标签，展开会把目录树挤爆（由 nx-tag-link 单独渲染）
+      # - 三个卡片库：它们是站点展示层页面，由 nx-lib-links 在面板外渲染，
+      #   放进 explorer 就会落在「探索」的折叠范围内
+      filterFn: '(node) => !["tags", "藏书馆", "观影库", "视频与专题"].includes(node.slugSegment)'
       # 排序：常规目录在前（按名称），三个卡片库排最后，标签索引排最末
       sortFn: '(a, b) => { const rank = (n) => { const s = n.slugSegment; if (s === "tags") return 90; if (s === "藏书馆" || s === "观影库" || s === "视频与专题") return 50; if (s === "应用&工具笔记" || s === "应用-and-工具笔记") return 20; if (s === "归档") return 10; return 0; }; const ra = rank(a), rb = rank(b); if (ra !== rb) return ra - rb; if ((!a.isFolder && !b.isFolder) || (a.isFolder && b.isFolder)) return (a.displayName || "").localeCompare(b.displayName || "", undefined, { numeric: true, sensitivity: "base" }); return a.isFolder ? -1 : 1; }'
     layout:
       position: left
       priority: 50
+  - source: "./quartz/plugins-local/nx-lib-links"
+    enabled: true
+    layout:
+      position: left
+      # 紧跟 explorer(50) 之后：三个卡片库在「探索」折叠范围之外
+      priority: 51
   - source: "./quartz/plugins-local/nx-tag-link"
     enabled: true
     layout:
       position: left
-      # 紧跟 explorer(50) 之后，作为「探索」面板底部的一个链接
-      priority: 51
+      # 排在三个库之后
+      priority: 52
   - source: "@quartz-community/graph"
     enabled: true
     layout:
