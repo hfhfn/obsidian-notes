@@ -28,12 +28,27 @@ const CSS = `
 .mm-wrap:fullscreen{border-radius:0;border:none;background:var(--light)}
 .mm-wrap:fullscreen .mm-canvas{height:100vh}
 .mm-hint{padding:.35rem .7rem .5rem;font-size:.7rem;color:var(--gray);border-top:1px solid var(--lightgray)}
+/* 信息图灯箱 */
+.nlm-zoomable{cursor:zoom-in;transition:opacity .15s}
+.nlm-zoomable:hover{opacity:.92}
+.nlm-lightbox{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.88);cursor:zoom-out;padding:2vh 2vw}
+.nlm-lightbox img{max-width:96vw;max-height:96vh;object-fit:contain;box-shadow:0 8px 40px rgba(0,0,0,.6);border-radius:4px}
+.nlm-lightbox-close{position:fixed;top:1rem;right:1.4rem;width:2.2rem;height:2.2rem;border:none;border-radius:50%;background:rgba(255,255,255,.14);color:#fff;font-size:1.4rem;line-height:1;cursor:pointer}
+.nlm-lightbox-close:hover{background:rgba(255,255,255,.28)}
 `
 
 const RUNTIME = `
 (function(){
+  var bootTries = 0;
+
   function boot(){
-    if (!window.markmap || !window.markmap.Markmap) return;
+    // markmap 通过 <script defer> 加载，执行顺序不保证。
+    // 之前直接 return 就再也不重试了 —— 网速慢或 SPA 切换时
+    // 思维导图空白，必须手动刷新。这里改成轮询等待，最多等 6 秒。
+    if (!window.markmap || !window.markmap.Markmap) {
+      if (bootTries++ < 40) setTimeout(boot, 150);
+      return;
+    }
     document.querySelectorAll('.mm-wrap[data-mm]').forEach(function(wrap){
       if (wrap.dataset.mmBound === '1') return;
       wrap.dataset.mmBound = '1';
@@ -91,6 +106,73 @@ const RUNTIME = `
       if (fsInput) fsInput.addEventListener('input', applyStyle);
       if (spInput) spInput.addEventListener('input', applyStyle);
 
+      // 导出 PNG：SVG 里的文字在 <foreignObject> 里，
+      // 直接序列化 SVG 下载后很多看图工具不渲染文字（等于导出一堆空框）。
+      // 用 canvas 画一遍最稳。另外 revokeObjectURL 不能紧跟在 click() 后面，
+      // 浏览器还没开始读就被撤销，下载会静默失败。
+      // 导出 SVG。
+      // 为什么不做 PNG：markmap 的文字在 <foreignObject> 里，
+      // 把 SVG 画进 canvas 时 foreignObject 不会渲染（浏览器安全限制），
+      // 导出的 PNG 只有线和圆点、没有文字。SVG 本身能完整保留文字。
+      // 为了脱离页面也能看，把关键样式内联进去。
+      function exportSvg(){
+        // canvas 本身就是 <svg class="mm-canvas">，不是它的子元素。
+        // 之前写 canvas.querySelector('svg') 拿到 null，导出静默失败。
+        var svg = canvas.tagName && canvas.tagName.toLowerCase() === 'svg'
+          ? canvas
+          : canvas.querySelector('svg');
+        if (!svg) { alert('找不到思维导图，请刷新页面'); return; }
+
+        var bb;
+        try { bb = svg.getBBox(); } catch (e) { bb = null; }
+        if (!bb || bb.width < 1) bb = { x: 0, y: 0, width: svg.clientWidth || 1200, height: svg.clientHeight || 800 };
+
+        var clone = svg.cloneNode(true);
+        var pad = 16;
+        clone.setAttribute('width', Math.round(bb.width + pad * 2));
+        clone.setAttribute('height', Math.round(bb.height + pad * 2));
+        clone.setAttribute('viewBox',
+          (bb.x - pad) + ' ' + (bb.y - pad) + ' ' + (bb.width + pad * 2) + ' ' + (bb.height + pad * 2));
+        clone.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+        clone.removeAttribute('class');
+        clone.removeAttribute('style');
+
+        // 内联一份最小样式：节点文字颜色、字号、字体
+        var fsEl = wrap.querySelector('.mm-font');
+        var fs = fsEl ? fsEl.value : 15;
+        var isDark = document.documentElement.getAttribute('saved-theme') === 'dark';
+        var fg = isDark ? '#e8e8ea' : '#222';
+        var bg = isDark ? '#2a2c34' : '#ffffff';
+
+        var style = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+        style.textContent =
+          '.markmap-foreign > div > div{color:' + fg + ' !important;font-size:' + fs + 'px !important;' +
+          'font-family:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;line-height:1.35}' +
+          '.markmap-node circle{stroke:#888}';
+
+        var bgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        bgRect.setAttribute('x', bb.x - pad);
+        bgRect.setAttribute('y', bb.y - pad);
+        bgRect.setAttribute('width', bb.width + pad * 2);
+        bgRect.setAttribute('height', bb.height + pad * 2);
+        bgRect.setAttribute('fill', bg);
+
+        clone.insertBefore(style, clone.firstChild);
+        clone.insertBefore(bgRect, clone.firstChild);
+
+        var data = new XMLSerializer().serializeToString(clone);
+        var blob = new Blob(['<?xml version="1.0" encoding="UTF-8"?>\\n' + data], { type: 'image/svg+xml;charset=utf-8' });
+        var objUrl = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = objUrl;
+        a.download = (wrap.getAttribute('data-mm-title') || 'mindmap') + '.svg';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        // 立刻 revoke 会让下载静默失败，延迟释放
+        setTimeout(function(){ URL.revokeObjectURL(objUrl); }, 5000);
+      }
+
       wrap.querySelectorAll('[data-mm-act]').forEach(function(btn){
         btn.addEventListener('click', function(){
           var act = btn.getAttribute('data-mm-act');
@@ -108,15 +190,7 @@ const RUNTIME = `
             if (document.fullscreenElement) document.exitFullscreen();
             else if (wrap.requestFullscreen) wrap.requestFullscreen();
           } else if (act === 'svg') {
-            var svg = canvas.querySelector('svg');
-            if (!svg) return;
-            var s = new XMLSerializer().serializeToString(svg);
-            var blob = new Blob([s], { type: 'image/svg+xml' });
-            var a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = (wrap.getAttribute('data-mm-title') || 'mindmap') + '.svg';
-            a.click();
-            URL.revokeObjectURL(a.href);
+            exportSvg();
           }
         });
       });
@@ -131,9 +205,57 @@ const RUNTIME = `
       setTimeout(refit, 900);
     });
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
-  else boot();
-  document.addEventListener('nav', boot);
+  // ---- 信息图灯箱 ----
+  // 之前点图是 target="_blank" 开新标签，看完得点浏览器回退，
+  // 回到页面滚动位置也丢了。改成页内遮罩，ESC / 点空白 / 点 × 都能关。
+  var lbOpen = false;
+
+  function closeLightbox(){
+    var lb = document.querySelector('.nlm-lightbox');
+    if (lb) lb.remove();
+    lbOpen = false;
+    document.body.style.overflow = '';
+  }
+
+  function openLightbox(src, alt){
+    closeLightbox();
+    var lb = document.createElement('div');
+    lb.className = 'nlm-lightbox';
+    lb.innerHTML =
+      '<button class="nlm-lightbox-close" aria-label="关闭">×</button>' +
+      '<img src="' + src + '" alt="' + (alt || '') + '">';
+    lb.addEventListener('click', function(ev){
+      // 点图片本身不关闭，点遮罩或 × 关闭
+      if (ev.target.tagName === 'IMG' && !ev.target.classList.contains('nlm-lightbox-close')) return;
+      closeLightbox();
+    });
+    document.body.appendChild(lb);
+    document.body.style.overflow = 'hidden';
+    lbOpen = true;
+  }
+
+  function bindZoom(){
+    document.querySelectorAll('.nlm-zoomable').forEach(function(img){
+      if (img.dataset.zoomBound) return;
+      img.dataset.zoomBound = '1';
+      img.addEventListener('click', function(){
+        openLightbox(img.getAttribute('src'), img.getAttribute('alt'));
+      });
+    });
+  }
+
+  document.addEventListener('keydown', function(ev){
+    if (ev.key === 'Escape' && lbOpen) {
+      ev.preventDefault();
+      closeLightbox();
+    }
+  });
+
+  function bootAll(){ boot(); bindZoom(); }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bootAll);
+  else bootAll();
+  document.addEventListener('nav', bootAll);
 })();
 `
 

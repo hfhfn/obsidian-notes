@@ -226,6 +226,28 @@ const CSS = `
   color: #d9534f !important;
 }
 
+/* 书架卡片上的移除按钮 */
+.shelf-remove {
+  display: block;
+  width: 100%;
+  margin-bottom: 0.3rem;
+  padding: 0.16rem 0.3rem;
+  border: 1px dashed var(--lightgray);
+  border-radius: 5px;
+  background: none;
+  color: var(--gray) !important;
+  font-family: var(--bodyFont);
+  font-size: 0.64rem !important;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.shelf-remove:hover {
+  border-color: #d9534f;
+  border-style: solid;
+  color: #d9534f !important;
+}
+.shelf-remove:disabled { opacity: 0.5; cursor: default; }
+
 /* 进度条 */
 .lc-prog {
   height: 3px;
@@ -467,7 +489,9 @@ const RUNTIME = `
       credentials: 'same-origin',
       body: JSON.stringify(payload)
     });
-    return r.ok ? await r.json() : null;
+    // 401 也要把 body 读出来（含 login_required），否则无法区分
+    // 「未登录」和「网络失败」，用户只看到按钮没反应。
+    try { return await r.json(); } catch (e) { return { ok: false, error: 'http_' + r.status }; }
   }
 
   async function remove(btn){
@@ -498,10 +522,17 @@ const RUNTIME = `
             } else alert('移除失败，请先登录');
           } else {
             var res = await save(btn, next.status, next.progress);
-            if (res) {
+            if (res && res.ok) {
               paint(btn, next.status, next.progress);
               syncToShelf(btn, next.status);
-            } else alert('请先登录后再标记');
+            } else if (res && res.error === 'login_required') {
+              // 未登录：明确告诉用户要去登录，而不是静默失败
+              if (confirm('标记需要先登录，现在去登录页？')) {
+                location.href = '/login';
+              }
+            } else {
+              alert('标记失败：' + ((res && res.error) || '未知错误'));
+            }
           }
         } finally {
           btn.disabled = false;
@@ -566,12 +597,46 @@ const RUNTIME = `
     cell.setAttribute('data-status', tab);
     cell.setAttribute('data-shelf-item', itemKey);
     cell.setAttribute('data-item', itemKey);
+
+    var coverSrc = btn.getAttribute('data-cover') || '';
+    var coverHtml = coverSrc
+      ? '<img class="book-cover" src="' + coverSrc + '" alt="" loading="lazy">'
+      : '<div class="book-cover book-cover-empty">无封面</div>';
+
     cell.innerHTML =
+      '<button class="shelf-remove" data-item="' + itemKey + '" title="从书架移除">× 移除</button>' +
       '<a class="book-cover-link" href="' + (btn.getAttribute('data-url') || '#') + '" target="_blank" rel="noopener">' +
-        '<img class="book-cover" src="' + (btn.getAttribute('data-cover') || '') + '" alt="" loading="lazy">' +
+        coverHtml +
       '</a>' +
       '<h3 class="book-title">' + (btn.getAttribute('data-title') || '') + '</h3>' +
       '<div class="book-meta"><span class="book-badge">' + tab + '</span></div>';
+
+    // 移除按钮：删除这条标记，同时把榜单里对应卡片的按钮复位
+    cell.querySelector('.shelf-remove').addEventListener('click', async function(ev){
+      ev.preventDefault();
+      ev.stopPropagation();
+      var rm = ev.currentTarget;
+      rm.disabled = true;
+      try {
+        var r = await fetch('/api/collections?itemKey=' + encodeURIComponent(itemKey), {
+          method: 'DELETE', credentials: 'same-origin'
+        });
+        if (r.ok) {
+          cell.remove();
+          // 榜单上的标记按钮复位
+          document.querySelectorAll('.lc-mark[data-item="' + itemKey + '"]').forEach(function(b){
+            paint(b, null, 0);
+          });
+        } else {
+          alert('移除失败，请先登录');
+          rm.disabled = false;
+        }
+      } catch (e) {
+        alert('移除失败：' + e);
+        rm.disabled = false;
+      }
+    });
+
     grid.appendChild(cell);
 
     // 通知顶部书架重新筛选/分页
@@ -610,7 +675,19 @@ const RUNTIME = `
     }
   }
 
-  document.addEventListener('nav', function(){ bind(); hydrateMarks(); });
+  // 首次加载必须显式调用：'nav' 只在 Quartz 的 SPA 导航时触发，
+  // 直接打开页面不会触发，之前漏了这行导致标记按钮完全没绑定。
+  function init(){
+    bind();
+    bindMarks();      // 标记按钮的点击处理（之前删「我的」面板时误删了）
+    hydrateMarks();   // 回填用户已有的标记状态
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+  document.addEventListener('nav', init);
 })();
 `
 

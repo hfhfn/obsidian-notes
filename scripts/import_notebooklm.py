@@ -28,7 +28,12 @@ try:
 except ImportError:
     zhconv = None
 
-MODULE_DIR = SITE / "modules" / "视频与专题"
+# 视频与专题以 vault 为主源（用户在 Obsidian 里编辑），
+# vault 不存在时回退到 obsidian-site/modules/。
+_VAULT = Path(os.environ.get("OBSIDIAN_VAULT", r"D:\private\obsidian"))
+MODULE_DIR = _VAULT / "视频与专题"
+if not MODULE_DIR.is_dir():
+    MODULE_DIR = SITE / "modules" / "视频与专题"
 ASSET_DIR = MODULE_DIR / "_assets"
 CAND_DIR = SITE / "scripts" / "candidates"
 
@@ -371,14 +376,14 @@ def write_note(nb, got, force=False):
         if k == "infographic":
             fname = Path(v["path"]).name
             rel = f"_assets/{slug}/{fname}"
+            # 点图在页内放大（灯箱），不用跳新标签页 —— 跳出去再回退会丢失滚动位置。
+            # 关闭方式：点遮罩任意处 / 按 ESC / 点右上角 ×
             lines += [
                 f"### {label}",
                 "",
-                f'<a href="{rel}" target="_blank" rel="noopener">',
-                f'  <img src="{rel}" alt="{label}" class="nlm-infographic" loading="lazy">',
-                "</a>",
+                f'<img src="{rel}" alt="{label}" class="nlm-infographic nlm-zoomable" loading="lazy">',
                 "",
-                "<sub>点图看原图</sub>",
+                "<sub>点图放大 · ESC 或点空白处关闭</sub>",
                 "",
             ]
 

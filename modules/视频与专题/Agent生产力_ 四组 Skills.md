@@ -29,11 +29,9 @@ created: "2026-06-15"
 
 ### 信息图
 
-<a href="_assets/Agent生产力_ 四组 Skills/infographic.webp" target="_blank" rel="noopener">
-  <img src="_assets/Agent生产力_ 四组 Skills/infographic.webp" alt="信息图" class="nlm-infographic" loading="lazy">
-</a>
+<img src="_assets/Agent生产力_ 四组 Skills/infographic.webp" alt="信息图" class="nlm-infographic nlm-zoomable" loading="lazy">
 
-<sub>点图看原图</sub>
+<sub>点图放大 · ESC 或点空白处关闭</sub>
 
 ### 演示文稿
 

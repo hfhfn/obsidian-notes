@@ -954,9 +954,14 @@ class Sync:
             self.report["module_attachments"] = n
 
         for name in MODULE_DIRS:
-            src = MODULES / name
+            # 三个库以 vault（D:\private\obsidian）为主源：
+            # 用户在 Obsidian 里直接编辑，构建时从这里读。
+            # vault 里没有（首次迁移 / 新环境）才回退到 obsidian-site/modules/。
+            src = VAULT / name
             if not src.is_dir():
-                self.report["warnings"].append(f"模块目录不存在：modules/{name}")
+                src = MODULES / name
+            if not src.is_dir():
+                self.report["warnings"].append(f"模块目录不存在：{name}")
                 continue
             dst = CONTENT / name
             dst.parent.mkdir(parents=True, exist_ok=True)
