@@ -246,15 +246,20 @@ function rewrite(distDir) {
           return '<a class="tag-card" href="'+esc(t.h)+'"><span class="tag-name">'+esc(t.n)+'</span><span class="tag-count">'+t.c+'</span></a>';
         }).join('');
         // 顶部和底部都有翻页：页面很长时不用滚到底才能翻
+        // 面包屑直接插在 h1 之前（置顶），不放进 root，
+        // 否则会排在标题下面
         var bp = (document.body && document.body.dataset && document.body.dataset.basepath) || '';
-        // 与三个卡片库页面的面包屑保持一致：Home ❯ 标签索引
-        var back = '<nav class="tag-crumb" aria-label="breadcrumbs">'
-          + '<a href="'+bp+'/">Home</a>'
-          + '<span class="tag-crumb-sep">❯</span>'
-          + '<span class="tag-crumb-cur">标签索引</span>'
-          + '</nav>';
-        root.innerHTML = back
-          + '<div class="tag-index-head"><p class="tag-index-total">共 '+ALL.length+' 个标签</p></div>'
+        var h1 = document.querySelector('h1.article-title');
+        if (h1 && !document.querySelector('.tag-crumb')) {
+          var crumb = document.createElement('nav');
+          crumb.className = 'tag-crumb';
+          crumb.setAttribute('aria-label', 'breadcrumbs');
+          crumb.innerHTML = '<a href="'+bp+'/">Home</a>'
+            + '<span class="tag-crumb-sep">❯</span>'
+            + '<span class="tag-crumb-cur">标签索引</span>';
+          h1.parentNode.insertBefore(crumb, h1);
+        }
+        root.innerHTML = '<div class="tag-index-head"><p class="tag-index-total">共 '+ALL.length+' 个标签</p></div>'
           + pagerHTML(page, total, 'tag-pager-top')
           + '<div class="tag-cloud">'+cards+'</div>'
           + pagerHTML(page, total, 'tag-pager-bottom');

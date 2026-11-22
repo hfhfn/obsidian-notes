@@ -352,14 +352,21 @@ export function injectKind(distDir, kind) {
   if (html.includes(PLACEHOLDER)) {
     html = html.replace(PLACEHOLDER, block)
   } else {
-    // 占位符已被上次注入消耗掉，或笔记里本来就没写占位符：
-    // 插到 <article> 里第一个 </h1> 之后
+    // 占位符已被上次注入消耗掉，或笔记里本来就没写占位符。
+    // 优先插到 <article> 里第一个 </h1> 之后；
+    // 但索引页可能没有正文 H1（标题由 frontmatter 的 title 渲染），
+    // 这时退化为插到 <article ...> 开标签之后。
     const m = html.match(/<article[^>]*>[\s\S]*?<\/h1>/)
-    if (!m) {
-      console.log(`[${kind}] 找不到插入点，跳过`)
-      return 0
+    if (m) {
+      html = html.replace(m[0], m[0] + block)
+    } else {
+      const m2 = html.match(/<article[^>]*>/)
+      if (!m2) {
+        console.log(`[${kind}] 找不到 <article>，跳过`)
+        return html
+      }
+      html = html.replace(m2[0], m2[0] + block)
     }
-    html = html.replace(m[0], m[0] + block)
   }
 
   fs.writeFileSync(pagePath, html, "utf-8")

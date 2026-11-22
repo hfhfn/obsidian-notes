@@ -45,10 +45,10 @@
   align-items: start;
 }
 
-/* 观影库 3 列（jz21 watch-list 是大卡片风格，5 列会挤） */
+/* 观影库 4 列 */
 .book-grid[data-for="movie"] {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1.8rem 1.3rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.6rem 1.1rem;
 }
 
 /* 视频与专题 3 列（16:9 缩略图需要宽度） */
