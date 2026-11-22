@@ -252,7 +252,11 @@ def render_mindmap(json_path):
     walk(data, 1)
 
     body = "\n".join(lines)
-    return f'<pre class="mermaid">\n{body}\n</pre>'
+    # 必须用 markdown 的 fenced code block，不能写 <pre class="mermaid">。
+    # Quartz 的 mermaid 支持由 syntax-highlighting 插件（Shiki）提供，
+    # 它只认 ```mermaid 代码块，渲染成 <pre><code class="language-mermaid">。
+    fence = "`" * 3
+    return f"{fence}mermaid\n{body}\n{fence}"
 
         
 

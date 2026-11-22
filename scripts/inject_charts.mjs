@@ -19,11 +19,22 @@ const KINDS = {
   book: {
     dir: "藏书馆",
     labels: { recommend: "推荐", monthly: "月度热书", yearly: "年度热书" },
+    // 「我的」标签跟随登录用户，数据来自 /api/collections
+    mine: {
+      wish: "想读",
+      doing: "在读",
+      done: "读过",
+    },
     perPage: 12,
   },
   movie: {
     dir: "观影库",
     labels: { recommend: "推荐", monthly: "月度热片", yearly: "年度热片" },
+    mine: {
+      wish: "想看",
+      doing: "在看",
+      done: "看过",
+    },
     perPage: 12,
   },
 }
@@ -155,6 +166,62 @@ const CSS = `
 .lc-mark[data-status="done"]  { border-color: #0d7d74; color: #0d7d74 !important; }
 .lc-mark:disabled { opacity: 0.5; cursor: default; }
 
+/* 「我的」书架 */
+.lc-mine-status {
+  display: flex;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+.lc-mine-tab {
+  padding: 0.24rem 0.7rem;
+  border: 1px solid var(--lightgray);
+  border-radius: 6px;
+  background: none;
+  color: var(--darkgray) !important;
+  font-family: var(--bodyFont);
+  font-size: 0.78rem !important;
+  cursor: pointer;
+}
+.lc-mine-tab:hover { border-color: var(--secondary); color: var(--secondary) !important; }
+.lc-mine-tab[aria-selected="true"] {
+  background: var(--secondary);
+  border-color: var(--secondary);
+  color: var(--light) !important;
+  font-weight: 600;
+}
+.lc-mine-list {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 1.2rem 1rem;
+}
+.lc-mine-empty {
+  grid-column: 1 / -1;
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--gray);
+  font-size: 0.88rem;
+  border: 1px dashed var(--lightgray);
+  border-radius: 8px;
+}
+.lc-mine-empty a { color: var(--secondary) !important; }
+.lc-cell-remove {
+  display: block;
+  width: 100%;
+  margin-top: 0.3rem;
+  padding: 0.18rem 0.4rem;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  background: none;
+  color: var(--gray) !important;
+  font-family: var(--bodyFont);
+  font-size: 0.66rem !important;
+  cursor: pointer;
+}
+.lc-cell-remove:hover {
+  border-color: #d9534f;
+  color: #d9534f !important;
+}
+
 /* 进度条 */
 .lc-prog {
   height: 3px;
@@ -261,12 +328,15 @@ function renderCharts(data, kind) {
   const prefix = relPrefix(kind)
   const keys = ["recommend", "monthly", "yearly"].filter((k) => (data[k] || []).length)
 
-  const tabs = keys
-    .map(
-      (k, i) =>
-        `<button class="lc-tab" role="tab" data-tab="${i}" aria-selected="${i === 0 ? "true" : "false"}">${cfg.labels[k]}</button>`,
-    )
-    .join("")
+  const tabs =
+    keys
+      .map(
+        (k, i) =>
+          `<button class="lc-tab" role="tab" data-tab="${i}" aria-selected="${i === 0 ? "true" : "false"}">${cfg.labels[k]}</button>`,
+      )
+      .join("") +
+    // 「我的」放最后：数据由前端从 /api/collections 拉，静态页面里是空容器
+    `<button class="lc-tab" role="tab" data-tab="${keys.length}" aria-selected="false">我的</button>`
 
   const panels = keys
     .map((key, si) => {
@@ -299,9 +369,24 @@ function renderCharts(data, kind) {
     })
     .join("")
 
-  return `<style>${CSS}</style><div class="lc-wrap">
+  const minePanel = `<div class="lc-panel" role="tabpanel" data-panel="${keys.length}" data-mine="${kind}" hidden>
+    <div class="lc-mine-status" role="tablist">
+      ${Object.entries(cfg.mine)
+        .map(
+          ([k, lb], i) =>
+            `<button class="lc-mine-tab" role="tab" data-status="${k}" aria-selected="${i === 0 ? "true" : "false"}">${lb}</button>`,
+        )
+        .join("")}
+    </div>
+    <div class="lc-mine-list" data-kind="${kind}">
+      <p class="lc-mine-empty">加载中…</p>
+    </div>
+  </div>`
+
+  return `<style>${CSS}</style><div class="lc-wrap" data-kind="${kind}">
     <div class="lc-tabs" role="tablist">${tabs}</div>
     ${panels}
+    ${minePanel}
   </div>`
 }
 
@@ -455,9 +540,131 @@ const RUNTIME = `
     loadMarks();
   }
 
+  // ---- 「我的」书架 ----
+  var mineCache = {};   // kind -> items[]
+
+  function mineCell(it){
+    var cover = it.cover
+      ? '<img class="lc-cover" src="' + (it.cover.charAt(0) === 'a' ? '../' : '') + it.cover + '" alt="" loading="lazy">'
+      : '<div class="lc-cover-empty">无封面</div>';
+    var title = it.title || '';
+    var url = it.url || '#';
+    var prog = (it.progress > 0 && it.progress < 100)
+      ? '<div class="lc-prog"><div class="lc-prog-bar" style="width:' + it.progress + '%"></div></div>'
+      : '';
+    return '<div class="lc-cell" data-item="' + it.item_key + '">' +
+      '<a class="lc-cover-link" href="' + url + '" target="_blank" rel="noopener">' + cover + '</a>' +
+      '<a class="lc-title" href="' + url + '" target="_blank" rel="noopener">' + title + '</a>' +
+      prog +
+      '<button class="lc-cell-remove" data-item="' + it.item_key + '">移除</button>' +
+      '</div>';
+  }
+
+  function renderMine(panel){
+    var kind = panel.getAttribute('data-mine');
+    var list = panel.querySelector('.lc-mine-list');
+    var tabs = Array.from(panel.querySelectorAll('.lc-mine-tab'));
+    var active = tabs.find(function(t){ return t.getAttribute('aria-selected') === 'true'; });
+    var status = active ? active.getAttribute('data-status') : 'wish';
+
+    var all = mineCache[kind] || [];
+    var items = all.filter(function(it){ return it.status === status; });
+
+    if (!items.length) {
+      list.innerHTML = '<p class="lc-mine-empty">' +
+        (all.length === 0
+          ? '你的书架还是空的。点上面榜单里任意一本书的「+ 标记」就能加进来。'
+          : '这个分类下还没有内容。') +
+        '</p>';
+      return;
+    }
+    list.innerHTML = items.map(mineCell).join('');
+
+    // 绑定移除
+    list.querySelectorAll('.lc-cell-remove').forEach(function(btn){
+      btn.addEventListener('click', async function(ev){
+        ev.preventDefault();
+        ev.stopPropagation();
+        var key = btn.getAttribute('data-item');
+        btn.disabled = true;
+        try {
+          var r = await fetch('/api/collections?itemKey=' + encodeURIComponent(key), {
+            method: 'DELETE', credentials: 'same-origin'
+          });
+          if (r.ok) {
+            mineCache[kind] = (mineCache[kind] || []).filter(function(x){ return x.item_key !== key; });
+            renderMine(panel);
+          } else {
+            alert('移除失败，请先登录');
+          }
+        } finally {
+          btn.disabled = false;
+        }
+      });
+    });
+  }
+
+  async function loadMine(panel){
+    var kind = panel.getAttribute('data-mine');
+    var list = panel.querySelector('.lc-mine-list');
+    try {
+      var r = await fetch('/api/collections?kind=' + kind, { credentials: 'same-origin' });
+      if (!r.ok) throw new Error('http ' + r.status);
+      var d = await r.json();
+      if (!d.authed) {
+        list.innerHTML = '<p class="lc-mine-empty">登录后可同步你的书架。<a href="/login">去登录 →</a></p>';
+        return;
+      }
+      mineCache[kind] = d.items || [];
+      renderMine(panel);
+    } catch (e) {
+      list.innerHTML = '<p class="lc-mine-empty">加载失败，请刷新重试。</p>';
+    }
+  }
+
+  function initMine(){
+    document.querySelectorAll('.lc-panel[data-mine]').forEach(function(panel){
+      if (panel.dataset.mineBound) return;
+      panel.dataset.mineBound = '1';
+
+      panel.querySelectorAll('.lc-mine-tab').forEach(function(tab){
+        tab.addEventListener('click', function(){
+          panel.querySelectorAll('.lc-mine-tab').forEach(function(t){
+            t.setAttribute('aria-selected', String(t === tab));
+          });
+          renderMine(panel);
+        });
+      });
+    });
+  }
+
+  // 切到「我的」标签时才加载数据（避免每次打开页面都请求）
+  function hookMineTab(){
+    document.querySelectorAll('.lc-wrap').forEach(function(wrap){
+      var kind = wrap.getAttribute('data-kind');
+      if (wrap.dataset.mineHooked) return;
+      wrap.dataset.mineHooked = '1';
+
+      var tabs = Array.from(wrap.querySelectorAll('.lc-tab'));
+      var panels = Array.from(wrap.querySelectorAll('.lc-panel'));
+      var mineIdx = panels.findIndex(function(p){ return p.hasAttribute('data-mine'); });
+      if (mineIdx < 0) return;
+
+      tabs.forEach(function(tab){
+        tab.addEventListener('click', function(){
+          if (Number(tab.dataset.tab) === mineIdx) {
+            loadMine(panels[mineIdx]);
+          }
+        });
+      });
+    });
+  }
+
   bind();
   initMarks();
-  document.addEventListener('nav', function(){ bind(); initMarks(); });
+  initMine();
+  hookMineTab();
+  document.addEventListener('nav', function(){ bind(); initMarks(); initMine(); hookMineTab(); });
 })();
 `
 
