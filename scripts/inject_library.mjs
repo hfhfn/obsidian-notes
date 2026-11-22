@@ -330,11 +330,16 @@ export function injectKind(distDir, kind) {
 
   const block = `
     <div class="library-tabs" data-for="${kind}" role="tablist">${tabs}</div>
-    <div class="book-grid" data-active="全部">${cards}</div>
+    <div class="book-grid" data-for="${kind}" data-active="全部">${cards}</div>
     <script>${FILTER_JS}</script>
   `
 
   let html = fs.readFileSync(pagePath, "utf-8")
+
+  // 给 body 打标记：三个库的索引页要隐藏阅读时间、收藏点赞分享行、Properties
+  if (!html.includes('class="library-page"')) {
+    html = html.replace(/<body([^>]*)>/, '<body$1 class="library-page">')
+  }
 
   // 幂等：重复运行时先清掉上一次注入的块（含内联脚本）
   const INJECTED_RE =

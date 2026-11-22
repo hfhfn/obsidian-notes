@@ -38,14 +38,14 @@
 /* 卡片网格：对齐 jz21.eu.org 的 3 列布局 */
 .book-grid {
   display: grid;
-  /* jz21 实测是固定 3 列（每列 189px @ 608px 容器） */
+  /* jz21 实测：3 列 × 188.8px @ 608px 容器，gap 28.8px 20.8px */
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1.8rem 1.3rem;
   margin: 1.2rem 0;
   align-items: start;
 }
 
-/* 窄屏降列：保持 jz21 的观感，不挤成一列 */
+/* 窄屏降列 */
 @media (max-width: 900px) {
   .book-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -89,30 +89,26 @@
 .book-cover-link {
   display: block;
   position: relative;
-  /* jz21 的封面无圆角、无 overflow:hidden，图片直接铺满 */
+  /* jz21 实测：无圆角、overflow visible、无 aspect-ratio，图片自己撑高 */
   border-radius: 0;
   overflow: visible;
-  background: var(--lightgray);
-  /* 封面框比例 ≈ 5:7（jz21 实测 189x264），贴近常见书封与海报 */
-  aspect-ratio: 5 / 7;
   width: 100%;
   line-height: 0;
 }
 
 .book-cover {
-  position: absolute;
-  inset: 0;
+  /* jz21 用 static 定位 + 100% 宽 + 固定比例，图片直接撑满宽度 */
+  position: static;
   width: 100%;
-  height: 100%;
-  /* cover 铺满整个框，不留上下空白 */
+  height: auto;
+  aspect-ratio: 5 / 7;
   object-fit: cover;
   object-position: center;
   display: block;
   background: var(--lightgray);
-  /* Quartz 全局给 img 加了 margin: 16px 0 和 border-radius: 8px，
-     会把封面往下顶出空白、并在四角露出底色，必须清零 */
-  margin: 0 !important;
-  border-radius: 0 !important;
+  /* jz21 实测 margin: 16px 0（刻意留白，让封面上下有呼吸感） */
+  margin: 1rem 0;
+  border-radius: 6px;
 }
 
 /* 无封面占位 */
@@ -323,6 +319,56 @@
 /* 视频卡片里标题不再需要两行截断的紧凑样式 */
 .book-card-wide .book-title {
   font-size: 0.9rem !important;
+}
+
+/* ===== 三个卡片库的索引页：隐藏正文式的顶部元素 =====
+   这些页面是卡片列表，不是文章，不需要 Properties / 阅读时间 /
+   收藏点赞分享行 / 阅读数 / 评论区。 */
+body.library-page .note-properties,
+body.library-page .properties,
+body.library-page .content-meta,
+body.library-page .na-bar,
+body.library-page .breadcrumb-container,
+body.library-page .giscus,
+body.library-page iframe.giscus-frame,
+body.library-page .comments {
+  display: none !important;
+}
+
+/* 顶部标题与标签栏之间的空白收紧 */
+body.library-page article > h1:first-child {
+  margin-top: 0.4rem !important;
+}
+
+/* ===== 观影库：卡片带边框背景、内容居中（对齐 jz21 watch-list） ===== */
+.movie-grid .book-card,
+.book-grid[data-for="movie"] .book-card {
+  border: 1px solid var(--lightgray);
+  border-radius: 12px;
+  background: var(--light);
+  padding: 0.6rem 0.8rem;
+  align-items: center;
+  text-align: center;
+}
+
+.movie-grid .book-header,
+.book-grid[data-for="movie"] .book-header {
+  align-items: center;
+  text-align: center;
+}
+
+.movie-grid .book-cover,
+.book-grid[data-for="movie"] .book-cover {
+  width: 100px;
+  height: 140px;
+  aspect-ratio: auto;
+  margin: 1rem auto;
+}
+
+.movie-grid .book-info,
+.book-grid[data-for="movie"] .book-info {
+  text-align: left;
+  align-self: stretch;
 }
 
 /* 窄屏适配 */
