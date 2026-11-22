@@ -354,17 +354,29 @@ Prettier 会解析它们。一个多余的 `</div>` 就报错。
 
 ## 藏书馆 / 观影库 / 视频与专题
 
-三个卡片网格页面，在左侧导航「探索」下作为子项。
+三个卡片网格页面，都是**站点根级目录**，与 `工作` / `AI` 等一级栏目同级。
 
-**它们不属于笔记库**：内容源在 `obsidian-site/modules/探索/`，
+**它们不属于笔记库**：内容源在 `obsidian-site/modules/`，
 不进入 `D:\private\obsidian`，也不会被 `sync_content.py` 的清空操作影响
 （`inject_modules()` 在 `rmtree(content-all)` 之后注入）。
 
 | 页面 | 数据源 | 标签 | 状态 |
 |---|---|---|---|
-| `/探索/藏书馆` | `modules/探索/藏书馆/*.md` | `#book` | 在读 / 已读 / 想读 / 未读完 |
-| `/探索/观影库` | `modules/探索/观影库/*.md` | `#movie` | 在看 / 已看 / 想看 / 弃剧 |
-| `/探索/视频与专题` | `modules/探索/视频与专题/*.md` | `#video` | 已整理 / 整理中 / 待整理 |
+| `/藏书馆` | `modules/藏书馆/*.md` | `#book` | 在读 / 已读 / 想读 / 未读完 |
+| `/观影库` | `modules/观影库/*.md` | `#movie` | 在看 / 已看 / 想看 / 弃剧 |
+| `/视频与专题` | `modules/视频与专题/*.md` | `#video` | 已整理 / 整理中 / 待整理 |
+
+### 视觉参考
+
+布局对齐 [jz21.eu.org](https://jz21.eu.org/) 的藏书馆/观影库：
+
+- 固定 **3 列**网格（每列 ≈189px @ 608px 容器），窄屏降到 2/1 列
+- 卡片**无边框、无内边距**，封面在上、标题作者在下方
+- 封面比例 **5:7**，`object-fit: cover` 铺满不留白
+
+**踩坑**：Quartz 全局给 `img` 加了 `margin: 16px 0` 和 `border-radius: 8px`，
+会把封面往下顶出 16px 空白。必须在 `.book-cover` 上 `margin: 0 !important`
+和 `border-radius: 0 !important` 覆盖掉。
 
 ### 怎么写一条
 
