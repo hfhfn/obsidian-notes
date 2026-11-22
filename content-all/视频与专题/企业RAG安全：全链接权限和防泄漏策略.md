@@ -11,25 +11,26 @@ derived:
   - slide-deck
 platform: "youtube"
 created: "2026-09-17"
+mindmap-plugin: markmap
 ---
 
 # 企业RAG安全：全链接权限和防泄漏策略
 
 ### 播放源
 
-<iframe class="nlm-video" src="https://www.youtube.com/embed/aGpyWKtgjoU" title="企业RAG安全：全链接权限和防泄漏策略" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
+<iframe class="nlm-video" src="https://www.youtube.com/embed/aGpyWKtgjoU" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
 
-<sub>[在 YouTube 打开](https://www.youtube.com/watch?v=aGpyWKtgjoU)</sub>
+[在源站打开](https://www.youtube.com/watch?v=aGpyWKtgjoU)
 
 ## 产物
 
 ### 思维导图
 
-<div class="mm-wrap" data-mm="1" data-mm-title="企业RAG安全：全链接权限和防泄漏策略"><div class="mm-toolbar"><button data-mm-act="fit">适应窗口</button><button data-mm-act="expand">全部展开</button><button data-mm-act="collapse">折叠到底</button><span class="mm-sep"></span><label>字号 <input class="mm-font" type="range" min="11" max="24" value="15"></label><label>间距 <input class="mm-space" type="range" min="4" max="40" value="12"></label><span class="mm-sep"></span><button data-mm-act="full">全屏</button><button data-mm-act="svg">导出</button></div><svg class="mm-canvas"></svg><div class="mm-hint">拖动平移 · 滚轮缩放 · 点击节点折叠</div><script type="application/json" class="mm-data">{"name": "企业级RAG全链路权限防泄密", "children": [{"name": "核心安全陷阱", "children": [{"name": "权限颗粒度过粗 (文档级 vs 切片级)"}, {"name": "同步延迟漏洞 (人员异动空窗期)"}, {"name": "逻辑拼图攻击 (多点公开信息推导机密)"}, {"name": "明文标签泄密 (元数据暴露组织架构)"}]}, {"name": "前置过滤体系", "children": [{"name": "实时调用统一权限中心"}, {"name": "多维身份状态查询 (部门/职级/项目)"}, {"name": "动态布尔过滤表达式注入"}, {"name": "向量引擎索引层混合查询"}, {"name": "无权限切片时强制断流"}]}, {"name": "后置校验体系", "children": [{"name": "溯元映射 (原切片支撑检查)"}, {"name": "逐句密集比对"}, {"name": "动态脱敏 (抹掉敏感实体)"}, {"name": "预设安全模板替换"}]}, {"name": "切片级打标逻辑", "children": [{"name": "结构化版式解析 (识别章节目)"}, {"name": "权限继承与复写机制"}, {"name": "敏感特征探测/密集提升"}, {"name": "元数据属性封装 (职级/业务线/保密期)"}]}, {"name": "深水区进阶架构", "children": [{"name": "权限向量隐视匹配", "children": [{"name": "消除明文标签"}, {"name": "权向量编码器"}, {"name": "复合特征向量融合"}, {"name": "多维空间几何对齐"}]}, {"name": "前置意图识别网", "children": [{"name": "意图分类模型"}, {"name": "逻辑探针痕迹检测"}, {"name": "推理距离约束 (禁止跨域串联)"}]}]}, {"name": "生产运维与工程底线", "children": [{"name": "MS级权限变更感知 (EventBus/Kafka)"}, {"name": "漏斗式双校验 (粗筛保吞吐/精校保安全)"}, {"name": "Fail-Secure 安全失效原则"}, {"name": "故障熔断降级 (全公开只读模式)"}, {"name": "宁可不答，绝不越权"}]}]}</script></div>
+<div class="mm-wrap" data-mm="1" data-mm-title="企业RAG安全：全链接权限和防泄漏策略" data-mm-slug="企业rag安全全链接权限和防泄漏策略"><div class="mm-toolbar"><button data-mm-act="fit">适应窗口</button><button data-mm-act="expand">全部展开</button><button data-mm-act="collapse">折叠到底</button><span class="mm-sep"></span><label>字号 <input class="mm-font" type="range" min="11" max="24" value="15"></label><label>间距 <input class="mm-space" type="range" min="4" max="40" value="12"></label><span class="mm-sep"></span><button data-mm-act="html" title="导出可交互 HTML">导出 HTML</button><button data-mm-act="svg" title="导出静态 SVG">导出 SVG</button><button data-mm-act="full">全屏</button></div><svg class="mm-canvas"></svg><div class="mm-hint">拖动平移 · 滚轮缩放 · 点击节点折叠</div><script type="application/json" class="mm-data">{"name": "企业级RAG全链路权限防泄密", "children": [{"name": "核心安全陷阱", "children": [{"name": "权限颗粒度过粗 (文档级 vs 切片级)"}, {"name": "同步延迟漏洞 (人员异动空窗期)"}, {"name": "逻辑拼图攻击 (多点公开信息推导机密)"}, {"name": "明文标签泄密 (元数据暴露组织架构)"}]}, {"name": "前置过滤体系", "children": [{"name": "实时调用统一权限中心"}, {"name": "多维身份状态查询 (部门/职级/项目)"}, {"name": "动态布尔过滤表达式注入"}, {"name": "向量引擎索引层混合查询"}, {"name": "无权限切片时强制断流"}]}, {"name": "后置校验体系", "children": [{"name": "溯元映射 (原切片支撑检查)"}, {"name": "逐句密集比对"}, {"name": "动态脱敏 (抹掉敏感实体)"}, {"name": "预设安全模板替换"}]}, {"name": "切片级打标逻辑", "children": [{"name": "结构化版式解析 (识别章节目)"}, {"name": "权限继承与复写机制"}, {"name": "敏感特征探测/密集提升"}, {"name": "元数据属性封装 (职级/业务线/保密期)"}]}, {"name": "深水区进阶架构", "children": [{"name": "权限向量隐视匹配", "children": [{"name": "消除明文标签"}, {"name": "权向量编码器"}, {"name": "复合特征向量融合"}, {"name": "多维空间几何对齐"}]}, {"name": "前置意图识别网", "children": [{"name": "意图分类模型"}, {"name": "逻辑探针痕迹检测"}, {"name": "推理距离约束 (禁止跨域串联)"}]}]}, {"name": "生产运维与工程底线", "children": [{"name": "MS级权限变更感知 (EventBus/Kafka)"}, {"name": "漏斗式双校验 (粗筛保吞吐/精校保安全)"}, {"name": "Fail-Secure 安全失效原则"}, {"name": "故障熔断降级 (全公开只读模式)"}, {"name": "宁可不答，绝不越权"}]}]}</script></div>
 
 ### 信息图
 
-<img src="_assets/企业RAG安全：全链接权限和防泄漏策略/infographic.webp" alt="信息图" class="nlm-infographic nlm-zoomable" loading="lazy">
+<img src="../attachments/modules/视频与专题/_assets/企业RAG安全：全链接权限和防泄漏策略/infographic.webp" alt="信息图" class="nlm-infographic nlm-zoomable" loading="lazy">
 
 <sub>点图放大 · ESC 或点空白处关闭</sub>
 
@@ -38,7 +39,6 @@ created: "2026-09-17"
 <iframe src="https://pdf.hfhfn.dpdns.org/notebooklm/%E4%BC%81%E4%B8%9ARAG%E5%AE%89%E5%85%A8%EF%BC%9A%E5%85%A8%E9%93%BE%E6%8E%A5%E6%9D%83%E9%99%90%E5%92%8C%E9%98%B2%E6%B3%84%E6%BC%8F%E7%AD%96%E7%95%A5/slide-deck.pdf#view=FitH" class="nlm-slides" title="演示文稿" loading="lazy"></iframe>
 
 <sub>[全屏打开](https://pdf.hfhfn.dpdns.org/notebooklm/%E4%BC%81%E4%B8%9ARAG%E5%AE%89%E5%85%A8%EF%BC%9A%E5%85%A8%E9%93%BE%E6%8E%A5%E6%9D%83%E9%99%90%E5%92%8C%E9%98%B2%E6%B3%84%E6%BC%8F%E7%AD%96%E7%95%A5/slide-deck.pdf)</sub>
-
 
 ## 摘要
 

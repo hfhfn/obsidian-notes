@@ -13,7 +13,10 @@ import fs from "node:fs"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 
-const PLACEHOLDER = "<!-- LIBRARY_CHARTS -->"
+// 用真实元素而不是 HTML 注释：Quartz 渲染 md 时会把裸注释挪到 body 末尾，
+// 导致榜单被插到 footer 后面（用户反馈「推荐热榜都没了」）。
+const PLACEHOLDER = '<div id="library-charts-slot"></div>'
+const PLACEHOLDER_ALT = "<!-- LIBRARY_CHARTS -->"
 
 const KINDS = {
   book: {
@@ -521,7 +524,7 @@ function renderCharts(data, kind) {
   return `<style>${CSS}</style><div class="lc-wrap" data-kind="${kind}">
     <div class="lc-tabs" role="tablist">${tabs}</div>
     ${panels}
-  </div>`
+  </div><!--/lc-wrap-->`
 }
 
 /** 标签切换 + 分页的运行时（幂等） */
@@ -1250,9 +1253,11 @@ function inject(distDir) {
 
     let html = fs.readFileSync(pagePath, "utf-8")
 
-    // 幂等：清掉上次注入
+    // 幂等：清掉上次注入的 style + lc-wrap。
+    // 用「从 <style> 到 lc-wrap 结束」的锚定匹配，结尾用注释标记定位，
+    // 不靠数嵌套 div（之前非贪婪匹配只吃到第一个 </div>，清理不干净）。
     html = html.replace(
-      /<style>[\s\S]*?\.lc-wrap[\s\S]*?<\/style>\s*<div class="lc-wrap">[\s\S]*?<\/div>\s*(?:<script>[\s\S]*?lc-wrap[\s\S]*?<\/script>)?/g,
+      /<style>\s*\n\.lc-wrap[\s\S]*?<\/style>\s*<div class="lc-wrap"[\s\S]*?<!--\/lc-wrap-->/g,
       "",
     )
 
@@ -1261,6 +1266,8 @@ function inject(distDir) {
 
     if (html.includes(PLACEHOLDER)) {
       html = html.replace(PLACEHOLDER, block)
+    } else if (html.includes(PLACEHOLDER_ALT)) {
+      html = html.replace(PLACEHOLDER_ALT, block)
     } else {
       const m = html.match(/<div class="book-grid"[\s\S]*?<\/div>\s*<script>[\s\S]*?<\/script>/)
       if (m) html = html.replace(m[0], m[0] + block)

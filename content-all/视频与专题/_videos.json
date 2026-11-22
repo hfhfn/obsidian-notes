@@ -1,0 +1,904 @@
+[
+  {
+    "title": "2023–2026 LLM架构的演进 Technical Roadmap",
+    "slug": "视频与专题/2023–2026 LLM架构的演进 Technical Roadmap",
+    "creator": "",
+    "cover": "https://img.youtube.com/vi/jMz1NT4xScc/maxresdefault.jpg",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:h4383319ba67f",
+    "source_url": "https://www.youtube.com/watch?v=jMz1NT4xScc",
+    "info": {
+      "平台": "youtube",
+      "整理": "2026-05-16"
+    },
+    "platform": "youtube",
+    "derived": [
+      "mind-map"
+    ],
+    "cover_local": "attachments/covers/video/2023_2026_llm架构的演进_technical_roadmap.jpg"
+  },
+  {
+    "title": "Agent Harness工程化实践",
+    "slug": "视频与专题/Agent Harness工程化实践",
+    "creator": "",
+    "cover": "https://img.youtube.com/vi/HcCWJGrJPbI/maxresdefault.jpg",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:h6e221eb8ff16",
+    "source_url": "https://www.youtube.com/watch?v=HcCWJGrJPbI",
+    "info": {
+      "平台": "youtube",
+      "整理": "2026-05-02"
+    },
+    "platform": "youtube",
+    "derived": [
+      "slide-deck"
+    ],
+    "cover_local": "attachments/covers/video/agent_harness工程化实践.jpg"
+  },
+  {
+    "title": "Agent Hooks: 专业可靠的自动化控制机制",
+    "slug": "视频与专题/Agent Hooks_ 专业可靠的自动化控制机制",
+    "creator": "",
+    "cover": "attachments/modules/视频与专题/_assets/agent hooks_ 专业可靠的自动化控制机制/infographic.webp",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:hb3c70ee133e1",
+    "source_url": "https://www.youtube.com/watch?v=vo5vqrtuThg",
+    "info": {
+      "平台": "youtube",
+      "整理": "2026-08-30"
+    },
+    "platform": "youtube",
+    "derived": [
+      "mind-map",
+      "infographic",
+      "slide-deck"
+    ],
+    "cover_local": "attachments/modules/视频与专题/_assets/agent hooks_ 专业可靠的自动化控制机制/infographic.webp"
+  },
+  {
+    "title": "Agent 企业级工程落地系统架构技术方案",
+    "slug": "视频与专题/Agent 企业级工程落地系统架构技术方案",
+    "creator": "",
+    "cover": "attachments/modules/视频与专题/_assets/agent 企业级工程落地系统架构技术方案/infographic.webp",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:h357468eb2d69",
+    "source_url": "https://www.youtube.com/watch?v=x-s1Dbp4BE4",
+    "info": {
+      "平台": "youtube",
+      "整理": "2026-08-27"
+    },
+    "platform": "youtube",
+    "derived": [
+      "mind-map",
+      "infographic",
+      "slide-deck"
+    ],
+    "cover_local": "attachments/modules/视频与专题/_assets/agent 企业级工程落地系统架构技术方案/infographic.webp"
+  },
+  {
+    "title": "Agent生产力:  四组 Skills",
+    "slug": "视频与专题/Agent生产力_ 四组 Skills",
+    "creator": "",
+    "cover": "attachments/modules/视频与专题/_assets/agent生产力_ 四组 skills/infographic.webp",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:h2097064b7647",
+    "source_url": "https://www.youtube.com/watch?v=diU-Nbb1P_c",
+    "info": {
+      "平台": "youtube",
+      "整理": "2026-06-15"
+    },
+    "platform": "youtube",
+    "derived": [
+      "mind-map",
+      "infographic",
+      "slide-deck"
+    ],
+    "cover_local": "attachments/modules/视频与专题/_assets/agent生产力_ 四组 skills/infographic.webp"
+  },
+  {
+    "title": "AI 代码审核与全流程质量保障指南",
+    "slug": "视频与专题/AI 代码审核与全流程质量保障指南",
+    "creator": "",
+    "cover": "attachments/modules/视频与专题/_assets/ai 代码审核与全流程质量保障指南/infographic.webp",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:h975a2796dc92",
+    "source_url": "https://www.youtube.com/watch?v=h0ALH6qBb7k",
+    "info": {
+      "平台": "youtube",
+      "整理": "2026-10-29"
+    },
+    "platform": "youtube",
+    "derived": [
+      "mind-map",
+      "infographic",
+      "slide-deck"
+    ],
+    "cover_local": "attachments/modules/视频与专题/_assets/ai 代码审核与全流程质量保障指南/infographic.webp"
+  },
+  {
+    "title": "AI 动画视频创作完全指南",
+    "slug": "视频与专题/AI 动画视频创作完全指南",
+    "creator": "",
+    "cover": "attachments/modules/视频与专题/_assets/ai 动画视频创作完全指南/infographic.webp",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:h2c48c9022d0d",
+    "source_url": "https://www.youtube.com/watch?v=0RIUsrk28GE",
+    "info": {
+      "平台": "youtube",
+      "整理": "2026-11-07"
+    },
+    "platform": "youtube",
+    "derived": [
+      "mind-map",
+      "infographic",
+      "slide-deck"
+    ],
+    "cover_local": "attachments/modules/视频与专题/_assets/ai 动画视频创作完全指南/infographic.webp"
+  },
+  {
+    "title": "AI时代, 命令行界面(CLI)的复兴",
+    "slug": "视频与专题/AI时代, 命令行界面(CLI)的复兴",
+    "creator": "",
+    "cover": "https://img.youtube.com/vi/5rAIU0GBjII/maxresdefault.jpg",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:h41c84f13d41d",
+    "source_url": "https://www.youtube.com/watch?v=5rAIU0GBjII",
+    "info": {
+      "平台": "youtube",
+      "整理": "2026-05-03"
+    },
+    "platform": "youtube",
+    "derived": [
+      "slide-deck"
+    ],
+    "cover_local": "attachments/covers/video/ai时代__命令行界面_cli_的复兴.jpg"
+  },
+  {
+    "title": "Claude Code 从0到1全攻略",
+    "slug": "视频与专题/Claude Code 从0到1全攻略",
+    "creator": "",
+    "cover": "attachments/modules/视频与专题/_assets/claude code 从0到1全攻略/infographic.webp",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:hdd9b1fa91ae2",
+    "source_url": "https://www.youtube.com/watch?v=AT4b9kLtQCQ",
+    "info": {
+      "平台": "youtube",
+      "整理": "2026-02-10"
+    },
+    "platform": "youtube",
+    "derived": [
+      "mind-map",
+      "infographic",
+      "slide-deck"
+    ],
+    "cover_local": "attachments/modules/视频与专题/_assets/claude code 从0到1全攻略/infographic.webp"
+  },
+  {
+    "title": "claude code泄露解读",
+    "slug": "视频与专题/claude code泄露解读",
+    "creator": "",
+    "cover": "https://img.youtube.com/vi/DXTS82fJO9A/maxresdefault.jpg",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:h856b1b24d989",
+    "source_url": "https://www.youtube.com/watch?v=DXTS82fJO9A",
+    "info": {
+      "平台": "youtube",
+      "整理": "2026-04-02"
+    },
+    "platform": "youtube",
+    "derived": [
+      "slide-deck"
+    ],
+    "cover_local": "attachments/covers/video/claude_code泄露解读.jpg"
+  },
+  {
+    "title": "Decoding Transformer Architecture: From Attention to QKV Mechanics",
+    "slug": "视频与专题/Decoding Transformer Architecture_ From Attention to QKV Mec",
+    "creator": "",
+    "cover": "https://img.youtube.com/vi/jn7XU4OaIaE/maxresdefault.jpg",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:h2730f4b53f62",
+    "source_url": "https://www.youtube.com/watch?v=jn7XU4OaIaE",
+    "info": {
+      "平台": "youtube",
+      "整理": "2026-09-01"
+    },
+    "platform": "youtube",
+    "derived": [
+      "mind-map",
+      "infographic",
+      "slide-deck"
+    ],
+    "cover_local": "attachments/covers/video/decoding_transformer_architecture__from_attention_to_qkv_mec.jpg"
+  },
+  {
+    "title": "DeepSeek Super-agent 架构解析",
+    "slug": "视频与专题/DeepSeek Super-agent 架构解析",
+    "creator": "",
+    "cover": "attachments/modules/视频与专题/_assets/deepseek super-agent 架构解析/infographic.webp",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:h7a20a02ceb3e",
+    "source_url": "https://www.youtube.com/watch?v=qX7msY_RYWY",
+    "info": {
+      "平台": "youtube",
+      "整理": "2026-11-07"
+    },
+    "platform": "youtube",
+    "derived": [
+      "mind-map",
+      "infographic",
+      "slide-deck"
+    ],
+    "cover_local": "attachments/modules/视频与专题/_assets/deepseek super-agent 架构解析/infographic.webp"
+  },
+  {
+    "title": "DeepSeek 超级智能体架构解析",
+    "slug": "视频与专题/DeepSeek 超级智能体架构解析",
+    "creator": "",
+    "cover": "attachments/modules/视频与专题/_assets/deepseek 超级智能体架构解析/infographic.webp",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:h85d40b4217ac",
+    "source_url": "https://www.youtube.com/watch?v=jLeYfSBXG_E",
+    "info": {
+      "平台": "youtube",
+      "整理": "2026-11-04"
+    },
+    "platform": "youtube",
+    "derived": [
+      "mind-map",
+      "infographic",
+      "slide-deck"
+    ],
+    "cover_local": "attachments/modules/视频与专题/_assets/deepseek 超级智能体架构解析/infographic.webp"
+  },
+  {
+    "title": "Deepseek的Engram论文: 高效记忆网络作为MOE架构的补充",
+    "slug": "视频与专题/Deepseek的Engram论文_ 高效记忆网络作为MOE架构的补充",
+    "creator": "",
+    "cover": "attachments/modules/视频与专题/_assets/deepseek的engram论文_ 高效记忆网络作为moe架构的补充/infographic.webp",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:h46422d1a4f51",
+    "source_url": "https://www.youtube.com/watch?v=LOHYVlZ0cwM",
+    "info": {
+      "平台": "youtube",
+      "整理": "2026-01-24"
+    },
+    "platform": "youtube",
+    "derived": [
+      "infographic",
+      "slide-deck"
+    ],
+    "cover_local": "attachments/modules/视频与专题/_assets/deepseek的engram论文_ 高效记忆网络作为moe架构的补充/infographic.webp"
+  },
+  {
+    "title": "From Loop to Graph: 工程可靠的多智能体系统",
+    "slug": "视频与专题/From Loop to Graph_ 工程可靠的多智能体系统",
+    "creator": "",
+    "cover": "attachments/modules/视频与专题/_assets/from loop to graph_ 工程可靠的多智能体系统/infographic.webp",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:h4a439db39642",
+    "source_url": "https://www.youtube.com/watch?v=8RedSkw1UjE",
+    "info": {
+      "平台": "youtube",
+      "整理": "2026-09-05"
+    },
+    "platform": "youtube",
+    "derived": [
+      "mind-map",
+      "infographic",
+      "slide-deck"
+    ],
+    "cover_local": "attachments/modules/视频与专题/_assets/from loop to graph_ 工程可靠的多智能体系统/infographic.webp"
+  },
+  {
+    "title": "From Transformer to LLM: 进化之路",
+    "slug": "视频与专题/From Transformer to LLM_ 进化之路",
+    "creator": "",
+    "cover": "attachments/modules/视频与专题/_assets/from transformer to llm_ 进化之路/infographic.webp",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:h3d699738e56b",
+    "source_url": "https://www.youtube.com/watch?v=MusyyIW2dro",
+    "info": {
+      "平台": "youtube",
+      "整理": "2026-08-30"
+    },
+    "platform": "youtube",
+    "derived": [
+      "mind-map",
+      "infographic",
+      "slide-deck"
+    ],
+    "cover_local": "attachments/modules/视频与专题/_assets/from transformer to llm_ 进化之路/infographic.webp"
+  },
+  {
+    "title": "Large Model Training Processes and Refinement Techniques",
+    "slug": "视频与专题/Large Model Training Processes and Refinement Techniques",
+    "creator": "",
+    "cover": "attachments/modules/视频与专题/_assets/large model training processes and refinement techniques/infographic.webp",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:h0a07e3cd9747",
+    "source_url": "https://www.youtube.com/watch?v=FkYLL4L0BfY",
+    "info": {
+      "平台": "youtube",
+      "整理": "2026-09-04"
+    },
+    "platform": "youtube",
+    "derived": [
+      "mind-map",
+      "infographic",
+      "slide-deck"
+    ],
+    "cover_local": "attachments/modules/视频与专题/_assets/large model training processes and refinement techniques/infographic.webp"
+  },
+  {
+    "title": "LLM-Wiki：RAG与知识工程流程的演进",
+    "slug": "视频与专题/LLM-Wiki：RAG与知识工程流程的演进",
+    "creator": "",
+    "cover": "https://img.youtube.com/vi/g1Y7Rrz7u4k/maxresdefault.jpg",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:h210562e8c628",
+    "source_url": "https://www.youtube.com/watch?v=g1Y7Rrz7u4k",
+    "info": {
+      "平台": "youtube",
+      "整理": "2026-07-11"
+    },
+    "platform": "youtube",
+    "derived": [
+      "mind-map",
+      "slide-deck"
+    ],
+    "cover_local": "attachments/covers/video/llm-wiki_rag与知识工程流程的演进.jpg"
+  },
+  {
+    "title": "Mastering ByteDance Agent and RAG Architectures",
+    "slug": "视频与专题/Mastering ByteDance Agent and RAG Architectures",
+    "creator": "",
+    "cover": "attachments/modules/视频与专题/_assets/mastering bytedance agent and rag architectures/infographic.webp",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:hfa29b33acb5f",
+    "source_url": "https://www.youtube.com/watch?v=Pio4SrsPHCY",
+    "info": {
+      "平台": "youtube",
+      "整理": "2026-09-01"
+    },
+    "platform": "youtube",
+    "derived": [
+      "mind-map",
+      "infographic",
+      "slide-deck"
+    ],
+    "cover_local": "attachments/modules/视频与专题/_assets/mastering bytedance agent and rag architectures/infographic.webp"
+  },
+  {
+    "title": "Mastering GraphRAG: 高级知识图谱集成策略",
+    "slug": "视频与专题/Mastering GraphRAG_ 高级知识图谱集成策略",
+    "creator": "",
+    "cover": "attachments/modules/视频与专题/_assets/mastering graphrag_ 高级知识图谱集成策略/infographic.webp",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:hd8c0e64f2090",
+    "source_url": "https://www.youtube.com/watch?v=Uz7K757psEU",
+    "info": {
+      "平台": "youtube",
+      "整理": "2026-09-09"
+    },
+    "platform": "youtube",
+    "derived": [
+      "mind-map",
+      "infographic",
+      "slide-deck"
+    ],
+    "cover_local": "attachments/modules/视频与专题/_assets/mastering graphrag_ 高级知识图谱集成策略/infographic.webp"
+  },
+  {
+    "title": "mattpocock/skills仓库的AI-Coding工程流程Skills",
+    "slug": "视频与专题/mattpocock_skills仓库的AI-Coding工程流程Skills",
+    "creator": "",
+    "cover": "attachments/modules/视频与专题/_assets/mattpocock_skills仓库的ai-coding工程流程skills/infographic.webp",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:ha9338b27f04d",
+    "source_url": "https://www.youtube.com/watch?v=EJyuu6zlQCg",
+    "info": {
+      "平台": "youtube",
+      "整理": "2026-05-03"
+    },
+    "platform": "youtube",
+    "derived": [
+      "mind-map",
+      "infographic"
+    ],
+    "cover_local": "attachments/modules/视频与专题/_assets/mattpocock_skills仓库的ai-coding工程流程skills/infographic.webp"
+  },
+  {
+    "title": "Milvus 向量数据库架构和系统设计",
+    "slug": "视频与专题/Milvus 向量数据库架构和系统设计",
+    "creator": "",
+    "cover": "attachments/modules/视频与专题/_assets/milvus 向量数据库架构和系统设计/infographic.webp",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:h55ed39909063",
+    "source_url": "https://www.youtube.com/watch?v=-hKHbHA0KKI",
+    "info": {
+      "平台": "youtube",
+      "整理": "2026-09-30"
+    },
+    "platform": "youtube",
+    "derived": [
+      "mind-map",
+      "infographic",
+      "slide-deck"
+    ],
+    "cover_local": "attachments/modules/视频与专题/_assets/milvus 向量数据库架构和系统设计/infographic.webp"
+  },
+  {
+    "title": "openclaw常用操作指令",
+    "slug": "视频与专题/openclaw常用操作指令",
+    "creator": "",
+    "cover": "attachments/modules/视频与专题/_assets/openclaw常用操作指令/infographic.webp",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:h4a21d1d4157f",
+    "source_url": "https://www.youtube.com/watch?v=6WzuqO8xwZo",
+    "info": {
+      "平台": "youtube",
+      "整理": "2026-02-28"
+    },
+    "platform": "youtube",
+    "derived": [
+      "mind-map",
+      "infographic"
+    ],
+    "cover_local": "attachments/modules/视频与专题/_assets/openclaw常用操作指令/infographic.webp"
+  },
+  {
+    "title": "Qwen-27B 8GB VRAM 本地部署优化",
+    "slug": "视频与专题/Qwen-27B 8GB VRAM 本地部署优化",
+    "creator": "",
+    "cover": "attachments/modules/视频与专题/_assets/qwen-27b 8gb vram 本地部署优化/infographic.webp",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:h4bdf73989e10",
+    "source_url": "https://www.youtube.com/watch?v=txUByfiaeOM",
+    "info": {
+      "平台": "youtube",
+      "整理": "2026-08-29"
+    },
+    "platform": "youtube",
+    "derived": [
+      "mind-map",
+      "infographic",
+      "slide-deck"
+    ],
+    "cover_local": "attachments/modules/视频与专题/_assets/qwen-27b 8gb vram 本地部署优化/infographic.webp"
+  },
+  {
+    "title": "RFM案例PPT生成",
+    "slug": "视频与专题/RFM案例PPT生成",
+    "creator": "",
+    "cover": "",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:hb28b212ccee3",
+    "source_url": "",
+    "info": {
+      "平台": "notebooklm",
+      "整理": "2026-03-14"
+    },
+    "platform": "notebooklm",
+    "derived": [
+      "slide-deck"
+    ]
+  },
+  {
+    "title": "“涌现” 量变引起质变的过程与自然界的演化逻辑高度契合",
+    "slug": "视频与专题/“涌现” 量变引起质变的过程与自然界的演化逻辑高度契合",
+    "creator": "",
+    "cover": "attachments/modules/视频与专题/_assets/“涌现” 量变引起质变的过程与自然界的演化逻辑高度契合/infographic.webp",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:hb168df0a7950",
+    "source_url": "https://www.youtube.com/watch?v=dmGrWNL7Fv8",
+    "info": {
+      "平台": "youtube",
+      "整理": "2026-02-17"
+    },
+    "platform": "youtube",
+    "derived": [
+      "infographic",
+      "slide-deck"
+    ],
+    "cover_local": "attachments/modules/视频与专题/_assets/“涌现” 量变引起质变的过程与自然界的演化逻辑高度契合/infographic.webp"
+  },
+  {
+    "title": "中国AI产业冰山图",
+    "slug": "视频与专题/中国AI产业冰山图",
+    "creator": "",
+    "cover": "attachments/modules/视频与专题/_assets/中国ai产业冰山图/infographic.webp",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:hc71d13e28f5d",
+    "source_url": "https://www.youtube.com/watch?v=HMC-s_zkNyE",
+    "info": {
+      "平台": "youtube",
+      "整理": "2026-01-13"
+    },
+    "platform": "youtube",
+    "derived": [
+      "infographic",
+      "slide-deck"
+    ],
+    "cover_local": "attachments/modules/视频与专题/_assets/中国ai产业冰山图/infographic.webp"
+  },
+  {
+    "title": "从向量到transformer, 大模型演进历程",
+    "slug": "视频与专题/从向量到transformer, 大模型演进历程",
+    "creator": "",
+    "cover": "attachments/modules/视频与专题/_assets/从向量到transformer, 大模型演进历程/infographic.webp",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:h7474b2416be9",
+    "source_url": "https://www.youtube.com/watch?v=j-PLWhTJVsc",
+    "info": {
+      "平台": "youtube",
+      "整理": "2026-08-26"
+    },
+    "platform": "youtube",
+    "derived": [
+      "mind-map",
+      "infographic",
+      "slide-deck"
+    ],
+    "cover_local": "attachments/modules/视频与专题/_assets/从向量到transformer, 大模型演进历程/infographic.webp"
+  },
+  {
+    "title": "企业RAG安全：全链接权限和防泄漏策略",
+    "slug": "视频与专题/企业RAG安全：全链接权限和防泄漏策略",
+    "creator": "",
+    "cover": "attachments/modules/视频与专题/_assets/企业rag安全：全链接权限和防泄漏策略/infographic.webp",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:hc8bae3fd6d25",
+    "source_url": "https://www.youtube.com/watch?v=aGpyWKtgjoU",
+    "info": {
+      "平台": "youtube",
+      "整理": "2026-09-17"
+    },
+    "platform": "youtube",
+    "derived": [
+      "mind-map",
+      "infographic",
+      "slide-deck"
+    ],
+    "cover_local": "attachments/modules/视频与专题/_assets/企业rag安全：全链接权限和防泄漏策略/infographic.webp"
+  },
+  {
+    "title": "优化RAG检索：查询重写工程指南",
+    "slug": "视频与专题/优化RAG检索：查询重写工程指南",
+    "creator": "",
+    "cover": "https://img.youtube.com/vi/U3h2iTIYl5Q/maxresdefault.jpg",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:h7438d0798547",
+    "source_url": "https://www.youtube.com/watch?v=U3h2iTIYl5Q",
+    "info": {
+      "平台": "youtube",
+      "整理": "2026-06-06"
+    },
+    "platform": "youtube",
+    "derived": [
+      "mind-map",
+      "slide-deck"
+    ],
+    "cover_local": "attachments/covers/video/优化rag检索_查询重写工程指南.jpg"
+  },
+  {
+    "title": "在AI时代掌握Git和GitHub",
+    "slug": "视频与专题/在AI时代掌握Git和GitHub",
+    "creator": "",
+    "cover": "https://img.youtube.com/vi/bWUUHBVg-7E/maxresdefault.jpg",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:h8df5492a3135",
+    "source_url": "https://www.youtube.com/watch?v=bWUUHBVg-7E&t=20s",
+    "info": {
+      "平台": "youtube",
+      "整理": "2026-06-06"
+    },
+    "platform": "youtube",
+    "derived": [
+      "mind-map",
+      "slide-deck"
+    ],
+    "cover_local": "attachments/covers/video/在ai时代掌握git和github.jpg"
+  },
+  {
+    "title": "大模型评估 lm-eval 实用指南",
+    "slug": "视频与专题/大模型评估 lm-eval 实用指南",
+    "creator": "",
+    "cover": "https://img.youtube.com/vi/17lpoQA6Wno/maxresdefault.jpg",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:h76edac810106",
+    "source_url": "https://www.youtube.com/watch?v=17lpoQA6Wno",
+    "info": {
+      "平台": "youtube",
+      "整理": "2026-06-06"
+    },
+    "platform": "youtube",
+    "derived": [
+      "mind-map",
+      "slide-deck"
+    ],
+    "cover_local": "attachments/covers/video/大模型评估_lm-eval_实用指南.jpg"
+  },
+  {
+    "title": "技术视频制作的自主Agent工作流",
+    "slug": "视频与专题/技术视频制作的自主Agent工作流",
+    "creator": "",
+    "cover": "https://img.youtube.com/vi/0hM2SkHZ2UU/maxresdefault.jpg",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:h90242c609810",
+    "source_url": "https://www.youtube.com/watch?v=0hM2SkHZ2UU",
+    "info": {
+      "平台": "youtube",
+      "整理": "2026-05-16"
+    },
+    "platform": "youtube",
+    "derived": [
+      "slide-deck"
+    ],
+    "cover_local": "attachments/covers/video/技术视频制作的自主agent工作流.jpg"
+  },
+  {
+    "title": "掘金头条项目实战抽取面试知识点",
+    "slug": "视频与专题/掘金头条项目实战抽取面试知识点",
+    "creator": "",
+    "cover": "",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:h21adcce80752",
+    "source_url": "",
+    "info": {
+      "平台": "notebooklm",
+      "整理": "2026-01-04"
+    },
+    "platform": "notebooklm",
+    "derived": [
+      "mind-map"
+    ]
+  },
+  {
+    "title": "智力涌现: 预测下一个token",
+    "slug": "视频与专题/智力涌现_ 预测下一个token",
+    "creator": "",
+    "cover": "",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:h053c1e41d336",
+    "source_url": "",
+    "info": {
+      "平台": "notebooklm",
+      "整理": "2026-01-28"
+    },
+    "platform": "notebooklm",
+    "derived": [
+      "slide-deck"
+    ]
+  },
+  {
+    "title": "智能体进化：长程Agent-自主规划记忆执行复杂任务",
+    "slug": "视频与专题/智能体进化：长程Agent-自主规划记忆执行复杂任务",
+    "creator": "",
+    "cover": "https://img.youtube.com/vi/baJ72mP_fKo/maxresdefault.jpg",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:hff16d139eff9",
+    "source_url": "https://www.youtube.com/watch?v=baJ72mP_fKo",
+    "info": {
+      "平台": "youtube",
+      "整理": "2026-02-04"
+    },
+    "platform": "youtube",
+    "derived": [
+      "slide-deck"
+    ],
+    "cover_local": "attachments/covers/video/智能体进化_长程agent-自主规划记忆执行复杂任务.jpg"
+  },
+  {
+    "title": "杰弗里辛顿: 数字智能的演进与生存危机",
+    "slug": "视频与专题/杰弗里辛顿_ 数字智能的演进与生存危机",
+    "creator": "",
+    "cover": "attachments/modules/视频与专题/_assets/杰弗里辛顿_ 数字智能的演进与生存危机/infographic.webp",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:h5704e39f6834",
+    "source_url": "https://www.youtube.com/watch?v=ts3zKEIYjXE",
+    "info": {
+      "平台": "youtube",
+      "整理": "2026-01-04"
+    },
+    "platform": "youtube",
+    "derived": [
+      "infographic",
+      "slide-deck"
+    ],
+    "cover_local": "attachments/modules/视频与专题/_assets/杰弗里辛顿_ 数字智能的演进与生存危机/infographic.webp"
+  },
+  {
+    "title": "构建生产级Agent Memory系统架构",
+    "slug": "视频与专题/构建生产级Agent Memory系统架构",
+    "creator": "",
+    "cover": "https://img.youtube.com/vi/rDTUDnPwUa0/maxresdefault.jpg",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:hceb157fdb279",
+    "source_url": "https://www.youtube.com/watch?v=rDTUDnPwUa0",
+    "info": {
+      "平台": "youtube",
+      "整理": "2026-05-01"
+    },
+    "platform": "youtube",
+    "derived": [
+      "slide-deck"
+    ],
+    "cover_local": "attachments/covers/video/构建生产级agent_memory系统架构.jpg"
+  },
+  {
+    "title": "海量实时广告流平台的架构设计与核心实践",
+    "slug": "视频与专题/海量实时广告流平台的架构设计与核心实践",
+    "creator": "",
+    "cover": "attachments/modules/视频与专题/_assets/海量实时广告流平台的架构设计与核心实践/infographic.webp",
+    "rating": "",
+    "stars": "",
+    "status": "待整理",
+    "progress": "",
+    "douban": "",
+    "item_key": "video:hc2d2effc9c98",
+    "source_url": "https://youtu.be/nZaoGz1Uht4",
+    "info": {
+      "平台": "youtube",
+      "整理": "2026-02-14"
+    },
+    "platform": "youtube",
+    "derived": [
+      "infographic",
+      "slide-deck"
+    ],
+    "cover_local": "attachments/modules/视频与专题/_assets/海量实时广告流平台的架构设计与核心实践/infographic.webp"
+  }
+]

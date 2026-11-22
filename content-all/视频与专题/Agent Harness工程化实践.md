@@ -15,9 +15,9 @@ created: "2026-05-02"
 
 ### 播放源
 
-<iframe class="nlm-video" src="https://www.youtube.com/embed/HcCWJGrJPbI" title="Agent Harness工程化实践" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
+<iframe class="nlm-video" src="https://www.youtube.com/embed/HcCWJGrJPbI" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
 
-<sub>[在 YouTube 打开](https://www.youtube.com/watch?v=HcCWJGrJPbI)</sub>
+[在源站打开](https://www.youtube.com/watch?v=HcCWJGrJPbI)
 
 ## 产物
 
@@ -26,7 +26,6 @@ created: "2026-05-02"
 <iframe src="https://pdf.hfhfn.dpdns.org/notebooklm/Agent%20Harness%E5%B7%A5%E7%A8%8B%E5%8C%96%E5%AE%9E%E8%B7%B5/slide-deck.pdf#view=FitH" class="nlm-slides" title="演示文稿" loading="lazy"></iframe>
 
 <sub>[全屏打开](https://pdf.hfhfn.dpdns.org/notebooklm/Agent%20Harness%E5%B7%A5%E7%A8%8B%E5%8C%96%E5%AE%9E%E8%B7%B5/slide-deck.pdf)</sub>
-
 
 ## 摘要
 

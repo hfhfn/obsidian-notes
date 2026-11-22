@@ -1,0 +1,46 @@
+[
+  {
+    "title": "三体（腾讯版）",
+    "slug": "观影库/三体（腾讯版）",
+    "creator": "杨磊",
+    "cover": "https://img1.doubanio.com/view/photo/s_ratio_poster/public/p2886838313.jpg",
+    "rating": "8.7",
+    "stars": "⭐⭐⭐⭐☆",
+    "status": "在看",
+    "progress": "40",
+    "douban": "https://movie.douban.com/subject/26647087/",
+    "item_key": "movie:26647087",
+    "source_url": "https://movie.douban.com/subject/26647087/",
+    "info": {
+      "年份": "2023",
+      "评分": "8.7",
+      "导演": "杨磊",
+      "片长": "每集45分钟",
+      "集数": "30",
+      "开始": "2026-02-10"
+    },
+    "cover_local": "attachments/covers/movie/三体_腾讯版_.jpg"
+  },
+  {
+    "title": "沙丘2",
+    "slug": "观影库/沙丘2",
+    "creator": "丹尼斯·维伦纽瓦",
+    "cover": "https://img9.doubanio.com/view/photo/s_ratio_poster/public/p2905235391.jpg",
+    "rating": "8.2",
+    "stars": "⭐⭐⭐⭐",
+    "status": "已看",
+    "progress": "100",
+    "douban": "https://movie.douban.com/subject/35575567/",
+    "item_key": "movie:35575567",
+    "source_url": "https://movie.douban.com/subject/35575567/",
+    "info": {
+      "年份": "2024",
+      "评分": "8.2",
+      "导演": "丹尼斯·维伦纽瓦",
+      "片长": "166分钟",
+      "开始": "2026-03-15",
+      "看完": "2026-03-15"
+    },
+    "cover_local": "attachments/covers/movie/沙丘2.jpg"
+  }
+]

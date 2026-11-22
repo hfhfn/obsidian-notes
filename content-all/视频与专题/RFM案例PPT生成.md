@@ -20,7 +20,6 @@ created: "2026-03-14"
 
 <sub>[全屏打开](https://pdf.hfhfn.dpdns.org/notebooklm/RFM%E6%A1%88%E4%BE%8BPPT%E7%94%9F%E6%88%90/slide-deck.pdf)</sub>
 
-
 ## 摘要
 
 该来源提供了一个 Python 编程教程，专注于使用多年销售记录开展 RFM 

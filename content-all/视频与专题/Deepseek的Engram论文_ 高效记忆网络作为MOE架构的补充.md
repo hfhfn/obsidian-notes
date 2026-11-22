@@ -16,24 +16,21 @@ created: "2026-01-24"
 
 ### 播放源
 
-<iframe class="nlm-video" src="https://www.youtube.com/embed/LOHYVlZ0cwM" title="Deepseek的Engram论文: 高效记忆网络作为MOE架构的补充" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
+<iframe class="nlm-video" src="https://www.youtube.com/embed/LOHYVlZ0cwM" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
 
-<sub>[在 YouTube 打开](https://www.youtube.com/watch?v=LOHYVlZ0cwM)</sub>
+[在源站打开](https://www.youtube.com/watch?v=LOHYVlZ0cwM)
 
 ## 产物
 
 ### 信息图
 
-<img src="_assets/Deepseek的Engram论文_ 高效记忆网络作为MOE架构的补充/infographic.webp" alt="信息图" class="nlm-infographic nlm-zoomable" loading="lazy">
-
-<sub>点图放大 · ESC 或点空白处关闭</sub>
+![信息图](_assets/Deepseek的Engram论文_%20高效记忆网络作为MOE架构的补充/infographic.webp)
 
 ### 演示文稿
 
 <iframe src="https://pdf.hfhfn.dpdns.org/notebooklm/Deepseek%E7%9A%84Engram%E8%AE%BA%E6%96%87_%20%E9%AB%98%E6%95%88%E8%AE%B0%E5%BF%86%E7%BD%91%E7%BB%9C%E4%BD%9C%E4%B8%BAMOE%E6%9E%B6%E6%9E%84%E7%9A%84%E8%A1%A5%E5%85%85/slide-deck.pdf#view=FitH" class="nlm-slides" title="演示文稿" loading="lazy"></iframe>
 
 <sub>[全屏打开](https://pdf.hfhfn.dpdns.org/notebooklm/Deepseek%E7%9A%84Engram%E8%AE%BA%E6%96%87_%20%E9%AB%98%E6%95%88%E8%AE%B0%E5%BF%86%E7%BD%91%E7%BB%9C%E4%BD%9C%E4%B8%BAMOE%E6%9E%B6%E6%9E%84%E7%9A%84%E8%A1%A5%E5%85%85/slide-deck.pdf)</sub>
-
 
 ## 摘要
 

@@ -421,10 +421,23 @@ const RUNTIME = `
   //     浏览器「打开」而不是下载。
   //  2. <a> 挂到 document 上，click() 在用户手势同步栈里执行。
   //  3. URL 延迟回收，否则下载还没开始就被撤销。
+  // 真正触发「保存文件」。
+  //
+  // 踩过两次坑：
+  //   1. window.open(blobUrl) —— 只是打开预览页，不下载
+  //   2. blob 用 image/svg+xml / text/html —— Chrome 认定「可显示」，
+  //      即使有 download 属性也可能直接在标签页里打开
+  //
+  // 现在：内容用 Blob 原样保存，但 MIME 统一成 application/octet-stream
+  // 让浏览器走「下载」路径；文件名由 a.download 提供，所以后缀不会丢。
   function downloadBlob(blob, filename){
-    // 不要重新包一层 Blob —— 套嵌后部分浏览器会丢掉类型信息，
-    // 保存出来的文件名缺少后缀（用户反馈「保存名称不带 html/svg」）。
-    var url = URL.createObjectURL(blob);
+    var dlBlob;
+    try {
+      dlBlob = blob.slice(0, blob.size, 'application/octet-stream');
+    } catch (e) {
+      dlBlob = new Blob([blob], { type: 'application/octet-stream' });
+    }
+    var url = URL.createObjectURL(dlBlob);
     var a = document.createElement('a');
     a.href = url;
     a.download = filename;

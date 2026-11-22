@@ -20,7 +20,6 @@ created: "2026-01-28"
 
 <sub>[全屏打开](https://pdf.hfhfn.dpdns.org/notebooklm/%E6%99%BA%E5%8A%9B%E6%B6%8C%E7%8E%B0_%20%E9%A2%84%E6%B5%8B%E4%B8%8B%E4%B8%80%E4%B8%AAtoken/slide-deck.pdf)</sub>
 
-
 ## 摘要
 
 所提供的文本探讨了大型语言模型中的 next-token prediction 

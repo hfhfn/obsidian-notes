@@ -15,9 +15,9 @@ created: "2026-05-01"
 
 ### 播放源
 
-<iframe class="nlm-video" src="https://www.youtube.com/embed/rDTUDnPwUa0" title="构建生产级Agent Memory系统架构" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
+<iframe class="nlm-video" src="https://www.youtube.com/embed/rDTUDnPwUa0" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
 
-<sub>[在 YouTube 打开](https://www.youtube.com/watch?v=rDTUDnPwUa0)</sub>
+[在源站打开](https://www.youtube.com/watch?v=rDTUDnPwUa0)
 
 ## 产物
 
@@ -26,7 +26,6 @@ created: "2026-05-01"
 <iframe src="https://pdf.hfhfn.dpdns.org/notebooklm/%E6%9E%84%E5%BB%BA%E7%94%9F%E4%BA%A7%E7%BA%A7Agent%20Memory%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/slide-deck.pdf#view=FitH" class="nlm-slides" title="演示文稿" loading="lazy"></iframe>
 
 <sub>[全屏打开](https://pdf.hfhfn.dpdns.org/notebooklm/%E6%9E%84%E5%BB%BA%E7%94%9F%E4%BA%A7%E7%BA%A7Agent%20Memory%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/slide-deck.pdf)</sub>
-
 
 ## 摘要
 
