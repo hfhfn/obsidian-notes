@@ -88,6 +88,35 @@ def use_notebook(nb_id):
     return "Matched" in out or "Notebook ID" in out
 
 
+def compress_png(path, quality=82, max_width=1600):
+    """把信息图 PNG 转成 WebP。
+
+    NotebookLM 导出的信息图是 1536×2752 的 PNG，单张 4-6MB，
+    39 本合计 150MB+，进 git 仓库不可接受。
+    转 WebP q82 后通常降到 0.3-0.6MB（省 90%+），肉眼看不出差别。
+    """
+    try:
+        from PIL import Image
+    except ImportError:
+        return path, 0
+
+    src_size = path.stat().st_size
+    im = Image.open(path).convert("RGB")
+
+    w, h = im.size
+    if w > max_width:
+        im = im.resize((max_width, int(h * max_width / w)), Image.LANCZOS)
+
+    out = path.with_suffix(".webp")
+    im.save(out, "WEBP", quality=quality, method=6)
+
+    if out.stat().st_size < src_size:
+        path.unlink()
+        return out, src_size - out.stat().st_size
+    out.unlink()
+    return path, 0
+
+
 def safe_name(s, maxlen=60):
     s = re.sub(r'[<>:"/\\|?*\n\r\t]', "_", s).strip()
     s = re.sub(r"\s+", " ", s)
@@ -130,6 +159,11 @@ def export_one(nb_id, title):
         target = out_dir / f"{key}{ext}"
         run_nlm(["download", cmd, str(target)], timeout=300)
         if target.exists() and target.stat().st_size > 100:
+            # 信息图转 WebP：PNG 单张 4-6MB，压完 0.3-0.6MB
+            if key == "infographic":
+                target, saved = compress_png(target)
+                if saved:
+                    print(f"    压缩省 {saved // 1024} KB")
             got[key] = {
                 "path": str(target.relative_to(MODULE_DIR)),
                 "size": target.stat().st_size,
@@ -152,13 +186,13 @@ def export_one(nb_id, title):
     return got
 
 
-def write_note(nb, got):
+def write_note(nb, got, force=False):
     """给导出了产物的笔记本生成 md 笔记。"""
     title = nb["title"]
     slug = safe_name(title)
     md_path = MODULE_DIR / f"{slug}.md"
 
-    if md_path.exists():
+    if md_path.exists() and not force:
         return None  # 已存在不覆盖
 
     derived = [k for k in got if k in ("mind-map", "slide-deck", "infographic")]
@@ -210,7 +244,12 @@ def write_note(nb, got):
             else:
                 lines.append(f"- **{names.get(k, k)}**：（待上传 R2）")
         else:
-            lines.append(f"- **{names.get(k, k)}**：`_assets/{slug}/{Path(v['path']).name}`")
+            # 图片用 markdown 图片语法才会渲染；JSON/MD 用代码格式
+            fname = Path(v["path"]).name
+            if fname.endswith((".png", ".webp")):
+                lines.append(f"- **{names.get(k, k)}**：\n\n  ![{names.get(k, k)}](_assets/{slug}/{fname})")
+            else:
+                lines.append(f"- **{names.get(k, k)}**：`_assets/{slug}/{fname}`")
 
     lines += [
         "",
@@ -389,9 +428,66 @@ def cmd_upload_r2():
     print(f"\n完成 {ok}/{len(files)}，清单 → {manifest_path}")
 
 
+def cmd_compress():
+    """把已导出的 PNG 信息图批量转 WebP（对旧数据用）。"""
+    pngs = list(ASSET_DIR.rglob("infographic.png"))
+    if not pngs:
+        print("没有待压缩的 PNG")
+        return
+    total_saved = 0
+    for png in pngs:
+        out, saved = compress_png(png)
+        if saved:
+            total_saved += saved
+            print(f"  {png.parent.name[:40]:42} 省 {saved // 1024:>5} KB")
+    print(f"\n共省 {total_saved / 1048576:.1f} MB")
+
+
+def cmd_refresh_notes():
+    """按已导出的产物 + R2 清单重建所有笔记。
+
+    必须在 upload-r2 之后跑：PPT 的链接来自 nlm_r2_manifest.json，
+    导出时那个文件还没生成，笔记里只能写「待上传 R2」。
+    """
+    nbs = {n["id"]: n for n in list_notebooks()}
+    summary_path = CAND_DIR / "nlm_export_summary.json"
+    if not summary_path.exists():
+        print("缺少 nlm_export_summary.json，先跑 export-all")
+        return
+    summary = json.loads(summary_path.read_text(encoding="utf-8"))
+
+    n = 0
+    for s in summary:
+        if not s.get("artifacts"):
+            continue
+        nb = nbs.get(s.get("id"))
+        if not nb:
+            continue
+        slug = safe_name(nb["title"])
+
+        # 重建 got：本地文件按实际存在判断，远程按清单
+        got = {}
+        local_dir = ASSET_DIR / slug
+        for key, ext in (("mind-map", ".json"), ("infographic", ".webp"), ("report", ".md")):
+            f = local_dir / f"{key}{ext}"
+            if not f.exists() and ext == ".webp":
+                f = local_dir / f"{key}.png"  # 兼容未压缩的旧数据
+            if f.exists():
+                got[key] = {"path": str(f.relative_to(MODULE_DIR)), "size": f.stat().st_size}
+        if "slide-deck" in s["artifacts"]:
+            got["slide-deck"] = {"remote": True, "path": "", "size": 0}
+
+        if write_note(nb, got, force=True):
+            n += 1
+    print(f"重建 {n} 篇笔记")
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("action", choices=["list", "probe", "export", "export-all", "upload-r2"])
+    ap.add_argument(
+        "action",
+        choices=["list", "probe", "export", "export-all", "upload-r2", "refresh-notes", "compress"],
+    )
     ap.add_argument("target", nargs="?", help="笔记本 ID（可只写前 8 位）")
     ap.add_argument("--limit", type=int, default=None)
     args = ap.parse_args()
@@ -410,6 +506,10 @@ def main():
         cmd_export_all(args.limit)
     elif args.action == "upload-r2":
         cmd_upload_r2()
+    elif args.action == "refresh-notes":
+        cmd_refresh_notes()
+    elif args.action == "compress":
+        cmd_compress()
 
 
 if __name__ == "__main__":

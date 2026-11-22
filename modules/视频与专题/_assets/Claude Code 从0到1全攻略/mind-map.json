@@ -1,0 +1,199 @@
+{
+  "name": "Claude Code 實戰攻略",
+  "children": [
+    {
+      "name": "環境搭建與基礎交互",
+      "children": [
+        {
+          "name": "安裝",
+          "children": [
+            {
+              "name": "官方腳本安裝"
+            },
+            {
+              "name": "創建目錄與執行命令"
+            }
+          ]
+        },
+        {
+          "name": "登錄與授權",
+          "children": [
+            {
+              "name": "訂閱制 (Pro/Max)"
+            },
+            {
+              "name": "API Key 模式"
+            },
+            {
+              "name": "國產模型驅動 (環境變量設置)"
+            }
+          ]
+        },
+        {
+          "name": "操作模式",
+          "children": [
+            {
+              "name": "默認模式 (Default): 詢問所有操作"
+            },
+            {
+              "name": "自動模式 (Accept Edit): 自動修改文件"
+            },
+            {
+              "name": "規劃模式 (Plan): 只討論不執行"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "複雜任務與終端控制",
+      "children": [
+        {
+          "name": "模式切換",
+          "children": [
+            {
+              "name": "Shift + Tab 循環切換"
+            }
+          ]
+        },
+        {
+          "name": "高級輸入",
+          "children": [
+            {
+              "name": "Shift + Enter 換行"
+            },
+            {
+              "name": "Ctrl + G 調用 VS Code 編輯器"
+            }
+          ]
+        },
+        {
+          "name": "終端命令",
+          "children": [
+            {
+              "name": "! 前綴執行任意命令"
+            },
+            {
+              "name": "--dangerously-skip-permissions 跳過權限檢測"
+            }
+          ]
+        },
+        {
+          "name": "後台任務",
+          "children": [
+            {
+              "name": "Ctrl + B 放置後台"
+            },
+            {
+              "name": "/tasks 查看/結束任務"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "多模態與上下文管理",
+      "children": [
+        {
+          "name": "圖片處理",
+          "children": [
+            {
+              "name": "拖拽/粘貼圖片 (Ctrl + V)"
+            },
+            {
+              "name": "UI 還原/視覺識別"
+            }
+          ]
+        },
+        {
+          "name": "上下文命令",
+          "children": [
+            {
+              "name": "/compact 壓縮上下文 (節省 Token)"
+            },
+            {
+              "name": "/clear 清空上下文"
+            },
+            {
+              "name": "ESC 兩次進入 Rewind 回滾代碼"
+            }
+          ]
+        },
+        {
+          "name": "CLAUDE.md (Memory)",
+          "children": [
+            {
+              "name": "/init 創建模記文件"
+            },
+            {
+              "name": "項目級 vs 用戶級"
+            },
+            {
+              "name": "持久化項目指令與注意事項"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "高級功能擴展與定制",
+      "children": [
+        {
+          "name": "MCP (Model Context Protocol)",
+          "children": [
+            {
+              "name": "連接外部工具 (如 Figma)"
+            },
+            {
+              "name": "/mcp 命令管理"
+            }
+          ]
+        },
+        {
+          "name": "Hook 鉤子",
+          "children": [
+            {
+              "name": "/hook 設置時機 (如 Post-edit)"
+            },
+            {
+              "name": "實戰: 自動代碼格式化"
+            }
+          ]
+        },
+        {
+          "name": "Agent Skill",
+          "children": [
+            {
+              "name": "動態加載 Prompt"
+            },
+            {
+              "name": "實戰: 日報生成模板"
+            }
+          ]
+        },
+        {
+          "name": "SubAgent",
+          "children": [
+            {
+              "name": "獨立上下文窗口"
+            },
+            {
+              "name": "處理複雜子任務 (如代碼審核)"
+            }
+          ]
+        },
+        {
+          "name": "Plugins",
+          "children": [
+            {
+              "name": "/plugins 插件市場"
+            },
+            {
+              "name": "一鍵安裝 Skill/MCP/Hook 組合包"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

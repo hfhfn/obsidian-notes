@@ -1,59 +1,29 @@
 ---
-title: AI 动画视频创作完全指南
-source_url: https://www.youtube.com/watch?v=dQw4w9WgXcQ
-platform: youtube
-duration: 42分钟
-channel: 经验开源
-status: 已整理
-progress: 100
-created: 2026-11-08
-derived:
-  - mindmap
-  - slides
-  - infographic
+title: "AI 动画视频创作完全指南"
 tags:
   - video
-  - AIGC
-  - 动画
+  - notebooklm
+notebook_id: "ab5622d8-632b-4020-82e5-8eb63259db50"
+derived:
+  - mind-map
+  - infographic
+  - slide-deck
+platform: "notebooklm"
+created: "2026-11-07"
 ---
 
 # AI 动画视频创作完全指南
 
-> [!info] NotebookLM 笔记本
-> 本笔记由 NotebookLM 基于 1 个 YouTube 视频源生成，含摘要、思维导图、演示文稿、信息图。
+> 由 NotebookLM 笔记本导出的产物集合。
 
-## 核心观点
+## 产物
 
-AI 动画视频创作正在迎来技术革新。核心思路是**让大语言模型直接写代码来生成视觉场景**，而不是靠传统的剪辑软件：
+- **思维导图**：`_assets/AI 动画视频创作完全指南/mind-map.json`
+- **信息图**：
 
-- **代码即画面** — LLM 输出 HTML / SVG / Canvas / 3D 引擎代码，浏览器渲染成动画
-- **风格与音画同步** — 同一套代码里定义配色、字体、转场，音画不会错位
-- **剪辑成本归零** — 改一句 prompt 就重出整段动画，不用重新对轨
+  ![信息图](_assets/AI 动画视频创作完全指南/infographic.webp)
+- **演示文稿**：[下载 PDF](https://pdf.hfhfn.dpdns.org/notebooklm/AI%20%E5%8A%A8%E7%94%BB%E8%A7%86%E9%A2%91%E5%88%9B%E4%BD%9C%E5%AE%8C%E5%85%A8%E6%8C%87%E5%8D%97/slide-deck.pdf)
 
-## 关键问题
+## 摘要
 
-### 语言模型如何用代码生成动画
-
-模型不是"画"出来的，而是**写出一段能自我运行的网页代码**。浏览器执行这段代码时，画面就动起来了。好处是：
-
-1. 分辨率无关（矢量），放大不糊
-2. 参数化，改一个变量就能换风格
-3. 版本可 diff，比二进制视频文件好管理
-
-### Motion Showreel 技能的核心能力
-
-- 多种预设风格（极简、手绘、科技感、杂志风）
-- 时长可编程（精确到帧）
-- 自动配字幕与转场
-
-### 预览与自检机制
-
-生成后先跑一遍**截图自检**：按时间轴采样若干帧，检查是否有元素溢出、文字重叠、颜色对比度不足。不通过就自动重生成。
-
-## 我的收获
-
-以前做一段 30 秒动画，要开 AE 调半天。现在思路变成**描述清楚 → 让模型写代码 → 看截图验收**。真正的时间成本从"操作软件"转移到"想清楚要什么"。
-
-## 相关笔记
-
-- [[AIGC/AIGC-MOC|AIGC MOC]]
+（在 NotebookLM 里点「摘要」复制正文粘到这里）

@@ -1,0 +1,171 @@
+{
+  "name": "大模型評估權威指南",
+  "children": [
+    {
+      "name": "評估核心理念",
+      "children": [
+        {
+          "name": "評估前置：開發前先定標準"
+        },
+        {
+          "name": "評估可行性決定項目生死"
+        },
+        {
+          "name": "數據隔離：防止數據洩露"
+        },
+        {
+          "name": "建立Baseline基準線"
+        }
+      ]
+    },
+    {
+      "name": "LM-Evaluation Harness (LMEL)",
+      "children": [
+        {
+          "name": "工具優勢",
+          "children": [
+            {
+              "name": "支持HF開源模型"
+            },
+            {
+              "name": "支持OpenAI等閉源API"
+            },
+            {
+              "name": "內置60+權威Benchmark"
+            },
+            {
+              "name": "自動化格式轉換與統計"
+            }
+          ]
+        },
+        {
+          "name": "安裝方式",
+          "children": [
+            {
+              "name": "標準版：pip install"
+            },
+            {
+              "name": "開發版：源碼克隆與可編輯模式"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "任務與數據配置",
+      "children": [
+        {
+          "name": "任務分類",
+          "children": [
+            {
+              "name": "技術學習：自動化腳本(GSM8K)"
+            },
+            {
+              "name": "商業項目：高質量私有評估數據"
+            }
+          ]
+        },
+        {
+          "name": "私有評測集接入",
+          "children": [
+            {
+              "name": "YAML格式配置文件"
+            },
+            {
+              "name": "Doc to text (提示詞)"
+            },
+            {
+              "name": "Doc to target (標準答案)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "模型支持與適配",
+      "children": [
+        {
+          "name": "LoRA微調模型：動態權重合併"
+        },
+        {
+          "name": "閉源模型：API Key調用"
+        },
+        {
+          "name": "量化模型",
+          "children": [
+            {
+              "name": "GGUF (適用CPU/GPU)"
+            },
+            {
+              "name": "GPTQ (GPU加速)"
+            }
+          ]
+        },
+        {
+          "name": "多模態支持：LM-MSMU"
+        }
+      ]
+    },
+    {
+      "name": "評估細節與技巧",
+      "children": [
+        {
+          "name": "科學評估三步走",
+          "children": [
+            {
+              "name": "吃透任務特點 (如CoT)"
+            },
+            {
+              "name": "選對評測指標 (BLEU/ROUGE/EM)"
+            },
+            {
+              "name": "嚴格控制變量"
+            }
+          ]
+        },
+        {
+          "name": "關鍵參數",
+          "children": [
+            {
+              "name": "use_cache：計算結果緩存"
+            },
+            {
+              "name": "chat_template：模型對話模板"
+            },
+            {
+              "name": "save_examples：錯誤樣本分析"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "算力優化方案",
+      "children": [
+        {
+          "name": "數據並行 (HF Accelerate)"
+        },
+        {
+          "name": "VLLM加速 (張量並行/吞吐量高)"
+        },
+        {
+          "name": "Local Completions (本地部署API)"
+        }
+      ]
+    },
+    {
+      "name": "結果可復現性",
+      "children": [
+        {
+          "name": "避免迷信官方數值"
+        },
+        {
+          "name": "本地原始模型比對"
+        },
+        {
+          "name": "格式敏感性處理"
+        }
+      ]
+    }
+  ]
+}
