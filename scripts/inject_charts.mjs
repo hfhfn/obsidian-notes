@@ -226,27 +226,30 @@ const CSS = `
   color: #d9534f !important;
 }
 
-/* 书架卡片上的移除按钮 */
+/* 书架卡片移除：封面右上角的圆形 ×，默认半透明，
+   悬停才明显 —— 不占版面、不打断卡片信息流。 */
+.book-card { position: relative; }
 .shelf-remove {
-  display: block;
-  width: 100%;
-  margin-bottom: 0.3rem;
-  padding: 0.16rem 0.3rem;
-  border: 1px dashed var(--lightgray);
-  border-radius: 5px;
-  background: none;
-  color: var(--gray) !important;
-  font-family: var(--bodyFont);
-  font-size: 0.64rem !important;
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  z-index: 3;
+  width: 1.35rem;
+  height: 1.35rem;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff !important;
+  font-size: 0.95rem !important;
+  line-height: 1;
   cursor: pointer;
-  transition: all 0.15s;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s;
 }
-.shelf-remove:hover {
-  border-color: #d9534f;
-  border-style: solid;
-  color: #d9534f !important;
-}
-.shelf-remove:disabled { opacity: 0.5; cursor: default; }
+.book-card:hover .shelf-remove { opacity: 0.75; }
+.shelf-remove:hover { opacity: 1 !important; background: #d9534f; }
+.shelf-remove:disabled { opacity: 0.4; cursor: default; }
 
 /* 进度条 */
 .lc-prog {
@@ -335,9 +338,25 @@ function renderCell(it, kind, prefix) {
   const did = it.douban_id || ""
   const itemKey = did ? `${kind}:${did}` : ""
 
+  // data-cover 必须带 ../ 前缀：不带的话插到书架里 img src 是
+  // attachments/... 而页面在 /观影库/，路径少一层 → 全部裂图。
+  // data-meta 把卡片要展示的元信息一起带上，书架卡才能渲染得和笔记卡一致。
+  const meta = {
+    score: it.score || "",
+    types: it.types || [],
+    regions: it.regions || [],
+    actors: it.actors || [],
+    author: it.author || "",
+    year: it.year || "",
+    duration: it.duration || "",
+    weread: it.weread || "",
+    playable: Boolean(it.playable),
+  }
+
   const markBtn = itemKey
     ? `<button class="lc-mark" data-item="${itemKey}" data-kind="${kind}"
-         data-title="${name}" data-cover="${esc(local)}" data-url="${url}">+ 标记</button>`
+         data-title="${name}" data-cover="${esc(prefix + local)}" data-url="${url}"
+         data-meta="${esc(JSON.stringify(meta))}">+ 标记</button>`
     : ""
 
   // 标记按钮放封面之上：放在下方时每张卡片高度不一，整排参差不齐；
@@ -577,6 +596,61 @@ const RUNTIME = `
   }
 
   // 标记变化后，把这张卡同步进顶部书架
+  // 书架卡片的 HTML：结构和笔记卡片一致（封面 + 标题 + 作者/评分 + 信息行 + 进度），
+  // 否则新标记的卡片只有标题和状态，和已有笔记卡长得完全不一样（用户截图反馈）。
+  function shelfCardHtml(btn, tab){
+    var kind = btn.getAttribute('data-kind');
+    var title = btn.getAttribute('data-title') || '';
+    var cover = btn.getAttribute('data-cover') || '';
+    var url = btn.getAttribute('data-url') || '#';
+    var itemKey = btn.getAttribute('data-item');
+
+    var meta = {};
+    try { meta = JSON.parse(btn.getAttribute('data-meta') || '{}'); } catch (e) {}
+
+    var coverHtml = cover
+      ? '<img class="book-cover" src="' + cover + '" alt="" loading="lazy">'
+      : '<div class="book-cover book-cover-empty">无封面</div>';
+
+    // 副标题：书用作者，影视用 评分 · 类型 · 地区
+    var sub = '';
+    if (kind === 'book') {
+      sub = meta.author || '';
+    } else {
+      var bits = [];
+      if (meta.score) bits.push('★' + meta.score);
+      if (meta.types && meta.types.length) bits.push(meta.types[0]);
+      if (meta.regions && meta.regions.length) bits.push(meta.regions[0]);
+      sub = bits.join(' · ');
+    }
+
+    // 信息行：顺序和笔记卡完全一致（同一套字段名），缺失的自动跳过。
+    // 用户要求「统一显示一样的字段」，所以这里不能各写一套。
+    var rows = [];
+    function row(label, val){
+      if (val) rows.push('<div class="info-row"><span class="label">' + label + ':</span><span>' + val + '</span></div>');
+    }
+    function joinArr(a){ return (a && a.length) ? a.join(' / ') : ''; }
+
+    row('年份', meta.year);
+    row('评分', meta.score);
+    if (kind === 'book') {
+      row('作者', meta.author);
+    } else {
+      row('类型', joinArr(meta.types));
+      row('地区', joinArr(meta.regions));
+    }
+    row('状态', tab);
+
+    var infoHtml = rows.length ? '<div class="book-info">' + rows.join('') + '</div>' : '';
+
+    return '<button class="shelf-remove" data-item="' + itemKey + '" title="从书架移除" aria-label="移除">×</button>' +
+      '<a class="book-cover-link" href="' + url + '" target="_blank" rel="noopener">' + coverHtml + '</a>' +
+      '<h3 class="book-title">' + title + '</h3>' +
+      (sub ? '<div class="book-subtitle">' + sub + '</div>' : '') +
+      infoHtml;
+  }
+
   function syncToShelf(btn, status){
     var kind = btn.getAttribute('data-kind');
     var grid = bookGridFor(kind);
@@ -597,21 +671,9 @@ const RUNTIME = `
     cell.setAttribute('data-status', tab);
     cell.setAttribute('data-shelf-item', itemKey);
     cell.setAttribute('data-item', itemKey);
+    cell.innerHTML = shelfCardHtml(btn, tab);
 
-    var coverSrc = btn.getAttribute('data-cover') || '';
-    var coverHtml = coverSrc
-      ? '<img class="book-cover" src="' + coverSrc + '" alt="" loading="lazy">'
-      : '<div class="book-cover book-cover-empty">无封面</div>';
-
-    cell.innerHTML =
-      '<button class="shelf-remove" data-item="' + itemKey + '" title="从书架移除">× 移除</button>' +
-      '<a class="book-cover-link" href="' + (btn.getAttribute('data-url') || '#') + '" target="_blank" rel="noopener">' +
-        coverHtml +
-      '</a>' +
-      '<h3 class="book-title">' + (btn.getAttribute('data-title') || '') + '</h3>' +
-      '<div class="book-meta"><span class="book-badge">' + tab + '</span></div>';
-
-    // 移除按钮：删除这条标记，同时把榜单里对应卡片的按钮复位
+    // 移除：点角落的 ×
     cell.querySelector('.shelf-remove').addEventListener('click', async function(ev){
       ev.preventDefault();
       ev.stopPropagation();
@@ -623,7 +685,6 @@ const RUNTIME = `
         });
         if (r.ok) {
           cell.remove();
-          // 榜单上的标记按钮复位
           document.querySelectorAll('.lc-mark[data-item="' + itemKey + '"]').forEach(function(b){
             paint(b, null, 0);
           });
@@ -671,16 +732,60 @@ const RUNTIME = `
             syncToShelf(btn, it.status);
           }
         });
+
+        // 点亮笔记卡上的移除按钮：只显示用户真的标记过的那些
+        document.querySelectorAll('.book-grid .shelf-remove').forEach(function(rm){
+          var key = rm.getAttribute('data-item');
+          if (!key) return;
+          if (map[key]) rm.style.display = '';
+        });
       } catch (e) { /* 未登录静默 */ }
     }
   }
 
   // 首次加载必须显式调用：'nav' 只在 Quartz 的 SPA 导航时触发，
   // 直接打开页面不会触发，之前漏了这行导致标记按钮完全没绑定。
+  // 笔记卡上的移除按钮：只在用户标记过这条时显示。
+  // 笔记卡是静态渲染的（inject_library 生成），不知道用户标了什么，
+  // 所以先全部隐藏，hydrate 拿到已标记列表后再逐个点亮。
+  function bindShelfRemoves(){
+    document.querySelectorAll('.book-grid .shelf-remove').forEach(function(btn){
+      btn.style.display = 'none';   // 默认隐藏，等 hydrate 决定
+      if (btn.dataset.rmBound) return;
+      btn.dataset.rmBound = '1';
+
+      btn.addEventListener('click', async function(ev){
+        ev.preventDefault();
+        ev.stopPropagation();
+        var key = btn.getAttribute('data-item');
+        btn.disabled = true;
+        try {
+          var r = await fetch('/api/collections?itemKey=' + encodeURIComponent(key), {
+            method: 'DELETE', credentials: 'same-origin'
+          });
+          if (r.ok) {
+            var card = btn.closest('.book-card');
+            if (card) card.remove();
+            document.querySelectorAll('.lc-mark[data-item="' + key + '"]').forEach(function(b){
+              paint(b, null, 0);
+            });
+          } else {
+            alert('移除失败，请先登录');
+            btn.disabled = false;
+          }
+        } catch (e) {
+          alert('移除失败：' + e);
+          btn.disabled = false;
+        }
+      });
+    });
+  }
+
   function init(){
     bind();
-    bindMarks();      // 标记按钮的点击处理（之前删「我的」面板时误删了）
-    hydrateMarks();   // 回填用户已有的标记状态
+    bindMarks();
+    bindShelfRemoves();
+    hydrateMarks();
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);

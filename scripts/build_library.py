@@ -48,7 +48,12 @@ KINDS: dict[str, dict] = {
         },
         "default_status": "在读",
         # 卡片上的信息行：(标签, frontmatter 字段)
+        # 字段顺序和榜单卡（inject_charts 的 infoOrder）保持一致，
+        # 两边都按同一套顺序渲染，缺失的自动跳过。
         "info_fields": [
+            ("年份", "year"),
+            ("评分", "rating"),
+            ("作者", "author"),
             ("页数", "pages"),
             ("开始", "started"),
             ("读完", "finished"),
@@ -73,6 +78,9 @@ KINDS: dict[str, dict] = {
         "default_status": "在看",
         "info_fields": [
             ("年份", "year"),
+            ("评分", "rating"),
+            ("类型", "types"),
+            ("地区", "regions"),
             ("导演", "director"),
             ("片长", "duration"),
             ("集数", "episodes"),
@@ -225,6 +233,15 @@ def normalize_status(raw: str, cfg: dict) -> str:
     return cfg["status_map"].get(r, cfg["default_status"] if not r else r)
 
 
+def _douban_id(url: str) -> str:
+    """从豆瓣链接里取 subject id。
+
+    https://book.douban.com/subject/26832406/ → 26832406
+    """
+    m = re.search(r"subject/(\d+)", url or "")
+    return m.group(1) if m else ""
+
+
 def stars_from_rating(rating: str) -> str:
     """豆瓣 10 分制 → 5 星（保留半星）。"""
     try:
@@ -279,6 +296,9 @@ def collect(kind: str, dry_run: bool = False) -> list[dict]:
             "status": normalize_status(fm.get("status", ""), cfg),
             "progress": fm.get("progress", ""),
             "douban": fm.get("douban", ""),
+            # 从豆瓣链接里提取 id，给站内标记用（item_key = kind:id）。
+            # 笔记卡也要能标记/移除，所以榜单卡和笔记卡都要有 douban_id。
+            "douban_id": _douban_id(fm.get("douban") or fm.get("source_url") or ""),
             # 数据源链接：缩略图点击跳到这本书/这部电影的原始页面。
             # 优先用笔记里显式写的 source_url，其次 douban / openlibrary / tvmaze。
             "source_url": (

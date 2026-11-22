@@ -28,6 +28,7 @@ const CSS = `
 .mm-wrap:fullscreen{border-radius:0;border:none;background:var(--light)}
 .mm-wrap:fullscreen .mm-canvas{height:100vh}
 .mm-hint{padding:.35rem .7rem .5rem;font-size:.7rem;color:var(--gray);border-top:1px solid var(--lightgray)}
+.mm-export-hint{position:absolute;left:50%;bottom:3.2rem;transform:translateX(-50%);padding:.4rem .8rem;border-radius:6px;background:rgba(0,0,0,.8);color:#fff;font-size:.76rem;z-index:20;pointer-events:none}
 /* 信息图灯箱 */
 .nlm-zoomable{cursor:zoom-in;transition:opacity .15s}
 .nlm-zoomable:hover{opacity:.92}
@@ -39,16 +40,19 @@ const CSS = `
 
 const RUNTIME = `
 (function(){
-  var bootTries = 0;
-
   function boot(){
     // markmap 通过 <script defer> 加载，执行顺序不保证。
     // 之前直接 return 就再也不重试了 —— 网速慢或 SPA 切换时
-    // 思维导图空白，必须手动刷新。这里改成轮询等待，最多等 6 秒。
+    // 思维导图空白，必须手动刷新。这里改成轮询等待。
+    //
+    // 注意 bootTries 必须每次从 0 开始：之前写成全局变量，
+    // 首次加载用掉配额后，SPA 切到别的笔记就再也不重试了。
     if (!window.markmap || !window.markmap.Markmap) {
-      if (bootTries++ < 40) setTimeout(boot, 150);
+      boot._tries = (boot._tries || 0) + 1;
+      if (boot._tries < 60) setTimeout(boot, 120);
       return;
     }
+    boot._tries = 0;
     document.querySelectorAll('.mm-wrap[data-mm]').forEach(function(wrap){
       if (wrap.dataset.mmBound === '1') return;
       wrap.dataset.mmBound = '1';
@@ -161,16 +165,31 @@ const RUNTIME = `
         clone.insertBefore(bgRect, clone.firstChild);
 
         var data = new XMLSerializer().serializeToString(clone);
-        var blob = new Blob(['<?xml version="1.0" encoding="UTF-8"?>\\n' + data], { type: 'image/svg+xml;charset=utf-8' });
+        var fname = (wrap.getAttribute('data-mm-title') || 'mindmap') + '.svg';
+
+        // 用 Blob + objectURL 下载。之前出现「能看到图但不下载」，
+        // 是因为有些浏览器把 image/svg+xml 当图片直接打开而不是下载。
+        // 这里显式设 download，并在失败时退到新窗口 + 提示右键保存。
+        var blob = new Blob([data], { type: 'application/octet-stream' });
         var objUrl = URL.createObjectURL(blob);
         var a = document.createElement('a');
         a.href = objUrl;
-        a.download = (wrap.getAttribute('data-mm-title') || 'mindmap') + '.svg';
+        a.download = fname;
+        a.style.display = 'none';
         document.body.appendChild(a);
         a.click();
-        document.body.removeChild(a);
-        // 立刻 revoke 会让下载静默失败，延迟释放
-        setTimeout(function(){ URL.revokeObjectURL(objUrl); }, 5000);
+
+        // 延迟清理，并给用户一个可见的反馈（否则不知道有没有成功）
+        setTimeout(function(){
+          document.body.removeChild(a);
+          URL.revokeObjectURL(objUrl);
+        }, 4000);
+
+        var hint = document.createElement('div');
+        hint.className = 'mm-export-hint';
+        hint.textContent = '已导出 ' + fname + '（若未开始下载，请检查浏览器下载设置）';
+        wrap.appendChild(hint);
+        setTimeout(function(){ hint.remove(); }, 4000);
       }
 
       wrap.querySelectorAll('[data-mm-act]').forEach(function(btn){

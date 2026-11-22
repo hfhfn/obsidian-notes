@@ -26,7 +26,8 @@ const KINDS = {
       { key: "全部", label: "全部" },
     ],
     // 卡片上的信息行顺序（与 build_library.py 的 info_fields 对应）
-    infoOrder: ["页数", "开始", "读完"],
+    // 字段统一：豆瓣榜单卡和笔记卡共用同一套顺序，缺失的自动跳过
+    infoOrder: ["年份", "评分", "作者", "开始", "读完"],
     perPage: 20,
   },
   movie: {
@@ -40,7 +41,7 @@ const KINDS = {
       { key: "弃剧", label: "弃剧" },
       { key: "全部", label: "全部" },
     ],
-    infoOrder: ["年份", "导演", "片长", "集数", "开始", "看完"],
+    infoOrder: ["年份", "评分", "类型", "地区", "导演", "片长", "集数", "开始", "看完"],
     perPage: 20,
   },
   video: {
@@ -193,7 +194,7 @@ function noteHref(item, depth) {
   return up + [...parts, last].map(encodeURIComponent).join("/")
 }
 
-function renderCard(item, cfg, depth) {
+function renderCard(item, cfg, depth, kind) {
   const cover = coverSrc(item, depth)
   const href = noteHref(item, depth)
   const hasNote = Boolean(item.slug)
@@ -306,8 +307,15 @@ function renderCard(item, cfg, depth) {
       ${progress}
       ${sourceLink}`
 
+  // 笔记卡也能移除：有 douban_id 就带 data-item，
+  // 由前端在「已标记」时显示右上角 ×（和榜单卡同一套样式）。
+  const itemKey = item.douban_id ? `${kind}:${item.douban_id}` : ""
+
   return `
-    <div class="book-card${hasNote ? " has-note" : ""}${wide ? " book-card-wide" : ""}" data-status="${esc(item.status)}">
+    <div class="book-card${hasNote ? " has-note" : ""}${wide ? " book-card-wide" : ""}"
+         data-status="${esc(item.status)}"
+         ${itemKey ? `data-item="${esc(itemKey)}"` : ""}>
+      ${itemKey ? `<button class="shelf-remove" data-item="${esc(itemKey)}" title="从书架移除" aria-label="移除">×</button>` : ""}
       ${cardBody}
     </div>`
 }
@@ -401,7 +409,7 @@ export function injectKind(distDir, kind) {
   // 页面在 dist/<目录>/index.html。目录可能是 探索/藏书馆 这样的多层，
   // 所以层数要按 cfg.dir 里的路径段数算，不能硬编码。
   const depth = cfg.dir.split("/").length
-  const cards = items.map((it) => renderCard(it, cfg, depth)).join("")
+  const cards = items.map((it) => renderCard(it, cfg, depth, kind)).join("")
   const tabs = renderTabs(cfg, "全部")
 
   const perPage = cfg.perPage || 20

@@ -105,11 +105,16 @@ def fetch_douban_movies(limit=20):
             if _mm:
                 _mid = _mm.group(1)
 
+            # release_date 形如 "2026-08-28"，取年份给卡片显示
+            _rel = m.get("release_date") or ""
+            _year = _rel[:4] if len(_rel) >= 4 else ""
+
             items.append(
                 {
                     "title": m.get("title", "").strip(),
                     "url": _url,
                     "douban_id": _mid,
+                    "year": _year,
                     "cover": m.get("cover_url", ""),
                     "score": m.get("score", ""),
                     "votes": m.get("vote_count", 0),
