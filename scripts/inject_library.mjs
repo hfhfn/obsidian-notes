@@ -167,9 +167,45 @@ const FILTER_JS = `
       state[kind].page = render(tabs, grid, pager, curKey, 1);
     });
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setup);
-  else setup();
-  document.addEventListener('nav', setup);
+  // 三层保障：Quartz SPA 导航时目标页面的内联脚本不执行，
+  // 所以这段 JS 必须全站注入（见 injectFilterEverywhere）。
+  var moT = null;
+  var lastAt = 0;
+  function needs(){
+    var tabs = document.querySelectorAll('.library-tabs');
+    for (var i = 0; i < tabs.length; i++) {
+      if (tabs[i].dataset.bound !== '1') return true;
+    }
+    return false;
+  }
+  function safe(){
+    var now = Date.now();
+    if (now - lastAt < 200) return;
+    lastAt = now;
+    try { setup(); } catch (e) { console.error('[library] setup failed', e); }
+  }
+  function watch(){
+    if (window.__libMO) return;
+    window.__libMO = new MutationObserver(function(){
+      clearTimeout(moT);
+      moT = setTimeout(function(){ if (needs()) safe(); }, 150);
+    });
+    window.__libMO.observe(document.body, { childList: true, subtree: true });
+  }
+  function boot(){
+    safe(); watch();
+    setTimeout(function(){ if (needs()) safe(); }, 150);
+    setTimeout(function(){ if (needs()) safe(); }, 600);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+  document.addEventListener('nav', boot);
+  window.addEventListener('popstate', boot);
+  (function poll(n){
+    if (n <= 0) return;
+    if (needs()) safe();
+    setTimeout(function(){ poll(n - 1); }, 800);
+  })(12);
 })();
 `
 
@@ -441,7 +477,6 @@ export function injectKind(distDir, kind) {
       <span class="lib-pinfo">第 1 页</span>
       <button class="lib-pbtn" data-next>下一页 →</button>
     </div>
-    <script>${FILTER_JS}</script>
   `
 
   let html = fs.readFileSync(pagePath, "utf-8")
@@ -492,11 +527,48 @@ export function injectKind(distDir, kind) {
 }
 
 /** 注入所有类别。 */
+const FILTER_MARKER = "/* library-filter */";
+
+/**
+ * 把 FILTER_JS 注入站内所有页面。
+ *
+ * Quartz 是 SPA：从首页/笔记点进藏书馆时只替换 body，目标页面的
+ * <script> 不会重新执行。之前 FILTER_JS 只内联在藏书馆/观影库两个
+ * 页面里 —— 从别处点进来时标签切换（想读/在读/已读）全部没反应，
+ * 必须手动刷新。
+ */
+function injectFilterEverywhere(distDir) {
+  let touched = 0
+  const walk = (dir) => {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, e.name)
+      if (e.isDirectory()) {
+        if (e.name === "vendor" || e.name === "static") continue
+        walk(full)
+      } else if (e.name.endsWith(".html")) {
+        let h = fs.readFileSync(full, "utf-8")
+        if (h.includes(FILTER_MARKER)) continue
+        if (!h.includes("</body>")) continue
+        h = h.replace(
+          "</body>",
+          `<script>${FILTER_MARKER}\n${FILTER_JS}</script></body>`,
+        )
+        fs.writeFileSync(full, h)
+        touched++
+      }
+    }
+  }
+  walk(distDir)
+  return touched
+}
+
 export function injectLibrary(distDir) {
   let total = 0
   for (const kind of Object.keys(KINDS)) {
     total += injectKind(distDir, kind)
   }
+  const touched = injectFilterEverywhere(distDir)
+  console.log(`[library] filter 注入 ${touched} 个页面`)
   return total
 }
 

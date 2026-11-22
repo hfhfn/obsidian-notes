@@ -565,17 +565,23 @@ const RUNTIME = `
     });
   }
   // ---- 站内标记 ----
+  //
+  // 两套文案必须严格对应 inject_library.mjs 里 KINDS[*].tabs 的 key，
+  // 否则卡片 data-status 和标签 data-target 匹配不上，标记完不会出现在
+  // 对应标签页（用户反馈「观影库想看没出现在想看标签」就是这个问题：
+  // 原来 done 写「看过」，而标签 key 是「已看」）。
   var LABELS = {
-    book:  { wish: '想读', doing: '在读', done: '读过' },
-    movie: { wish: '想看', doing: '在看', done: '看过' }
+    book:  { wish: '想读', doing: '在读', done: '已读' },
+    movie: { wish: '想看', doing: '在看', done: '已看' }
   };
 
   function paint(btn, status, progress){
     var kind = btn.getAttribute('data-kind');
     var lb = LABELS[kind] || LABELS.book;
     if (status) {
-      btn.setAttribute('data-status', status);
-      btn.textContent = (status === 'done' ? '✓ ' : '● ') + lb[status];
+      // data-status 存中文标签 key —— 和 .library-tabs 的 data-target 一致
+      btn.setAttribute('data-status', lb[status] || status);
+      btn.textContent = (status === 'done' ? '✓ ' : '● ') + (lb[status] || status);
       if (progress > 0 && progress < 100) btn.textContent += ' ' + progress + '%';
     } else {
       btn.removeAttribute('data-status');
@@ -587,7 +593,12 @@ const RUNTIME = `
     var kind = btn.getAttribute('data-kind');
     var lb = LABELS[kind] || LABELS.book;
     var order = ['wish', 'doing', 'done'];
-    var cur = btn.getAttribute('data-status');
+    // data-status 现在是中文标签（如「想看」），要反查成英文 key
+    var curLabel = btn.getAttribute('data-status');
+    var cur = null;
+    for (var k in lb) {
+      if (lb[k] === curLabel) { cur = k; break; }
+    }
     var idx = order.indexOf(cur);
     // 未标记 → wish → doing → done → 移除
     if (idx === -1) return { status: 'wish', progress: 0 };
@@ -710,7 +721,14 @@ const RUNTIME = `
   // ---- 标记联动顶部书架 ----
   // 页面顶部那排（在读/已读/想读/全部）就是「我的」书架，
   // 标记后把卡片插进对应分区，用户切过去就能看到，不用另开标签。
-  var STATUS_TO_TAB = { wish: '想读', doing: '在读', done: '已读' };
+  // 状态 → 标签文案，必须按 kind 分开。
+  // 之前只有一套书籍文案，电影也套用它 —— 电影标记后 data-status 写成
+  // 「想读」，而观影库标签是「想看」，永远匹配不上，标记完不出现。
+  var STATUS_TO_TAB = {
+    book:  { wish: '想读', doing: '在读', done: '已读' },
+    movie: { wish: '想看', doing: '在看', done: '已看' },
+  };
+  var STATUS_TO_TAB_VIDEO = { wish: '待整理', doing: '整理中', done: '已整理' };
 
   function bookGridFor(kind){
     // 页面上可能有多个 book-grid，取属于本库的那个
@@ -791,7 +809,8 @@ const RUNTIME = `
     if (!grid) return;
 
     var itemKey = btn.getAttribute('data-item');
-    var tab = STATUS_TO_TAB[status] || '想读';
+    var map = STATUS_TO_TAB[kind] || STATUS_TO_TAB.book;
+    var tab = map[status] || map.wish;
 
     // 先移除这个条目在书架里的旧卡（可能改过状态）
     grid.querySelectorAll('[data-shelf-item]').forEach(function(el){
