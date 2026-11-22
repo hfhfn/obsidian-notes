@@ -16,7 +16,12 @@ created: "2026-04-02"
 
 ## 产物
 
-- **演示文稿**：[下载 PDF](https://pdf.hfhfn.dpdns.org/notebooklm/claude%20code%E6%B3%84%E9%9C%B2%E8%A7%A3%E8%AF%BB/slide-deck.pdf)
+### 演示文稿
+
+<iframe src="https://pdf.hfhfn.dpdns.org/notebooklm/claude%20code%E6%B3%84%E9%9C%B2%E8%A7%A3%E8%AF%BB/slide-deck.pdf#view=FitH" class="nlm-slides" title="演示文稿" loading="lazy"></iframe>
+
+<sub>[全屏打开](https://pdf.hfhfn.dpdns.org/notebooklm/claude%20code%E6%B3%84%E9%9C%B2%E8%A7%A3%E8%AF%BB/slide-deck.pdf)</sub>
+
 
 ## 摘要
 

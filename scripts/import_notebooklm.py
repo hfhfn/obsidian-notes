@@ -193,8 +193,13 @@ def render_mindmap(json_path):
     用 <details>/<summary> 而不是自己写 JS：原生可折叠、无依赖、
     打印和搜索都能用。默认展开两层，避免 39 个专题全展开太长。
     """
+    # v["path"] 是相对 MODULE_DIR 的路径（如 _assets/<名>/mind-map.json），
+    # 直接 Path() 会相对进程 cwd，读不到文件。
+    p = Path(json_path)
+    if not p.is_absolute():
+        p = MODULE_DIR / p
     try:
-        data = json.loads(Path(json_path).read_text(encoding="utf-8"))
+        data = json.loads(p.read_text(encoding="utf-8"))
     except Exception:
         return ""
 

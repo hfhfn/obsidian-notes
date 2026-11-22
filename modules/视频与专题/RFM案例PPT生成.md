@@ -16,7 +16,12 @@ created: "2026-03-14"
 
 ## 产物
 
-- **演示文稿**：[下载 PDF](https://pdf.hfhfn.dpdns.org/notebooklm/RFM%E6%A1%88%E4%BE%8BPPT%E7%94%9F%E6%88%90/slide-deck.pdf)
+### 演示文稿
+
+<iframe src="https://pdf.hfhfn.dpdns.org/notebooklm/RFM%E6%A1%88%E4%BE%8BPPT%E7%94%9F%E6%88%90/slide-deck.pdf#view=FitH" class="nlm-slides" title="演示文稿" loading="lazy"></iframe>
+
+<sub>[全屏打开](https://pdf.hfhfn.dpdns.org/notebooklm/RFM%E6%A1%88%E4%BE%8BPPT%E7%94%9F%E6%88%90/slide-deck.pdf)</sub>
+
 
 ## 摘要
 

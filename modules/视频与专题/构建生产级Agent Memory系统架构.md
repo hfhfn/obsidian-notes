@@ -16,7 +16,12 @@ created: "2026-05-01"
 
 ## 产物
 
-- **演示文稿**：[下载 PDF](https://pdf.hfhfn.dpdns.org/notebooklm/%E6%9E%84%E5%BB%BA%E7%94%9F%E4%BA%A7%E7%BA%A7Agent%20Memory%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/slide-deck.pdf)
+### 演示文稿
+
+<iframe src="https://pdf.hfhfn.dpdns.org/notebooklm/%E6%9E%84%E5%BB%BA%E7%94%9F%E4%BA%A7%E7%BA%A7Agent%20Memory%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/slide-deck.pdf#view=FitH" class="nlm-slides" title="演示文稿" loading="lazy"></iframe>
+
+<sub>[全屏打开](https://pdf.hfhfn.dpdns.org/notebooklm/%E6%9E%84%E5%BB%BA%E7%94%9F%E4%BA%A7%E7%BA%A7Agent%20Memory%E7%B3%BB%E7%BB%9F%E6%9E%B6%E6%9E%84/slide-deck.pdf)</sub>
+
 
 ## 摘要
 

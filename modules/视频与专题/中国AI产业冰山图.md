@@ -17,10 +17,20 @@ created: "2026-01-13"
 
 ## 产物
 
-- **信息图**：
+### 信息图
 
-  ![信息图](_assets/中国AI产业冰山图/infographic.webp)
-- **演示文稿**：[下载 PDF](https://pdf.hfhfn.dpdns.org/notebooklm/%E4%B8%AD%E5%9B%BDAI%E4%BA%A7%E4%B8%9A%E5%86%B0%E5%B1%B1%E5%9B%BE/slide-deck.pdf)
+<a href="_assets/中国AI产业冰山图/infographic.webp" target="_blank" rel="noopener">
+  <img src="_assets/中国AI产业冰山图/infographic.webp" alt="信息图" class="nlm-infographic" loading="lazy">
+</a>
+
+<sub>点图看原图</sub>
+
+### 演示文稿
+
+<iframe src="https://pdf.hfhfn.dpdns.org/notebooklm/%E4%B8%AD%E5%9B%BDAI%E4%BA%A7%E4%B8%9A%E5%86%B0%E5%B1%B1%E5%9B%BE/slide-deck.pdf#view=FitH" class="nlm-slides" title="演示文稿" loading="lazy"></iframe>
+
+<sub>[全屏打开](https://pdf.hfhfn.dpdns.org/notebooklm/%E4%B8%AD%E5%9B%BDAI%E4%BA%A7%E4%B8%9A%E5%86%B0%E5%B1%B1%E5%9B%BE/slide-deck.pdf)</sub>
+
 
 ## 摘要
 
