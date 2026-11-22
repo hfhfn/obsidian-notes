@@ -167,12 +167,36 @@ def process_md(md: Path, content_dir: Path):
         text,
     )
 
-    # 3) 信息图： ![信息图](_assets/x/infographic.webp) → 灯箱版
+    # 3) 信息图： ![信息图](_assets/<dir>/infographic.webp) → 灯箱版
+    #
+    # 路径坑：sync_content 把 _assets 下的图片搬到了
+    #   attachments/modules/视频与专题/_assets/<dir>/
+    # 而 Quartz 渲染时会给路径加 ../ 前缀（页面在 视频与专题/xxx）。
+    # 所以这里必须写成 Quartz 实际输出的位置，不能简单拼 ../。
     def info_sub(m):
         label = m.group(1)
-        rel = m.group(2)
+        rel = m.group(2)          # _assets/<dir>/infographic.webp
+        dirname = rel.split("/")[1]
+
+        # 在 content 目录里找实际文件位置
+        candidates = [
+            content_dir / "attachments" / "modules" / MODULE / "_assets" / dirname,
+            content_dir / MODULE / "_assets" / dirname,
+        ]
+        found = None
+        for c in candidates:
+            if (c / "infographic.webp").exists() or any(c.glob("infographic.*")):
+                found = c
+                break
+        if not found:
+            return m.group(0)
+
+        # Quartz 会把目录名 slug 化，但 attachments 是原样复制的 —— 用原名
+        # 页面在 /视频与专题/<note>，到 attachments 要 ../attachments/...
+        src = f"../attachments/modules/{MODULE}/_assets/{dirname}/infographic.webp"
+
         return (
-            f'<img src="../{rel}" alt="{label}" class="nlm-infographic nlm-zoomable" loading="lazy">\n\n'
+            f'<img src="{src}" alt="{label}" class="nlm-infographic nlm-zoomable" loading="lazy">\n\n'
             "<sub>点图放大 · ESC 或点空白处关闭</sub>"
         )
 

@@ -251,6 +251,46 @@ const CSS = `
 .shelf-remove:hover { opacity: 1 !important; background: #d9534f; }
 .shelf-remove:disabled { opacity: 0.4; cursor: default; }
 
+/* 页内提示条：替代 alert/confirm。
+   alert 会阻塞页面、部分浏览器静默拦截，用户看不到任何反馈。 */
+#site-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 2rem;
+  transform: translateX(-50%) translateY(1rem);
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  max-width: min(90vw, 28rem);
+  padding: 0.7rem 1rem;
+  border-radius: 10px;
+  background: #1f2430;
+  color: #f2f2f4;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.28);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+}
+#site-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }
+#site-toast .t-msg { flex: 1; }
+#site-toast .t-act {
+  flex: none;
+  padding: 0.2rem 0.7rem;
+  border: 1px solid rgba(255,255,255,0.35);
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+#site-toast .t-act:hover { background: rgba(255,255,255,0.14); }
+#site-toast.is-error { background: #7a2e2e; }
+#site-toast.is-ok { background: #1e5f4f; }
+
 /* 视频卡「公开站隐藏」按钮：和 shelf-remove 同位置同形态 */
 .vid-hide {
   position: absolute;
@@ -579,19 +619,21 @@ const RUNTIME = `
             if (ok) {
               paint(btn, null, 0);
               syncToShelf(btn, null);
-            } else alert('移除失败，请先登录');
+            } else toast('移除失败，请先登录', { actionLabel: '去登录', onAction: function(){ location.href = '/login'; }, duration: 8000 });
           } else {
             var res = await save(btn, next.status, next.progress);
             if (res && res.ok) {
               paint(btn, next.status, next.progress);
               syncToShelf(btn, next.status);
             } else if (res && res.error === 'login_required') {
-              // 未登录：明确告诉用户要去登录，而不是静默失败
-              if (confirm('标记需要先登录，现在去登录页？')) {
-                location.href = '/login';
-              }
+              // 未登录：给页内提示 + 可点的「去登录」，不用 confirm 阻塞页面
+              toast('标记需要先登录', {
+                actionLabel: '去登录',
+                onAction: function(){ location.href = '/login'; },
+                duration: 8000
+              });
             } else {
-              alert('标记失败：' + ((res && res.error) || '未知错误'));
+              toast('标记失败：' + ((res && res.error) || '未知错误'), { kind: 'error' });
             }
           }
         } finally {
@@ -741,11 +783,11 @@ const RUNTIME = `
             paint(b, null, 0);
           });
         } else {
-          alert('移除失败，请先登录');
+          toast('移除失败，请先登录', { actionLabel: '去登录', onAction: function(){ location.href = '/login'; }, duration: 8000 });
           rm.disabled = false;
         }
       } catch (e) {
-        alert('移除失败：' + e);
+        toast('移除失败：' + e, { kind: 'error' });
         rm.disabled = false;
       }
     });
@@ -846,14 +888,14 @@ const RUNTIME = `
               paint(b, null, 0);
             });
           } else if (d && d.error === 'login_required') {
-            alert('移除需要先登录');
+            toast('移除需要先登录', { actionLabel: '去登录', onAction: function(){ location.href = '/login'; }, duration: 8000 });
             location.href = '/login';
           } else {
-            alert('移除失败：' + ((d && d.error) || '未知错误'));
+            toast('移除失败：' + ((d && d.error) || '未知错误'), { kind: 'error' });
             btn.disabled = false;
           }
         } catch (e) {
-          alert('移除失败：' + e);
+          toast('移除失败：' + e, { kind: 'error' });
           btn.disabled = false;
         }
       });
@@ -876,11 +918,22 @@ const RUNTIME = `
 
         var nowHidden = btn.getAttribute('data-hidden') === '1';
         var next = !nowHidden;
+        var cardTitle = (btn.closest('.book-card').querySelector('.book-title') || {}).textContent || '';
         var msg = next
-          ? '在公开站隐藏《' + (btn.closest('.book-card').querySelector('.book-title') || {}).textContent + '》？' + String.fromCharCode(10, 10) + '私有站仍会显示。'
-          : '恢复在公开站显示这条笔记？';
-        if (!confirm(msg)) return;
+          ? '在公开站隐藏《' + cardTitle + '》？私有站仍会显示。'
+          : '恢复在公开站显示《' + cardTitle + '》？';
 
+        // 不用 confirm（阻塞页面 + 可能被静默拦截），改成 toast 带确认按钮
+        toast(msg, {
+          actionLabel: next ? '隐藏' : '恢复',
+          duration: 10000,
+          onAction: function(){ applyVisibility(btn, slug, next); }
+        });
+      });
+    });
+  }
+
+  async function applyVisibility(btn, slug, next){
         btn.disabled = true;
         try {
           var r = await fetch('/api/video-visibility', {
@@ -899,20 +952,17 @@ const RUNTIME = `
             var card = btn.closest('.book-card');
             if (card) card.classList.toggle('is-hidden-public', next);
           } else if (d && d.code === 'forbidden') {
-            alert('只有管理员能设置公开/隐藏');
+            toast('只有管理员能设置公开/隐藏', { kind: 'error' });
           } else if (d && d.error === 'login_required') {
-            alert('请先登录（需要管理员账号）');
-            location.href = '/login';
+            toast('请先登录（需要管理员账号）', { actionLabel: '去登录', onAction: function(){ location.href = '/login'; }, duration: 8000 });
           } else {
-            alert('操作失败：' + ((d && d.error) || '未知错误'));
+            toast('操作失败：' + ((d && d.error) || '未知错误'), { kind: 'error' });
           }
         } catch (e) {
-          alert('操作失败：' + e);
+          toast('操作失败：' + e, { kind: 'error' });
         } finally {
           btn.disabled = false;
         }
-      });
-    });
   }
 
   // 页面加载后回填隐藏状态
@@ -936,6 +986,46 @@ const RUNTIME = `
         }
       });
     } catch (e) {}
+  }
+
+  // 页内提示条。替代 alert/confirm —— 原生弹窗会阻塞页面，
+  // 有些浏览器还会静默拦截，用户点了按钮完全看不到反应。
+  function toast(msg, opts){
+    opts = opts || {};
+    var el = document.getElementById('site-toast');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'site-toast';
+      document.body.appendChild(el);
+    }
+    el.className = (opts.kind === 'error' ? 'is-error' : opts.kind === 'ok' ? 'is-ok' : '');
+    el.innerHTML = '';
+
+    var span = document.createElement('span');
+    span.className = 't-msg';
+    span.textContent = msg;
+    el.appendChild(span);
+
+    if (opts.actionLabel && typeof opts.onAction === 'function') {
+      var btn = document.createElement('button');
+      btn.className = 't-act';
+      btn.textContent = opts.actionLabel;
+      btn.onclick = function(){ hide(); opts.onAction(); };
+      el.appendChild(btn);
+    }
+
+    var x = document.createElement('button');
+    x.className = 't-act';
+    x.textContent = '×';
+    x.setAttribute('aria-label', '关闭');
+    x.onclick = hide;
+    el.appendChild(x);
+
+    function hide(){ el.classList.remove('show'); }
+    requestAnimationFrame(function(){ el.classList.add('show'); });
+    clearTimeout(el._timer);
+    el._timer = setTimeout(hide, opts.duration || 5000);
+    return el;
   }
 
   function init(){

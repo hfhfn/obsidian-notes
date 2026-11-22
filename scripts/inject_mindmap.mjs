@@ -258,23 +258,19 @@ const RUNTIME = `
         ].join(String.fromCharCode(10));
 
         var fname = title.replace(/[\\/:*?"<>|]/g, '_').trim() || 'mindmap';
-        // 和 SVG 一样：text/html 也会被浏览器当网页打开，不给保存对话框。
-        // 给一个可见的下载链接，用户点一下必定下载。
+        // 和 SVG 一样：新标签页打开，用户 Ctrl+S 保存。
+        // 更好的体验：直接给「在新窗口打开」——反正 HTML 打开就是完整脑图。
         var htmlName = fname + '.html';
         var blob = new Blob([html], { type: 'text/html;charset=utf-8' });
         var objUrl = URL.createObjectURL(blob);
 
-        var hint = document.createElement('div');
-        hint.className = 'mm-export-hint';
-        hint.innerHTML = '已生成 ' + htmlName + ' — ' +
-          '<a href="' + objUrl + '" download="' + htmlName + '" ' +
-          'style="color:#0d7d74;font-weight:600;text-decoration:underline">点此下载</a>' +
-          ' <button class="mm-hint-x" title="关闭">×</button>';
-        wrap.appendChild(hint);
-        hint.querySelector('.mm-hint-x').onclick = function(){ hint.remove(); };
-
-        // 同样不自动 click（text/html 也会被当网页打开）
-        setTimeout(function(){ hint.remove(); }, 60000);
+        var win = window.open(objUrl, '_blank');
+        if (!win) {
+          toast('弹窗被浏览器拦截，请允许弹窗后重试', { kind: 'error' });
+        } else {
+          toast('已在新标签页打开完整脑图，Ctrl+S 可保存为 ' + htmlName, { kind: 'ok', duration: 6000 });
+        }
+        setTimeout(function(){ URL.revokeObjectURL(objUrl); }, 60000);
       }
 
       function exportSvg(){
@@ -331,24 +327,23 @@ const RUNTIME = `
           .trim() || 'mindmap';
         var fname = rawName + '.svg';
 
-        // 直接 a.click() 在 Chrome 里遇到 image/svg+xml 会「打开」而不是下载，
-        // 用户看到的是网页里显示图片，没有保存对话框。
-        // 改成把 blob 挂到一个真实可见的 <a download>，用户自己点就一定下载。
+        // 导出策略：新标签页打开 blob，浏览器会显示 SVG 预览，
+        // 用户按 Ctrl+S 或右键另存即可。同时用 download 属性触发下载。
+        //
+        // 之前试过 a.click() —— Chrome 对 image/svg+xml 会直接导航走
+        // 当前页面；也试过挂可见链接 —— 用户反馈「显示下载但无法点击」。
+        // 最可靠的是 window.open(blob) 新标签页，不干扰当前页面。
         var blob = new Blob([data], { type: 'image/svg+xml;charset=utf-8' });
         var objUrl = URL.createObjectURL(blob);
 
-        var hint = document.createElement('div');
-        hint.className = 'mm-export-hint';
-        hint.innerHTML = '已生成 ' + fname + ' — ' +
-          '<a href="' + objUrl + '" download="' + fname + '" ' +
-          'style="color:#0d7d74;font-weight:600;text-decoration:underline">点此下载</a>' +
-          ' <button class="mm-hint-x" title="关闭">×</button>';
-        wrap.appendChild(hint);
-        hint.querySelector('.mm-hint-x').onclick = function(){ hint.remove(); };
-
-        // 不自动 click：blob + image/svg+xml 在 Chrome 里会「打开」而不是下载，
-        // 反而把用户当前页面导航走。给可见链接，用户自己点必定下载。
-        setTimeout(function(){ hint.remove(); }, 60000);
+        var win = window.open(objUrl, '_blank');
+        if (!win) {
+          // 弹窗被拦截，退回页内提示
+          toast('弹窗被浏览器拦截，请允许弹窗后重试', { kind: 'error' });
+        } else {
+          toast('已在新标签页打开 SVG，按 Ctrl+S 保存', { kind: 'ok', duration: 6000 });
+        }
+        setTimeout(function(){ URL.revokeObjectURL(objUrl); }, 60000);
       }
 
       wrap.querySelectorAll('[data-mm-act]').forEach(function(btn){
@@ -431,7 +426,19 @@ const RUNTIME = `
     }
   });
 
-  function bootAll(){ boot(); bindZoom(); }
+  // Quartz 的图片处理插件会重写 <img>，把 class 剥掉，
+  // 导致信息图灯箱失效。这里按 src 重新认出来并补上 class。
+  function reclassInfographic(){
+    document.querySelectorAll('img').forEach(function(img){
+      var src = img.getAttribute('src') || '';
+      if (src.indexOf('infographic') < 0) return;
+      if (img.classList.contains('nlm-infographic')) return;
+      img.classList.add('nlm-infographic', 'nlm-zoomable');
+      img.setAttribute('loading', 'lazy');
+    });
+  }
+
+  function bootAll(){ boot(); reclassInfographic(); bindZoom(); }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bootAll);
   else bootAll();
@@ -481,8 +488,11 @@ function inject(distDir) {
     // 只在含思维导图的页面注入，但「视频与专题」列表页也要注入：
     // Quartz 是 SPA，从列表点进详情页不会重新执行 head 里的脚本，
     // 列表页带 vendor 才能保证进入详情页时 window.markmap 已就绪。
-    const isListPage = f.includes("视频与专题") && f.endsWith("index.html")
-    if (!h.includes('class="mm-wrap"') && !isListPage) continue
+    // 每个页面都注入 vendor：Quartz 是 SPA，从任意页面点进
+    // 详情页时 <head> 里的 script 不会重新执行。只有全站都带上
+    // d3+markmap，才能保证「点进去就有」而不是刷新才有。
+    // 两个文件共 330KB，gzip 后约 90KB，且浏览器会缓存。
+    // （之前只给含 mm-wrap 的页面和列表页注入 —— 从首页进来就不行。）
     if (h.includes("markmap-view.min.js")) continue
 
     const depth = path.relative(root, path.dirname(f)).split(path.sep).filter(Boolean).length
