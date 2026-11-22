@@ -295,7 +295,11 @@ def collect(kind: str, dry_run: bool = False) -> list[dict]:
             item["source_url"] = fm.get("source_url", "")
             item["platform"] = fm.get("platform", "")
             item["derived"] = parse_list_field(text, "derived")
-            # 没写 cover 时，按视频 ID 自动取 YouTube/B站 缩略图
+            # 没写 cover 时，优先用 NotebookLM 导出的信息图当封面
+            # （信息图是竖版长图，比 YouTube 缩略图更贴合视频专题的语义）
+            if not item["cover"]:
+                item["cover"] = local_infographic(title)
+            # 再退到 YouTube/B站 缩略图
             if not item["cover"]:
                 item["cover"] = auto_thumb(item["source_url"], item["platform"])
         items.append(item)
@@ -306,6 +310,35 @@ def collect(kind: str, dry_run: bool = False) -> list[dict]:
 
 
 # ---------------------------------------------------------------- 封面
+
+def local_infographic(title: str) -> str:
+    """找 NotebookLM 导出的信息图，作为视频卡片封面。
+
+    文件在 modules/视频与专题/_assets/<笔记本名>/infographic.webp，
+    笔记本名就是笔记 title（可能被 safe_name 改写过标点）。
+    返回站点根相对路径（attachments/...），找不到返回空串。
+    """
+    base = MODULES / "视频与专题" / "_assets"
+    if not base.is_dir():
+        return ""
+
+    # 目录名和 title 可能因 safe_name 有细微差异，用规范化后比较
+    def norm(s: str) -> str:
+        return re.sub(r'[<>:"/\\|?*\s_]+', "", s).lower()
+
+    want = norm(title)
+    for d in base.iterdir():
+        if not d.is_dir() or norm(d.name) != want:
+            continue
+        for ext in (".webp", ".png"):
+            f = d / f"infographic{ext}"
+            if f.exists() and f.stat().st_size > 1024:
+                # Quartz 构建时会把目录名转小写（"中国AI产业冰山图" →
+                # "中国ai产业冰山图"），cover_local 必须跟着转，否则 404。
+                low = d.name.lower()
+                return f"attachments/modules/视频与专题/_assets/{low}/{f.name}"
+    return ""
+
 
 def _cover_urls(url: str) -> list[str]:
     """封面 URL 的候选列表（原图 + 备选尺寸）。
@@ -332,6 +365,13 @@ def download_covers(kind: str, items: list[dict]) -> int:
     ok = 0
     for it in items:
         url = it.get("cover", "")
+
+        # 已经是站内相对路径（NotebookLM 信息图等），直接当封面用，不用下载
+        if url and not url.startswith("http"):
+            it["cover_local"] = url
+            ok += 1
+            continue
+
         if not url.startswith("http"):
             continue
         ext = ".jpg"

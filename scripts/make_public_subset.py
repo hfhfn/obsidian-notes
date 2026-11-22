@@ -202,14 +202,20 @@ def main() -> int:
         else:
             shutil.copy2(src, dst)
 
-    # attachments/charts/ 是榜单封面（由 inject_charts.mjs 注入的 HTML 引用，
-    # md 里没有引用，靠 collect_attachment_refs 会漏掉），整目录复制。
-    charts_src = CONTENT / "attachments" / "charts"
-    if charts_src.is_dir():
-        charts_dst = OUT / "attachments" / "charts"
+    # 以下目录里的资源是被「注入的 HTML」引用的（卡片 cover_local），
+    # md 源文件里没有引用，靠 collect_attachment_refs 会全部漏掉，
+    # 必须整目录复制：
+    #   charts   — 豆瓣榜单封面（inject_charts.mjs）
+    #   modules  — 三个卡片库的本地附件，含 NotebookLM 信息图（inject_library.mjs）
+    for sub in ("charts", "modules"):
+        src = CONTENT / "attachments" / sub
+        if not src.is_dir():
+            continue
+        dst = OUT / "attachments" / sub
         if not args.dry_run:
-            shutil.copytree(charts_src, charts_dst, dirs_exist_ok=True)
-        print(f"[public-subset] charts 封面整目录复制")
+            shutil.copytree(src, dst, dirs_exist_ok=True)
+        n = sum(1 for f in src.rglob("*") if f.is_file())
+        print(f"[public-subset] attachments/{sub} 整目录复制（{n} 个文件）")
 
     # 只复制被公开笔记引用到的附件
     refs = collect_attachment_refs(copied_md)

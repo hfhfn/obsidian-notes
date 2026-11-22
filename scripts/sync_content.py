@@ -970,7 +970,10 @@ class Sync:
                     p = Path(dp) / f
                     if p.suffix.lower() not in (IMAGE_EXTS | {".pdf", ".pptx", ".xmind"}):
                         continue
-                    out_rel = f"attachments/modules/{name}/{p.name}"
+                    # 保留相对子目录：_assets/<笔记本名>/infographic.webp
+                    # 否则 25 张同名 infographic.webp 会互相覆盖只剩 1 张
+                    rel_parent = p.parent.relative_to(dst)
+                    out_rel = f"attachments/modules/{name}/{rel_parent.as_posix()}/{p.name}"
                     dest = CONTENT / out_rel
                     dest.parent.mkdir(parents=True, exist_ok=True)
                     shutil.copy2(p, dest)

@@ -277,7 +277,21 @@ function copyCovers(distDir, items) {
       path.join(distDir, "..", "content-all", rel),
       path.join(distDir, "..", "content-public", rel),
     ]
-    const src = candidates.find((p) => fs.existsSync(p))
+    let src = candidates.find((p) => fs.existsSync(p))
+    // cover_local 里的目录名是小写的（跟着 Quartz 的 slug），
+    // 但源目录保留原始大小写，需要大小写不敏感地找回来。
+    if (!src) {
+      for (const base of candidates) {
+        const dir = path.dirname(base)
+        const want = path.basename(base).toLowerCase()
+        if (!fs.existsSync(dir)) continue
+        const hit = fs.readdirSync(dir).find((n) => n.toLowerCase() === want)
+        if (hit) {
+          src = path.join(dir, hit)
+          break
+        }
+      }
+    }
     if (!src) continue
     fs.mkdirSync(path.dirname(dest), { recursive: true })
     fs.copyFileSync(src, dest)
