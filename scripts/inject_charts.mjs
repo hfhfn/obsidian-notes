@@ -117,8 +117,22 @@ const CSS = `
   text-decoration: none !important;
 }
 .lc-title:hover { color: var(--secondary) !important; }
+/* 星级行：和笔记卡的 book-rating 视觉一致 */
+.lc-rating {
+  margin-top: 0.18rem;
+  font-size: 0.72rem;
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lc-rating .lc-score {
+  color: var(--gray);
+  font-size: 0.68rem;
+  margin-left: 0.15rem;
+}
 .lc-sub {
-  margin-top: 0.12rem;
+  margin-top: 0.1rem;
   color: var(--gray);
   font-size: 0.68rem;
   line-height: 1.4;
@@ -380,29 +394,36 @@ function renderCell(it, kind, prefix) {
     ? `<img class="lc-cover" src="${esc(prefix + local)}" alt="${name}" loading="lazy">`
     : `<div class="lc-cover-empty">无封面</div>`
 
-  // 副标题：评分用 ⭐ 星星串（和笔记卡一致），豆瓣 10 分制 → 5 星。
+  // 星级串：豆瓣 10 分制 → 5 星（和笔记卡 book-rating 一致）
   const starStr = (score) => {
     const s = parseFloat(score)
     if (!s || isNaN(s)) return ""
     const n = Math.round(s / 2)
-    return "⭐".repeat(Math.max(1, Math.min(5, n)))
+    const full = "⭐".repeat(Math.max(1, Math.min(5, n)))
+    return full
   }
 
-  let sub = ""
+  // 榜单卡统一两行：
+  //   第 1 行 rating —— ⭐⭐⭐⭐⭐ 9.7（有评分才有）
+  //   第 2 行 meta   —— 作者 / 类型 · 地区 · 年份（缺失自动跳过）
+  // 之前全挤在一行，书籍和影视字段顺序还不一致，看起来乱。
+  const ratingBits = []
+  if (it.score) ratingBits.push(`${starStr(it.score)} <span class="lc-score">${esc(it.score)}</span>`)
+
+  const metaBits = []
   if (kind === "book") {
-    const bits = []
-    if (it.author) bits.push(esc(it.author))
-    if (it.score) bits.push(`${starStr(it.score)} ${it.score}`)
-    if (it.year) bits.push(esc(it.year))
-    sub = bits.join(" · ")
+    if (it.author) metaBits.push(esc(it.author))
   } else {
-    const bits = []
-    if (it.score) bits.push(`${starStr(it.score)} ${it.score}`)
-    if (it.types && it.types.length) bits.push(esc(it.types[0]))
-    if (it.regions && it.regions.length) bits.push(esc(it.regions[0]))
-    if (it.year) bits.push(esc(it.year))
-    sub = bits.join(" · ")
+    // 豆瓣第一个类型几乎都是「剧情」，信息量低 —— 取前两个
+    if (it.types && it.types.length) {
+      metaBits.push(esc(it.types.slice(0, 2).join(" / ")))
+    }
+    if (it.regions && it.regions.length) metaBits.push(esc(it.regions[0]))
   }
+  if (it.year) metaBits.push(esc(it.year))
+
+  const rating = ratingBits.join(" ")
+  const sub = metaBits.join(" · ")
 
   let links = `<a class="lc-link" href="${url}" target="_blank" rel="noopener">豆瓣</a>`
   if (kind === "book") {
@@ -446,6 +467,7 @@ function renderCell(it, kind, prefix) {
       ${markBtn}
       <a class="lc-cover-link" href="${url}" target="_blank" rel="noopener">${cover}</a>
       <a class="lc-title" href="${url}" target="_blank" rel="noopener">${name}</a>
+      ${rating ? `<div class="lc-rating">${rating}</div>` : ""}
       ${sub ? `<div class="lc-sub">${sub}</div>` : ""}
       <div class="lc-links">${links}</div>
     </div>`
@@ -1095,11 +1117,21 @@ const RUNTIME = `
   var moTimer = null;
   var lastInitAt = 0;
 
+  // 检查是否有任何「未绑定」的交互元素。
+  // 之前只检查 .lc-mark —— 视频列表页（私有站）只有 .vid-hide
+  // 没有标记按钮，导致 init() 永远不触发，可见按钮点了没反应。
   function needsInit(){
-    var marks = document.querySelectorAll('.lc-mark');
-    if (!marks.length) return false;
-    for (var i = 0; i < marks.length; i++) {
-      if (!marks[i].dataset.mkBound) return true;
+    var sels = [
+      ['.lc-mark', 'mkBound'],
+      ['.shelf-remove', 'rmBound'],
+      ['.vid-hide', 'hideBound'],
+    ];
+    for (var s = 0; s < sels.length; s++) {
+      var nodes = document.querySelectorAll(sels[s][0]);
+      var attr = sels[s][1];
+      for (var i = 0; i < nodes.length; i++) {
+        if (!nodes[i].dataset[attr]) return true;
+      }
     }
     return false;
   }

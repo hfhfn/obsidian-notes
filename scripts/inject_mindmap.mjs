@@ -422,8 +422,9 @@ const RUNTIME = `
   //  2. <a> 挂到 document 上，click() 在用户手势同步栈里执行。
   //  3. URL 延迟回收，否则下载还没开始就被撤销。
   function downloadBlob(blob, filename){
-    var dlBlob = new Blob([blob], { type: 'application/octet-stream' });
-    var url = URL.createObjectURL(dlBlob);
+    // 不要重新包一层 Blob —— 套嵌后部分浏览器会丢掉类型信息，
+    // 保存出来的文件名缺少后缀（用户反馈「保存名称不带 html/svg」）。
+    var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
     a.href = url;
     a.download = filename;
