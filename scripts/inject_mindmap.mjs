@@ -88,6 +88,27 @@ const RUNTIME = `
       if (!wrap.getAttribute('data-mm-uid')) {
         wrap.setAttribute('data-mm-uid', 'mm' + Math.random().toString(36).slice(2, 9));
       }
+      // 站点上加一个「新窗口打开完整脑图」按钮：
+      // 指向 /vendor/mindmap/<slug>.html（构建时从 vault 复制过来的
+      // 自包含离线版，双击就能拖能折叠）。
+      if (!wrap.querySelector('[data-mm-act="open"]')) {
+        var slug = (wrap.getAttribute('data-mm-slug') || '').trim();
+        if (slug) {
+          var bar = wrap.querySelector('.mm-toolbar');
+          if (bar) {
+            var ob = document.createElement('a');
+            ob.setAttribute('data-mm-act', 'open');
+            ob.href = '/vendor/mindmap/' + slug + '.html';
+            ob.target = '_blank';
+            ob.rel = 'noopener';
+            ob.textContent = '新窗口';
+            ob.title = '在新窗口打开完整脑图（可拖动折叠）';
+            ob.style.cssText = 'text-decoration:none;padding:.22rem .6rem;border:1px solid var(--lightgray);border-radius:5px;font-size:.78rem;color:inherit';
+            bar.appendChild(ob);
+          }
+        }
+      }
+
       var dataEl = wrap.querySelector('script.mm-data');
       var canvas = wrap.querySelector('.mm-canvas');
       if (!dataEl || !canvas) return;
@@ -237,24 +258,23 @@ const RUNTIME = `
         ].join(String.fromCharCode(10));
 
         var fname = title.replace(/[\\/:*?"<>|]/g, '_').trim() || 'mindmap';
+        // 和 SVG 一样：text/html 也会被浏览器当网页打开，不给保存对话框。
+        // 给一个可见的下载链接，用户点一下必定下载。
+        var htmlName = fname + '.html';
         var blob = new Blob([html], { type: 'text/html;charset=utf-8' });
         var objUrl = URL.createObjectURL(blob);
-        var a = document.createElement('a');
-        a.href = objUrl;
-        a.download = fname + '.html';
-        a.style.display = 'none';
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(function(){
-          document.body.removeChild(a);
-          URL.revokeObjectURL(objUrl);
-        }, 4000);
 
         var hint = document.createElement('div');
         hint.className = 'mm-export-hint';
-        hint.textContent = '已导出 ' + fname + '.html（双击打开，可拖动折叠）';
+        hint.innerHTML = '已生成 ' + htmlName + ' — ' +
+          '<a href="' + objUrl + '" download="' + htmlName + '" ' +
+          'style="color:#0d7d74;font-weight:600;text-decoration:underline">点此下载</a>' +
+          ' <button class="mm-hint-x" title="关闭">×</button>';
         wrap.appendChild(hint);
-        setTimeout(function(){ hint.remove(); }, 4000);
+        hint.querySelector('.mm-hint-x').onclick = function(){ hint.remove(); };
+
+        // 同样不自动 click（text/html 也会被当网页打开）
+        setTimeout(function(){ hint.remove(); }, 60000);
       }
 
       function exportSvg(){
@@ -311,26 +331,24 @@ const RUNTIME = `
           .trim() || 'mindmap';
         var fname = rawName + '.svg';
 
+        // 直接 a.click() 在 Chrome 里遇到 image/svg+xml 会「打开」而不是下载，
+        // 用户看到的是网页里显示图片，没有保存对话框。
+        // 改成把 blob 挂到一个真实可见的 <a download>，用户自己点就一定下载。
         var blob = new Blob([data], { type: 'image/svg+xml;charset=utf-8' });
         var objUrl = URL.createObjectURL(blob);
-        var a = document.createElement('a');
-        a.href = objUrl;
-        a.download = fname;
-        a.style.display = 'none';
-        document.body.appendChild(a);
-        a.click();
-
-        // 延迟清理，并给用户一个可见的反馈（否则不知道有没有成功）
-        setTimeout(function(){
-          document.body.removeChild(a);
-          URL.revokeObjectURL(objUrl);
-        }, 4000);
 
         var hint = document.createElement('div');
         hint.className = 'mm-export-hint';
-        hint.textContent = '已导出 ' + fname + '（若未开始下载，请检查浏览器下载设置）';
+        hint.innerHTML = '已生成 ' + fname + ' — ' +
+          '<a href="' + objUrl + '" download="' + fname + '" ' +
+          'style="color:#0d7d74;font-weight:600;text-decoration:underline">点此下载</a>' +
+          ' <button class="mm-hint-x" title="关闭">×</button>';
         wrap.appendChild(hint);
-        setTimeout(function(){ hint.remove(); }, 4000);
+        hint.querySelector('.mm-hint-x').onclick = function(){ hint.remove(); };
+
+        // 不自动 click：blob + image/svg+xml 在 Chrome 里会「打开」而不是下载，
+        // 反而把用户当前页面导航走。给可见链接，用户自己点必定下载。
+        setTimeout(function(){ hint.remove(); }, 60000);
       }
 
       wrap.querySelectorAll('[data-mm-act]').forEach(function(btn){
@@ -473,11 +491,66 @@ function inject(distDir) {
       (v) => `<script src="${up}/${v}" defer></script>`,
     ).join("")
 
+    // 回填 data-mm-slug：用当前页面的 slug（文件名去掉 .html）。
+    // 这样和 _assets 目录名、vendor/mindmap 文件名完全一致，
+    // 不依赖自己实现 Quartz 的 slug 规则。
+    const pageSlug = path.basename(f, ".html")
+    h = h.replace(
+      /(<div class="mm-wrap"[^>]*?)data-mm-slug="[^"]*"/g,
+      `$1data-mm-slug="${pageSlug}"`,
+    )
+    if (!h.includes('data-mm-slug=')) {
+      h = h.replace(
+        /(<div class="mm-wrap"[^>]*?)>/g,
+        `$1 data-mm-slug="${pageSlug}">`,
+      )
+    }
+
     h = h.replace("</head>", `<style>${CSS}</style>${tags}</head>`)
     h = h.replace("</body>", `<script>${RUNTIME}</script></body>`)
     fs.writeFileSync(f, h)
     touched++
   }
+  // 复制 mindmap.html（自包含离线脑图）到 dist/vendor/mindmap/<笔记slug>.html。
+  //
+  // 命名用「笔记页面 slug」而不是 _assets 目录名 —— 页面里的
+  // data-mm-slug 就是页面 slug，两边必须一致才能对上。
+  // 笔记 slug 直接从 dist 里已生成的 .html 文件名拿，绝对准确。
+  let htmlCopied = 0
+  const srcAssets = "D:/private/obsidian/视频与专题/_assets"
+  const htmlOut = path.join(root, "vendor", "mindmap")
+  const noteDir = path.join(root, "视频与专题")
+
+  if (fs.existsSync(srcAssets) && fs.existsSync(noteDir)) {
+    fs.mkdirSync(htmlOut, { recursive: true })
+
+    // dist 里所有笔记页面（排除 _assets 子目录）
+    const pages = fs
+      .readdirSync(noteDir)
+      .filter((f) => f.endsWith(".html") && !f.includes("og-image"))
+
+    // 建立 归一化名 → 页面slug 的映射
+    const norm = (s) => s.toLowerCase().replace(/[^\p{L}\p{N}]/gu, "")
+    const pageByNorm = new Map()
+    for (const p of pages) {
+      pageByNorm.set(norm(path.basename(p, ".html")), path.basename(p, ".html"))
+    }
+
+    for (const dir of fs.readdirSync(srcAssets)) {
+      const srcHtml = path.join(srcAssets, dir, "mindmap.html")
+      if (!fs.existsSync(srcHtml)) continue
+
+      const slug = pageByNorm.get(norm(dir))
+      if (!slug) {
+        console.log(`  [skip] 无对应页面: ${dir.slice(0, 30)}`)
+        continue
+      }
+      fs.copyFileSync(srcHtml, path.join(htmlOut, slug + ".html"))
+      htmlCopied++
+    }
+  }
+  if (htmlCopied) console.log(`[mindmap] 复制 ${htmlCopied} 个离线脑图 HTML → /vendor/mindmap/`)
+
   console.log(`[mindmap] vendor ${copied} 个文件，注入 ${touched} 个页面`)
 }
 

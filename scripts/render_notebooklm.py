@@ -21,12 +21,26 @@ from pathlib import Path
 MODULE = "视频与专题"
 
 
-def render_mindmap(tree, title):
+def quartz_slug(name: str) -> str:
+    """复刻 Quartz 的 slug 规则：小写、空格/下划线转 -、去掉标点保留中文。"""
+    import unicodedata
+
+    s = name.lower().strip()
+    s = re.sub(r"[\\s_]+", "-", s)
+    # 保留中文、字母、数字、连字符
+    s = "".join(
+        ch for ch in s
+        if ch == "-" or ch.isalnum() or "\u4e00" <= ch <= "\u9fff"
+    )
+    return s
+
+
+def render_mindmap(tree, title, slug=""):
     """把 {name, children} 树渲染成 markmap 容器。"""
     payload = json.dumps(tree, ensure_ascii=False).replace("</script", "<\\/script")
     safe = str(title).replace('"', "&quot;")
     return (
-        f'<div class="mm-wrap" data-mm="1" data-mm-title="{safe}">'
+        f'<div class="mm-wrap" data-mm="1" data-mm-title="{safe}" data-mm-slug="{slug}">'
         '<div class="mm-toolbar">'
         '<button data-mm-act="fit">适应窗口</button>'
         '<button data-mm-act="expand">全部展开</button>'
@@ -133,7 +147,7 @@ def process_md(md: Path, content_dir: Path):
         tree = md_list_to_tree(body, title)
         if not tree:
             return m.group(0)
-        return render_mindmap(tree, title)
+        return render_mindmap(tree, title, quartz_slug(md.stem))
 
     text = re.sub(r"```markmap\s*\n([\s\S]*?)```", mm_sub, text)
 

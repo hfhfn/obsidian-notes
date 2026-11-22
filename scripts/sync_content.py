@@ -983,7 +983,9 @@ class Sync:
                 dn[:] = [x for x in dn if x not in {".obsidian", ".git"}]
                 for f in fn:
                     p = Path(dp) / f
-                    if p.suffix.lower() not in (IMAGE_EXTS | {".pdf", ".pptx", ".xmind"}):
+                    # .html 是 make_mindmap_html.py 生成的自包含脑图，
+                    # 用户在 Obsidian 里点链接用浏览器打开，站点也要能访问。
+                    if p.suffix.lower() not in (IMAGE_EXTS | {".pdf", ".pptx", ".xmind", ".html"}):
                         continue
                     # 保留相对子目录：_assets/<笔记本名>/infographic.webp
                     # 否则 25 张同名 infographic.webp 会互相覆盖只剩 1 张
@@ -1000,7 +1002,10 @@ class Sync:
                         new = new.replace(f"](_assets/{p.parent.name}/{p.name})", f"](/../{out_rel})")
                         if new != text:
                             md.write_text(new, encoding="utf-8", newline="\n")
-                    p.unlink()
+                    # .html 在 vault 里要保留（Obsidian 的链接指向它），
+                    # 其他附件搬走后删源文件避免重复。
+                    if p.suffix.lower() != ".html":
+                        p.unlink()
 
     def run(self):
         if not VAULT.exists():

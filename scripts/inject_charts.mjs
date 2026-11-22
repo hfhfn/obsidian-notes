@@ -877,7 +877,7 @@ const RUNTIME = `
         var nowHidden = btn.getAttribute('data-hidden') === '1';
         var next = !nowHidden;
         var msg = next
-          ? '在公开站隐藏《' + (btn.closest('.book-card').querySelector('.book-title') || {}).textContent + '》？\n\n私有站仍会显示。'
+          ? '在公开站隐藏《' + (btn.closest('.book-card').querySelector('.book-title') || {}).textContent + '》？' + String.fromCharCode(10, 10) + '私有站仍会显示。'
           : '恢复在公开站显示这条笔记？';
         if (!confirm(msg)) return;
 

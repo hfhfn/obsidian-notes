@@ -171,6 +171,10 @@ const FILTER_JS = `
 })();
 `
 
+// 输出目录是 dist-all 说明在构建私有站（管理员才能访问），
+// 这时才渲染「公开站隐藏」开关。
+const IS_PRIVATE = process.argv.slice(2).some((a) => /dist-all|private/.test(a))
+
 function esc(s) {
   return String(s ?? "")
     .replace(/&/g, "&amp;")
@@ -315,8 +319,9 @@ function renderCard(item, cfg, depth, kind) {
 
   let cornerBtn = ""
   if (isVideo) {
-    // slug 是相对 modules 的路径，去掉 .md
-    cornerBtn = slug
+    // 隐藏按钮只在私有站渲染：私有站是管理员才能进的，
+    // 公开站不该让普通读者看到这个开关。
+    cornerBtn = (IS_PRIVATE && slug)
       ? `<button class="vid-hide" data-slug="${esc(slug)}" title="在公开站隐藏这条" aria-label="隐藏">👁</button>`
       : ""
   } else if (itemKey) {
