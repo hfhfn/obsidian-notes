@@ -27,6 +27,7 @@ const KINDS = {
     ],
     // 卡片上的信息行顺序（与 build_library.py 的 info_fields 对应）
     infoOrder: ["页数", "开始", "读完"],
+    perPage: 20,
   },
   movie: {
     dir: "观影库",
@@ -40,6 +41,7 @@ const KINDS = {
       { key: "全部", label: "全部" },
     ],
     infoOrder: ["年份", "导演", "片长", "集数", "开始", "看完"],
+    perPage: 20,
   },
   video: {
     dir: "视频与专题",
@@ -54,6 +56,7 @@ const KINDS = {
       { key: "全部", label: "全部" },
     ],
     infoOrder: ["时长", "频道", "平台", "整理"],
+    perPage: 20,
     // 视频类特有：卡片上显示「看原视频」和衍生笔记角标
     showSourceLink: true,
     showDerived: true,
@@ -65,17 +68,34 @@ const PLACEHOLDER = "<!-- LIBRARY_GRID -->"
 // 标签页筛选逻辑。内联进页面，避免 Quartz 不复制 quartz/static 下的文件。
 const FILTER_JS = `
 (function(){
-  function apply(tabs, grid, key){
-    grid.querySelectorAll('.book-card').forEach(function(c){
+  // 状态筛选 + 分页。
+  // 分页是按「当前 tab 的可见卡片」算的，不是按全部卡片，
+  // 所以切 tab 后要重置到第 1 页。
+  var state = {};  // kind -> {key, page}
+
+  function visibleCards(grid, key){
+    return [].filter.call(grid.querySelectorAll('.book-card'), function(c){
       var st = c.getAttribute('data-status') || '';
-      c.style.display = (key === '全部' || st === key) ? '' : 'none';
+      return key === '全部' || st === key;
     });
+  }
+
+  function render(tabs, grid, pager, key, page){
+    var all = grid.querySelectorAll('.book-card');
+    var show = visibleCards(grid, key);
+    var per = Number(grid.getAttribute('data-perpage')) || 20;
+    var pages = Math.max(1, Math.ceil(show.length / per));
+    if (page > pages) page = pages;
+    if (page < 1) page = 1;
+
+    // 先全部隐藏，再只显示当前页
+    [].forEach.call(all, function(c){ c.style.display = 'none'; });
+    show.slice((page - 1) * per, page * per).forEach(function(c){ c.style.display = ''; });
+
+    // 空状态
     var wrap = grid.parentElement;
     var empty = wrap.querySelector('.library-empty');
-    var visible = [].filter.call(grid.querySelectorAll('.book-card'), function(c){
-      return c.style.display !== 'none';
-    }).length;
-    if (visible === 0) {
+    if (show.length === 0) {
       if (!empty) {
         empty = document.createElement('div');
         empty.className = 'library-empty';
@@ -86,7 +106,24 @@ const FILTER_JS = `
     } else if (empty) {
       empty.style.display = 'none';
     }
+
+    // 分页控件
+    if (pager) {
+      if (pages <= 1) {
+        pager.style.display = 'none';
+      } else {
+        pager.style.display = '';
+        var info = pager.querySelector('.lib-pinfo');
+        var prev = pager.querySelector('[data-prev]');
+        var next = pager.querySelector('[data-next]');
+        if (info) info.textContent = '第 ' + page + ' / ' + pages + ' 页（共 ' + show.length + ' 条）';
+        if (prev) prev.disabled = (page === 1);
+        if (next) next.disabled = (page === pages);
+      }
+    }
+    return page;
   }
+
   function setup(){
     document.querySelectorAll('.library-tabs').forEach(function(tabs){
       var grid = tabs.nextElementSibling;
@@ -94,15 +131,37 @@ const FILTER_JS = `
       if (!grid) return;
       if (tabs.dataset.bound === '1') return;
       tabs.dataset.bound = '1';
+
+      var kind = tabs.getAttribute('data-for') || 'x';
+      var pager = grid.nextElementSibling;
+      while (pager && !pager.classList.contains('library-pager')) pager = pager.nextElementSibling;
+
+      var active = tabs.querySelector('button[aria-selected="true"]');
+      var curKey = active ? (active.getAttribute('data-target') || '全部') : '全部';
+      state[kind] = { key: curKey, page: 1 };
+
       tabs.querySelectorAll('button').forEach(function(btn){
         btn.addEventListener('click', function(){
           tabs.querySelectorAll('button').forEach(function(b){ b.setAttribute('aria-selected','false'); });
           btn.setAttribute('aria-selected','true');
-          apply(tabs, grid, btn.getAttribute('data-target') || '全部');
+          state[kind].key = btn.getAttribute('data-target') || '全部';
+          state[kind].page = 1;  // 切 tab 重置到第一页
+          render(tabs, grid, pager, state[kind].key, 1);
         });
       });
-      var active = tabs.querySelector('button[aria-selected="true"]');
-      if (active) apply(tabs, grid, active.getAttribute('data-target') || '全部');
+
+      if (pager) {
+        var prev = pager.querySelector('[data-prev]');
+        var next = pager.querySelector('[data-next]');
+        if (prev) prev.addEventListener('click', function(){
+          state[kind].page = render(tabs, grid, pager, state[kind].key, state[kind].page - 1);
+        });
+        if (next) next.addEventListener('click', function(){
+          state[kind].page = render(tabs, grid, pager, state[kind].key, state[kind].page + 1);
+        });
+      }
+
+      state[kind].page = render(tabs, grid, pager, curKey, 1);
     });
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', setup);
@@ -342,9 +401,15 @@ export function injectKind(distDir, kind) {
   const cards = items.map((it) => renderCard(it, cfg, depth)).join("")
   const tabs = renderTabs(cfg, "全部")
 
+  const perPage = cfg.perPage || 20
   const block = `
     <div class="library-tabs" data-for="${kind}" role="tablist">${tabs}</div>
-    <div class="book-grid" data-for="${kind}" data-active="全部">${cards}</div>
+    <div class="book-grid" data-for="${kind}" data-active="全部" data-perpage="${perPage}">${cards}</div>
+    <div class="library-pager" data-for="${kind}">
+      <button class="lib-pbtn" data-prev disabled>← 上一页</button>
+      <span class="lib-pinfo">第 1 页</span>
+      <button class="lib-pbtn" data-next>下一页 →</button>
+    </div>
     <script>${FILTER_JS}</script>
   `
 
@@ -357,7 +422,7 @@ export function injectKind(distDir, kind) {
 
   // 幂等：重复运行时先清掉上一次注入的块（含内联脚本）
   const INJECTED_RE =
-    /<div class="library-tabs"[\s\S]*?<div class="book-grid"[\s\S]*?<\/div>\s*<script>[\s\S]*?<\/script>/g
+    /<div class="library-tabs"[\s\S]*?<div class="book-grid"[\s\S]*?<\/div>\s*(?:<div class="library-pager"[\s\S]*?<\/div>\s*)?<script>[\s\S]*?<\/script>/g
   const hadInjected = INJECTED_RE.test(html)
   if (hadInjected) {
     html = html.replace(INJECTED_RE, "")

@@ -186,6 +186,52 @@ def export_one(nb_id, title):
     return got
 
 
+def render_mindmap(json_path):
+    """把 NotebookLM 的脑图 JSON 渲染成可折叠的 <details> 嵌套树。
+
+    数据结构是 {name, children: [{name, children: [...]}]}。
+    用 <details>/<summary> 而不是自己写 JS：原生可折叠、无依赖、
+    打印和搜索都能用。默认展开两层，避免 39 个专题全展开太长。
+    """
+    try:
+        data = json.loads(Path(json_path).read_text(encoding="utf-8"))
+    except Exception:
+        return ""
+
+    def esc_html(s):
+        return (
+            str(s)
+            .replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace('"', "&quot;")
+        )
+
+    def walk(node, depth):
+        name = esc_html(node.get("name", ""))
+        kids = node.get("children") or []
+        if not kids:
+            return f'<li class="mm-leaf">{name}</li>'
+        # 前两层展开，更深默认折叠
+        open_attr = " open" if depth < 2 else ""
+        inner = "".join(walk(c, depth + 1) for c in kids)
+        return (
+            f'<li><details{open_attr}><summary>{name}</summary>'
+            f'<ul class="mm-list">{inner}</ul></details></li>'
+        )
+
+    root_name = esc_html(data.get("name", "思维导图"))
+    kids = data.get("children") or []
+    if not kids:
+        return f'<div class="mm-root">{root_name}</div>'
+
+    inner = "".join(walk(c, 0) for c in kids)
+    return (
+        f'<div class="mm-wrap"><div class="mm-root">{root_name}</div>'
+        f'<ul class="mm-list mm-top">{inner}</ul></div>'
+    )
+
+
 def write_note(nb, got, force=False):
     """给导出了产物的笔记本生成 md 笔记。"""
     title = nb["title"]
@@ -236,20 +282,67 @@ def write_note(nb, got, force=False):
         except Exception:
             r2map = {}
 
+    # 产物全部做成「在线查看」，而不是下载：
+    #   信息图   → <img> 直接看，外面套 <a> 可点开原图
+    #   演示文稿 → <iframe> 内嵌浏览器 PDF 阅读器
+    #   思维导图 → 把 JSON 树渲染成可折叠的 <details> 嵌套
+    #   报告     → 直接内联正文
     for k, v in got.items():
-        if v.get("remote"):
-            url = r2map.get(f"{slug}/{k}", "")
-            if url:
-                lines.append(f"- **{names.get(k, k)}**：[下载 PDF]({url})")
-            else:
-                lines.append(f"- **{names.get(k, k)}**：（待上传 R2）")
-        else:
-            # 图片用 markdown 图片语法才会渲染；JSON/MD 用代码格式
+        label = names.get(k, k)
+
+        if k == "infographic":
             fname = Path(v["path"]).name
-            if fname.endswith((".png", ".webp")):
-                lines.append(f"- **{names.get(k, k)}**：\n\n  ![{names.get(k, k)}](_assets/{slug}/{fname})")
+            rel = f"_assets/{slug}/{fname}"
+            lines += [
+                f"### {label}",
+                "",
+                f'<a href="{rel}" target="_blank" rel="noopener">',
+                f'  <img src="{rel}" alt="{label}" class="nlm-infographic" loading="lazy">',
+                "</a>",
+                "",
+                "<sub>点图看原图</sub>",
+                "",
+            ]
+
+        elif k == "slide-deck":
+            url = r2map.get(f"{slug}/{k}", "")
+            lines += [f"### {label}", ""]
+            if url:
+                lines += [
+                    f'<iframe src="{url}#view=FitH" class="nlm-slides" '
+                    f'title="{label}" loading="lazy"></iframe>',
+                    "",
+                    f"<sub>[全屏打开]({url})</sub>",
+                    "",
+                ]
             else:
-                lines.append(f"- **{names.get(k, k)}**：`_assets/{slug}/{fname}`")
+                lines += ["（待上传 R2）", ""]
+
+        elif k == "mind-map":
+            tree = render_mindmap(v["path"])
+            lines += [
+                f"### {label}",
+                "",
+                tree if tree else "（思维导图解析失败）",
+                "",
+            ]
+
+        elif k == "report":
+            fname = Path(v["path"]).name
+            body = ""
+            try:
+                body = (ASSET_DIR / slug / fname).read_text(encoding="utf-8", errors="replace")
+            except Exception:
+                pass
+            lines += [f"### {label}", ""]
+            if body:
+                lines += [body.strip(), ""]
+            else:
+                lines += [f"`_assets/{slug}/{fname}`", ""]
+
+        else:
+            fname = Path(v["path"]).name
+            lines.append(f"- **{label}**：`_assets/{slug}/{fname}`")
 
     lines += [
         "",
@@ -460,7 +553,11 @@ def cmd_refresh_notes():
     for s in summary:
         if not s.get("artifacts"):
             continue
-        nb = nbs.get(s.get("id"))
+        # summary 里的 id 可能被截断（表格宽度），用前缀匹配
+        sid = s.get("id") or ""
+        nb = nbs.get(sid) or next(
+            (n for n in nbs.values() if sid and n["id"].startswith(sid)), None
+        )
         if not nb:
             continue
         slug = safe_name(nb["title"])

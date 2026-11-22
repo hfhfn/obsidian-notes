@@ -256,6 +256,42 @@
   margin-top: 0.15rem;
 }
 
+/* 分页器（三个库共用） */
+.library-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  margin: 1.4rem 0 0.4rem;
+}
+
+.lib-pbtn {
+  padding: 0.26rem 0.75rem;
+  border: 1px solid var(--lightgray);
+  border-radius: 6px;
+  background: none;
+  color: var(--darkgray) !important;
+  font-family: var(--bodyFont);
+  font-size: 0.78rem !important;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.lib-pbtn:hover:not(:disabled) {
+  border-color: var(--secondary);
+  color: var(--secondary) !important;
+}
+
+.lib-pbtn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.lib-pinfo {
+  color: var(--gray);
+  font-size: 0.76rem;
+}
+
 /* 空状态 */
 .library-empty {
   padding: 2.5rem 1rem;
