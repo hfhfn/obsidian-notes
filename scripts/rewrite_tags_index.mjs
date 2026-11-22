@@ -144,17 +144,29 @@ body.tag-index-page .comments {
   margin: 1.5rem 0 0;
 }
 /* 顶部返回入口：静态页也能一键回首页，不依赖浏览器后退 */
-.tag-back {
-  display: inline-flex;
+.tag-crumb {
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 0.3rem;
-  margin: 0 0 0.8rem;
-  color: var(--gray) !important;
-  font-size: 0.8rem !important;
-  text-decoration: none !important;
+  gap: 0.4rem;
+  margin: 0 0 0.9rem;
+  font-size: 0.82rem;
+  line-height: 1.5;
 }
-.tag-back:hover {
+.tag-crumb a {
   color: var(--secondary) !important;
+  text-decoration: none !important;
+  background: none !important;
+}
+.tag-crumb a:hover {
+  text-decoration: underline !important;
+}
+.tag-crumb-sep {
+  color: var(--gray);
+  font-size: 0.75rem;
+}
+.tag-crumb-cur {
+  color: var(--darkgray);
 }
 .tag-page-btn {
   padding: 0.32rem 0.8rem;
@@ -235,7 +247,12 @@ function rewrite(distDir) {
         }).join('');
         // 顶部和底部都有翻页：页面很长时不用滚到底才能翻
         var bp = (document.body && document.body.dataset && document.body.dataset.basepath) || '';
-        var back = '<a class="tag-back" href="'+bp+'/">← 返回首页</a>';
+        // 与三个卡片库页面的面包屑保持一致：Home ❯ 标签索引
+        var back = '<nav class="tag-crumb" aria-label="breadcrumbs">'
+          + '<a href="'+bp+'/">Home</a>'
+          + '<span class="tag-crumb-sep">❯</span>'
+          + '<span class="tag-crumb-cur">标签索引</span>'
+          + '</nav>';
         root.innerHTML = back
           + '<div class="tag-index-head"><p class="tag-index-total">共 '+ALL.length+' 个标签</p></div>'
           + pagerHTML(page, total, 'tag-pager-top')
