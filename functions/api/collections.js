@@ -13,7 +13,10 @@
 import { json, requireUser, touchUser } from "./_auth.js"
 
 const KINDS = new Set(["book", "movie"])
-const STATUS = new Set(["wish", "doing", "done"])
+// hidden 用于「移除原本就在书架里的笔记卡」：
+// 那些卡片来自笔记 frontmatter，不是用户标记加的，
+// 删 collections 行没有意义，用一个 hidden 标记让前端过滤掉。
+const STATUS = new Set(["wish", "doing", "done", "hidden"])
 
 export async function onRequestGet({ request, env }) {
   const url = new URL(request.url)

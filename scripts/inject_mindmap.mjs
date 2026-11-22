@@ -40,16 +40,44 @@ const CSS = `
 
 const RUNTIME = `
 (function(){
+  // SPA 导航时 Quartz 只替换 #quartz-body 里的内容，
+  // <head> 里的 markmap <script> 不会重新执行。
+  // 如果用户第一次是从首页/列表点进详情页（没刷新），
+  // window.markmap 就是 undefined —— 这就是「首次进入不显示、
+  // 刷新一次才正常」的根因。这里手动补一次脚本注入。
+  var vendorState = 0;   // 0=未开始 1=加载中 2=完成
+
+  function ensureVendor(){
+    if (window.markmap && window.markmap.Markmap) { vendorState = 2; return true; }
+    if (vendorState === 1) return false;   // 正在加载，等 onload 回调再 boot
+    vendorState = 1;
+
+    // vendor 在站点根目录 /vendor/markmap/，用绝对路径，不管页面在第几层。
+    // 必须严格串行：markmap-view 是 UMD，依赖全局 d3 已就绪。
+    var load = function(src, cb){
+      var s = document.createElement('script');
+      s.src = src;
+      s.onload = cb;
+      s.onerror = function(){ vendorState = 0; };
+      document.head.appendChild(s);
+    };
+
+    load('/vendor/markmap/d3.min.js', function(){
+      load('/vendor/markmap/markmap-view.min.js', function(){
+        vendorState = 2;
+        boot();   // 加载完立刻重跑，别等轮询
+      });
+    });
+    return false;
+  }
+
   function boot(){
     // markmap 通过 <script defer> 加载，执行顺序不保证。
-    // 之前直接 return 就再也不重试了 —— 网速慢或 SPA 切换时
-    // 思维导图空白，必须手动刷新。这里改成轮询等待。
-    //
-    // 注意 bootTries 必须每次从 0 开始：之前写成全局变量，
-    // 首次加载用掉配额后，SPA 切到别的笔记就再也不重试了。
+    // SPA 导航后 <head> 里的脚本不会重跑，必须手动补注入。
     if (!window.markmap || !window.markmap.Markmap) {
+      ensureVendor();
       boot._tries = (boot._tries || 0) + 1;
-      if (boot._tries < 60) setTimeout(boot, 120);
+      if (boot._tries < 120) setTimeout(boot, 150);
       return;
     }
     boot._tries = 0;
@@ -63,6 +91,17 @@ const RUNTIME = `
       var dataEl = wrap.querySelector('script.mm-data');
       var canvas = wrap.querySelector('.mm-canvas');
       if (!dataEl || !canvas) return;
+
+      // 首次加载时容器可能还没完成布局（宽高为 0），
+      // markmap 在 0×0 的 svg 上渲染会得到空白图，刷新后才正常。
+      // 这里等容器有实际尺寸再渲染，最多等 3 秒。
+      if (!canvas.clientWidth || !canvas.clientHeight) {
+        delete wrap.dataset.mmBound;   // 允许下一轮重试
+        wrap._wait = (wrap._wait || 0) + 1;
+        if (wrap._wait < 30) setTimeout(boot, 100);
+        return;
+      }
+      wrap._wait = 0;
 
       var tree;
       try { tree = JSON.parse(dataEl.textContent); } catch (e) { return; }
@@ -165,12 +204,15 @@ const RUNTIME = `
         clone.insertBefore(bgRect, clone.firstChild);
 
         var data = new XMLSerializer().serializeToString(clone);
-        var fname = (wrap.getAttribute('data-mm-title') || 'mindmap') + '.svg';
+        // 文件名要去掉非法字符，且必须带 .svg 后缀 ——
+        // 之前用 application/octet-stream 时浏览器忽略 download 属性，
+        // 存下来是「无后缀」的文件（用户反馈没有 svg 后缀）。
+        var rawName = (wrap.getAttribute('data-mm-title') || 'mindmap')
+          .replace(/[\\/:*?"<>|]/g, '_')
+          .trim() || 'mindmap';
+        var fname = rawName + '.svg';
 
-        // 用 Blob + objectURL 下载。之前出现「能看到图但不下载」，
-        // 是因为有些浏览器把 image/svg+xml 当图片直接打开而不是下载。
-        // 这里显式设 download，并在失败时退到新窗口 + 提示右键保存。
-        var blob = new Blob([data], { type: 'application/octet-stream' });
+        var blob = new Blob([data], { type: 'image/svg+xml;charset=utf-8' });
         var objUrl = URL.createObjectURL(blob);
         var a = document.createElement('a');
         a.href = objUrl;
@@ -317,7 +359,11 @@ function inject(distDir) {
   let touched = 0
   for (const f of files) {
     let h = fs.readFileSync(f, "utf8")
-    if (!h.includes('class="mm-wrap"')) continue
+    // 只在含思维导图的页面注入，但「视频与专题」列表页也要注入：
+    // Quartz 是 SPA，从列表点进详情页不会重新执行 head 里的脚本，
+    // 列表页带 vendor 才能保证进入详情页时 window.markmap 已就绪。
+    const isListPage = f.includes("视频与专题") && f.endsWith("index.html")
+    if (!h.includes('class="mm-wrap"') && !isListPage) continue
     if (h.includes("markmap-view.min.js")) continue
 
     const depth = path.relative(root, path.dirname(f)).split(path.sep).filter(Boolean).length

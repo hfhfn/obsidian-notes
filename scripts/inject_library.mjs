@@ -307,9 +307,9 @@ function renderCard(item, cfg, depth, kind) {
       ${progress}
       ${sourceLink}`
 
-  // 笔记卡也能移除：有 douban_id 就带 data-item，
-  // 由前端在「已标记」时显示右上角 ×（和榜单卡同一套样式）。
-  const itemKey = item.douban_id ? `${kind}:${item.douban_id}` : ""
+  // 笔记卡也能移除。item_key 由 build_library 生成：
+  // 有豆瓣 id 用 id，没有就用 标题+作者哈希，保证每张卡都有。
+  const itemKey = item.item_key || ""
 
   return `
     <div class="book-card${hasNote ? " has-note" : ""}${wide ? " book-card-wide" : ""}"

@@ -172,25 +172,83 @@ def fetch_douban_books(limit=20):
         ):
             cover_map.setdefault(sid, cover)
 
-        # 2) 再抓书名（<a class="fleft" ...>书名</a>）
-        for sid, title in re.findall(
-            r'<a class="fleft" href="https://book\.douban\.com/subject/(\d+)/">([^<]{1,80})</a>',
-            h,
-        ):
-            title = title.strip()
+        # 2) /chart 页结构：每个条目是 <li class="media clearfix">，
+        #    body 里有 <a class="fleft">书名</a>、
+        #    <p class="subject-abstract">作者 / 年份 / 出版社 / 价格</p>、
+        #    <p class="subject-rating"> 里 <span class="font-small">9.1</span> 是评分。
+        #    注意这个页面没有 rating_nums class，评分在 font-small 里。
+        chart_blocks = re.split(r'<li class="media clearfix">', h)[1:]
+        for block in chart_blocks:
+            m_id = re.search(r'book\.douban\.com/subject/(\d+)/', block)
+            m_title = re.search(r'class="fleft"[^>]*>([^<]{1,80})</a>', block)
+            if not m_id or not m_title:
+                continue
+            sid = m_id.group(1)
+            title = m_title.group(1).strip()
             if not title or sid in seen:
                 continue
             seen.add(sid)
+
+            # subject-abstract 形如 "陆庆屹 / 2026-8 / 新星出版社 / 59.00元 / 平装"
+            author, pub_year = "", ""
+            m_abs = re.search(
+                r'class="subject-abstract[^"]*"[^>]*>\s*([^<]+?)\s*</p>', block
+            )
+            if m_abs:
+                parts = [x.strip() for x in m_abs.group(1).split("/")]
+                if parts:
+                    author = parts[0]
+                for part in parts:
+                    ym = re.match(r"^(\d{4})-", part)
+                    if ym:
+                        pub_year = ym.group(1)
+                        break
+
+            # 评分在 <span class="font-small fleft">9.1</span>。
+            # 注意 subject-rating 是 class="clearfix w250 subject-rating"，
+            # 不是 class 的开头，之前用 class="subject-rating" 匹配不到。
+            score = ""
+            sm = re.search(
+                r'subject-rating[\s\S]{0,400}?class="font-small[^"]*"[^>]*>\s*([\d.]+)',
+                block,
+            )
+            if sm:
+                score = sm.group(1)
+
             items.append(
                 {
                     "title": title,
                     "url": f"https://book.douban.com/subject/{sid}/",
                     "cover": cover_map.get(sid, ""),
                     "douban_id": sid,
+                    "author": author,
+                    "year": pub_year,
+                    "score": score,
                 }
             )
             if len(items) >= limit:
                 break
+
+        # 兜底：上面按块切失败时，退回原来的正则
+        if not items:
+            for sid, title in re.findall(
+                r'<a class="fleft" href="https://book\.douban\.com/subject/(\d+)/">([^<]{1,80})</a>',
+                h,
+            ):
+                title = title.strip()
+                if not title or sid in seen:
+                    continue
+                seen.add(sid)
+                items.append(
+                    {
+                        "title": title,
+                        "url": f"https://book.douban.com/subject/{sid}/",
+                        "cover": cover_map.get(sid, ""),
+                        "douban_id": sid,
+                    }
+                )
+                if len(items) >= limit:
+                    break
 
         # 3) /tag/ 页结构（又一种）：
         #    <a class="nbg" href=".../subject/<id>/"><img src="..."></a>
@@ -204,20 +262,44 @@ def fetch_douban_books(limit=20):
             ):
                 tag_covers.setdefault(sid, cover)
 
-            for sid, title in re.findall(
-                r'<a href="https://book\.douban\.com/subject/(\d+)/" title="([^"]{1,80})"',
-                h,
-            ):
-                title = title.strip()
+            # /tag/ 页每个条目是一个 <li class="subject-item">，
+            # 里面有 pub（作者 / 出版社 / 年份 / 价格）和 rating_nums（评分）。
+            # 之前只取了书名和封面，卡片上就没有年份/评分/作者可显示。
+            for block in re.split(r'<li class="subject-item">', h)[1:]:
+                m_id = re.search(r'book\.douban\.com/subject/(\d+)/', block)
+                m_title = re.search(r'title="([^"]{1,80})"', block)
+                if not m_id or not m_title:
+                    continue
+                sid = m_id.group(1)
+                title = m_title.group(1).strip()
                 if not title or sid in seen:
                     continue
                 seen.add(sid)
+
+                # pub 形如 "马伯庸 / 民主与建设出版社 / 2026-4 / 118.00元"
+                m_pub = re.search(r'<div class="pub">\s*([^<]+?)\s*</div>', block)
+                author, pub_year = "", ""
+                if m_pub:
+                    parts = [x.strip() for x in m_pub.group(1).split("/")]
+                    if parts:
+                        author = parts[0]
+                    for part in parts:
+                        ym = re.match(r"^(\d{4})-", part)
+                        if ym:
+                            pub_year = ym.group(1)
+                            break
+
+                m_score = re.search(r'class="rating_nums"[^>]*>([\d.]+)<', block)
+
                 items.append(
                     {
                         "title": title,
                         "url": f"https://book.douban.com/subject/{sid}/",
                         "cover": tag_covers.get(sid, ""),
                         "douban_id": sid,
+                        "author": author,
+                        "year": pub_year,
+                        "score": m_score.group(1) if m_score else "",
                     }
                 )
                 if len(items) >= limit:

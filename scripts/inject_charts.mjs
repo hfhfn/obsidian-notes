@@ -312,14 +312,22 @@ function renderCell(it, kind, prefix) {
     ? `<img class="lc-cover" src="${esc(prefix + local)}" alt="${name}" loading="lazy">`
     : `<div class="lc-cover-empty">无封面</div>`
 
+  // 副标题：书 = 作者 · ★评分 · 年份，影视 = ★评分 · 类型 · 地区 · 年份。
+  // 之前书只有作者、影视没有年份，导致「标记后复制到书架」的卡片
+  // 只有状态没有年份/评分（用户截图反馈）。
   let sub = ""
   if (kind === "book") {
-    sub = it.author ? esc(it.author) : ""
+    const bits = []
+    if (it.author) bits.push(esc(it.author))
+    if (it.score) bits.push(`★${it.score}`)
+    if (it.year) bits.push(esc(it.year))
+    sub = bits.join(" · ")
   } else {
     const bits = []
     if (it.score) bits.push(`★${it.score}`)
     if (it.types && it.types.length) bits.push(esc(it.types[0]))
     if (it.regions && it.regions.length) bits.push(esc(it.regions[0]))
+    if (it.year) bits.push(esc(it.year))
     sub = bits.join(" · ")
   }
 
@@ -733,11 +741,16 @@ const RUNTIME = `
           }
         });
 
-        // 点亮笔记卡上的移除按钮：只显示用户真的标记过的那些
-        document.querySelectorAll('.book-grid .shelf-remove').forEach(function(rm){
-          var key = rm.getAttribute('data-item');
-          if (!key) return;
-          if (map[key]) rm.style.display = '';
+        // 隐藏用户移除过的笔记卡（status=hidden）。
+        // 这些卡来自笔记 frontmatter，不能删数据源，只能前端过滤。
+        var hiddenKeys = {};
+        (d.items || []).forEach(function(it){
+          if (it.status === 'hidden') hiddenKeys[it.item_key] = 1;
+        });
+        Object.keys(hiddenKeys).forEach(function(key){
+          document.querySelectorAll('.book-card[data-item="' + key + '"]').forEach(function(card){
+            card.remove();
+          });
         });
       } catch (e) { /* 未登录静默 */ }
     }
@@ -745,12 +758,11 @@ const RUNTIME = `
 
   // 首次加载必须显式调用：'nav' 只在 Quartz 的 SPA 导航时触发，
   // 直接打开页面不会触发，之前漏了这行导致标记按钮完全没绑定。
-  // 笔记卡上的移除按钮：只在用户标记过这条时显示。
-  // 笔记卡是静态渲染的（inject_library 生成），不知道用户标了什么，
-  // 所以先全部隐藏，hydrate 拿到已标记列表后再逐个点亮。
+  // 笔记卡上的移除按钮：始终显示。
+  // 原有书籍来自笔记 frontmatter，不是用户标记加的，
+  // 所以「移除」= 写一条 hidden 记录，前端把它过滤掉（跨设备生效）。
   function bindShelfRemoves(){
     document.querySelectorAll('.book-grid .shelf-remove').forEach(function(btn){
-      btn.style.display = 'none';   // 默认隐藏，等 hydrate 决定
       if (btn.dataset.rmBound) return;
       btn.dataset.rmBound = '1';
 
@@ -758,19 +770,42 @@ const RUNTIME = `
         ev.preventDefault();
         ev.stopPropagation();
         var key = btn.getAttribute('data-item');
+        var card = btn.closest('.book-card');
         btn.disabled = true;
+
         try {
-          var r = await fetch('/api/collections?itemKey=' + encodeURIComponent(key), {
+          // 先尝试删除（用户自己标记的那条）
+          await fetch('/api/collections?itemKey=' + encodeURIComponent(key), {
             method: 'DELETE', credentials: 'same-origin'
           });
-          if (r.ok) {
-            var card = btn.closest('.book-card');
+
+          // 再写一条 hidden，让笔记卡本身也不显示
+          var r = await fetch('/api/collections', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({
+              itemKey: key,
+              kind: btn.getAttribute('data-kind') || (card && card.classList.contains('book-card-wide') ? 'video' : 'book'),
+              title: (card && card.querySelector('.book-title') || {}).textContent || '',
+              status: 'hidden',
+              progress: 0
+            })
+          });
+
+          var d = null;
+          try { d = await r.json(); } catch (e) {}
+
+          if (d && d.ok) {
             if (card) card.remove();
             document.querySelectorAll('.lc-mark[data-item="' + key + '"]').forEach(function(b){
               paint(b, null, 0);
             });
+          } else if (d && d.error === 'login_required') {
+            alert('移除需要先登录');
+            location.href = '/login';
           } else {
-            alert('移除失败，请先登录');
+            alert('移除失败：' + ((d && d.error) || '未知错误'));
             btn.disabled = false;
           }
         } catch (e) {

@@ -15,6 +15,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import time
@@ -233,6 +234,22 @@ def normalize_status(raw: str, cfg: dict) -> str:
     return cfg["status_map"].get(r, cfg["default_status"] if not r else r)
 
 
+def _item_key(kind: str, fm: dict, title: str, cfg: dict) -> str:
+    """生成站内标记用的稳定 key。
+
+    优先豆瓣 id（和榜单卡的 item_key 一致，同一本书两边能联动）；
+    没有豆瓣链接时用 标题+作者 的短哈希，保证每本书都有唯一 key。
+    """
+    sid = _douban_id(fm.get("douban") or fm.get("source_url") or "")
+    if sid:
+        return f"{kind}:{sid}"
+
+    author = fm.get("author") or fm.get("作者") or fm.get("director") or ""
+    raw = f"{title}|{author}".strip()
+    h = hashlib.sha1(raw.encode("utf-8")).hexdigest()[:12]
+    return f"{kind}:h{h}"
+
+
 def _douban_id(url: str) -> str:
     """从豆瓣链接里取 subject id。
 
@@ -296,9 +313,10 @@ def collect(kind: str, dry_run: bool = False) -> list[dict]:
             "status": normalize_status(fm.get("status", ""), cfg),
             "progress": fm.get("progress", ""),
             "douban": fm.get("douban", ""),
-            # 从豆瓣链接里提取 id，给站内标记用（item_key = kind:id）。
-            # 笔记卡也要能标记/移除，所以榜单卡和笔记卡都要有 douban_id。
-            "douban_id": _douban_id(fm.get("douban") or fm.get("source_url") or ""),
+            # 站内标记的 item_key。优先用豆瓣 id（能和榜单卡对上），
+            # 没有豆瓣链接的书（用 OpenLibrary / TVMaze 的）退回标题+作者哈希，
+            # 否则这些笔记卡既不能标记也不能移除（用户反馈 Code / Mona Lisa 没有 ×）。
+            "item_key": _item_key(kind, fm, title, cfg),
             # 数据源链接：缩略图点击跳到这本书/这部电影的原始页面。
             # 优先用笔记里显式写的 source_url，其次 douban / openlibrary / tvmaze。
             "source_url": (
