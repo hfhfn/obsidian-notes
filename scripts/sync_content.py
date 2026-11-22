@@ -62,9 +62,7 @@ INCLUDE_ROOT_FILES = ["README.md"]
 # 站点自有模块：不从 vault 同步，内容放在 obsidian-site/modules/。
 # 这样它们不会进 D:\private\obsidian（源笔记仓库），也不会被
 # sync_content.py 的 rmtree(content-all) 清掉。
-MODULE_DIRS = ["探索/藏书馆", "探索/观影库", "探索/视频与专题"]
-# 模块根目录下的散文件（如 探索/探索.md 索引页）也要带上
-MODULE_ROOT_FILES = ["探索/探索.md"]
+MODULE_DIRS = ["藏书馆", "观影库", "视频与专题"]
 
 # Directories never copied / indexed for publishable content.
 SKIP_DIRS = {
@@ -944,15 +942,6 @@ class Sync:
         """
         if not MODULES.exists():
             return
-
-        # 先复制模块根目录下的散文件（索引页等）
-        for rel in MODULE_ROOT_FILES:
-            src = MODULES / rel
-            if not src.is_file():
-                continue
-            dst = CONTENT / rel
-            dst.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(src, dst)
 
         for name in MODULE_DIRS:
             src = MODULES / name

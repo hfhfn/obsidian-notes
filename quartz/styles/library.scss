@@ -35,62 +35,67 @@
   color: var(--light);
 }
 
-/* 卡片网格 */
+/* 卡片网格：对齐 jz21.eu.org 的 3 列布局 */
 .book-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 1rem;
+  /* jz21 实测是固定 3 列（每列 189px @ 608px 容器） */
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.8rem 1.3rem;
   margin: 1.2rem 0;
-  /* 所有行等高：信息量不同的卡片（有无进度条/日期）也整齐 */
-  grid-auto-rows: 1fr;
-  align-items: stretch;
+  align-items: start;
 }
 
-/* 单张卡片 */
+/* 窄屏降列：保持 jz21 的观感，不挤成一列 */
+@media (max-width: 900px) {
+  .book-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .book-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* 单张卡片：无边框无内边距，纯内容纵向排列 */
 .book-card {
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
-  padding: 0.9rem;
-  border: 1px solid var(--lightgray);
-  border-radius: 10px;
-  background: var(--light);
-  transition:
-    border-color 0.15s,
-    transform 0.15s,
-    box-shadow 0.15s;
-  /* 撑满网格单元高度，底部信息行自然对齐 */
-  height: 100%;
+  gap: 0.35rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  border-radius: 12px;
+  transition: transform 0.15s;
 }
 
 .book-card:hover {
-  border-color: var(--secondary);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-/* 卡片头部：封面 + 标题 */
+/* 卡片头部：封面 + 标题（jz21 是封面在上、标题在下） */
 .book-header {
   display: flex;
-  gap: 0.75rem;
-  align-items: flex-start;
+  flex-direction: column;
+  gap: 0.35rem;
 }
 
 .book-cover-wrapper {
-  flex: 0 0 62px;
+  width: 100%;
   position: relative;
 }
 
 .book-cover-link {
   display: block;
   position: relative;
-  border-radius: 5px;
-  overflow: hidden;
+  /* jz21 的封面无圆角、无 overflow:hidden，图片直接铺满 */
+  border-radius: 0;
+  overflow: visible;
   background: var(--lightgray);
-  /* 统一封面框比例。书封多为 2:3，影视海报也接近，用一个框保证整齐 */
-  aspect-ratio: 2 / 3;
+  /* 封面框比例 ≈ 5:7（jz21 实测 189x264），贴近常见书封与海报 */
+  aspect-ratio: 5 / 7;
   width: 100%;
-  /* 图片是绝对定位铺满，避免 inline 元素底部留白 */
   line-height: 0;
 }
 
@@ -99,12 +104,15 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  /* contain 保证整张图都看得见，不裁掉书名/人脸；
-     cover 会裁切，此前封面「和框不对齐」的观感就来自这里 */
-  object-fit: contain;
+  /* cover 铺满整个框，不留上下空白 */
+  object-fit: cover;
   object-position: center;
   display: block;
   background: var(--lightgray);
+  /* Quartz 全局给 img 加了 margin: 16px 0 和 border-radius: 8px，
+     会把封面往下顶出空白、并在四角露出底色，必须清零 */
+  margin: 0 !important;
+  border-radius: 0 !important;
 }
 
 /* 无封面占位 */
@@ -135,13 +143,13 @@
 }
 
 .book-title-section {
-  flex: 1 1 auto;
   min-width: 0;
+  text-align: left;
 }
 
 .book-title {
-  margin: 0 0 0.2rem !important;
-  font-size: 0.92rem !important;
+  margin: 0 0 0.15rem !important;
+  font-size: 0.86rem !important;
   line-height: 1.35;
   font-weight: 600;
   /* 长标题最多两行 */
@@ -284,7 +292,7 @@
 /* ===== 视频类宽图布局（缩略图占满整卡宽度） ===== */
 .book-card-wide {
   padding: 0;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .book-cover-wide {
@@ -294,6 +302,8 @@
   aspect-ratio: 16 / 9;
   background: var(--lightgray);
   line-height: 0;
+  overflow: hidden;
+  border-radius: 8px;
 }
 
 .book-cover-wide .book-cover-link {
@@ -302,16 +312,17 @@
   border-radius: 0;
 }
 
+/* 视频正文区：左右不留额外 padding，与书影卡片的左对齐保持一致 */
 .book-body {
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
-  padding: 0.75rem 0.9rem 0.9rem;
+  gap: 0.4rem;
+  padding: 0.5rem 0 0;
 }
 
 /* 视频卡片里标题不再需要两行截断的紧凑样式 */
 .book-card-wide .book-title {
-  font-size: 0.95rem !important;
+  font-size: 0.9rem !important;
 }
 
 /* 窄屏适配 */

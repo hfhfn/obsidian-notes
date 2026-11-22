@@ -15,7 +15,7 @@ import { fileURLToPath } from "node:url"
 // 两类媒体的差异集中在这张表，渲染逻辑共用
 const KINDS = {
   book: {
-    dir: "探索/藏书馆",
+    dir: "藏书馆",
     json: "_books.json",
     label: "本书",
     tabs: [
@@ -29,7 +29,7 @@ const KINDS = {
     infoOrder: ["页数", "开始", "读完"],
   },
   movie: {
-    dir: "探索/观影库",
+    dir: "观影库",
     json: "_movies.json",
     label: "部",
     tabs: [
@@ -42,7 +42,7 @@ const KINDS = {
     infoOrder: ["年份", "导演", "片长", "集数", "开始", "看完"],
   },
   video: {
-    dir: "探索/视频与专题",
+    dir: "视频与专题",
     json: "_videos.json",
     label: "条",
     // 视频缩略图是 16:9 横版，和书影的 2:3 竖版不同

@@ -34,7 +34,7 @@ FM_RE = re.compile(r"^---\r?\n(.*?)\r?\n---", re.S)
 # 两类媒体的差异都收敛到这张表，逻辑共用
 KINDS: dict[str, dict] = {
     "book": {
-        "dir": "探索/藏书馆",
+        "dir": "藏书馆",
         "json": "_books.json",
         "tag": "book",
         "label": "本书",
@@ -58,7 +58,7 @@ KINDS: dict[str, dict] = {
         "creator_label": "",
     },
     "movie": {
-        "dir": "探索/观影库",
+        "dir": "观影库",
         "json": "_movies.json",
         "tag": "movie",
         "label": "部",
@@ -83,7 +83,7 @@ KINDS: dict[str, dict] = {
         "creator_label": "",
     },
     "video": {
-        "dir": "探索/视频与专题",
+        "dir": "视频与专题",
         "json": "_videos.json",
         "tag": "video",
         "label": "条",
