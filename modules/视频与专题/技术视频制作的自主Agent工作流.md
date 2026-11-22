@@ -4,15 +4,20 @@ tags:
   - video
   - notebooklm
 notebook_id: "d98860f4-8946-4129-bb8c-46e2de3050fd"
+source_url: "https://www.youtube.com/watch?v=0hM2SkHZ2UU"
 derived:
   - slide-deck
-platform: "notebooklm"
+platform: "youtube"
 created: "2026-05-16"
 ---
 
 # 技术视频制作的自主Agent工作流
 
-> 由 NotebookLM 笔记本导出的产物集合。
+### 播放源
+
+<iframe class="nlm-video" src="https://www.youtube.com/embed/0hM2SkHZ2UU" title="技术视频制作的自主Agent工作流" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
+
+<sub>[在 YouTube 打开](https://www.youtube.com/watch?v=0hM2SkHZ2UU)</sub>
 
 ## 产物
 

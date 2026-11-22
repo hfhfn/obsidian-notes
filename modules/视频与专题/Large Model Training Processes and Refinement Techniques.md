@@ -4,17 +4,22 @@ tags:
   - video
   - notebooklm
 notebook_id: "fd8c1190-3c83-4901-a80a-265c57bc420d"
+source_url: "https://www.youtube.com/watch?v=FkYLL4L0BfY"
 derived:
   - mind-map
   - infographic
   - slide-deck
-platform: "notebooklm"
+platform: "youtube"
 created: "2026-09-04"
 ---
 
 # Large Model Training Processes and Refinement Techniques
 
-> 由 NotebookLM 笔记本导出的产物集合。
+### 播放源
+
+<iframe class="nlm-video" src="https://www.youtube.com/embed/FkYLL4L0BfY" title="Large Model Training Processes and Refinement Techniques" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
+
+<sub>[在 YouTube 打开](https://www.youtube.com/watch?v=FkYLL4L0BfY)</sub>
 
 ## 产物
 

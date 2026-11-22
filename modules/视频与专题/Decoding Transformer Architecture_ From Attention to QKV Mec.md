@@ -4,17 +4,22 @@ tags:
   - video
   - notebooklm
 notebook_id: "d5d1adcd-cb9d-4b0e-af94-ff1ba3c30ad4"
+source_url: "https://www.youtube.com/watch?v=jn7XU4OaIaE"
 derived:
   - mind-map
   - infographic
   - slide-deck
-platform: "notebooklm"
+platform: "youtube"
 created: "2026-09-01"
 ---
 
 # Decoding Transformer Architecture: From Attention to QKV Mechanics
 
-> 由 NotebookLM 笔记本导出的产物集合。
+### 播放源
+
+<iframe class="nlm-video" src="https://www.youtube.com/embed/jn7XU4OaIaE" title="Decoding Transformer Architecture: From Attention to QKV Mechanics" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
+
+<sub>[在 YouTube 打开](https://www.youtube.com/watch?v=jn7XU4OaIaE)</sub>
 
 ## 产物
 

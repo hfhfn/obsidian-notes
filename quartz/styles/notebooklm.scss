@@ -1,5 +1,17 @@
 /* ===== NotebookLM 产物在线查看 ===== */
 
+/* 视频源播放器：16:9，页面顶部 */
+.nlm-video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  margin: 1rem 0 0.4rem;
+  border: 1px solid var(--lightgray);
+  border-radius: 8px;
+  background: #000;
+}
+
 /* 信息图：长图，限高避免撑满整页，点开看原图 */
 .nlm-infographic {
   display: block;

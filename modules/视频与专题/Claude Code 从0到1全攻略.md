@@ -4,17 +4,22 @@ tags:
   - video
   - notebooklm
 notebook_id: "f72037f9-7650-4b9f-a8ad-781b725a5f8c"
+source_url: "https://www.youtube.com/watch?v=AT4b9kLtQCQ"
 derived:
   - mind-map
   - infographic
   - slide-deck
-platform: "notebooklm"
+platform: "youtube"
 created: "2026-02-10"
 ---
 
 # Claude Code 从0到1全攻略
 
-> 由 NotebookLM 笔记本导出的产物集合。
+### 播放源
+
+<iframe class="nlm-video" src="https://www.youtube.com/embed/AT4b9kLtQCQ" title="Claude Code 从0到1全攻略" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
+
+<sub>[在 YouTube 打开](https://www.youtube.com/watch?v=AT4b9kLtQCQ)</sub>
 
 ## 产物
 

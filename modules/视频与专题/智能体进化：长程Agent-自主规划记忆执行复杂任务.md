@@ -4,15 +4,20 @@ tags:
   - video
   - notebooklm
 notebook_id: "08ccc605-5599-4702-b373-f7524d1d0ded"
+source_url: "https://www.youtube.com/watch?v=baJ72mP_fKo"
 derived:
   - slide-deck
-platform: "notebooklm"
+platform: "youtube"
 created: "2026-02-04"
 ---
 
 # 智能体进化：长程Agent-自主规划记忆执行复杂任务
 
-> 由 NotebookLM 笔记本导出的产物集合。
+### 播放源
+
+<iframe class="nlm-video" src="https://www.youtube.com/embed/baJ72mP_fKo" title="智能体进化：长程Agent-自主规划记忆执行复杂任务" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
+
+<sub>[在 YouTube 打开](https://www.youtube.com/watch?v=baJ72mP_fKo)</sub>
 
 ## 产物
 

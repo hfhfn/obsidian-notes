@@ -4,17 +4,22 @@ tags:
   - video
   - notebooklm
 notebook_id: "9211a1f7-4188-4ae7-aac4-b16c179d556d"
+source_url: "https://www.youtube.com/watch?v=qX7msY_RYWY"
 derived:
   - mind-map
   - infographic
   - slide-deck
-platform: "notebooklm"
+platform: "youtube"
 created: "2026-11-07"
 ---
 
 # DeepSeek Super-agent 架构解析
 
-> 由 NotebookLM 笔记本导出的产物集合。
+### 播放源
+
+<iframe class="nlm-video" src="https://www.youtube.com/embed/qX7msY_RYWY" title="DeepSeek Super-agent 架构解析" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
+
+<sub>[在 YouTube 打开](https://www.youtube.com/watch?v=qX7msY_RYWY)</sub>
 
 ## 产物
 

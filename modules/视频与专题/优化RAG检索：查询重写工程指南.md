@@ -4,16 +4,21 @@ tags:
   - video
   - notebooklm
 notebook_id: "6360baf7-3c32-42da-8b26-75bb28320628"
+source_url: "https://www.youtube.com/watch?v=U3h2iTIYl5Q"
 derived:
   - mind-map
   - slide-deck
-platform: "notebooklm"
+platform: "youtube"
 created: "2026-06-06"
 ---
 
 # 优化RAG检索：查询重写工程指南
 
-> 由 NotebookLM 笔记本导出的产物集合。
+### 播放源
+
+<iframe class="nlm-video" src="https://www.youtube.com/embed/U3h2iTIYl5Q" title="优化RAG检索：查询重写工程指南" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
+
+<sub>[在 YouTube 打开](https://www.youtube.com/watch?v=U3h2iTIYl5Q)</sub>
 
 ## 产物
 

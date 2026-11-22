@@ -4,17 +4,22 @@ tags:
   - video
   - notebooklm
 notebook_id: "6bdcda62-b30e-4646-bbbb-b438e4403182"
+source_url: "https://www.youtube.com/watch?v=diU-Nbb1P_c"
 derived:
   - mind-map
   - infographic
   - slide-deck
-platform: "notebooklm"
+platform: "youtube"
 created: "2026-06-15"
 ---
 
 # Agent生产力:  四组 Skills
 
-> 由 NotebookLM 笔记本导出的产物集合。
+### 播放源
+
+<iframe class="nlm-video" src="https://www.youtube.com/embed/diU-Nbb1P_c" title="Agent生产力:  四组 Skills" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
+
+<sub>[在 YouTube 打开](https://www.youtube.com/watch?v=diU-Nbb1P_c)</sub>
 
 ## 产物
 

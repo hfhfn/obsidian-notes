@@ -4,15 +4,20 @@ tags:
   - video
   - notebooklm
 notebook_id: "5b224f7e-982d-4cc7-b11c-1d2247818530"
+source_url: "https://www.youtube.com/watch?v=5rAIU0GBjII"
 derived:
   - slide-deck
-platform: "notebooklm"
+platform: "youtube"
 created: "2026-05-03"
 ---
 
 # AI时代, 命令行界面(CLI)的复兴
 
-> 由 NotebookLM 笔记本导出的产物集合。
+### 播放源
+
+<iframe class="nlm-video" src="https://www.youtube.com/embed/5rAIU0GBjII" title="AI时代, 命令行界面(CLI)的复兴" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
+
+<sub>[在 YouTube 打开](https://www.youtube.com/watch?v=5rAIU0GBjII)</sub>
 
 ## 产物
 

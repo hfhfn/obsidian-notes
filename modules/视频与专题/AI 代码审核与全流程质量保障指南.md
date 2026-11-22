@@ -4,17 +4,22 @@ tags:
   - video
   - notebooklm
 notebook_id: "3604f738-bcd1-4639-8ad6-a8e457c4a38e"
+source_url: "https://www.youtube.com/watch?v=h0ALH6qBb7k"
 derived:
   - mind-map
   - infographic
   - slide-deck
-platform: "notebooklm"
+platform: "youtube"
 created: "2026-10-29"
 ---
 
 # AI 代码审核与全流程质量保障指南
 
-> 由 NotebookLM 笔记本导出的产物集合。
+### 播放源
+
+<iframe class="nlm-video" src="https://www.youtube.com/embed/h0ALH6qBb7k" title="AI 代码审核与全流程质量保障指南" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
+
+<sub>[在 YouTube 打开](https://www.youtube.com/watch?v=h0ALH6qBb7k)</sub>
 
 ## 产物
 

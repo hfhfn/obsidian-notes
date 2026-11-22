@@ -4,17 +4,22 @@ tags:
   - video
   - notebooklm
 notebook_id: "2eaae914-012d-459d-b00d-afc513c84247"
+source_url: "https://www.youtube.com/watch?v=Uz7K757psEU"
 derived:
   - mind-map
   - infographic
   - slide-deck
-platform: "notebooklm"
+platform: "youtube"
 created: "2026-09-09"
 ---
 
 # Mastering GraphRAG: 高级知识图谱集成策略
 
-> 由 NotebookLM 笔记本导出的产物集合。
+### 播放源
+
+<iframe class="nlm-video" src="https://www.youtube.com/embed/Uz7K757psEU" title="Mastering GraphRAG: 高级知识图谱集成策略" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
+
+<sub>[在 YouTube 打开](https://www.youtube.com/watch?v=Uz7K757psEU)</sub>
 
 ## 产物
 

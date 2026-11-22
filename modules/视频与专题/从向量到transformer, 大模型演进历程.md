@@ -4,17 +4,22 @@ tags:
   - video
   - notebooklm
 notebook_id: "1cd542b9-150f-4534-ad57-4bf16fa352ea"
+source_url: "https://www.youtube.com/watch?v=j-PLWhTJVsc"
 derived:
   - mind-map
   - infographic
   - slide-deck
-platform: "notebooklm"
+platform: "youtube"
 created: "2026-08-26"
 ---
 
 # 从向量到transformer, 大模型演进历程
 
-> 由 NotebookLM 笔记本导出的产物集合。
+### 播放源
+
+<iframe class="nlm-video" src="https://www.youtube.com/embed/j-PLWhTJVsc" title="从向量到transformer, 大模型演进历程" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
+
+<sub>[在 YouTube 打开](https://www.youtube.com/watch?v=j-PLWhTJVsc)</sub>
 
 ## 产物
 

@@ -4,16 +4,21 @@ tags:
   - video
   - notebooklm
 notebook_id: "1e4e6636-c57c-45e3-9ec6-dc32e95ad867"
+source_url: "https://www.youtube.com/watch?v=17lpoQA6Wno"
 derived:
   - mind-map
   - slide-deck
-platform: "notebooklm"
+platform: "youtube"
 created: "2026-06-06"
 ---
 
 # 大模型评估 lm-eval 实用指南
 
-> 由 NotebookLM 笔记本导出的产物集合。
+### 播放源
+
+<iframe class="nlm-video" src="https://www.youtube.com/embed/17lpoQA6Wno" title="大模型评估 lm-eval 实用指南" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
+
+<sub>[在 YouTube 打开](https://www.youtube.com/watch?v=17lpoQA6Wno)</sub>
 
 ## 产物
 

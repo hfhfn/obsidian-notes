@@ -4,17 +4,22 @@ tags:
   - video
   - notebooklm
 notebook_id: "a28c4200-ea93-4ae2-a9d4-d396a1a2fe22"
+source_url: "https://www.youtube.com/watch?v=8RedSkw1UjE"
 derived:
   - mind-map
   - infographic
   - slide-deck
-platform: "notebooklm"
+platform: "youtube"
 created: "2026-09-05"
 ---
 
 # From Loop to Graph: 工程可靠的多智能体系统
 
-> 由 NotebookLM 笔记本导出的产物集合。
+### 播放源
+
+<iframe class="nlm-video" src="https://www.youtube.com/embed/8RedSkw1UjE" title="From Loop to Graph: 工程可靠的多智能体系统" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
+
+<sub>[在 YouTube 打开](https://www.youtube.com/watch?v=8RedSkw1UjE)</sub>
 
 ## 产物
 

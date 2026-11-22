@@ -4,17 +4,22 @@ tags:
   - video
   - notebooklm
 notebook_id: "523f2825-afe8-49a6-873b-6bfa7e64dda5"
+source_url: "https://www.youtube.com/watch?v=vo5vqrtuThg"
 derived:
   - mind-map
   - infographic
   - slide-deck
-platform: "notebooklm"
+platform: "youtube"
 created: "2026-08-30"
 ---
 
 # Agent Hooks: 专业可靠的自动化控制机制
 
-> 由 NotebookLM 笔记本导出的产物集合。
+### 播放源
+
+<iframe class="nlm-video" src="https://www.youtube.com/embed/vo5vqrtuThg" title="Agent Hooks: 专业可靠的自动化控制机制" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
+
+<sub>[在 YouTube 打开](https://www.youtube.com/watch?v=vo5vqrtuThg)</sub>
 
 ## 产物
 

@@ -4,17 +4,22 @@ tags:
   - video
   - notebooklm
 notebook_id: "2d96ef54-6366-4ac3-9f56-6241d78f297e"
+source_url: "https://www.youtube.com/watch?v=MusyyIW2dro"
 derived:
   - mind-map
   - infographic
   - slide-deck
-platform: "notebooklm"
+platform: "youtube"
 created: "2026-08-30"
 ---
 
 # From Transformer to LLM: 进化之路
 
-> 由 NotebookLM 笔记本导出的产物集合。
+### 播放源
+
+<iframe class="nlm-video" src="https://www.youtube.com/embed/MusyyIW2dro" title="From Transformer to LLM: 进化之路" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
+
+<sub>[在 YouTube 打开](https://www.youtube.com/watch?v=MusyyIW2dro)</sub>
 
 ## 产物
 

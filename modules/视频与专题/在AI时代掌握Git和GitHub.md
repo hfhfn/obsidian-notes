@@ -4,16 +4,21 @@ tags:
   - video
   - notebooklm
 notebook_id: "9451f591-41fe-43b4-adc5-03b1bc43e6bf"
+source_url: "https://www.youtube.com/watch?v=bWUUHBVg-7E&t=20s"
 derived:
   - mind-map
   - slide-deck
-platform: "notebooklm"
+platform: "youtube"
 created: "2026-06-06"
 ---
 
 # 在AI时代掌握Git和GitHub
 
-> 由 NotebookLM 笔记本导出的产物集合。
+### 播放源
+
+<iframe class="nlm-video" src="https://www.youtube.com/embed/bWUUHBVg-7E" title="在AI时代掌握Git和GitHub" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
+
+<sub>[在 YouTube 打开](https://www.youtube.com/watch?v=bWUUHBVg-7E&t=20s)</sub>
 
 ## 产物
 

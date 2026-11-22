@@ -4,17 +4,22 @@ tags:
   - video
   - notebooklm
 notebook_id: "99ec8233-e8b6-4bf0-a9d2-5d4427902374"
+source_url: "https://www.youtube.com/watch?v=txUByfiaeOM"
 derived:
   - mind-map
   - infographic
   - slide-deck
-platform: "notebooklm"
+platform: "youtube"
 created: "2026-08-29"
 ---
 
 # Qwen-27B 8GB VRAM 本地部署优化
 
-> 由 NotebookLM 笔记本导出的产物集合。
+### 播放源
+
+<iframe class="nlm-video" src="https://www.youtube.com/embed/txUByfiaeOM" title="Qwen-27B 8GB VRAM 本地部署优化" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
+
+<sub>[在 YouTube 打开](https://www.youtube.com/watch?v=txUByfiaeOM)</sub>
 
 ## 产物
 

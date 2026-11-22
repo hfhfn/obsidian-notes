@@ -4,15 +4,20 @@ tags:
   - video
   - notebooklm
 notebook_id: "9ecbd7c7-459d-471d-969e-6d7e599ce993"
+source_url: "https://www.youtube.com/watch?v=jMz1NT4xScc"
 derived:
   - mind-map
-platform: "notebooklm"
+platform: "youtube"
 created: "2026-05-16"
 ---
 
 # 2023–2026 LLM架构的演进 Technical Roadmap
 
-> 由 NotebookLM 笔记本导出的产物集合。
+### 播放源
+
+<iframe class="nlm-video" src="https://www.youtube.com/embed/jMz1NT4xScc" title="2023–2026 LLM架构的演进 Technical Roadmap" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
+
+<sub>[在 YouTube 打开](https://www.youtube.com/watch?v=jMz1NT4xScc)</sub>
 
 ## 产物
 

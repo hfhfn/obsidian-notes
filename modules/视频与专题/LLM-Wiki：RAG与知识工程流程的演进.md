@@ -4,16 +4,21 @@ tags:
   - video
   - notebooklm
 notebook_id: "9b37d671-4763-4a64-8ba2-6452c390d7db"
+source_url: "https://www.youtube.com/watch?v=g1Y7Rrz7u4k"
 derived:
   - mind-map
   - slide-deck
-platform: "notebooklm"
+platform: "youtube"
 created: "2026-07-11"
 ---
 
 # LLM-Wiki：RAG与知识工程流程的演进
 
-> 由 NotebookLM 笔记本导出的产物集合。
+### 播放源
+
+<iframe class="nlm-video" src="https://www.youtube.com/embed/g1Y7Rrz7u4k" title="LLM-Wiki：RAG与知识工程流程的演进" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
+
+<sub>[在 YouTube 打开](https://www.youtube.com/watch?v=g1Y7Rrz7u4k)</sub>
 
 ## 产物
 

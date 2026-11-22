@@ -4,15 +4,20 @@ tags:
   - video
   - notebooklm
 notebook_id: "23dc06d6-3629-4168-834e-37a8fbb16b6f"
+source_url: "https://www.youtube.com/watch?v=rDTUDnPwUa0"
 derived:
   - slide-deck
-platform: "notebooklm"
+platform: "youtube"
 created: "2026-05-01"
 ---
 
 # 构建生产级Agent Memory系统架构
 
-> 由 NotebookLM 笔记本导出的产物集合。
+### 播放源
+
+<iframe class="nlm-video" src="https://www.youtube.com/embed/rDTUDnPwUa0" title="构建生产级Agent Memory系统架构" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
+
+<sub>[在 YouTube 打开](https://www.youtube.com/watch?v=rDTUDnPwUa0)</sub>
 
 ## 产物
 

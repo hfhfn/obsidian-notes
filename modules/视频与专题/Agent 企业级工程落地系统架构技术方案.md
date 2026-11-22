@@ -4,17 +4,22 @@ tags:
   - video
   - notebooklm
 notebook_id: "6cb28d5a-bf81-4b55-916e-e9ad688e687b"
+source_url: "https://www.youtube.com/watch?v=x-s1Dbp4BE4"
 derived:
   - mind-map
   - infographic
   - slide-deck
-platform: "notebooklm"
+platform: "youtube"
 created: "2026-08-27"
 ---
 
 # Agent 企业级工程落地系统架构技术方案
 
-> 由 NotebookLM 笔记本导出的产物集合。
+### 播放源
+
+<iframe class="nlm-video" src="https://www.youtube.com/embed/x-s1Dbp4BE4" title="Agent 企业级工程落地系统架构技术方案" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
+
+<sub>[在 YouTube 打开](https://www.youtube.com/watch?v=x-s1Dbp4BE4)</sub>
 
 ## 产物
 

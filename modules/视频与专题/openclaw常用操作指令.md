@@ -4,16 +4,21 @@ tags:
   - video
   - notebooklm
 notebook_id: "248cad6d-4287-445b-937f-f5eef8bb9618"
+source_url: "https://www.youtube.com/watch?v=6WzuqO8xwZo"
 derived:
   - mind-map
   - infographic
-platform: "notebooklm"
+platform: "youtube"
 created: "2026-02-28"
 ---
 
 # openclaw常用操作指令
 
-> 由 NotebookLM 笔记本导出的产物集合。
+### 播放源
+
+<iframe class="nlm-video" src="https://www.youtube.com/embed/6WzuqO8xwZo" title="openclaw常用操作指令" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
+
+<sub>[在 YouTube 打开](https://www.youtube.com/watch?v=6WzuqO8xwZo)</sub>
 
 ## 产物
 

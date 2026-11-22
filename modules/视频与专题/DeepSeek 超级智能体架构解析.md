@@ -4,17 +4,22 @@ tags:
   - video
   - notebooklm
 notebook_id: "11bcdf09-7aeb-43ba-ace3-6f6ba415e20e"
+source_url: "https://www.youtube.com/watch?v=jLeYfSBXG_E"
 derived:
   - mind-map
   - infographic
   - slide-deck
-platform: "notebooklm"
+platform: "youtube"
 created: "2026-11-04"
 ---
 
 # DeepSeek 超级智能体架构解析
 
-> 由 NotebookLM 笔记本导出的产物集合。
+### 播放源
+
+<iframe class="nlm-video" src="https://www.youtube.com/embed/jLeYfSBXG_E" title="DeepSeek 超级智能体架构解析" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
+
+<sub>[在 YouTube 打开](https://www.youtube.com/watch?v=jLeYfSBXG_E)</sub>
 
 ## 产物
 

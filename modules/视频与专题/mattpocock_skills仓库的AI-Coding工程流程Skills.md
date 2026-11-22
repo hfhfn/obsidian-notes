@@ -4,16 +4,21 @@ tags:
   - video
   - notebooklm
 notebook_id: "96a796d5-cb04-4f4f-b9c9-c67e7b78b866"
+source_url: "https://www.youtube.com/watch?v=EJyuu6zlQCg"
 derived:
   - mind-map
   - infographic
-platform: "notebooklm"
+platform: "youtube"
 created: "2026-05-03"
 ---
 
 # mattpocock/skills仓库的AI-Coding工程流程Skills
 
-> 由 NotebookLM 笔记本导出的产物集合。
+### 播放源
+
+<iframe class="nlm-video" src="https://www.youtube.com/embed/EJyuu6zlQCg" title="mattpocock/skills仓库的AI-Coding工程流程Skills" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
+
+<sub>[在 YouTube 打开](https://www.youtube.com/watch?v=EJyuu6zlQCg)</sub>
 
 ## 产物
 

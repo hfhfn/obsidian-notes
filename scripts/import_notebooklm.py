@@ -186,6 +186,17 @@ def export_one(nb_id, title):
     return got
 
 
+def load_sources():
+    """读 fetch_nlm_sources.py 抓来的来源表。"""
+    f = CAND_DIR / "nlm_sources.json"
+    if not f.exists():
+        return {}
+    try:
+        return json.loads(f.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
 def render_mindmap(json_path):
     """把 NotebookLM 的脑图 JSON 渲染成可折叠的 <details> 嵌套树。
 
@@ -248,6 +259,10 @@ def write_note(nb, got, force=False):
 
     derived = [k for k in got if k in ("mind-map", "slide-deck", "infographic")]
 
+    # 从 nlm_sources.json 取该笔记本的视频来源
+    srcs = load_sources().get(nb["id"], {}).get("sources", [])
+    yt = next((s["url"] for s in srcs if s["type"] == "youtube"), "")
+
     lines = [
         "---",
         f'title: "{title}"',
@@ -255,19 +270,50 @@ def write_note(nb, got, force=False):
         "  - video",
         "  - notebooklm",
         f'notebook_id: "{nb["id"]}"',
-        "derived:",
     ]
+    # source_url 让 inject_library 的卡片显示「看原视频」
+    if yt:
+        lines.append(f'source_url: "{yt}"')
+    lines.append("derived:")
     for d in derived:
         lines.append(f"  - {d}")
     lines += [
-        'platform: "notebooklm"',
+        # platform 只能出现一次：有 YouTube 源就标 youtube（卡片显示「看 YouTube」），
+        # 否则标 notebooklm
+        f'platform: "{"youtube" if yt else "notebooklm"}"',
         f'created: "{nb.get("created_at", "")[:10]}"',
         "---",
         "",
         f"# {title}",
         "",
-        "> 由 NotebookLM 笔记本导出的产物集合。",
-        "",
+    ]
+
+    # 顶部：视频源播放器（参考 jz21 的布局，播放源在上、笔记在下）
+    if yt:
+        vid = ""
+        m = re.search(r"(?:v=|youtu\.be/|/shorts/|/embed/)([A-Za-z0-9_-]{11})", yt)
+        if m:
+            vid = m.group(1)
+        lines += ["### 播放源", ""]
+        if vid:
+            lines += [
+                f'<iframe class="nlm-video" src="https://www.youtube.com/embed/{vid}" '
+                f'title="{title}" frameborder="0" allowfullscreen '
+                f'allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>',
+                "",
+                f"<sub>[在 YouTube 打开]({yt})</sub>",
+                "",
+            ]
+        else:
+            lines += [f"[打开原视频]({yt})", ""]
+    elif srcs:
+        # 没有 youtube，但有网页/PDF 来源
+        lines += ["### 来源", ""]
+        for s in srcs[:5]:
+            lines.append(f"- [{s['title'][:60]}]({s['url']})")
+        lines.append("")
+
+    lines += [
         "## 产物",
         "",
     ]

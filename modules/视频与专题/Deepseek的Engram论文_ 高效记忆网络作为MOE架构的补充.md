@@ -4,16 +4,21 @@ tags:
   - video
   - notebooklm
 notebook_id: "77a108a2-22b0-46e5-a6d4-c6f10d8edbc7"
+source_url: "https://www.youtube.com/watch?v=LOHYVlZ0cwM"
 derived:
   - infographic
   - slide-deck
-platform: "notebooklm"
+platform: "youtube"
 created: "2026-01-24"
 ---
 
 # Deepseek的Engram论文: 高效记忆网络作为MOE架构的补充
 
-> 由 NotebookLM 笔记本导出的产物集合。
+### 播放源
+
+<iframe class="nlm-video" src="https://www.youtube.com/embed/LOHYVlZ0cwM" title="Deepseek的Engram论文: 高效记忆网络作为MOE架构的补充" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
+
+<sub>[在 YouTube 打开](https://www.youtube.com/watch?v=LOHYVlZ0cwM)</sub>
 
 ## 产物
 

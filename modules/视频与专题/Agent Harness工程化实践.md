@@ -4,15 +4,20 @@ tags:
   - video
   - notebooklm
 notebook_id: "385acacd-5af3-4eb1-b52b-049ec7caafbc"
+source_url: "https://www.youtube.com/watch?v=HcCWJGrJPbI"
 derived:
   - slide-deck
-platform: "notebooklm"
+platform: "youtube"
 created: "2026-05-02"
 ---
 
 # Agent Harness工程化实践
 
-> 由 NotebookLM 笔记本导出的产物集合。
+### 播放源
+
+<iframe class="nlm-video" src="https://www.youtube.com/embed/HcCWJGrJPbI" title="Agent Harness工程化实践" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
+
+<sub>[在 YouTube 打开](https://www.youtube.com/watch?v=HcCWJGrJPbI)</sub>
 
 ## 产物
 

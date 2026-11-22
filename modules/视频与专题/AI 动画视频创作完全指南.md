@@ -4,17 +4,22 @@ tags:
   - video
   - notebooklm
 notebook_id: "ab5622d8-632b-4020-82e5-8eb63259db50"
+source_url: "https://www.youtube.com/watch?v=0RIUsrk28GE"
 derived:
   - mind-map
   - infographic
   - slide-deck
-platform: "notebooklm"
+platform: "youtube"
 created: "2026-11-07"
 ---
 
 # AI 动画视频创作完全指南
 
-> 由 NotebookLM 笔记本导出的产物集合。
+### 播放源
+
+<iframe class="nlm-video" src="https://www.youtube.com/embed/0RIUsrk28GE" title="AI 动画视频创作完全指南" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
+
+<sub>[在 YouTube 打开](https://www.youtube.com/watch?v=0RIUsrk28GE)</sub>
 
 ## 产物
 

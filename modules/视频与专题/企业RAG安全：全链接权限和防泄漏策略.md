@@ -4,17 +4,22 @@ tags:
   - video
   - notebooklm
 notebook_id: "fbf4b75b-c7d2-43f9-868f-e6d150320fc8"
+source_url: "https://www.youtube.com/watch?v=aGpyWKtgjoU"
 derived:
   - mind-map
   - infographic
   - slide-deck
-platform: "notebooklm"
+platform: "youtube"
 created: "2026-09-17"
 ---
 
 # 企业RAG安全：全链接权限和防泄漏策略
 
-> 由 NotebookLM 笔记本导出的产物集合。
+### 播放源
+
+<iframe class="nlm-video" src="https://www.youtube.com/embed/aGpyWKtgjoU" title="企业RAG安全：全链接权限和防泄漏策略" frameborder="0" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture"></iframe>
+
+<sub>[在 YouTube 打开](https://www.youtube.com/watch?v=aGpyWKtgjoU)</sub>
 
 ## 产物
 
