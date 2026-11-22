@@ -141,15 +141,27 @@ def fetch_douban_books(limit=20):
             continue
         h = raw.decode("utf-8", "replace")
 
-        # 抓 (subject_id, 书名, 封面)
-        pat = re.compile(
-            r'<a href="https://book\.douban\.com/subject/(\d+)/"[^>]*>\s*'
-            r'<img[^>]*alt="([^"]*)"[^>]*src="([^"]*)"',
-            re.S,
-        )
+        # 豆瓣读书 /chart 页的结构（和电影页不同）：
+        #   封面：<a href=".../subject/<id>/"><img class="subject-cover" src="..."/></a>
+        #   书名：<a class="fleft" href=".../subject/<id>/">书名</a>
+        # 注意：书籍封面的 <img> 没有 alt 属性，不能按 alt 匹配。
         items = []
         seen = set()
-        for sid, title, cover in pat.findall(h):
+
+        # 1) 先抓所有 (id -> 封面 URL)
+        cover_map = {}
+        for sid, cover in re.findall(
+            r'<a href="https://book\.douban\.com/subject/(\d+)/">\s*'
+            r'<img[^>]*class="subject-cover"[^>]*src="([^"]*)"',
+            h,
+        ):
+            cover_map.setdefault(sid, cover)
+
+        # 2) 再抓书名（<a class="fleft" ...>书名</a>）
+        for sid, title in re.findall(
+            r'<a class="fleft" href="https://book\.douban\.com/subject/(\d+)/">([^<]{1,80})</a>',
+            h,
+        ):
             title = title.strip()
             if not title or sid in seen:
                 continue
@@ -158,19 +170,29 @@ def fetch_douban_books(limit=20):
                 {
                     "title": title,
                     "url": f"https://book.douban.com/subject/{sid}/",
-                    "cover": cover,
+                    "cover": cover_map.get(sid, ""),
                     "douban_id": sid,
                 }
             )
             if len(items) >= limit:
                 break
 
-        # 兜底：有些版块没有封面 img，只抓书名
+        # 3) /tag/ 页结构（又一种）：
+        #    <a class="nbg" href=".../subject/<id>/"><img src="..."></a>
+        #    <a href=".../subject/<id>/" title="书名" ...>书名</a>
         if not items:
-            pat2 = re.compile(
-                r'<a href="https://book\.douban\.com/subject/(\d+)/"[^>]*>([^<]{2,60})</a>'
-            )
-            for sid, title in pat2.findall(h):
+            tag_covers = {}
+            for sid, cover in re.findall(
+                r'<a class="nbg" href="https://book\.douban\.com/subject/(\d+)/"[^>]*>\s*'
+                r'<img src="([^"]*)"',
+                h,
+            ):
+                tag_covers.setdefault(sid, cover)
+
+            for sid, title in re.findall(
+                r'<a href="https://book\.douban\.com/subject/(\d+)/" title="([^"]{1,80})"',
+                h,
+            ):
                 title = title.strip()
                 if not title or sid in seen:
                     continue
@@ -179,7 +201,27 @@ def fetch_douban_books(limit=20):
                     {
                         "title": title,
                         "url": f"https://book.douban.com/subject/{sid}/",
-                        "cover": "",
+                        "cover": tag_covers.get(sid, ""),
+                        "douban_id": sid,
+                    }
+                )
+                if len(items) >= limit:
+                    break
+
+        # 4) 最后兜底：只要书名
+        if not items:
+            for sid, title in re.findall(
+                r'<a href="https://book\.douban\.com/subject/(\d+)/"[^>]*>([^<]{2,60})</a>', h
+            ):
+                title = title.strip()
+                if not title or sid in seen:
+                    continue
+                seen.add(sid)
+                items.append(
+                    {
+                        "title": title,
+                        "url": f"https://book.douban.com/subject/{sid}/",
+                        "cover": cover_map.get(sid, ""),
                         "douban_id": sid,
                     }
                 )
@@ -281,6 +323,53 @@ def enrich_with_weread(items, kind="book", max_match=20):
     return items
 
 
+# --------------------------------------------------------------- 封面下载
+
+COVER_DIR = "modules/attachments/charts"
+
+
+def download_covers(items, kind, referer, dist_hint=""):
+    """把豆瓣封面下载到本地 attachments/charts/。
+
+    豆瓣图床有防盗链：不带 Referer 返回 418。
+    浏览器里 <img> 请求不会带 Referer，所以必须下载到本地再引用，
+    否则页面上的图全部加载失败（用户看到的「图片没获取到」就是这个）。
+    """
+    out_dir = os.path.join(SITE, COVER_DIR, kind)
+    os.makedirs(out_dir, exist_ok=True)
+
+    n_ok = 0
+    for it in items:
+        cover = it.get("cover") or ""
+        if not cover:
+            continue
+
+        # 文件名：用 douban_id 或标题 hash，避免重名
+        key = it.get("douban_id") or str(abs(hash(it.get("title", ""))) % (10**10))
+        fname = f"{key}.jpg"
+        fpath = os.path.join(out_dir, fname)
+        rel = f"attachments/charts/{kind}/{fname}"
+
+        # 已存在且够大就跳过（>1KB 视为有效，避免缓存空文件）
+        if os.path.exists(fpath) and os.path.getsize(fpath) > 1024:
+            it["cover_local"] = rel
+            n_ok += 1
+            continue
+
+        raw = _get(cover, headers={"Referer": referer}, timeout=20, retries=1)
+        if raw and len(raw) > 1024:
+            with open(fpath, "wb") as f:
+                f.write(raw)
+            it["cover_local"] = rel
+            n_ok += 1
+        else:
+            it["cover_local"] = ""
+        time.sleep(0.4)
+
+    print(f"    封面下载 {n_ok}/{len(items)}")
+    return items
+
+
 # ------------------------------------------------------------------- 主流程
 
 def main():
@@ -309,6 +398,9 @@ def main():
         for key in books:
             print(f"  匹配微信读书 [{key}]")
             books[key] = enrich_with_weread(books[key], "book")
+            books[key] = download_covers(
+                books[key], "book", referer="https://book.douban.com/"
+            )
         p = os.path.join(OUT_DIR, "book_charts.json")
         with open(p, "w", encoding="utf-8") as f:
             json.dump(books, f, ensure_ascii=False, indent=2)
@@ -317,6 +409,11 @@ def main():
     if args.kind in ("movie", "all"):
         print("抓取豆瓣电影榜单…")
         movies = fetch_douban_movies(limit=args.limit)
+        for key in movies:
+            print(f"  下载封面 [{key}]")
+            movies[key] = download_covers(
+                movies[key], "movie", referer="https://movie.douban.com/"
+            )
         p = os.path.join(OUT_DIR, "movie_charts.json")
         with open(p, "w", encoding="utf-8") as f:
             json.dump(movies, f, ensure_ascii=False, indent=2)

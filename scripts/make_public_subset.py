@@ -202,6 +202,15 @@ def main() -> int:
         else:
             shutil.copy2(src, dst)
 
+    # attachments/charts/ 是榜单封面（由 inject_charts.mjs 注入的 HTML 引用，
+    # md 里没有引用，靠 collect_attachment_refs 会漏掉），整目录复制。
+    charts_src = CONTENT / "attachments" / "charts"
+    if charts_src.is_dir():
+        charts_dst = OUT / "attachments" / "charts"
+        if not args.dry_run:
+            shutil.copytree(charts_src, charts_dst, dirs_exist_ok=True)
+        print(f"[public-subset] charts 封面整目录复制")
+
     # 只复制被公开笔记引用到的附件
     refs = collect_attachment_refs(copied_md)
     attach_src = CONTENT / "attachments"

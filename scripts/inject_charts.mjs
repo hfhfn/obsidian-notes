@@ -1,11 +1,11 @@
 /**
- * 榜单三栏渲染
+ * 榜单渲染：上下分栏 + 每栏独立翻页
  *
- * 把 fetch_douban_charts.py 抓到的 book_charts.json / movie_charts.json
- * 注入到藏书馆、观影库的 <!-- LIBRARY_CHARTS --> 占位符。
+ * 布局：不是三列并排，而是「推荐 / 月度热书（片）/ 年度热书（片）」三个
+ * 区块上下排列，每个区块内部是网格，底部有翻页控件。
  *
- * 三栏：推荐 / 月度热书（片） / 年度热书（片）
- * 每张卡片带两个链接：豆瓣页（元数据）+ 微信读书（书）或在线观看标记（片）
+ * 封面必须用下载到本地的路径（cover_local）：豆瓣图床有防盗链，
+ * 浏览器 <img> 不带 Referer 会拿到 418，图全部裂开。
  *
  * 用法: node scripts/inject_charts.mjs dist-public
  */
@@ -15,97 +15,99 @@ import { fileURLToPath } from "node:url"
 
 const PLACEHOLDER = "<!-- LIBRARY_CHARTS -->"
 
-const TITLES = {
+const KINDS = {
   book: {
-    recommend: "推荐",
-    monthly: "月度热书",
-    yearly: "年度热书",
     dir: "藏书馆",
+    labels: { recommend: "推荐", monthly: "月度热书", yearly: "年度热书" },
+    perPage: 12,
+    cols: 6,
   },
   movie: {
-    recommend: "推荐",
-    monthly: "月度热片",
-    yearly: "年度热片",
     dir: "观影库",
+    labels: { recommend: "推荐", monthly: "月度热片", yearly: "年度热片" },
+    perPage: 12,
+    cols: 6,
   },
 }
 
 const CSS = `
-.lc-wrap {
-  margin: 1.4rem 0 2rem;
+.lc-wrap { margin: 1.6rem 0 2.2rem; }
+.lc-section {
+  margin-bottom: 2.2rem;
 }
-.lc-cols {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1.6rem 1.4rem;
-}
-.lc-col-title {
-  margin: 0 0 0.7rem !important;
-  padding-bottom: 0.4rem;
+.lc-sec-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.8rem;
+  margin-bottom: 0.8rem;
+  padding-bottom: 0.45rem;
   border-bottom: 1px solid var(--lightgray);
-  font-size: 0.95rem !important;
+}
+.lc-sec-title {
+  margin: 0 !important;
+  font-size: 1rem !important;
   font-weight: 600;
   color: var(--dark);
 }
-.lc-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.55rem;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.lc-item {
-  display: flex;
-  gap: 0.5rem;
-  align-items: flex-start;
-}
-.lc-rank {
-  flex: 0 0 auto;
-  width: 1.1rem;
+.lc-sec-count {
   color: var(--gray);
-  font-size: 0.72rem;
-  font-variant-numeric: tabular-nums;
-  line-height: 1.5;
-  text-align: right;
-}
-.lc-thumb {
+  font-size: 0.76rem;
   flex: 0 0 auto;
-  width: 34px;
-  height: 48px;
-  border-radius: 3px;
-  object-fit: cover;
+}
+.lc-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 1.2rem 1rem;
+}
+.lc-cell { min-width: 0; }
+.lc-cover-link {
+  display: block;
+  width: 100%;
+  aspect-ratio: 5 / 7;
+  overflow: hidden;
+  border-radius: 4px;
   background: var(--lightgray);
+  line-height: 0;
+}
+.lc-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
   display: block;
+  margin: 0 !important;
+  border-radius: 0 !important;
 }
-.lc-thumb-wide {
-  width: 48px;
-  height: 34px;
+.lc-cover-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--gray);
+  font-size: 0.66rem;
+  text-align: center;
+  padding: 0.3rem;
+  box-sizing: border-box;
 }
-.lc-info {
-  flex: 1 1 auto;
-  min-width: 0;
-}
-.lc-name {
-  display: block;
-  font-size: 0.8rem;
+.lc-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-top: 0.35rem;
+  font-size: 0.78rem;
   font-weight: 600;
   line-height: 1.35;
   color: var(--dark) !important;
   text-decoration: none !important;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
 }
-.lc-name:hover {
-  color: var(--secondary) !important;
-}
-.lc-meta {
-  margin-top: 0.1rem;
+.lc-title:hover { color: var(--secondary) !important; }
+.lc-sub {
+  margin-top: 0.12rem;
   color: var(--gray);
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   line-height: 1.4;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -113,26 +115,44 @@ const CSS = `
 }
 .lc-links {
   display: flex;
-  gap: 0.5rem;
-  margin-top: 0.15rem;
-  font-size: 0.7rem;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.2rem;
+  font-size: 0.68rem;
 }
 .lc-link {
   color: var(--secondary) !important;
   text-decoration: none !important;
 }
-.lc-link:hover {
-  text-decoration: underline !important;
+.lc-link:hover { text-decoration: underline !important; }
+.lc-nolink { color: var(--gray); }
+.lc-pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+  margin-top: 1rem;
 }
-.lc-nolink {
-  color: var(--gray);
-  font-size: 0.7rem;
+.lc-pbtn {
+  padding: 0.24rem 0.7rem;
+  border: 1px solid var(--lightgray);
+  border-radius: 6px;
+  background: none;
+  color: var(--darkgray) !important;
+  font-family: var(--bodyFont);
+  font-size: 0.76rem !important;
+  cursor: pointer;
 }
-@media (max-width: 900px) {
-  .lc-cols {
-    grid-template-columns: 1fr;
-  }
+.lc-pbtn:hover:not(:disabled) {
+  border-color: var(--secondary);
+  color: var(--secondary) !important;
 }
+.lc-pbtn:disabled { opacity: 0.35; cursor: default; }
+.lc-pinfo { color: var(--gray); font-size: 0.74rem; }
+@media (max-width: 1200px) { .lc-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+@media (max-width: 900px)  { .lc-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (max-width: 640px)  { .lc-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 420px)  { .lc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 `
 
 function esc(s) {
@@ -143,78 +163,134 @@ function esc(s) {
     .replace(/"/g, "&quot;")
 }
 
-function renderItem(it, kind, idx) {
+/** 深度：从页面位置算相对前缀（/藏书馆/ 是 1 层） */
+function relPrefix(kind) {
+  const depth = KINDS[kind].dir.split("/").length
+  return "../".repeat(depth)
+}
+
+function renderCell(it, kind, idx, prefix) {
   const name = esc(it.title)
-  const url = it.url || "#"
-  const cover = it.cover || ""
+  const url = esc(it.url || "#")
 
-  // 影视封面是竖版海报，书也是竖版；统一 34×48
-  const thumb = cover
-    ? `<img class="lc-thumb" src="${esc(cover)}" alt="" loading="lazy" referrerpolicy="no-referrer">`
-    : `<span class="lc-thumb"></span>`
+  // 关键：用下载到本地的封面，不用豆瓣远程 URL
+  const local = it.cover_local || ""
+  const cover = local
+    ? `<img class="lc-cover" src="${esc(prefix + local)}" alt="${name}" loading="lazy">`
+    : `<div class="lc-cover-empty">无封面</div>`
 
-  let meta = ""
+  let sub = ""
   if (kind === "book") {
-    meta = it.author ? esc(it.author) : ""
+    sub = it.author ? esc(it.author) : ""
   } else {
     const bits = []
-    if (it.score) bits.push(`★ ${it.score}`)
-    if (it.types && it.types.length) bits.push(esc(it.types.slice(0, 2).join("/")))
+    if (it.score) bits.push(`★${it.score}`)
+    if (it.types && it.types.length) bits.push(esc(it.types[0]))
     if (it.regions && it.regions.length) bits.push(esc(it.regions[0]))
-    meta = bits.join(" · ")
+    sub = bits.join(" · ")
   }
 
-  let links = `<a class="lc-link" href="${esc(url)}" target="_blank" rel="noopener">豆瓣</a>`
+  let links = `<a class="lc-link" href="${url}" target="_blank" rel="noopener">豆瓣</a>`
   if (kind === "book") {
-    if (it.weread) {
-      links += `<a class="lc-link" href="${esc(it.weread)}" target="_blank" rel="noopener">微信读书</a>`
-    } else {
-      links += `<span class="lc-nolink">无电子版</span>`
-    }
+    links += it.weread
+      ? `<a class="lc-link" href="${esc(it.weread)}" target="_blank" rel="noopener">微信读书</a>`
+      : `<span class="lc-nolink">无电子版</span>`
   } else {
-    if (it.playable) {
-      links += `<a class="lc-link" href="${esc(url)}" target="_blank" rel="noopener">有正版源</a>`
-    } else {
-      links += `<span class="lc-nolink">暂无正版源</span>`
-    }
+    links += it.playable
+      ? `<a class="lc-link" href="${url}" target="_blank" rel="noopener">有正版源</a>`
+      : `<span class="lc-nolink">暂无正版源</span>`
   }
 
-  return `<li class="lc-item">
-      <span class="lc-rank">${idx + 1}</span>
-      ${thumb}
-      <div class="lc-info">
-        <a class="lc-name" href="${esc(url)}" target="_blank" rel="noopener">${name}</a>
-        ${meta ? `<div class="lc-meta">${meta}</div>` : ""}
-        <div class="lc-links">${links}</div>
-      </div>
-    </li>`
+  return `<div class="lc-cell">
+      <a class="lc-cover-link" href="${url}" target="_blank" rel="noopener">${cover}</a>
+      <a class="lc-title" href="${url}" target="_blank" rel="noopener">${name}</a>
+      ${sub ? `<div class="lc-sub">${sub}</div>` : ""}
+      <div class="lc-links">${links}</div>
+    </div>`
 }
 
 function renderCharts(data, kind) {
-  const cfg = TITLES[kind]
-  const cols = ["recommend", "monthly", "yearly"]
-    .map((key) => {
+  const cfg = KINDS[kind]
+  const prefix = relPrefix(kind)
+  const keys = ["recommend", "monthly", "yearly"]
+
+  const sections = keys
+    .map((key, si) => {
       const items = data[key] || []
       if (!items.length) return ""
-      const lis = items.map((it, i) => renderItem(it, kind, i)).join("")
-      return `<div class="lc-col">
-        <h4 class="lc-col-title">${cfg[key]}</h4>
-        <ul class="lc-list">${lis}</ul>
-      </div>`
+
+      const per = cfg.perPage
+      const pages = Math.max(1, Math.ceil(items.length / per))
+
+      // 每栏独立翻页：所有页都渲染出来，靠 CSS/JS 切换
+      const pageBlocks = []
+      for (let p = 0; p < pages; p++) {
+        const slice = items.slice(p * per, (p + 1) * per)
+        const cells = slice.map((it, i) => renderCell(it, kind, p * per + i, prefix)).join("")
+        pageBlocks.push(
+          `<div class="lc-grid" data-page="${p + 1}" style="${p === 0 ? "" : "display:none"}">${cells}</div>`,
+        )
+      }
+
+      const pager =
+        pages > 1
+          ? `<div class="lc-pager" data-pager="${si}">
+              <button class="lc-pbtn" data-prev="${si}" disabled>← 上一页</button>
+              <span class="lc-pinfo" data-info="${si}">第 1 / ${pages} 页</span>
+              <button class="lc-pbtn" data-next="${si}">下一页 →</button>
+            </div>`
+          : ""
+
+      return `<section class="lc-section" data-sec="${si}">
+        <div class="lc-sec-head">
+          <h4 class="lc-sec-title">${cfg.labels[key]}</h4>
+          <span class="lc-sec-count">${items.length} 部</span>
+        </div>
+        ${pageBlocks.join("")}
+        ${pager}
+      </section>`
     })
     .join("")
-  return `<style>${CSS}</style><div class="lc-wrap"><div class="lc-cols">${cols}</div></div>`
+
+  return `<style>${CSS}</style><div class="lc-wrap">${sections}</div>`
 }
 
+/** 每栏翻页的运行时（幂等，重复注入不会重复绑定） */
+const RUNTIME = `
+(function(){
+  function bind(){
+    document.querySelectorAll('.lc-section').forEach(function(sec){
+      if (sec.dataset.bound) return;
+      sec.dataset.bound = '1';
+      var grids = Array.from(sec.querySelectorAll('.lc-grid'));
+      if (grids.length <= 1) return;
+      var prev = sec.querySelector('[data-prev]');
+      var next = sec.querySelector('[data-next]');
+      var info = sec.querySelector('[data-info]');
+      var cur = 1;
+      function show(n){
+        cur = Math.max(1, Math.min(n, grids.length));
+        grids.forEach(function(g, i){ g.style.display = (i === cur - 1) ? '' : 'none'; });
+        if (info) info.textContent = '第 ' + cur + ' / ' + grids.length + ' 页';
+        if (prev) prev.disabled = cur === 1;
+        if (next) next.disabled = cur === grids.length;
+      }
+      if (prev) prev.addEventListener('click', function(){ show(cur - 1); });
+      if (next) next.addEventListener('click', function(){ show(cur + 1); });
+      show(1);
+    });
+  }
+  bind();
+  document.addEventListener('nav', bind);
+})();
+`
+
 function inject(distDir) {
-  const candDir = path.join(
-    path.dirname(path.dirname(fileURLToPath(import.meta.url))),
-    "scripts",
-    "candidates",
-  )
+  const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)))
+  const candDir = path.join(root, "scripts", "candidates")
 
   let n = 0
-  for (const [kind, cfg] of Object.entries(TITLES)) {
+  for (const [kind, cfg] of Object.entries(KINDS)) {
     const jsonPath = path.join(candDir, `${kind}_charts.json`)
     if (!fs.existsSync(jsonPath)) {
       console.log(`[charts:${kind}] 缺少 ${kind}_charts.json，跳过`)
@@ -230,22 +306,20 @@ function inject(distDir) {
 
     let html = fs.readFileSync(pagePath, "utf-8")
 
-    // 幂等：先清掉上次注入的块
+    // 幂等：清掉上次注入（含 style + wrap + runtime script）
     html = html.replace(
-      /<style>[\s\S]*?\.lc-wrap[\s\S]*?<\/style>\s*<div class="lc-wrap">[\s\S]*?<\/div>\s*<\/div>/g,
+      /<style>[\s\S]*?\.lc-wrap[\s\S]*?<\/style>\s*<div class="lc-wrap">[\s\S]*?<\/div>\s*(?:<script>[\s\S]*?lc-section[\s\S]*?<\/script>)?/g,
       "",
     )
 
-    const block = renderCharts(data, kind)
+    const block = renderCharts(data, kind) + `<script>${RUNTIME}</script>`
 
     if (html.includes(PLACEHOLDER)) {
       html = html.replace(PLACEHOLDER, block)
     } else {
-      // 没有占位符就插到卡片网格之后
       const m = html.match(/<div class="book-grid"[\s\S]*?<\/div>\s*<script>[\s\S]*?<\/script>/)
-      if (m) {
-        html = html.replace(m[0], m[0] + block)
-      } else {
+      if (m) html = html.replace(m[0], m[0] + block)
+      else {
         console.log(`[charts:${kind}] 找不到插入点，跳过`)
         continue
       }
@@ -253,7 +327,10 @@ function inject(distDir) {
 
     fs.writeFileSync(pagePath, html, "utf-8")
     const total = Object.values(data).reduce((s, v) => s + v.length, 0)
-    console.log(`[charts:${kind}] 已注入 ${total} 条到 ${cfg.dir}/index.html`)
+    const withCover = Object.values(data)
+      .flat()
+      .filter((x) => x.cover_local).length
+    console.log(`[charts:${kind}] ${total} 条（本地封面 ${withCover}）→ ${cfg.dir}/index.html`)
     n++
   }
   return n

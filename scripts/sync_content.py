@@ -943,6 +943,16 @@ class Sync:
         if not MODULES.exists():
             return
 
+        # modules/attachments/ 是榜单封面等站点自有资源（不是笔记附件），
+        # 整目录搬到 content-all/attachments/ 下，供页面直接引用。
+        mod_att = MODULES / "attachments"
+        if mod_att.is_dir():
+            dst_att = CONTENT / "attachments"
+            dst_att.mkdir(parents=True, exist_ok=True)
+            shutil.copytree(mod_att, dst_att, dirs_exist_ok=True)
+            n = sum(1 for _ in mod_att.rglob("*") if _.is_file())
+            self.report["module_attachments"] = n
+
         for name in MODULE_DIRS:
             src = MODULES / name
             if not src.is_dir():
