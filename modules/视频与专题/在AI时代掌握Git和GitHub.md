@@ -24,70 +24,7 @@ created: "2026-06-06"
 
 ### 思维导图
 
-```mermaid
-mindmap
-  root((Git & GitHub Core Concepts))
-    Basics & Version Control
-      Manual vs Auto Control
-      .git Hidden Folder
-      Commit Snapshots
-      Commit History Chain
-    Environment Setup
-      Git Installation
-      VS Code Editor
-      GitHub Account
-      AI Agent Configuration
-    Core File Management
-      Init （Initialization）
-      .gitignore
-        Secrets （.env）
-        Dependencies （node_modules）
-      Staging Area
-        Git Add
-        Staged Changes
-    Commit & Undo
-      Commit ID （Hash）
-        Long ID
-        Short ID （7 digits）
-      Discard （Uncommitted）
-      Reset （Forced History）
-      Revert （Safe Inverse）
-      Diff （Compare Changes）
-    Branching System
-      Master/Main Branch
-      Feature Branches
-      Merging Branches
-      Merge Conflict Resolution
-      HEAD Pointer
-      Checkout （Switching）
-    Remote Operations
-      Clone （Download）
-      Push （Upload）
-      Pull （Fetch + Merge）
-      Syncing Changes
-    GitHub Features
-      Repositories （Public/Private）
-      README （Project Intro）
-      Issues （Bug/Task Tracking）
-      Stars & Forks
-      Releases （Versions）
-      Shortcuts
-        '/' （Search）
-        't' （File Finder）
-        '.' （Web VS Code）
-    Collaboration Workflow
-      Forking （Copy to Self）
-      Pull Request （PR）
-      Code Review
-      Upstream Syncing
-      Collaborators Settings
-    Advanced Features
-      Worktree （Parallel Folders）
-      Codespaces （Cloud IDE）
-      Cherry-Pick （Selective Merge）
-      Stash （Temp Storage）
-      Rebase （Linear History）
-```
+<div class="mm-wrap" data-mm="1" data-mm-title="在AI时代掌握Git和GitHub"><div class="mm-toolbar"><button data-mm-act="fit">适应窗口</button><button data-mm-act="expand">全部展开</button><button data-mm-act="collapse">折叠到底</button><span class="mm-sep"></span><label>字号 <input class="mm-font" type="range" min="11" max="24" value="15"></label><label>间距 <input class="mm-space" type="range" min="4" max="40" value="12"></label><span class="mm-sep"></span><button data-mm-act="full">全屏</button><button data-mm-act="svg">导出</button></div><svg class="mm-canvas"></svg><div class="mm-hint">拖动平移 · 滚轮缩放 · 点击节点折叠</div><script type="application/json" class="mm-data">{"name": "Git & GitHub Core Concepts", "children": [{"name": "Basics & Version Control", "children": [{"name": "Manual vs Auto Control"}, {"name": ".git Hidden Folder"}, {"name": "Commit Snapshots"}, {"name": "Commit History Chain"}]}, {"name": "Environment Setup", "children": [{"name": "Git Installation"}, {"name": "VS Code Editor"}, {"name": "GitHub Account"}, {"name": "AI Agent Configuration"}]}, {"name": "Core File Management", "children": [{"name": "Init (Initialization)"}, {"name": ".gitignore", "children": [{"name": "Secrets (.env)"}, {"name": "Dependencies (node_modules)"}]}, {"name": "Staging Area", "children": [{"name": "Git Add"}, {"name": "Staged Changes"}]}]}, {"name": "Commit & Undo", "children": [{"name": "Commit ID (Hash)", "children": [{"name": "Long ID"}, {"name": "Short ID (7 digits)"}]}, {"name": "Discard (Uncommitted)"}, {"name": "Reset (Forced History)"}, {"name": "Revert (Safe Inverse)"}, {"name": "Diff (Compare Changes)"}]}, {"name": "Branching System", "children": [{"name": "Master/Main Branch"}, {"name": "Feature Branches"}, {"name": "Merging Branches"}, {"name": "Merge Conflict Resolution"}, {"name": "HEAD Pointer"}, {"name": "Checkout (Switching)"}]}, {"name": "Remote Operations", "children": [{"name": "Clone (Download)"}, {"name": "Push (Upload)"}, {"name": "Pull (Fetch + Merge)"}, {"name": "Syncing Changes"}]}, {"name": "GitHub Features", "children": [{"name": "Repositories (Public/Private)"}, {"name": "README (Project Intro)"}, {"name": "Issues (Bug/Task Tracking)"}, {"name": "Stars & Forks"}, {"name": "Releases (Versions)"}, {"name": "Shortcuts", "children": [{"name": "'/' (Search)"}, {"name": "'t' (File Finder)"}, {"name": "'.' (Web VS Code)"}]}]}, {"name": "Collaboration Workflow", "children": [{"name": "Forking (Copy to Self)"}, {"name": "Pull Request (PR)"}, {"name": "Code Review"}, {"name": "Upstream Syncing"}, {"name": "Collaborators Settings"}]}, {"name": "Advanced Features", "children": [{"name": "Worktree (Parallel Folders)"}, {"name": "Codespaces (Cloud IDE)"}, {"name": "Cherry-Pick (Selective Merge)"}, {"name": "Stash (Temp Storage)"}, {"name": "Rebase (Linear History)"}]}]}</script></div>
 
 ### 演示文稿
 

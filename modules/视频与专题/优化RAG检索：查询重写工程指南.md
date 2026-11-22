@@ -24,39 +24,7 @@ created: "2026-06-06"
 
 ### 思维导图
 
-```mermaid
-mindmap
-  root((RAG系统Query改写技术))
-    本质动机
-      语义鸿沟 （口语与专业文档差异）
-      意图模糊 （背景信息缺失）
-      上下文断层 （多轮对话指代不明）
-    核心技术路径
-      HyDE （语义增强型）
-        生成假答案
-        答案对答案匹配
-      任务分解型
-        复杂问题拆解
-        原子问题检索
-      上下文补全型
-        对话历史提取
-        实体消歧/还原
-    工程落地策略
-      性能优化
-        微调小模型
-        异步并行检索
-      稳定性控制
-        防止查询漂移
-        相似度熔断机制
-      成本管理
-        意图路由分流
-        高阶引擎按需开启
-    评估与优化闭环
-      标准化测试集 （Ground Truth）
-      量化指标 （检索命中率）
-      Bad Case 反馈链路
-      Prompt/模型微调
-```
+<div class="mm-wrap" data-mm="1" data-mm-title="优化RAG检索：查询重写工程指南"><div class="mm-toolbar"><button data-mm-act="fit">适应窗口</button><button data-mm-act="expand">全部展开</button><button data-mm-act="collapse">折叠到底</button><span class="mm-sep"></span><label>字号 <input class="mm-font" type="range" min="11" max="24" value="15"></label><label>间距 <input class="mm-space" type="range" min="4" max="40" value="12"></label><span class="mm-sep"></span><button data-mm-act="full">全屏</button><button data-mm-act="svg">导出</button></div><svg class="mm-canvas"></svg><div class="mm-hint">拖动平移 · 滚轮缩放 · 点击节点折叠</div><script type="application/json" class="mm-data">{"name": "RAG系统Query改写技术", "children": [{"name": "本质动机", "children": [{"name": "语义鸿沟 (口语与专业文档差异)"}, {"name": "意图模糊 (背景信息缺失)"}, {"name": "上下文断层 (多轮对话指代不明)"}]}, {"name": "核心技术路径", "children": [{"name": "HyDE (语义增强型)", "children": [{"name": "生成假答案"}, {"name": "答案对答案匹配"}]}, {"name": "任务分解型", "children": [{"name": "复杂问题拆解"}, {"name": "原子问题检索"}]}, {"name": "上下文补全型", "children": [{"name": "对话历史提取"}, {"name": "实体消歧/还原"}]}]}, {"name": "工程落地策略", "children": [{"name": "性能优化", "children": [{"name": "微调小模型"}, {"name": "异步并行检索"}]}, {"name": "稳定性控制", "children": [{"name": "防止查询漂移"}, {"name": "相似度熔断机制"}]}, {"name": "成本管理", "children": [{"name": "意图路由分流"}, {"name": "高阶引擎按需开启"}]}]}, {"name": "评估与优化闭环", "children": [{"name": "标准化测试集 (Ground Truth)"}, {"name": "量化指标 (检索命中率)"}, {"name": "Bad Case 反馈链路"}, {"name": "Prompt/模型微调"}]}]}</script></div>
 
 ### 演示文稿
 

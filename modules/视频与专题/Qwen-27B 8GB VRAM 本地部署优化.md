@@ -25,34 +25,7 @@ created: "2026-08-29"
 
 ### 思维导图
 
-```mermaid
-mindmap
-  root((Qwen 3.8-27B Local Deployment （8GB VRAM）))
-    Hardware Environment
-      GPU: RTX 2070 （8GB VRAM）
-      CPU: Threads set to P-core count
-      Memory: Offload destination for layers
-    Quantization Strategy
-      Selected: IQ4_XS （Better logic and speed）
-      Avoided: IQ1/IQ2 （Looping and context issues）
-      Avoided: Q3 （Slower than Q4/IQ4）
-    Configuration Parameters
-      GPU Offload: 26 layers
-      KV Cache: Q4 quantization
-      Predictive Decoding: MTP set to 2
-      Dify: Increased timeout judgment
-    Reasoning （Thinking） Optimization
-      Thinking Mode: Enable for Q4+ models
-      Problem: Max token overflow/infinite loops
-      Solution: Fixed reasoning budget/budget value
-      Benefit: Richer content and detail
-    Testing and Results
-      Logical Reasoning: Passes contradiction tests
-      Image Recognition: High accuracy （locations/details）
-      Speed: 1 token/sec （8GB VRAM limit）
-      Requirement: 16GB VRAM for smooth workflow
-      Advantage: Better for local use than 3.8-Flash-Next
-```
+<div class="mm-wrap" data-mm="1" data-mm-title="Qwen-27B 8GB VRAM 本地部署优化"><div class="mm-toolbar"><button data-mm-act="fit">适应窗口</button><button data-mm-act="expand">全部展开</button><button data-mm-act="collapse">折叠到底</button><span class="mm-sep"></span><label>字号 <input class="mm-font" type="range" min="11" max="24" value="15"></label><label>间距 <input class="mm-space" type="range" min="4" max="40" value="12"></label><span class="mm-sep"></span><button data-mm-act="full">全屏</button><button data-mm-act="svg">导出</button></div><svg class="mm-canvas"></svg><div class="mm-hint">拖动平移 · 滚轮缩放 · 点击节点折叠</div><script type="application/json" class="mm-data">{"name": "Qwen 3.8-27B Local Deployment (8GB VRAM)", "children": [{"name": "Hardware Environment", "children": [{"name": "GPU: RTX 2070 (8GB VRAM)"}, {"name": "CPU: Threads set to P-core count"}, {"name": "Memory: Offload destination for layers"}]}, {"name": "Quantization Strategy", "children": [{"name": "Selected: IQ4_XS (Better logic and speed)"}, {"name": "Avoided: IQ1/IQ2 (Looping and context issues)"}, {"name": "Avoided: Q3 (Slower than Q4/IQ4)"}]}, {"name": "Configuration Parameters", "children": [{"name": "GPU Offload: 26 layers"}, {"name": "KV Cache: Q4 quantization"}, {"name": "Predictive Decoding: MTP set to 2"}, {"name": "Dify: Increased timeout judgment"}]}, {"name": "Reasoning (Thinking) Optimization", "children": [{"name": "Thinking Mode: Enable for Q4+ models"}, {"name": "Problem: Max token overflow/infinite loops"}, {"name": "Solution: Fixed reasoning budget/budget value"}, {"name": "Benefit: Richer content and detail"}]}, {"name": "Testing and Results", "children": [{"name": "Logical Reasoning: Passes contradiction tests"}, {"name": "Image Recognition: High accuracy (locations/details)"}, {"name": "Speed: 1 token/sec (8GB VRAM limit)"}, {"name": "Requirement: 16GB VRAM for smooth workflow"}, {"name": "Advantage: Better for local use than 3.8-Flash-Next"}]}]}</script></div>
 
 ### 信息图
 

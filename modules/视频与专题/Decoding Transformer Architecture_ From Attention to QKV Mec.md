@@ -25,54 +25,7 @@ created: "2026-09-01"
 
 ### 思维导图
 
-```mermaid
-mindmap
-  root((Transformer Architecture))
-    Evolution of NLP Models
-      N-gram: Statistical next-word prediction
-      Word Embedding: High-dimensional semantic vectors
-      RNN: Sequential processing with memory
-      LSTM: Long-term memory and gating mechanisms
-      Previous Limitations
-        Sequential calculation bottleneck
-        Information loss over long distances
-    Attention Mechanism
-      Core Concept: Token mutual interaction
-      The QKV Triad
-        Query （Q）: Search intention
-        Key （K）: Information label
-        Value （V）: Actual content
-      Calculation Process
-        Q and K dot product matching
-        Scaling factor （sqrt d） for stability
-        Softmax for weight distribution
-        Weighted sum of Values （V）
-      Self-Attention: Within the same sequence
-    Structural Components
-      Multi-Head Attention
-        Multiple observation spaces
-        Parallel relationship learning
-      Positional Encoding
-        Restores sequence order
-        Added to word embeddings
-      Feed-Forward Network （FFN）
-        Information analysis and reasoning
-        Feature combination within tokens
-      Residual Connection （Add & Norm）
-        Shortcut for gradient flow
-        Solves gradient vanishing in deep layers
-    Encoder-Decoder Architecture
-      Encoder
-        Encodes source text meaning
-        Bi-directional visibility
-      Decoder
-        One-by-one token generation
-        Masked Attention: Hides future tokens
-        Cross Attention: Queries the Encoder
-      Output Layer
-        Linear layer and Softmax
-        Probability distribution over vocabulary
-```
+<div class="mm-wrap" data-mm="1" data-mm-title="Decoding Transformer Architecture: From Attention to QKV Mechanics"><div class="mm-toolbar"><button data-mm-act="fit">适应窗口</button><button data-mm-act="expand">全部展开</button><button data-mm-act="collapse">折叠到底</button><span class="mm-sep"></span><label>字号 <input class="mm-font" type="range" min="11" max="24" value="15"></label><label>间距 <input class="mm-space" type="range" min="4" max="40" value="12"></label><span class="mm-sep"></span><button data-mm-act="full">全屏</button><button data-mm-act="svg">导出</button></div><svg class="mm-canvas"></svg><div class="mm-hint">拖动平移 · 滚轮缩放 · 点击节点折叠</div><script type="application/json" class="mm-data">{"name": "Transformer Architecture", "children": [{"name": "Evolution of NLP Models", "children": [{"name": "N-gram: Statistical next-word prediction"}, {"name": "Word Embedding: High-dimensional semantic vectors"}, {"name": "RNN: Sequential processing with memory"}, {"name": "LSTM: Long-term memory and gating mechanisms"}, {"name": "Previous Limitations", "children": [{"name": "Sequential calculation bottleneck"}, {"name": "Information loss over long distances"}]}]}, {"name": "Attention Mechanism", "children": [{"name": "Core Concept: Token mutual interaction"}, {"name": "The QKV Triad", "children": [{"name": "Query (Q): Search intention"}, {"name": "Key (K): Information label"}, {"name": "Value (V): Actual content"}]}, {"name": "Calculation Process", "children": [{"name": "Q and K dot product matching"}, {"name": "Scaling factor (sqrt d) for stability"}, {"name": "Softmax for weight distribution"}, {"name": "Weighted sum of Values (V)"}]}, {"name": "Self-Attention: Within the same sequence"}]}, {"name": "Structural Components", "children": [{"name": "Multi-Head Attention", "children": [{"name": "Multiple observation spaces"}, {"name": "Parallel relationship learning"}]}, {"name": "Positional Encoding", "children": [{"name": "Restores sequence order"}, {"name": "Added to word embeddings"}]}, {"name": "Feed-Forward Network (FFN)", "children": [{"name": "Information analysis and reasoning"}, {"name": "Feature combination within tokens"}]}, {"name": "Residual Connection (Add & Norm)", "children": [{"name": "Shortcut for gradient flow"}, {"name": "Solves gradient vanishing in deep layers"}]}]}, {"name": "Encoder-Decoder Architecture", "children": [{"name": "Encoder", "children": [{"name": "Encodes source text meaning"}, {"name": "Bi-directional visibility"}]}, {"name": "Decoder", "children": [{"name": "One-by-one token generation"}, {"name": "Masked Attention: Hides future tokens"}, {"name": "Cross Attention: Queries the Encoder"}]}, {"name": "Output Layer", "children": [{"name": "Linear layer and Softmax"}, {"name": "Probability distribution over vocabulary"}]}]}]}</script></div>
 
 ### 信息图
 

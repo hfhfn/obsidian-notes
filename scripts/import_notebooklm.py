@@ -23,6 +23,11 @@ import sys
 from pathlib import Path
 
 SITE = Path(__file__).resolve().parent.parent
+try:
+    import zhconv
+except ImportError:
+    zhconv = None
+
 MODULE_DIR = SITE / "modules" / "视频与专题"
 ASSET_DIR = MODULE_DIR / "_assets"
 CAND_DIR = SITE / "scripts" / "candidates"
@@ -208,15 +213,26 @@ def load_summaries():
         return {}
 
 
-def render_mindmap(json_path):
-    """把 NotebookLM 的脑图 JSON 渲染成 Mermaid mindmap。
+def _to_zh(text):
+    """繁体转简体。英文由调用方决定是否翻译。"""
+    if not text:
+        return text
+    if zhconv:
+        return zhconv.convert(text, "zh-cn")
+    return text
+
+
+def render_mindmap(json_path, title="mindmap"):
+    """把 NotebookLM 的脑图 JSON 渲染成可交互 mind map。
 
     数据结构是 {name, children: [{name, children: [...]}]}。
-    用 Mermaid 而不是 <details> 列表：用户要的是「脑图」，不是缩进文字。
-    Quartz 内置 Mermaid 支持，<pre class="mermaid"> 会被自动渲染成图形。
+
+    为什么不用 Mermaid：Mermaid mindmap 是静态 SVG，不能拖节点、
+    不能调布局、不能调字号，大图挤成一团。改用 markmap-view（d3 驱动），
+    支持拖动平移、滚轮缩放、节点折叠、字号/间距调整、全屏、导出 SVG。
+
+    节点文字统一转简体（繁体→本地 zhconv，英文保持原样避免误译）。
     """
-    # v["path"] 是相对 MODULE_DIR 的路径（如 _assets/<名>/mind-map.json），
-    # 直接 Path() 会相对进程 cwd，读不到文件。
     p = Path(json_path)
     if not p.is_absolute():
         p = MODULE_DIR / p
@@ -225,40 +241,36 @@ def render_mindmap(json_path):
     except Exception:
         return ""
 
-    # 用 Mermaid mindmap 渲染成真正的脑图（而不是文字列表）。
-    # Mermaid 的 mindmap 语法靠缩进表达层级，节点文本里的特殊字符要转义。
-    def mm_text(s):
-        # mindmap 里 [] () {} 和引号会破坏语法，统一换成全角或去掉
-        t = str(s).replace("\n", " ").strip()
-        for a, b in [("[", "［"), ("]", "］"), ("(", "（"), (")", "）"),
-                     ("{", "｛"), ("}", "｝"), ("`", "'"), ('"', "'")]:
-            t = t.replace(a, b)
-        return t or " "
+    # 递归把节点名转简体
+    def walk_zh(node):
+        out = {"name": _to_zh(str(node.get("name", "")))}
+        kids = node.get("children") or []
+        if kids:
+            out["children"] = [walk_zh(c) for c in kids]
+        return out
 
-    lines = ["mindmap"]
+    tree = walk_zh(data)
+    payload = json.dumps(tree, ensure_ascii=False).replace("</script", "<\\/script")
 
-    def walk(node, depth):
-        name = mm_text(node.get("name", ""))
-        indent = "  " * depth
-        # 根节点用 root(( )) 圆形样式，其余用普通节点
-        if depth == 1:
-            lines.append(f"{indent}root(({name}))")
-        else:
-            lines.append(f"{indent}{name}")
-        for c in node.get("children") or []:
-            walk(c, depth + 1)
-
-    # Mermaid mindmap 需要一个根；NotebookLM 的 JSON 本身就是树
-    walk(data, 1)
-
-    body = "\n".join(lines)
-    # 必须用 markdown 的 fenced code block，不能写 <pre class="mermaid">。
-    # Quartz 的 mermaid 支持由 syntax-highlighting 插件（Shiki）提供，
-    # 它只认 ```mermaid 代码块，渲染成 <pre><code class="language-mermaid">。
-    fence = "`" * 3
-    return f"{fence}mermaid\n{body}\n{fence}"
-
-        
+    safe_title = str(title).replace('"', "&quot;")
+    return (
+        f'<div class="mm-wrap" data-mm="1" data-mm-title="{safe_title}">'
+        '<div class="mm-toolbar">'
+        '<button data-mm-act="fit">适应窗口</button>'
+        '<button data-mm-act="expand">全部展开</button>'
+        '<button data-mm-act="collapse">折叠到底</button>'
+        '<span class="mm-sep"></span>'
+        '<label>字号 <input class="mm-font" type="range" min="11" max="24" value="15"></label>'
+        '<label>间距 <input class="mm-space" type="range" min="4" max="40" value="12"></label>'
+        '<span class="mm-sep"></span>'
+        '<button data-mm-act="full">全屏</button>'
+        '<button data-mm-act="svg">导出</button>'
+        '</div>'
+        '<svg class="mm-canvas"></svg>'
+        '<div class="mm-hint">拖动平移 · 滚轮缩放 · 点击节点折叠</div>'
+        f'<script type="application/json" class="mm-data">{payload}</script>'
+        '</div>'
+    )
 
 
 def write_note(nb, got, force=False):
@@ -385,7 +397,7 @@ def write_note(nb, got, force=False):
                 lines += ["（待上传 R2）", ""]
 
         elif k == "mind-map":
-            tree = render_mindmap(v["path"])
+            tree = render_mindmap(v["path"], title)
             lines += [
                 f"### {label}",
                 "",

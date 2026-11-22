@@ -25,57 +25,7 @@ created: "2026-11-07"
 
 ### 思维导图
 
-```mermaid
-mindmap
-  root((DeepSeek Super-agent 架构解析))
-    传统 Agent 的局限与痛点
-      会话模式: 以 Session 为单位
-        核心循环: ReAct Loop
-        工作方式: 想一步做一步
-      面临的三大核心痛点
-        执行耗时命令时整个循环卡住
-        多需求塞入同会话导致上下文混乱
-        本地电脑休眠导致 Agent 罢工
-    Super-agent 的四大基础特征
-      连续: 跨会话记住上下文并持续推进
-      高效: 同时推进好几件事
-      主动: 盯着群消息和工单自主处理
-      持久: 一直在线并能自动恢复
-    五大核心模块与架构设计
-      上下层分工 （Router 与 Worker）
-        Router 层: 充当项目经理，用轻量模型
-        Worker 层: 充当工程师，用最强模型
-      事件驱动与消息过滤机制
-        触发事件: Trigger
-        快慢路径: Fast Path / Slow Path
-        两级过滤: 门卫机制与秘书机制
-      任务分配与订阅机制
-        工作单元: Thread （工单/话题）
-        订阅机制: 后续消息直接送达 Worker
-      上下文管理策略
-        内联: Inline 附带前后聊天
-        溢出: Spill 只给摘要
-        链式召回: Chain of Recall 顺编号翻阅
-      主动性与安全边界
-        投机执行: 后台提前备好草稿
-        观察模式: 默认只记录不执行
-    通信、部署与高可用优化
-      全双工通信: 异步工具调用
-      多渠道消息降噪: 控制输出长度与时机
-      存算分离与云端部署
-        计算与状态分离: 云端容器与数据库
-        计算与执行环境分离: BYOM （Bring Your Own Machine）
-      高可用保障: Watchdog 巡查机制
-    优劣势对比与开放挑战
-      性能对比
-        速度提升: 速度快了一倍
-        Token 消耗: 读缓存 token 增加 2 到 4 倍
-      面临挑战
-        任务规模扩大与长期记忆
-        人机协作交互界面
-        多助手隐私配合
-        安全防范: 提示词注入攻击
-```
+<div class="mm-wrap" data-mm="1" data-mm-title="DeepSeek Super-agent 架构解析"><div class="mm-toolbar"><button data-mm-act="fit">适应窗口</button><button data-mm-act="expand">全部展开</button><button data-mm-act="collapse">折叠到底</button><span class="mm-sep"></span><label>字号 <input class="mm-font" type="range" min="11" max="24" value="15"></label><label>间距 <input class="mm-space" type="range" min="4" max="40" value="12"></label><span class="mm-sep"></span><button data-mm-act="full">全屏</button><button data-mm-act="svg">导出</button></div><svg class="mm-canvas"></svg><div class="mm-hint">拖动平移 · 滚轮缩放 · 点击节点折叠</div><script type="application/json" class="mm-data">{"name": "DeepSeek Super-agent 架构解析", "children": [{"name": "传统 Agent 的局限与痛点", "children": [{"name": "会话模式: 以 Session 为单位", "children": [{"name": "核心循环: ReAct Loop"}, {"name": "工作方式: 想一步做一步"}]}, {"name": "面临的三大核心痛点", "children": [{"name": "执行耗时命令时整个循环卡住"}, {"name": "多需求塞入同会话导致上下文混乱"}, {"name": "本地电脑休眠导致 Agent 罢工"}]}]}, {"name": "Super-agent 的四大基础特征", "children": [{"name": "连续: 跨会话记住上下文并持续推进"}, {"name": "高效: 同时推进好几件事"}, {"name": "主动: 盯着群消息和工单自主处理"}, {"name": "持久: 一直在线并能自动恢复"}]}, {"name": "五大核心模块与架构设计", "children": [{"name": "上下层分工 (Router 与 Worker)", "children": [{"name": "Router 层: 充当项目经理，用轻量模型"}, {"name": "Worker 层: 充当工程师，用最强模型"}]}, {"name": "事件驱动与消息过滤机制", "children": [{"name": "触发事件: Trigger"}, {"name": "快慢路径: Fast Path / Slow Path"}, {"name": "两级过滤: 门卫机制与秘书机制"}]}, {"name": "任务分配与订阅机制", "children": [{"name": "工作单元: Thread (工单/话题)"}, {"name": "订阅机制: 后续消息直接送达 Worker"}]}, {"name": "上下文管理策略", "children": [{"name": "内联: Inline 附带前后聊天"}, {"name": "溢出: Spill 只给摘要"}, {"name": "链式召回: Chain of Recall 顺编号翻阅"}]}, {"name": "主动性与安全边界", "children": [{"name": "投机执行: 后台提前备好草稿"}, {"name": "观察模式: 默认只记录不执行"}]}]}, {"name": "通信、部署与高可用优化", "children": [{"name": "全双工通信: 异步工具调用"}, {"name": "多渠道消息降噪: 控制输出长度与时机"}, {"name": "存算分离与云端部署", "children": [{"name": "计算与状态分离: 云端容器与数据库"}, {"name": "计算与执行环境分离: BYOM (Bring Your Own Machine)"}]}, {"name": "高可用保障: Watchdog 巡查机制"}]}, {"name": "优劣势对比与开放挑战", "children": [{"name": "性能对比", "children": [{"name": "速度提升: 速度快了一倍"}, {"name": "Token 消耗: 读缓存 token 增加 2 到 4 倍"}]}, {"name": "面临挑战", "children": [{"name": "任务规模扩大与长期记忆"}, {"name": "人机协作交互界面"}, {"name": "多助手隐私配合"}, {"name": "安全防范: 提示词注入攻击"}]}]}]}</script></div>
 
 ### 信息图
 

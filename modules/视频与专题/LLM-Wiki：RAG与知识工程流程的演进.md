@@ -24,57 +24,7 @@ created: "2026-07-11"
 
 ### 思维导图
 
-```mermaid
-mindmap
-  root((LLM Wiki （LMwiki）))
-    Core Concept
-      Knowledge Engineering System
-      Ingestion-driven vs. Query-driven
-      Compilation into Long-term Assets
-      Knowledge Runtime
-    Evolutionary Path
-      2020: RAG （External Knowledge Access）
-      2024: GraphRAG （Global Relationships）
-      2026: LMwiki （Incremental Compilation）
-    Architecture （Three Layers）
-      Raw Materials （Immutable PDF/Code/Logs）
-      Wiki Derived Layer （Entities/Concepts/Synthesis）
-      Schema Constraint Layer （Rules/Naming/Sourcing）
-    Operation Control Plane
-      Index.md （Navigation & Categories）
-      Log.md （Event & Audit Trail）
-      Front Matter （Metadata & Hard Constraints）
-      Overview.md （Cognitive Snapshot）
-    Page Types
-      Source & Entity
-      Concept & Comparison
-      Question & Synthesis
-      Decision & Knowledge Gap
-    Core Workflows
-      Ingest
-        Normalization
-        Cross-referencing
-        Incremental Update
-      Crystallization （Chat to Wiki）
-      Lint （Structural & Semantic Health）
-      Deep Research （Active Discovery）
-    Advanced Strategies
-      Adversarial Ingest
-        Multi-agent Verification
-        Explicit Verdicts （Supported/Contradicted）
-      Adaptive Retrieval
-        Query Routing
-        Hybrid Search （BM25/Vector/Graph）
-    Risks & Challenges
-      Hallucination Loop （Self-reinforcement）
-      Fine-grained Information Loss
-      Shift in Maintenance Costs
-    Application Scenarios
-      Long-term Theme Research
-      Codebase & Literature Understanding
-      Competitive Intelligence
-      Personal Second Brain
-```
+<div class="mm-wrap" data-mm="1" data-mm-title="LLM-Wiki：RAG与知识工程流程的演进"><div class="mm-toolbar"><button data-mm-act="fit">适应窗口</button><button data-mm-act="expand">全部展开</button><button data-mm-act="collapse">折叠到底</button><span class="mm-sep"></span><label>字号 <input class="mm-font" type="range" min="11" max="24" value="15"></label><label>间距 <input class="mm-space" type="range" min="4" max="40" value="12"></label><span class="mm-sep"></span><button data-mm-act="full">全屏</button><button data-mm-act="svg">导出</button></div><svg class="mm-canvas"></svg><div class="mm-hint">拖动平移 · 滚轮缩放 · 点击节点折叠</div><script type="application/json" class="mm-data">{"name": "LLM Wiki (LMwiki)", "children": [{"name": "Core Concept", "children": [{"name": "Knowledge Engineering System"}, {"name": "Ingestion-driven vs. Query-driven"}, {"name": "Compilation into Long-term Assets"}, {"name": "Knowledge Runtime"}]}, {"name": "Evolutionary Path", "children": [{"name": "2020: RAG (External Knowledge Access)"}, {"name": "2024: GraphRAG (Global Relationships)"}, {"name": "2026: LMwiki (Incremental Compilation)"}]}, {"name": "Architecture (Three Layers)", "children": [{"name": "Raw Materials (Immutable PDF/Code/Logs)"}, {"name": "Wiki Derived Layer (Entities/Concepts/Synthesis)"}, {"name": "Schema Constraint Layer (Rules/Naming/Sourcing)"}]}, {"name": "Operation Control Plane", "children": [{"name": "Index.md (Navigation & Categories)"}, {"name": "Log.md (Event & Audit Trail)"}, {"name": "Front Matter (Metadata & Hard Constraints)"}, {"name": "Overview.md (Cognitive Snapshot)"}]}, {"name": "Page Types", "children": [{"name": "Source & Entity"}, {"name": "Concept & Comparison"}, {"name": "Question & Synthesis"}, {"name": "Decision & Knowledge Gap"}]}, {"name": "Core Workflows", "children": [{"name": "Ingest", "children": [{"name": "Normalization"}, {"name": "Cross-referencing"}, {"name": "Incremental Update"}]}, {"name": "Crystallization (Chat to Wiki)"}, {"name": "Lint (Structural & Semantic Health)"}, {"name": "Deep Research (Active Discovery)"}]}, {"name": "Advanced Strategies", "children": [{"name": "Adversarial Ingest", "children": [{"name": "Multi-agent Verification"}, {"name": "Explicit Verdicts (Supported/Contradicted)"}]}, {"name": "Adaptive Retrieval", "children": [{"name": "Query Routing"}, {"name": "Hybrid Search (BM25/Vector/Graph)"}]}]}, {"name": "Risks & Challenges", "children": [{"name": "Hallucination Loop (Self-reinforcement)"}, {"name": "Fine-grained Information Loss"}, {"name": "Shift in Maintenance Costs"}]}, {"name": "Application Scenarios", "children": [{"name": "Long-term Theme Research"}, {"name": "Codebase & Literature Understanding"}, {"name": "Competitive Intelligence"}, {"name": "Personal Second Brain"}]}]}</script></div>
 
 ### 演示文稿
 

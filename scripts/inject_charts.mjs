@@ -141,7 +141,7 @@ const CSS = `
 .lc-mark {
   display: block;
   width: 100%;
-  margin-top: 0.35rem;
+  margin-bottom: 0.35rem;
   padding: 0.22rem 0.4rem;
   border: 1px dashed var(--lightgray);
   border-radius: 5px;
@@ -160,6 +160,10 @@ const CSS = `
 .lc-mark[data-status] {
   border-style: solid;
   font-weight: 600;
+}
+/* 标记按钮上移后，未标记时留一条虚线占位，避免有无标记的卡片错位 */
+.lc-mark:not([data-status]) {
+  opacity: 0.55;
 }
 .lc-mark[data-status="wish"]  { border-color: #6aa9d8; color: #6aa9d8 !important; }
 .lc-mark[data-status="doing"] { border-color: #e8a33d; color: #e8a33d !important; }
@@ -314,12 +318,14 @@ function renderCell(it, kind, prefix) {
          data-title="${name}" data-cover="${esc(local)}" data-url="${url}">+ 标记</button>`
     : ""
 
+  // 标记按钮放封面之上：放在下方时每张卡片高度不一，整排参差不齐；
+  // 提到上方后与封面顶部对齐，视觉更整齐。
   return `<div class="lc-cell" data-item="${itemKey}">
+      ${markBtn}
       <a class="lc-cover-link" href="${url}" target="_blank" rel="noopener">${cover}</a>
       <a class="lc-title" href="${url}" target="_blank" rel="noopener">${name}</a>
       ${sub ? `<div class="lc-sub">${sub}</div>` : ""}
       <div class="lc-links">${links}</div>
-      ${markBtn}
     </div>`
 }
 
@@ -328,15 +334,14 @@ function renderCharts(data, kind) {
   const prefix = relPrefix(kind)
   const keys = ["recommend", "monthly", "yearly"].filter((k) => (data[k] || []).length)
 
-  const tabs =
-    keys
-      .map(
-        (k, i) =>
-          `<button class="lc-tab" role="tab" data-tab="${i}" aria-selected="${i === 0 ? "true" : "false"}">${cfg.labels[k]}</button>`,
-      )
-      .join("") +
-    // 「我的」放最后：数据由前端从 /api/collections 拉，静态页面里是空容器
-    `<button class="lc-tab" role="tab" data-tab="${keys.length}" aria-selected="false">我的</button>`
+  // 不再单独加「我的」标签：页面顶部那排（在读/已读/想读/全部）
+  // 本身就是「我的」书架，两个入口会让人困惑。
+  const tabs = keys
+    .map(
+      (k, i) =>
+        `<button class="lc-tab" role="tab" data-tab="${i}" aria-selected="${i === 0 ? "true" : "false"}">${cfg.labels[k]}</button>`,
+    )
+    .join("")
 
   const panels = keys
     .map((key, si) => {
@@ -369,24 +374,9 @@ function renderCharts(data, kind) {
     })
     .join("")
 
-  const minePanel = `<div class="lc-panel" role="tabpanel" data-panel="${keys.length}" data-mine="${kind}" hidden>
-    <div class="lc-mine-status" role="tablist">
-      ${Object.entries(cfg.mine)
-        .map(
-          ([k, lb], i) =>
-            `<button class="lc-mine-tab" role="tab" data-status="${k}" aria-selected="${i === 0 ? "true" : "false"}">${lb}</button>`,
-        )
-        .join("")}
-    </div>
-    <div class="lc-mine-list" data-kind="${kind}">
-      <p class="lc-mine-empty">加载中…</p>
-    </div>
-  </div>`
-
   return `<style>${CSS}</style><div class="lc-wrap" data-kind="${kind}">
     <div class="lc-tabs" role="tablist">${tabs}</div>
     ${panels}
-    ${minePanel}
   </div>`
 }
 
@@ -502,12 +492,16 @@ const RUNTIME = `
         try {
           if (next === null) {
             var ok = await remove(btn);
-            if (ok) paint(btn, null, 0);
-            else alert('移除失败，请先登录');
+            if (ok) {
+              paint(btn, null, 0);
+              syncToShelf(btn, null);
+            } else alert('移除失败，请先登录');
           } else {
             var res = await save(btn, next.status, next.progress);
-            if (res) paint(btn, next.status, next.progress);
-            else alert('请先登录后再标记');
+            if (res) {
+              paint(btn, next.status, next.progress);
+              syncToShelf(btn, next.status);
+            } else alert('请先登录后再标记');
           }
         } finally {
           btn.disabled = false;
@@ -540,131 +534,83 @@ const RUNTIME = `
     loadMarks();
   }
 
-  // ---- 「我的」书架 ----
-  var mineCache = {};   // kind -> items[]
+  // ---- 标记联动顶部书架 ----
+  // 页面顶部那排（在读/已读/想读/全部）就是「我的」书架，
+  // 标记后把卡片插进对应分区，用户切过去就能看到，不用另开标签。
+  var STATUS_TO_TAB = { wish: '想读', doing: '在读', done: '已读' };
 
-  function mineCell(it){
-    var cover = it.cover
-      ? '<img class="lc-cover" src="' + (it.cover.charAt(0) === 'a' ? '../' : '') + it.cover + '" alt="" loading="lazy">'
-      : '<div class="lc-cover-empty">无封面</div>';
-    var title = it.title || '';
-    var url = it.url || '#';
-    var prog = (it.progress > 0 && it.progress < 100)
-      ? '<div class="lc-prog"><div class="lc-prog-bar" style="width:' + it.progress + '%"></div></div>'
-      : '';
-    return '<div class="lc-cell" data-item="' + it.item_key + '">' +
-      '<a class="lc-cover-link" href="' + url + '" target="_blank" rel="noopener">' + cover + '</a>' +
-      '<a class="lc-title" href="' + url + '" target="_blank" rel="noopener">' + title + '</a>' +
-      prog +
-      '<button class="lc-cell-remove" data-item="' + it.item_key + '">移除</button>' +
-      '</div>';
+  function bookGridFor(kind){
+    // 页面上可能有多个 book-grid，取属于本库的那个
+    var grids = Array.from(document.querySelectorAll('.book-grid'));
+    return grids.find(function(g){ return g.getAttribute('data-for') === kind; }) || grids[0] || null;
   }
 
-  function renderMine(panel){
-    var kind = panel.getAttribute('data-mine');
-    var list = panel.querySelector('.lc-mine-list');
-    var tabs = Array.from(panel.querySelectorAll('.lc-mine-tab'));
-    var active = tabs.find(function(t){ return t.getAttribute('aria-selected') === 'true'; });
-    var status = active ? active.getAttribute('data-status') : 'wish';
+  // 标记变化后，把这张卡同步进顶部书架
+  function syncToShelf(btn, status){
+    var kind = btn.getAttribute('data-kind');
+    var grid = bookGridFor(kind);
+    if (!grid) return;
 
-    var all = mineCache[kind] || [];
-    var items = all.filter(function(it){ return it.status === status; });
+    var itemKey = btn.getAttribute('data-item');
+    var tab = STATUS_TO_TAB[status] || '想读';
 
-    if (!items.length) {
-      list.innerHTML = '<p class="lc-mine-empty">' +
-        (all.length === 0
-          ? '你的书架还是空的。点上面榜单里任意一本书的「+ 标记」就能加进来。'
-          : '这个分类下还没有内容。') +
-        '</p>';
-      return;
-    }
-    list.innerHTML = items.map(mineCell).join('');
-
-    // 绑定移除
-    list.querySelectorAll('.lc-cell-remove').forEach(function(btn){
-      btn.addEventListener('click', async function(ev){
-        ev.preventDefault();
-        ev.stopPropagation();
-        var key = btn.getAttribute('data-item');
-        btn.disabled = true;
-        try {
-          var r = await fetch('/api/collections?itemKey=' + encodeURIComponent(key), {
-            method: 'DELETE', credentials: 'same-origin'
-          });
-          if (r.ok) {
-            mineCache[kind] = (mineCache[kind] || []).filter(function(x){ return x.item_key !== key; });
-            renderMine(panel);
-          } else {
-            alert('移除失败，请先登录');
-          }
-        } finally {
-          btn.disabled = false;
-        }
-      });
+    // 先移除这个条目在书架里的旧卡（可能改过状态）
+    grid.querySelectorAll('[data-shelf-item]').forEach(function(el){
+      if (el.getAttribute('data-shelf-item') === itemKey) el.remove();
     });
+
+    if (!status) return;  // 移除标记就不插
+
+    var cell = document.createElement('div');
+    cell.className = 'book-card';
+    cell.setAttribute('data-status', tab);
+    cell.setAttribute('data-shelf-item', itemKey);
+    cell.setAttribute('data-item', itemKey);
+    cell.innerHTML =
+      '<a class="book-cover-link" href="' + (btn.getAttribute('data-url') || '#') + '" target="_blank" rel="noopener">' +
+        '<img class="book-cover" src="' + (btn.getAttribute('data-cover') || '') + '" alt="" loading="lazy">' +
+      '</a>' +
+      '<h3 class="book-title">' + (btn.getAttribute('data-title') || '') + '</h3>' +
+      '<div class="book-meta"><span class="book-badge">' + tab + '</span></div>';
+    grid.appendChild(cell);
+
+    // 通知顶部书架重新筛选/分页
+    grid.dispatchEvent(new CustomEvent('shelf-changed', { bubbles: true }));
   }
 
-  async function loadMine(panel){
-    var kind = panel.getAttribute('data-mine');
-    var list = panel.querySelector('.lc-mine-list');
-    try {
-      var r = await fetch('/api/collections?kind=' + kind, { credentials: 'same-origin' });
-      if (!r.ok) throw new Error('http ' + r.status);
-      var d = await r.json();
-      if (!d.authed) {
-        list.innerHTML = '<p class="lc-mine-empty">登录后可同步你的书架。<a href="/login">去登录 →</a></p>';
-        return;
-      }
-      mineCache[kind] = d.items || [];
-      renderMine(panel);
-    } catch (e) {
-      list.innerHTML = '<p class="lc-mine-empty">加载失败，请刷新重试。</p>';
+  // 页面加载后，把用户已有的标记回填到按钮，并同步到书架
+  async function hydrateMarks(){
+    var btns = Array.from(document.querySelectorAll('.lc-mark'));
+    if (!btns.length) return;
+
+    var byKind = {};
+    btns.forEach(function(b){
+      var k = b.getAttribute('data-kind');
+      (byKind[k] = byKind[k] || []).push(b);
+    });
+
+    for (var kind of Object.keys(byKind)) {
+      try {
+        var r = await fetch('/api/collections?kind=' + kind, { credentials: 'same-origin' });
+        if (!r.ok) continue;
+        var d = await r.json();
+        if (!d.authed) continue;
+
+        var map = {};
+        (d.items || []).forEach(function(it){ map[it.item_key] = it; });
+
+        byKind[kind].forEach(function(btn){
+          var it = map[btn.getAttribute('data-item')];
+          if (it) {
+            paint(btn, it.status, it.progress);
+            syncToShelf(btn, it.status);
+          }
+        });
+      } catch (e) { /* 未登录静默 */ }
     }
   }
 
-  function initMine(){
-    document.querySelectorAll('.lc-panel[data-mine]').forEach(function(panel){
-      if (panel.dataset.mineBound) return;
-      panel.dataset.mineBound = '1';
-
-      panel.querySelectorAll('.lc-mine-tab').forEach(function(tab){
-        tab.addEventListener('click', function(){
-          panel.querySelectorAll('.lc-mine-tab').forEach(function(t){
-            t.setAttribute('aria-selected', String(t === tab));
-          });
-          renderMine(panel);
-        });
-      });
-    });
-  }
-
-  // 切到「我的」标签时才加载数据（避免每次打开页面都请求）
-  function hookMineTab(){
-    document.querySelectorAll('.lc-wrap').forEach(function(wrap){
-      var kind = wrap.getAttribute('data-kind');
-      if (wrap.dataset.mineHooked) return;
-      wrap.dataset.mineHooked = '1';
-
-      var tabs = Array.from(wrap.querySelectorAll('.lc-tab'));
-      var panels = Array.from(wrap.querySelectorAll('.lc-panel'));
-      var mineIdx = panels.findIndex(function(p){ return p.hasAttribute('data-mine'); });
-      if (mineIdx < 0) return;
-
-      tabs.forEach(function(tab){
-        tab.addEventListener('click', function(){
-          if (Number(tab.dataset.tab) === mineIdx) {
-            loadMine(panels[mineIdx]);
-          }
-        });
-      });
-    });
-  }
-
-  bind();
-  initMarks();
-  initMine();
-  hookMineTab();
-  document.addEventListener('nav', function(){ bind(); initMarks(); initMine(); hookMineTab(); });
+  document.addEventListener('nav', function(){ bind(); hydrateMarks(); });
 })();
 `
 

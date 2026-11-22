@@ -24,56 +24,7 @@ created: "2026-06-06"
 
 ### 思维导图
 
-```mermaid
-mindmap
-  root((大模型評估權威指南))
-    評估核心理念
-      評估前置：開發前先定標準
-      評估可行性決定項目生死
-      數據隔離：防止數據洩露
-      建立Baseline基準線
-    LM-Evaluation Harness （LMEL）
-      工具優勢
-        支持HF開源模型
-        支持OpenAI等閉源API
-        內置60+權威Benchmark
-        自動化格式轉換與統計
-      安裝方式
-        標準版：pip install
-        開發版：源碼克隆與可編輯模式
-    任務與數據配置
-      任務分類
-        技術學習：自動化腳本（GSM8K）
-        商業項目：高質量私有評估數據
-      私有評測集接入
-        YAML格式配置文件
-        Doc to text （提示詞）
-        Doc to target （標準答案）
-    模型支持與適配
-      LoRA微調模型：動態權重合併
-      閉源模型：API Key調用
-      量化模型
-        GGUF （適用CPU/GPU）
-        GPTQ （GPU加速）
-      多模態支持：LM-MSMU
-    評估細節與技巧
-      科學評估三步走
-        吃透任務特點 （如CoT）
-        選對評測指標 （BLEU/ROUGE/EM）
-        嚴格控制變量
-      關鍵參數
-        use_cache：計算結果緩存
-        chat_template：模型對話模板
-        save_examples：錯誤樣本分析
-    算力優化方案
-      數據並行 （HF Accelerate）
-      VLLM加速 （張量並行/吞吐量高）
-      Local Completions （本地部署API）
-    結果可復現性
-      避免迷信官方數值
-      本地原始模型比對
-      格式敏感性處理
-```
+<div class="mm-wrap" data-mm="1" data-mm-title="大模型评估 lm-eval 实用指南"><div class="mm-toolbar"><button data-mm-act="fit">适应窗口</button><button data-mm-act="expand">全部展开</button><button data-mm-act="collapse">折叠到底</button><span class="mm-sep"></span><label>字号 <input class="mm-font" type="range" min="11" max="24" value="15"></label><label>间距 <input class="mm-space" type="range" min="4" max="40" value="12"></label><span class="mm-sep"></span><button data-mm-act="full">全屏</button><button data-mm-act="svg">导出</button></div><svg class="mm-canvas"></svg><div class="mm-hint">拖动平移 · 滚轮缩放 · 点击节点折叠</div><script type="application/json" class="mm-data">{"name": "大模型评估权威指南", "children": [{"name": "评估核心理念", "children": [{"name": "评估前置：开发前先定标准"}, {"name": "评估可行性决定项目生死"}, {"name": "数据隔离：防止数据泄露"}, {"name": "建立Baseline基准线"}]}, {"name": "LM-Evaluation Harness (LMEL)", "children": [{"name": "工具优势", "children": [{"name": "支持HF开源模型"}, {"name": "支持OpenAI等闭源API"}, {"name": "内置60+权威Benchmark"}, {"name": "自动化格式转换与统计"}]}, {"name": "安装方式", "children": [{"name": "标准版：pip install"}, {"name": "开发版：源码克隆与可编辑模式"}]}]}, {"name": "任务与数据配置", "children": [{"name": "任务分类", "children": [{"name": "技术学习：自动化脚本(GSM8K)"}, {"name": "商业项目：高质量私有评估数据"}]}, {"name": "私有评测集接入", "children": [{"name": "YAML格式配置文件"}, {"name": "Doc to text (提示词)"}, {"name": "Doc to target (标准答案)"}]}]}, {"name": "模型支持与适配", "children": [{"name": "LoRA微调模型：动态权重合并"}, {"name": "闭源模型：API Key调用"}, {"name": "量化模型", "children": [{"name": "GGUF (适用CPU/GPU)"}, {"name": "GPTQ (GPU加速)"}]}, {"name": "多模态支持：LM-MSMU"}]}, {"name": "评估细节与技巧", "children": [{"name": "科学评估三步走", "children": [{"name": "吃透任务特点 (如CoT)"}, {"name": "选对评测指标 (BLEU/ROUGE/EM)"}, {"name": "严格控制变量"}]}, {"name": "关键参数", "children": [{"name": "use_cache：计算结果缓存"}, {"name": "chat_template：模型对话模板"}, {"name": "save_examples：错误样本分析"}]}]}, {"name": "算力优化方案", "children": [{"name": "数据并行 (HF Accelerate)"}, {"name": "VLLM加速 (张量并行/吞吐量高)"}, {"name": "Local Completions (本地部署API)"}]}, {"name": "结果可复现性", "children": [{"name": "避免迷信官方数值"}, {"name": "本地原始模型比对"}, {"name": "格式敏感性处理"}]}]}</script></div>
 
 ### 演示文稿
 

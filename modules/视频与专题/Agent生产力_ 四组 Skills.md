@@ -25,54 +25,7 @@ created: "2026-06-15"
 
 ### 思维导图
 
-```mermaid
-mindmap
-  root((Agent 頂級生產力 Skill 配置))
-    原能力擴展 （AI 自我進化）
-      Skill Creator （Anthropic）
-        大白話需求轉化 Skill
-        自動起草、測試與迭代
-        免看文檔一分鐘生成
-      Found Skills （Skill.sh）
-        自動拆解需求關鍵詞
-        外網自動尋找現成工具
-        一行命令完成安裝
-    軟體工程開發
-      Superpowers
-        TDD 測試驅動開發標竿
-        紅綠重購循環
-        雙輪內部審計機制
-      Jstack （YC 總裁出品）
-        23 個內置專家角色
-        Office Hours 靈魂拷問
-        QA 模擬真人瀏覽器測試
-        Ship 一鍵發布流程
-      前端大神 M 的 Skill
-        G-me 需求細節拷問
-        Todo 任務輕重緩急管理
-        Prove 代碼庫架構急救包
-    前端頁面設計
-      Frontend Design （Anthropic）
-        消除 AI 模板廉價感
-        推敲非對稱佈局與質感
-        視覺細節精確控製
-      UIUX Pro Max
-        160+ 行業深層設計規則
-        商業場景避坑指南
-        生成持久化設計系統
-    內容創作 （寶玉老師系列）
-      視覺圖像生成
-        Cover Image 五維精準控製
-        21 種專業佈局信息圖
-        小紅書卡通輪播卡片
-      排版與翻譯
-        Markdown 轉 HTML （適配公眾號）
-        出版級四步翻譯流程
-        讀者對象自定義語氣
-      一鍵跨平台發布
-        微信/微博同步分發
-        支持長文與貼圖模式
-```
+<div class="mm-wrap" data-mm="1" data-mm-title="Agent生产力:  四组 Skills"><div class="mm-toolbar"><button data-mm-act="fit">适应窗口</button><button data-mm-act="expand">全部展开</button><button data-mm-act="collapse">折叠到底</button><span class="mm-sep"></span><label>字号 <input class="mm-font" type="range" min="11" max="24" value="15"></label><label>间距 <input class="mm-space" type="range" min="4" max="40" value="12"></label><span class="mm-sep"></span><button data-mm-act="full">全屏</button><button data-mm-act="svg">导出</button></div><svg class="mm-canvas"></svg><div class="mm-hint">拖动平移 · 滚轮缩放 · 点击节点折叠</div><script type="application/json" class="mm-data">{"name": "Agent 顶级生产力 Skill 配置", "children": [{"name": "原能力扩展 (AI 自我进化)", "children": [{"name": "Skill Creator (Anthropic)", "children": [{"name": "大白话需求转化 Skill"}, {"name": "自动起草、测试与迭代"}, {"name": "免看文档一分钟生成"}]}, {"name": "Found Skills (Skill.sh)", "children": [{"name": "自动拆解需求关键词"}, {"name": "外网自动寻找现成工具"}, {"name": "一行命令完成安装"}]}]}, {"name": "软件工程开发", "children": [{"name": "Superpowers", "children": [{"name": "TDD 测试驱动开发标竿"}, {"name": "红绿重购循环"}, {"name": "双轮内部审计机制"}]}, {"name": "Jstack (YC 总裁出品)", "children": [{"name": "23 个内置专家角色"}, {"name": "Office Hours 灵魂拷问"}, {"name": "QA 模拟真人浏览器测试"}, {"name": "Ship 一键发布流程"}]}, {"name": "前端大神 M 的 Skill", "children": [{"name": "G-me 需求细节拷问"}, {"name": "Todo 任务轻重缓急管理"}, {"name": "Prove 代码库架构急救包"}]}]}, {"name": "前端页面设计", "children": [{"name": "Frontend Design (Anthropic)", "children": [{"name": "消除 AI 模板廉价感"}, {"name": "推敲非对称布局与质感"}, {"name": "视觉细节精确控制"}]}, {"name": "UIUX Pro Max", "children": [{"name": "160+ 行业深层设计规则"}, {"name": "商业场景避坑指南"}, {"name": "生成持久化设计系统"}]}]}, {"name": "内容创作 (宝玉老师系列)", "children": [{"name": "视觉图像生成", "children": [{"name": "Cover Image 五维精准控制"}, {"name": "21 种专业布局信息图"}, {"name": "小红书卡通轮播卡片"}]}, {"name": "排版与翻译", "children": [{"name": "Markdown 转 HTML (适配公众号)"}, {"name": "出版级四步翻译流程"}, {"name": "读者对象自定义语气"}]}, {"name": "一键跨平台发布", "children": [{"name": "微信/微博同步分发"}, {"name": "支持长文与贴图模式"}]}]}]}</script></div>
 
 ### 信息图
 

@@ -25,58 +25,7 @@ created: "2026-08-30"
 
 ### 思维导图
 
-```mermaid
-mindmap
-  root((从 Transformer 到大模型原理与演进))
-    底层本质
-      通用函数形式
-      输入/输出定义 （文本预测）
-      神经网络权重训练
-    文本数字化过程
-      分词 （Tokenization）
-      词源 （Token）
-      词嵌入 （Embedding）
-      嵌入矩阵 （Embedding Matrix）
-    Transformer 核心架构 （Block）
-      注意力机制 （Attention）
-        加权求和获取上下文
-        QKV 向量 （Query, Key, Value）
-        多头注意力 （MHA）
-      前馈神经网络 （FFN）
-        升维与降维特征提取
-      辅助组件
-        位置编码 （Positional Encoding）
-        残差连接 （Residual Connection）
-        归一化 （Layer/RMS Normalization）
-      输出层
-        线性投影 （Linear Projection）
-        Softmax （概率转换）
-    训练与智力涌现
-      训练阶段
-        预训练 （Pre-train, 自监督）
-        监督微调 （SFT）
-        强化学习 （RLHF/RLVR）
-      智力表现
-        少样本学习 （Few-shot）
-        思维链 （CoT）
-    应用层与 Agent 演进
-      交互概念
-        提示词 （Prompt）
-        上下文与记忆 （Context/Memory）
-      智能体 （Agent）
-        工具与函数调用 （Function Calling）
-        检索增强生成 （RAG）
-        模型上下文协议 （MCP）
-      工程化与流程
-        工作流 （Workflow）
-        技能 （Skill）
-        子智能体 （Sub-agent）
-    现代架构改良路线
-      混合专家模型 （MoE/DeepSeek-MoE）
-      稀疏/线性注意力 （MQA/GQA/MLA/Mamba）
-      旋转位置编码 （RoPE）
-      残差连接优化 （DeepSeek-V3）
-```
+<div class="mm-wrap" data-mm="1" data-mm-title="From Transformer to LLM: 进化之路"><div class="mm-toolbar"><button data-mm-act="fit">适应窗口</button><button data-mm-act="expand">全部展开</button><button data-mm-act="collapse">折叠到底</button><span class="mm-sep"></span><label>字号 <input class="mm-font" type="range" min="11" max="24" value="15"></label><label>间距 <input class="mm-space" type="range" min="4" max="40" value="12"></label><span class="mm-sep"></span><button data-mm-act="full">全屏</button><button data-mm-act="svg">导出</button></div><svg class="mm-canvas"></svg><div class="mm-hint">拖动平移 · 滚轮缩放 · 点击节点折叠</div><script type="application/json" class="mm-data">{"name": "从 Transformer 到大模型原理与演进", "children": [{"name": "底层本质", "children": [{"name": "通用函数形式"}, {"name": "输入/输出定义 (文本预测)"}, {"name": "神经网络权重训练"}]}, {"name": "文本数字化过程", "children": [{"name": "分词 (Tokenization)"}, {"name": "词源 (Token)"}, {"name": "词嵌入 (Embedding)"}, {"name": "嵌入矩阵 (Embedding Matrix)"}]}, {"name": "Transformer 核心架构 (Block)", "children": [{"name": "注意力机制 (Attention)", "children": [{"name": "加权求和获取上下文"}, {"name": "QKV 向量 (Query, Key, Value)"}, {"name": "多头注意力 (MHA)"}]}, {"name": "前馈神经网络 (FFN)", "children": [{"name": "升维与降维特征提取"}]}, {"name": "辅助组件", "children": [{"name": "位置编码 (Positional Encoding)"}, {"name": "残差连接 (Residual Connection)"}, {"name": "归一化 (Layer/RMS Normalization)"}]}, {"name": "输出层", "children": [{"name": "线性投影 (Linear Projection)"}, {"name": "Softmax (概率转换)"}]}]}, {"name": "训练与智力涌现", "children": [{"name": "训练阶段", "children": [{"name": "预训练 (Pre-train, 自监督)"}, {"name": "监督微调 (SFT)"}, {"name": "强化学习 (RLHF/RLVR)"}]}, {"name": "智力表现", "children": [{"name": "少样本学习 (Few-shot)"}, {"name": "思维链 (CoT)"}]}]}, {"name": "应用层与 Agent 演进", "children": [{"name": "交互概念", "children": [{"name": "提示词 (Prompt)"}, {"name": "上下文与记忆 (Context/Memory)"}]}, {"name": "智能体 (Agent)", "children": [{"name": "工具与函数调用 (Function Calling)"}, {"name": "检索增强生成 (RAG)"}, {"name": "模型上下文协议 (MCP)"}]}, {"name": "工程化与流程", "children": [{"name": "工作流 (Workflow)"}, {"name": "技能 (Skill)"}, {"name": "子智能体 (Sub-agent)"}]}]}, {"name": "现代架构改良路线", "children": [{"name": "混合专家模型 (MoE/DeepSeek-MoE)"}, {"name": "稀疏/线性注意力 (MQA/GQA/MLA/Mamba)"}, {"name": "旋转位置编码 (RoPE)"}, {"name": "残差连接优化 (DeepSeek-V3)"}]}]}</script></div>
 
 ### 信息图
 

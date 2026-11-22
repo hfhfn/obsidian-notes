@@ -25,50 +25,7 @@ created: "2026-08-30"
 
 ### 思维导图
 
-```mermaid
-mindmap
-  root((Agent Hook 深度教程))
-    核心定義與價值
-      強制性約束機制
-      凌駕於提示詞與系統指令
-      由智能體而非大模型觸發
-      解決 AI 不遵守約定的穩定性問題
-    四大核心機制
-      事件 （Event）
-        觸發時機 （生命週期節點）
-        示例: user prompt submit
-      匹配條件 （Match）
-        篩選需要處理的操作
-        示例: 僅對命令行工具觸發
-      處理器 （Processor）
-        執行腳本 （Python/Nodejs）
-        AI 輔助代碼編寫
-      最終決策 （Decision）
-        阻止當前操作
-        允許並繼續下一步
-    主流智能體支持對比
-      Cloud Code
-        支持 31 個事件
-        Prompt Handler （調用一次 AI）
-        Agent Handler （派發子智能體）
-      Codex
-        基礎 Hook 支持
-        暫不具備內置 AI 處理器
-      Deepstick Harness
-        插件化機制
-        推薦使用橋接插件連接現有 Hook
-    應用場景
-      動態安全檢查
-      敏感文件權限控制
-      對話開始前注入背景信息
-      內容二次加工 （如去 AI 味）
-      對話狀態存檔 （Checkpoint）
-    構建流程
-      明確功能需求
-      讓 AI 拆解規則與編寫腳本
-      配置 hooks.json 文件
-      針對性提示詞功能測試
-```
+<div class="mm-wrap" data-mm="1" data-mm-title="Agent Hooks: 专业可靠的自动化控制机制"><div class="mm-toolbar"><button data-mm-act="fit">适应窗口</button><button data-mm-act="expand">全部展开</button><button data-mm-act="collapse">折叠到底</button><span class="mm-sep"></span><label>字号 <input class="mm-font" type="range" min="11" max="24" value="15"></label><label>间距 <input class="mm-space" type="range" min="4" max="40" value="12"></label><span class="mm-sep"></span><button data-mm-act="full">全屏</button><button data-mm-act="svg">导出</button></div><svg class="mm-canvas"></svg><div class="mm-hint">拖动平移 · 滚轮缩放 · 点击节点折叠</div><script type="application/json" class="mm-data">{"name": "Agent Hook 深度教程", "children": [{"name": "核心定义与价值", "children": [{"name": "强制性约束机制"}, {"name": "凌驾于提示词与系统指令"}, {"name": "由智能体而非大模型触发"}, {"name": "解决 AI 不遵守约定的稳定性问题"}]}, {"name": "四大核心机制", "children": [{"name": "事件 (Event)", "children": [{"name": "触发时机 (生命周期节点)"}, {"name": "示例: user prompt submit"}]}, {"name": "匹配条件 (Match)", "children": [{"name": "筛选需要处理的操作"}, {"name": "示例: 仅对命令行工具触发"}]}, {"name": "处理器 (Processor)", "children": [{"name": "执行脚本 (Python/Nodejs)"}, {"name": "AI 辅助代码编写"}]}, {"name": "最终决策 (Decision)", "children": [{"name": "阻止当前操作"}, {"name": "允许并继续下一步"}]}]}, {"name": "主流智能体支持对比", "children": [{"name": "Cloud Code", "children": [{"name": "支持 31 个事件"}, {"name": "Prompt Handler (调用一次 AI)"}, {"name": "Agent Handler (派发子智能体)"}]}, {"name": "Codex", "children": [{"name": "基础 Hook 支持"}, {"name": "暂不具备内置 AI 处理器"}]}, {"name": "Deepstick Harness", "children": [{"name": "插件化机制"}, {"name": "推荐使用桥接插件连接现有 Hook"}]}]}, {"name": "应用场景", "children": [{"name": "动态安全检查"}, {"name": "敏感文件权限控制"}, {"name": "对话开始前注入背景信息"}, {"name": "内容二次加工 (如去 AI 味)"}, {"name": "对话状态存档 (Checkpoint)"}]}, {"name": "构建流程", "children": [{"name": "明确功能需求"}, {"name": "让 AI 拆解规则与编写脚本"}, {"name": "配置 hooks.json 文件"}, {"name": "针对性提示词功能测试"}]}]}</script></div>
 
 ### 信息图
 

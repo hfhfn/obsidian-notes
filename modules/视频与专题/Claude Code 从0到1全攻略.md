@@ -25,62 +25,7 @@ created: "2026-02-10"
 
 ### 思维导图
 
-```mermaid
-mindmap
-  root((Claude Code 實戰攻略))
-    環境搭建與基礎交互
-      安裝
-        官方腳本安裝
-        創建目錄與執行命令
-      登錄與授權
-        訂閱制 （Pro/Max）
-        API Key 模式
-        國產模型驅動 （環境變量設置）
-      操作模式
-        默認模式 （Default）: 詢問所有操作
-        自動模式 （Accept Edit）: 自動修改文件
-        規劃模式 （Plan）: 只討論不執行
-    複雜任務與終端控制
-      模式切換
-        Shift + Tab 循環切換
-      高級輸入
-        Shift + Enter 換行
-        Ctrl + G 調用 VS Code 編輯器
-      終端命令
-        ! 前綴執行任意命令
-        --dangerously-skip-permissions 跳過權限檢測
-      後台任務
-        Ctrl + B 放置後台
-        /tasks 查看/結束任務
-    多模態與上下文管理
-      圖片處理
-        拖拽/粘貼圖片 （Ctrl + V）
-        UI 還原/視覺識別
-      上下文命令
-        /compact 壓縮上下文 （節省 Token）
-        /clear 清空上下文
-        ESC 兩次進入 Rewind 回滾代碼
-      CLAUDE.md （Memory）
-        /init 創建模記文件
-        項目級 vs 用戶級
-        持久化項目指令與注意事項
-    高級功能擴展與定制
-      MCP （Model Context Protocol）
-        連接外部工具 （如 Figma）
-        /mcp 命令管理
-      Hook 鉤子
-        /hook 設置時機 （如 Post-edit）
-        實戰: 自動代碼格式化
-      Agent Skill
-        動態加載 Prompt
-        實戰: 日報生成模板
-      SubAgent
-        獨立上下文窗口
-        處理複雜子任務 （如代碼審核）
-      Plugins
-        /plugins 插件市場
-        一鍵安裝 Skill/MCP/Hook 組合包
-```
+<div class="mm-wrap" data-mm="1" data-mm-title="Claude Code 从0到1全攻略"><div class="mm-toolbar"><button data-mm-act="fit">适应窗口</button><button data-mm-act="expand">全部展开</button><button data-mm-act="collapse">折叠到底</button><span class="mm-sep"></span><label>字号 <input class="mm-font" type="range" min="11" max="24" value="15"></label><label>间距 <input class="mm-space" type="range" min="4" max="40" value="12"></label><span class="mm-sep"></span><button data-mm-act="full">全屏</button><button data-mm-act="svg">导出</button></div><svg class="mm-canvas"></svg><div class="mm-hint">拖动平移 · 滚轮缩放 · 点击节点折叠</div><script type="application/json" class="mm-data">{"name": "Claude Code 实战攻略", "children": [{"name": "环境搭建与基础交互", "children": [{"name": "安装", "children": [{"name": "官方脚本安装"}, {"name": "创建目录与执行命令"}]}, {"name": "登录与授权", "children": [{"name": "订阅制 (Pro/Max)"}, {"name": "API Key 模式"}, {"name": "国产模型驱动 (环境变量设置)"}]}, {"name": "操作模式", "children": [{"name": "默认模式 (Default): 询问所有操作"}, {"name": "自动模式 (Accept Edit): 自动修改文件"}, {"name": "规划模式 (Plan): 只讨论不执行"}]}]}, {"name": "复杂任务与终端控制", "children": [{"name": "模式切换", "children": [{"name": "Shift + Tab 循环切换"}]}, {"name": "高级输入", "children": [{"name": "Shift + Enter 换行"}, {"name": "Ctrl + G 调用 VS Code 编辑器"}]}, {"name": "终端命令", "children": [{"name": "! 前缀执行任意命令"}, {"name": "--dangerously-skip-permissions 跳过权限检测"}]}, {"name": "后台任务", "children": [{"name": "Ctrl + B 放置后台"}, {"name": "/tasks 查看/结束任务"}]}]}, {"name": "多模态与上下文管理", "children": [{"name": "图片处理", "children": [{"name": "拖拽/粘贴图片 (Ctrl + V)"}, {"name": "UI 还原/视觉识别"}]}, {"name": "上下文命令", "children": [{"name": "/compact 压缩上下文 (节省 Token)"}, {"name": "/clear 清空上下文"}, {"name": "ESC 两次进入 Rewind 回滚代码"}]}, {"name": "CLAUDE.md (Memory)", "children": [{"name": "/init 创建模记文件"}, {"name": "项目级 vs 用户级"}, {"name": "持久化项目指令与注意事项"}]}]}, {"name": "高级功能扩展与定制", "children": [{"name": "MCP (Model Context Protocol)", "children": [{"name": "连接外部工具 (如 Figma)"}, {"name": "/mcp 命令管理"}]}, {"name": "Hook 钩子", "children": [{"name": "/hook 设置时机 (如 Post-edit)"}, {"name": "实战: 自动代码格式化"}]}, {"name": "Agent Skill", "children": [{"name": "动态加载 Prompt"}, {"name": "实战: 日报生成模板"}]}, {"name": "SubAgent", "children": [{"name": "独立上下文窗口"}, {"name": "处理复杂子任务 (如代码审核)"}]}, {"name": "Plugins", "children": [{"name": "/plugins 插件市场"}, {"name": "一键安装 Skill/MCP/Hook 组合包"}]}]}]}</script></div>
 
 ### 信息图
 

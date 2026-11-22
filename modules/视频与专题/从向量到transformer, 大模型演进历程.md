@@ -25,44 +25,7 @@ created: "2026-08-26"
 
 ### 思维导图
 
-```mermaid
-mindmap
-  root((AI大模型背后的原理))
-    早期语言模型 （N-gram）
-      核心思路：基于统计预测下一个词
-      常见类型：二元、三元及N元模型
-      主要问题
-        词语组合数量随N增加而膨胀
-        无法覆盖所有合理的词语组合
-        词语被视为独立符号，缺乏语义关联
-    词向量 （Word Embedding）
-      定义：高维空间坐标或带方向的向量
-      计算方法：余弦相似度衡量语义相近度
-      获取方式：计算机从海量文本语境中自动学习
-      意义：将抽象语言转化为精确的数学计算
-    前馈神经网络 （Feed-forward NN）
-      结构：输入层、隐藏层、输出层 （Softmax）
-      优势：具备泛化能力，能理解近义词组合
-      局限性：固定输入窗口，无法处理长程信息
-    循环神经网络 （RNN）
-      核心机制：隐藏状态 （Hidden State） 作为记忆
-      工作原理：逐个读取token，不断刷新迭代记忆
-      优势：可处理任意长度的文本序列
-      缺陷：长期依赖问题 （远距离信息易被覆盖/丢失）
-    长短期记忆网络 （LSTM）
-      核心改进：增加细胞状态 （Cell State） 长效通道
-      门控机制
-        遗忘门：删除无用旧信息
-        输入门：写入有价值新信息
-        输出门：提取特定信息参与当前预测
-      训练本质：模型自动学习重要信息的留存规则
-      存在问题
-        顺序计算瓶颈：训练效率低
-        传递路径长：远距离Token间联系不直接
-    Transformer （现代大模型基础）
-      核心：注意力机制 （Attention Mechanism）
-      特点：支持并行计算，直接建立Token间关联
-```
+<div class="mm-wrap" data-mm="1" data-mm-title="从向量到transformer, 大模型演进历程"><div class="mm-toolbar"><button data-mm-act="fit">适应窗口</button><button data-mm-act="expand">全部展开</button><button data-mm-act="collapse">折叠到底</button><span class="mm-sep"></span><label>字号 <input class="mm-font" type="range" min="11" max="24" value="15"></label><label>间距 <input class="mm-space" type="range" min="4" max="40" value="12"></label><span class="mm-sep"></span><button data-mm-act="full">全屏</button><button data-mm-act="svg">导出</button></div><svg class="mm-canvas"></svg><div class="mm-hint">拖动平移 · 滚轮缩放 · 点击节点折叠</div><script type="application/json" class="mm-data">{"name": "AI大模型背后的原理", "children": [{"name": "早期语言模型 (N-gram)", "children": [{"name": "核心思路：基于统计预测下一个词"}, {"name": "常见类型：二元、三元及N元模型"}, {"name": "主要问题", "children": [{"name": "词语组合数量随N增加而膨胀"}, {"name": "无法覆盖所有合理的词语组合"}, {"name": "词语被视为独立符号，缺乏语义关联"}]}]}, {"name": "词向量 (Word Embedding)", "children": [{"name": "定义：高维空间坐标或带方向的向量"}, {"name": "计算方法：余弦相似度衡量语义相近度"}, {"name": "获取方式：计算机从海量文本语境中自动学习"}, {"name": "意义：将抽象语言转化为精确的数学计算"}]}, {"name": "前馈神经网络 (Feed-forward NN)", "children": [{"name": "结构：输入层、隐藏层、输出层 (Softmax)"}, {"name": "优势：具备泛化能力，能理解近义词组合"}, {"name": "局限性：固定输入窗口，无法处理长程信息"}]}, {"name": "循环神经网络 (RNN)", "children": [{"name": "核心机制：隐藏状态 (Hidden State) 作为记忆"}, {"name": "工作原理：逐个读取token，不断刷新迭代记忆"}, {"name": "优势：可处理任意长度的文本序列"}, {"name": "缺陷：长期依赖问题 (远距离信息易被覆盖/丢失)"}]}, {"name": "长短期记忆网络 (LSTM)", "children": [{"name": "核心改进：增加细胞状态 (Cell State) 长效通道"}, {"name": "门控机制", "children": [{"name": "遗忘门：删除无用旧信息"}, {"name": "输入门：写入有价值新信息"}, {"name": "输出门：提取特定信息参与当前预测"}]}, {"name": "训练本质：模型自动学习重要信息的留存规则"}, {"name": "存在问题", "children": [{"name": "顺序计算瓶颈：训练效率低"}, {"name": "传递路径长：远距离Token间联系不直接"}]}]}, {"name": "Transformer (现代大模型基础)", "children": [{"name": "核心：注意力机制 (Attention Mechanism)"}, {"name": "特点：支持并行计算，直接建立Token间关联"}]}]}</script></div>
 
 ### 信息图
 

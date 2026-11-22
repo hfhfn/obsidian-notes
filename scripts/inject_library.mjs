@@ -199,9 +199,12 @@ function renderCard(item, cfg, depth) {
   const hasNote = Boolean(item.slug)
   // 视频类：缩略图占满整卡宽度（16:9），不走左侧小图布局
   const wide = Boolean(cfg.coverRatio)
-  // 封面点击优先跳数据源（豆瓣/OpenLibrary/TVMaze 原页面），没有才跳笔记
-  const coverHref = item.source_url || href
-  const coverIsExternal = Boolean(item.source_url)
+  // 封面点击的跳转目标：
+  //   - 视频类（cfg.coverRatio 有值）→ 必须进详情页，不要直接跳 YouTube。
+  //     用户要的是先看摘要/脑图，再决定要不要看视频；视频链接在详情页顶部。
+  //   - 书影类 → 跳数据源（豆瓣页），这是查书/查片的主要诉求
+  const coverHref = wide ? href : item.source_url || href
+  const coverIsExternal = !wide && Boolean(item.source_url)
 
   const coverInner = cover
     ? `<img src="${cover}" alt="${esc(item.title)}" class="book-cover" loading="lazy">`

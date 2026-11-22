@@ -96,10 +96,20 @@ def fetch_douban_movies(limit=20):
 
         items = []
         for m in d:
+            # 从 url 里提取 douban_id（movie.douban.com/subject/<id>/）。
+            # 没有 id 就没法做站内标记（item_key 需要它），
+            # 之前观影库 54 条全缺 id，导致「+ 标记」按钮只有 9 个。
+            _url = m.get("url", "")
+            _mid = ""
+            _mm = re.search(r"subject/(\d+)", _url)
+            if _mm:
+                _mid = _mm.group(1)
+
             items.append(
                 {
                     "title": m.get("title", "").strip(),
-                    "url": m.get("url", ""),
+                    "url": _url,
+                    "douban_id": _mid,
                     "cover": m.get("cover_url", ""),
                     "score": m.get("score", ""),
                     "votes": m.get("vote_count", 0),
