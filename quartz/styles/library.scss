@@ -35,25 +35,47 @@
   color: var(--light);
 }
 
-/* 卡片网格：对齐 jz21.eu.org 的 3 列布局 */
+/* 卡片网格：藏书馆 5 列（对齐用户要求的博客观感） */
 .book-grid {
   display: grid;
-  /* jz21 实测：3 列 × 188.8px @ 608px 容器，gap 28.8px 20.8px */
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 1.8rem 1.3rem;
+  /* 藏书馆 5 列；观影库在下面单独覆盖成 3 列 */
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1.8rem 1rem;
   margin: 1.2rem 0;
   align-items: start;
 }
 
+/* 观影库 3 列（jz21 watch-list 是大卡片风格，5 列会挤） */
+.book-grid[data-for="movie"] {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.8rem 1.3rem;
+}
+
+/* 视频与专题 3 列（16:9 缩略图需要宽度） */
+.book-grid[data-for="video"] {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.8rem 1.3rem;
+}
+
 /* 窄屏降列 */
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
   .book-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .book-grid,
+  .book-grid[data-for="movie"],
+  .book-grid[data-for="video"] {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 560px) {
-  .book-grid {
+  .book-grid,
+  .book-grid[data-for="movie"],
+  .book-grid[data-for="video"] {
     grid-template-columns: 1fr;
   }
 }
@@ -306,6 +328,19 @@
   aspect-ratio: auto !important;
   height: 100%;
   border-radius: 0;
+}
+
+/* 宽图区的图片必须清零 margin：.book-cover 全局带 1rem 上下边距，
+   在 16:9 容器里会把缩略图往下顶，露出顶部空白 */
+.book-cover-wide .book-cover {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  aspect-ratio: auto !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  object-fit: cover;
 }
 
 /* 视频正文区：左右不留额外 padding，与书影卡片的左对齐保持一致 */
