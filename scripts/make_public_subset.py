@@ -207,7 +207,8 @@ def main() -> int:
     # 必须整目录复制：
     #   charts   — 豆瓣榜单封面（inject_charts.mjs）
     #   modules  — 三个卡片库的本地附件，含 NotebookLM 信息图（inject_library.mjs）
-    for sub in ("charts", "modules"):
+    #   covers   — 书/影/视频卡片封面（build_library.py 下载的）
+    for sub in ("charts", "modules", "covers"):
         src = CONTENT / "attachments" / sub
         if not src.is_dir():
             continue

@@ -125,6 +125,49 @@ const CSS = `
 .lc-link { color: var(--secondary) !important; text-decoration: none !important; }
 .lc-link:hover { text-decoration: underline !important; }
 .lc-nolink { color: var(--gray); }
+
+/* 标记按钮 */
+.lc-mark {
+  display: block;
+  width: 100%;
+  margin-top: 0.35rem;
+  padding: 0.22rem 0.4rem;
+  border: 1px dashed var(--lightgray);
+  border-radius: 5px;
+  background: none;
+  color: var(--gray) !important;
+  font-family: var(--bodyFont);
+  font-size: 0.68rem !important;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.lc-mark:hover {
+  border-color: var(--secondary);
+  color: var(--secondary) !important;
+  border-style: solid;
+}
+.lc-mark[data-status] {
+  border-style: solid;
+  font-weight: 600;
+}
+.lc-mark[data-status="wish"]  { border-color: #6aa9d8; color: #6aa9d8 !important; }
+.lc-mark[data-status="doing"] { border-color: #e8a33d; color: #e8a33d !important; }
+.lc-mark[data-status="done"]  { border-color: #0d7d74; color: #0d7d74 !important; }
+.lc-mark:disabled { opacity: 0.5; cursor: default; }
+
+/* 进度条 */
+.lc-prog {
+  height: 3px;
+  margin-top: 0.22rem;
+  border-radius: 2px;
+  background: var(--lightgray);
+  overflow: hidden;
+}
+.lc-prog-bar {
+  height: 100%;
+  background: #e8a33d;
+  transition: width 0.2s;
+}
 .lc-pager {
   display: flex;
   align-items: center;
@@ -195,11 +238,21 @@ function renderCell(it, kind, prefix) {
       : `<span class="lc-nolink">暂无正版源</span>`
   }
 
-  return `<div class="lc-cell">
+  // item_key 用豆瓣 id，和 collections 表对上
+  const did = it.douban_id || ""
+  const itemKey = did ? `${kind}:${did}` : ""
+
+  const markBtn = itemKey
+    ? `<button class="lc-mark" data-item="${itemKey}" data-kind="${kind}"
+         data-title="${name}" data-cover="${esc(local)}" data-url="${url}">+ 标记</button>`
+    : ""
+
+  return `<div class="lc-cell" data-item="${itemKey}">
       <a class="lc-cover-link" href="${url}" target="_blank" rel="noopener">${cover}</a>
       <a class="lc-title" href="${url}" target="_blank" rel="noopener">${name}</a>
       ${sub ? `<div class="lc-sub">${sub}</div>` : ""}
       <div class="lc-links">${links}</div>
+      ${markBtn}
     </div>`
 }
 
@@ -292,8 +345,119 @@ const RUNTIME = `
       });
     });
   }
+  // ---- 站内标记 ----
+  var LABELS = {
+    book:  { wish: '想读', doing: '在读', done: '读过' },
+    movie: { wish: '想看', doing: '在看', done: '看过' }
+  };
+
+  function paint(btn, status, progress){
+    var kind = btn.getAttribute('data-kind');
+    var lb = LABELS[kind] || LABELS.book;
+    if (status) {
+      btn.setAttribute('data-status', status);
+      btn.textContent = (status === 'done' ? '✓ ' : '● ') + lb[status];
+      if (progress > 0 && progress < 100) btn.textContent += ' ' + progress + '%';
+    } else {
+      btn.removeAttribute('data-status');
+      btn.textContent = '+ 标记';
+    }
+  }
+
+  function cycle(btn){
+    var kind = btn.getAttribute('data-kind');
+    var lb = LABELS[kind] || LABELS.book;
+    var order = ['wish', 'doing', 'done'];
+    var cur = btn.getAttribute('data-status');
+    var idx = order.indexOf(cur);
+    // 未标记 → wish → doing → done → 移除
+    if (idx === -1) return { status: 'wish', progress: 0 };
+    if (idx < order.length - 1) return { status: order[idx + 1], progress: 0 };
+    return null;  // 已到 done，再点就是移除
+  }
+
+  async function save(btn, status, progress){
+    var payload = {
+      itemKey: btn.getAttribute('data-item'),
+      kind: btn.getAttribute('data-kind'),
+      title: btn.getAttribute('data-title'),
+      cover: btn.getAttribute('data-cover') || '',
+      url: btn.getAttribute('data-url') || '',
+      status: status,
+      progress: progress || 0
+    };
+    var r = await fetch('/api/collections', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify(payload)
+    });
+    return r.ok ? await r.json() : null;
+  }
+
+  async function remove(btn){
+    var key = btn.getAttribute('data-item');
+    var r = await fetch('/api/collections?itemKey=' + encodeURIComponent(key), {
+      method: 'DELETE',
+      credentials: 'same-origin'
+    });
+    return r.ok;
+  }
+
+  function bindMarks(){
+    document.querySelectorAll('.lc-mark').forEach(function(btn){
+      if (btn.dataset.mkBound) return;
+      btn.dataset.mkBound = '1';
+      btn.addEventListener('click', async function(ev){
+        ev.preventDefault();
+        ev.stopPropagation();
+
+        var next = cycle(btn);
+        btn.disabled = true;
+        try {
+          if (next === null) {
+            var ok = await remove(btn);
+            if (ok) paint(btn, null, 0);
+            else alert('移除失败，请先登录');
+          } else {
+            var res = await save(btn, next.status, next.progress);
+            if (res) paint(btn, next.status, next.progress);
+            else alert('请先登录后再标记');
+          }
+        } finally {
+          btn.disabled = false;
+        }
+      });
+    });
+  }
+
+  // 页面加载后拉一次用户已有标记，回填按钮状态
+  async function loadMarks(){
+    var btns = document.querySelectorAll('.lc-mark');
+    if (!btns.length) return;
+    var kind = btns[0].getAttribute('data-kind');
+    try {
+      var r = await fetch('/api/collections?kind=' + kind, { credentials: 'same-origin' });
+      if (!r.ok) return;
+      var d = await r.json();
+      if (!d.authed) return;
+      var map = {};
+      (d.items || []).forEach(function(it){ map[it.item_key] = it; });
+      btns.forEach(function(btn){
+        var it = map[btn.getAttribute('data-item')];
+        if (it) paint(btn, it.status, it.progress);
+      });
+    } catch (e) { /* 未登录静默 */ }
+  }
+
+  function initMarks(){
+    bindMarks();
+    loadMarks();
+  }
+
   bind();
-  document.addEventListener('nav', bind);
+  initMarks();
+  document.addEventListener('nav', function(){ bind(); initMarks(); });
 })();
 `
 

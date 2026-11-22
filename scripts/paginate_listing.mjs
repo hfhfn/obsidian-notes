@@ -117,15 +117,41 @@ function paginateOne(html, per) {
     `<div class="page-listing" data-per="${per}">`,
   )
 
-  // 在 ul.section-ul 之后插底部翻页器；在它之前插顶部翻页器
+  // 顶部翻页器：紧跟「此文件夹下有 N 条笔记」那段
   out = out.replace(
     /(<p>此文件夹下有\d+条笔记。<\/p>)/,
     `$1${pagerHtml()}`,
   )
-  out = out.replace(
-    /(<\/ul>\s*<\/div>\s*<\/div>\s*<\/div>)/,
-    `</ul>${pagerHtml()}$2`,
-  )
+
+  // 底部翻页器：必须精确锚定 section-ul 的闭合标签。
+  // 原来用 /<\/ul>\s*<\/div>\s*<\/div>\s*<\/div>/ 会匹配到页面末尾
+  // （页脚那个 ul），结果把 footer 和右侧栏都吞进了 .page-listing，
+  // 造成评论区下方 638px 空白。
+  // 这里改成「从 section-ul 开始，找到与它配对的 </ul>」。
+  const startIdx = out.indexOf('<ul class="section-ul">')
+  if (startIdx >= 0) {
+    // 从 section-ul 起点往后，数 <ul>/</ul> 配对，找到最外层闭合
+    let depth = 0
+    let i = startIdx
+    let closeEnd = -1
+    const re = /<ul\b|>\s*<\/ul>/g
+    re.lastIndex = startIdx
+    let mm
+    while ((mm = re.exec(out)) !== null) {
+      if (mm[0].startsWith("<ul")) {
+        depth++
+      } else {
+        depth--
+        if (depth === 0) {
+          closeEnd = mm.index + mm[0].length
+          break
+        }
+      }
+    }
+    if (closeEnd > 0) {
+      out = out.slice(0, closeEnd) + pagerHtml() + out.slice(closeEnd)
+    }
+  }
 
   return { html: out, itemCount }
 }

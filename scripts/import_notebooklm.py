@@ -197,12 +197,23 @@ def load_sources():
         return {}
 
 
+def load_summaries():
+    """读 fetch_nlm_summaries.py 生成的摘要表。"""
+    f = CAND_DIR / "nlm_summaries.json"
+    if not f.exists():
+        return {}
+    try:
+        return json.loads(f.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
 def render_mindmap(json_path):
-    """把 NotebookLM 的脑图 JSON 渲染成可折叠的 <details> 嵌套树。
+    """把 NotebookLM 的脑图 JSON 渲染成 Mermaid mindmap。
 
     数据结构是 {name, children: [{name, children: [...]}]}。
-    用 <details>/<summary> 而不是自己写 JS：原生可折叠、无依赖、
-    打印和搜索都能用。默认展开两层，避免 39 个专题全展开太长。
+    用 Mermaid 而不是 <details> 列表：用户要的是「脑图」，不是缩进文字。
+    Quartz 内置 Mermaid 支持，<pre class="mermaid"> 会被自动渲染成图形。
     """
     # v["path"] 是相对 MODULE_DIR 的路径（如 _assets/<名>/mind-map.json），
     # 直接 Path() 会相对进程 cwd，读不到文件。
@@ -214,38 +225,36 @@ def render_mindmap(json_path):
     except Exception:
         return ""
 
-    def esc_html(s):
-        return (
-            str(s)
-            .replace("&", "&amp;")
-            .replace("<", "&lt;")
-            .replace(">", "&gt;")
-            .replace('"', "&quot;")
-        )
+    # 用 Mermaid mindmap 渲染成真正的脑图（而不是文字列表）。
+    # Mermaid 的 mindmap 语法靠缩进表达层级，节点文本里的特殊字符要转义。
+    def mm_text(s):
+        # mindmap 里 [] () {} 和引号会破坏语法，统一换成全角或去掉
+        t = str(s).replace("\n", " ").strip()
+        for a, b in [("[", "［"), ("]", "］"), ("(", "（"), (")", "）"),
+                     ("{", "｛"), ("}", "｝"), ("`", "'"), ('"', "'")]:
+            t = t.replace(a, b)
+        return t or " "
+
+    lines = ["mindmap"]
 
     def walk(node, depth):
-        name = esc_html(node.get("name", ""))
-        kids = node.get("children") or []
-        if not kids:
-            return f'<li class="mm-leaf">{name}</li>'
-        # 前两层展开，更深默认折叠
-        open_attr = " open" if depth < 2 else ""
-        inner = "".join(walk(c, depth + 1) for c in kids)
-        return (
-            f'<li><details{open_attr}><summary>{name}</summary>'
-            f'<ul class="mm-list">{inner}</ul></details></li>'
-        )
+        name = mm_text(node.get("name", ""))
+        indent = "  " * depth
+        # 根节点用 root(( )) 圆形样式，其余用普通节点
+        if depth == 1:
+            lines.append(f"{indent}root(({name}))")
+        else:
+            lines.append(f"{indent}{name}")
+        for c in node.get("children") or []:
+            walk(c, depth + 1)
 
-    root_name = esc_html(data.get("name", "思维导图"))
-    kids = data.get("children") or []
-    if not kids:
-        return f'<div class="mm-root">{root_name}</div>'
+    # Mermaid mindmap 需要一个根；NotebookLM 的 JSON 本身就是树
+    walk(data, 1)
 
-    inner = "".join(walk(c, 0) for c in kids)
-    return (
-        f'<div class="mm-wrap"><div class="mm-root">{root_name}</div>'
-        f'<ul class="mm-list mm-top">{inner}</ul></div>'
-    )
+    body = "\n".join(lines)
+    return f'<pre class="mermaid">\n{body}\n</pre>'
+
+        
 
 
 def write_note(nb, got, force=False):
@@ -261,6 +270,8 @@ def write_note(nb, got, force=False):
 
     # 从 nlm_sources.json 取该笔记本的视频来源
     srcs = load_sources().get(nb["id"], {}).get("sources", [])
+    # 从 nlm_summaries.json 取已生成的摘要
+    summary = load_summaries().get(nb["id"], "").strip()
     yt = next((s["url"] for s in srcs if s["type"] == "youtube"), "")
 
     lines = [
@@ -399,7 +410,7 @@ def write_note(nb, got, force=False):
         "",
         "## 摘要",
         "",
-        "（在 NotebookLM 里点「摘要」复制正文粘到这里）",
+        summary or "（摘要生成中）",
         "",
     ]
 

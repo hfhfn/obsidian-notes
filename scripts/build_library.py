@@ -379,7 +379,10 @@ def download_covers(kind: str, items: list[dict]) -> int:
             if url.lower().endswith(cand):
                 ext = cand
                 break
-        safe = re.sub(r"[^\w\u4e00-\u9fff-]", "_", it["title"])[:60]
+        # 文件名必须小写：Quartz 构建时会把附件路径转小写
+        # （Windows 不区分大小写看不出来，Linux 上的 Cloudflare 会 404）。
+        # 之前用原始大小写，导致私有站封面全裂。
+        safe = re.sub(r"[^\w\u4e00-\u9fff-]", "_", it["title"].lower())[:60]
         dest = out_dir / f"{safe}{ext}"
         if dest.exists() and dest.stat().st_size > 1024:
             it["cover_local"] = f"{rel_dir}/{dest.name}"
