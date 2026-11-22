@@ -81,21 +81,32 @@ export function readSessionCookie(request) {
   return null
 }
 
-/** 构造 Set-Cookie 值 */
-export function sessionCookie(token, maxAgeSeconds) {
-  return [
+/**
+ * 构造 Set-Cookie 值。
+ *
+ * Domain 是关键：公开站（notes.*）和私有站（private.*）是两个域名，
+ * 不设 Domain 时 cookie 只对登录时的那个域名有效 —— 在 private 登录后
+ * 去 notes 站，服务端收不到 cookie，所有需要登录的操作都返回 401。
+ *
+ * 用 `.hfhfn.dpdns.org` 让两个子域共享同一个会话。
+ */
+export function sessionCookie(token, maxAgeSeconds, domain = ".hfhfn.dpdns.org") {
+  const parts = [
     `${COOKIE_NAME}=${token}`,
     "Path=/",
     `Max-Age=${maxAgeSeconds}`,
     "HttpOnly",
     "Secure",
     "SameSite=Lax",
-  ].join("; ")
+  ]
+  if (domain) parts.push(`Domain=${domain}`)
+  return parts.join("; ")
 }
 
-/** 清除会话 */
-export function clearSessionCookie() {
-  return `${COOKIE_NAME}=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax`
+/** 清除会话（Domain 必须和设置时一致，否则删不掉） */
+export function clearSessionCookie(domain = ".hfhfn.dpdns.org") {
+  const base = `${COOKIE_NAME}=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Lax`
+  return domain ? `${base}; Domain=${domain}` : base
 }
 
 /**

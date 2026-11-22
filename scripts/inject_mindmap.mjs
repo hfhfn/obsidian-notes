@@ -258,19 +258,11 @@ const RUNTIME = `
         ].join(String.fromCharCode(10));
 
         var fname = title.replace(/[\\/:*?"<>|]/g, '_').trim() || 'mindmap';
-        // 和 SVG 一样：新标签页打开，用户 Ctrl+S 保存。
-        // 更好的体验：直接给「在新窗口打开」——反正 HTML 打开就是完整脑图。
+        // 真正触发下载。window.open 只是「打开网页」，
+        // 用户拿不到文件 —— 这就是「只弹页面没下载」的原因。
         var htmlName = fname + '.html';
-        var blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-        var objUrl = URL.createObjectURL(blob);
-
-        var win = window.open(objUrl, '_blank');
-        if (!win) {
-          toast('弹窗被浏览器拦截，请允许弹窗后重试', { kind: 'error' });
-        } else {
-          toast('已在新标签页打开完整脑图，Ctrl+S 可保存为 ' + htmlName, { kind: 'ok', duration: 6000 });
-        }
-        setTimeout(function(){ URL.revokeObjectURL(objUrl); }, 60000);
+        downloadBlob(new Blob([html], { type: 'text/html;charset=utf-8' }), htmlName);
+        mmToast('已下载 ' + htmlName);
       }
 
       function exportSvg(){
@@ -327,23 +319,9 @@ const RUNTIME = `
           .trim() || 'mindmap';
         var fname = rawName + '.svg';
 
-        // 导出策略：新标签页打开 blob，浏览器会显示 SVG 预览，
-        // 用户按 Ctrl+S 或右键另存即可。同时用 download 属性触发下载。
-        //
-        // 之前试过 a.click() —— Chrome 对 image/svg+xml 会直接导航走
-        // 当前页面；也试过挂可见链接 —— 用户反馈「显示下载但无法点击」。
-        // 最可靠的是 window.open(blob) 新标签页，不干扰当前页面。
-        var blob = new Blob([data], { type: 'image/svg+xml;charset=utf-8' });
-        var objUrl = URL.createObjectURL(blob);
-
-        var win = window.open(objUrl, '_blank');
-        if (!win) {
-          // 弹窗被拦截，退回页内提示
-          toast('弹窗被浏览器拦截，请允许弹窗后重试', { kind: 'error' });
-        } else {
-          toast('已在新标签页打开 SVG，按 Ctrl+S 保存', { kind: 'ok', duration: 6000 });
-        }
-        setTimeout(function(){ URL.revokeObjectURL(objUrl); }, 60000);
+        // 真正触发下载（window.open 只会打开预览，不弹保存框）
+        downloadBlob(new Blob([data], { type: 'image/svg+xml;charset=utf-8' }), fname);
+        mmToast('已下载 ' + fname);
       }
 
       wrap.querySelectorAll('[data-mm-act]').forEach(function(btn){
@@ -436,6 +414,45 @@ const RUNTIME = `
       img.classList.add('nlm-infographic', 'nlm-zoomable');
       img.setAttribute('loading', 'lazy');
     });
+  }
+
+  // 真正触发文件下载。
+  //  1. application/octet-stream —— image/svg+xml / text/html 会让
+  //     浏览器「打开」而不是下载。
+  //  2. <a> 挂到 document 上，click() 在用户手势同步栈里执行。
+  //  3. URL 延迟回收，否则下载还没开始就被撤销。
+  function downloadBlob(blob, filename){
+    var dlBlob = new Blob([blob], { type: 'application/octet-stream' });
+    var url = URL.createObjectURL(dlBlob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.rel = 'noopener';
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function(){
+      if (a.parentNode) a.parentNode.removeChild(a);
+      URL.revokeObjectURL(url);
+    }, 10000);
+  }
+
+  // 页内轻提示（mindmap 页面不一定加载了 charts 的 toast）
+  function mmToast(msg){
+    var el = document.getElementById('mm-toast');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'mm-toast';
+      el.style.cssText = 'position:fixed;left:50%;bottom:2rem;transform:translateX(-50%);'
+        + 'z-index:99999;padding:.65rem 1rem;border-radius:9px;background:#1e5f4f;'
+        + 'color:#fff;font-size:.85rem;box-shadow:0 6px 24px rgba(0,0,0,.3);'
+        + 'transition:opacity .2s;opacity:1';
+      document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    el.style.opacity = '1';
+    clearTimeout(el._t);
+    el._t = setTimeout(function(){ el.style.opacity = '0'; }, 3500);
   }
 
   function bootAll(){ boot(); reclassInfographic(); bindZoom(); }

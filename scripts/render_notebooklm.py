@@ -138,18 +138,80 @@ def process_md(md: Path, content_dir: Path):
     # 导出的文件名用笔记标题，不是「思维导图」这种段落名
     title = note_title(md, text)
 
-    # 1) 思维导图：```markmap 代码块 → mm-wrap 组件
-    #    源笔记里是 markdown 列表（Obsidian 用 Mindmap NextGen 渲染），
-    #    站点需要 markmap 的拖动/缩放/折叠，所以这里转成组件。
-    def mm_sub(m):
-        body = m.group(1)
-        # markdown 列表 → {name, children} 树
-        tree = md_list_to_tree(body, title)
-        if not tree:
-            return m.group(0)
-        return render_mindmap(tree, title, quartz_slug(md.stem))
+    # 0) 播放源：[▶ 在源站观看](url) → 内嵌 iframe
+    #    源笔记里是纯 markdown 链接（Obsidian 里不显示 HTML 源码），
+    #    站点需要内嵌播放器。
+    def video_sub(m):
+        url = m.group(1)
+        embed = url
+        my = re.search(r"youtube\.com/watch\?v=([\w-]+)", url)
+        if my:
+            embed = f"https://www.youtube.com/embed/{my.group(1)}"
+        else:
+            mb = re.search(r"bilibili\.com/video/([\w]+)", url)
+            if mb:
+                embed = f"https://player.bilibili.com/player.html?bvid={mb.group(1)}"
 
-    text = re.sub(r"```markmap\s*\n([\s\S]*?)```", mm_sub, text)
+        return (
+            f'<iframe class="nlm-video" src="{embed}" title="{title}" '
+            f'frameborder="0" allowfullscreen '
+            f'allow="accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture">'
+            f"</iframe>\n\n<sub>[在源站打开]({url})</sub>"
+        )
+
+    # 只有笔记里没有 iframe 时才还原（避免和已有 iframe 重复）
+    if "<iframe" not in text or "nlm-video" not in text:
+        text = re.sub(
+            r"\[(?:▶ 在源站观看|在源站打开)\]\((https?://[^)]+)\)",
+            video_sub,
+            text,
+        )
+
+    # 1) 思维导图：笔记里是
+    #      > 🖥 [用浏览器打开完整脑图](<.../mindmap.html>)（可拖动、折叠、全屏）
+    #    站点要的是可拖动折叠的 markmap 组件，所以读同目录的 mind-map.json
+    #    渲染成 mm-wrap，替换掉那行链接。
+    #
+    #    （之前是从 ```markmap 代码块转，但用户要求 Obsidian 里只留链接，
+    #      代码块已删除。）
+    def mm_sub(m):
+        rel = m.group(1)          # _assets/<slug>/mindmap.html（可能是 %20 编码）
+        rel = rel.replace("%20", " ")
+        dirname = rel.split("/")[1]
+
+        # 找对应的 mind-map.json
+        candidates = [
+            content_dir / MODULE / "_assets" / dirname / "mind-map.json",
+            content_dir / "attachments" / "modules" / MODULE / "_assets" / dirname / "mind-map.json",
+        ]
+        jf = next((c for c in candidates if c.exists()), None)
+        if not jf:
+            return m.group(0)
+
+        try:
+            tree = json.loads(jf.read_text(encoding="utf-8"))
+        except Exception:
+            return m.group(0)
+
+        # 末尾加两个换行：markdown 要求 ### 标题前必须有空行，
+        # 否则会被当成上一段的续行，显示成纯文本。
+        return render_mindmap(walk_zh(tree), title, quartz_slug(md.stem)) + "\n\n"
+
+    text = re.sub(
+        r">\s*🖥\s*\[用浏览器打开完整脑图\]\(<?([^)>]+?mindmap\.html)>?\)[^\n]*",
+        mm_sub,
+        text,
+    )
+
+    # 站点上不需要「查看原始数据」这个辅助链接（用户要求不显示）。
+    # 只删这一行，保留前后的空行 —— 否则会把 mm-wrap 组件和
+    # 后面的 ### 标题挤在一起，导致标题被当成纯文本。
+    text = re.sub(
+        r"\n*^[ \t]*\[查看原始数据\]\([^)]*mind-map\.json\)[ \t]*$",
+        "",
+        text,
+        flags=re.M,
+    )
 
     # 2) 演示文稿： [打开 xxx（PDF）](https://pdf.../slide-deck.pdf)
     def slide_sub(m):
