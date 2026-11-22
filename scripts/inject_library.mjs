@@ -45,6 +45,8 @@ const KINDS = {
     dir: "探索/视频与专题",
     json: "_videos.json",
     label: "条",
+    // 视频缩略图是 16:9 横版，和书影的 2:3 竖版不同
+    coverRatio: "16 / 9",
     tabs: [
       { key: "已整理", label: "已整理" },
       { key: "整理中", label: "整理中" },
@@ -136,6 +138,8 @@ function renderCard(item, cfg, depth) {
   const cover = coverSrc(item, depth)
   const href = noteHref(item, depth)
   const hasNote = Boolean(item.slug)
+  // 视频类：缩略图占满整卡宽度（16:9），不走左侧小图布局
+  const wide = Boolean(cfg.coverRatio)
   // 封面点击优先跳数据源（豆瓣/OpenLibrary/TVMaze 原页面），没有才跳笔记
   const coverHref = item.source_url || href
   const coverIsExternal = Boolean(item.source_url)
@@ -145,11 +149,13 @@ function renderCard(item, cfg, depth) {
     : `<div class="book-cover book-cover-empty">无封面</div>`
 
   const coverBadge = hasNote ? `<span class="note-badge">笔记</span>` : ""
+  // 视频类缩略图是 16:9 横版，书影是 2:3 竖版，用内联样式覆盖
+  const ratioStyle = cfg.coverRatio ? ` style="aspect-ratio:${cfg.coverRatio}"` : ""
   const coverBlock = coverHref
-    ? `<a href="${esc(coverHref)}" class="book-cover-link" title="${esc(item.title)}${
+    ? `<a href="${esc(coverHref)}" class="book-cover-link"${ratioStyle} title="${esc(item.title)}${
         coverIsExternal ? "（打开数据源）" : ""
       }"${coverIsExternal ? ' target="_blank" rel="noopener"' : ""}>${coverInner}${coverBadge}</a>`
-    : `<span class="book-cover-link" title="${esc(item.title)}">${coverInner}${coverBadge}</span>`
+    : `<span class="book-cover-link"${ratioStyle} title="${esc(item.title)}">${coverInner}${coverBadge}</span>`
 
   const titleBlock = hasNote
     ? `<a href="${href}" title="${esc(item.title)}">${esc(item.title)}</a>`
@@ -211,8 +217,20 @@ function renderCard(item, cfg, depth) {
       `</div>`
   }
 
-  return `
-    <div class="book-card${hasNote ? " has-note" : ""}" data-status="${esc(item.status)}">
+  // 视频类走宽图布局：缩略图占满整卡宽度，标题信息在下方
+  const cardBody = wide
+    ? `
+      <div class="book-cover-wide">${coverBlock}</div>
+      <div class="book-body">
+        <h3 class="book-title">${titleBlock}</h3>
+        <div class="book-subtitle" title="${esc(item.creator)}">${esc(item.creator)}</div>
+        ${rating}
+        ${infoRows.length ? `<div class="book-info">${infoRows.join("")}</div>` : ""}
+        ${derivedBadges}
+        ${progress}
+        ${sourceLink}
+      </div>`
+    : `
       <div class="book-header">
         <div class="book-cover-wrapper">${coverBlock}</div>
         <div class="book-title-section">
@@ -224,7 +242,11 @@ function renderCard(item, cfg, depth) {
       ${infoRows.length ? `<div class="book-info">${infoRows.join("")}</div>` : ""}
       ${derivedBadges}
       ${progress}
-      ${sourceLink}
+      ${sourceLink}`
+
+  return `
+    <div class="book-card${hasNote ? " has-note" : ""}${wide ? " book-card-wide" : ""}" data-status="${esc(item.status)}">
+      ${cardBody}
     </div>`
 }
 

@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import json
 import re
+import time
 import urllib.parse
 import urllib.request
 from pathlib import Path
@@ -187,6 +188,30 @@ def parse_list_field(text: str, field: str) -> list[str]:
     return []
 
 
+def auto_thumb(source_url: str, platform: str) -> str:
+    """从视频链接推断缩略图 URL，没有就用空串。
+
+    YouTube 的缩略图是公开规律 URL，不需要 API：
+        https://img.youtube.com/vi/<VIDEO_ID>/maxresdefault.jpg
+    视频 ID 可能在 watch?v= / youtu.be/ / shorts/ / embed/ 里。
+
+    B 站需要调 API 拿封面，脚本里不联网，所以留给手填 cover。
+    """
+    if not source_url:
+        return ""
+    url = source_url.strip()
+
+    if "youtube.com" in url or "youtu.be" in url:
+        vid = ""
+        m = re.search(r"(?:v=|/shorts/|/embed/|youtu\.be/)([A-Za-z0-9_-]{11})", url)
+        if m:
+            vid = m.group(1)
+        if vid:
+            return f"https://img.youtube.com/vi/{vid}/maxresdefault.jpg"
+
+    return ""
+
+
 def has_tag(text: str, fm: dict, tag: str) -> bool:
     """frontmatter 的 tags 里含该标签，或正文有 #tag。"""
     tags = fm.get("tags", "")
@@ -270,6 +295,9 @@ def collect(kind: str, dry_run: bool = False) -> list[dict]:
             item["source_url"] = fm.get("source_url", "")
             item["platform"] = fm.get("platform", "")
             item["derived"] = parse_list_field(text, "derived")
+            # 没写 cover 时，按视频 ID 自动取 YouTube/B站 缩略图
+            if not item["cover"]:
+                item["cover"] = auto_thumb(item["source_url"], item["platform"])
         items.append(item)
         if dry_run:
             print(f"  {item['status']:4} {title}  ({item['creator'][:24]})")
@@ -279,8 +307,20 @@ def collect(kind: str, dry_run: bool = False) -> list[dict]:
 
 # ---------------------------------------------------------------- 封面
 
+def _cover_urls(url: str) -> list[str]:
+    """封面 URL 的候选列表（原图 + 备选尺寸）。
+
+    OpenLibrary 的 -L（大图）偶尔返回空响应，-M（中图）通常可用。
+    它也有默认封面占位图（返回 1px 或空），所以下载后还要校验大小。
+    """
+    urls = [url]
+    if "covers.openlibrary.org" in url and "-L.jpg" in url:
+        urls.append(url.replace("-L.jpg", "-M.jpg"))
+    return urls
+
+
 def download_covers(kind: str, items: list[dict]) -> int:
-    """把远程封面下载到站点本地，避免豆瓣图床防盗链。
+    """把远程封面下载到站点本地，避免防盗链和第三方图床不稳定。
 
     按类别分目录（covers/book/、covers/movie/），防止同名标题互相覆盖。
     """
@@ -301,33 +341,50 @@ def download_covers(kind: str, items: list[dict]) -> int:
                 break
         safe = re.sub(r"[^\w\u4e00-\u9fff-]", "_", it["title"])[:60]
         dest = out_dir / f"{safe}{ext}"
-        if dest.exists() and dest.stat().st_size > 0:
+        if dest.exists() and dest.stat().st_size > 1024:
             it["cover_local"] = f"{rel_dir}/{dest.name}"
             ok += 1
             continue
-        try:
-            # 豆瓣图床有防盗链：不带 Referer 会返回 418 I'm a Teapot
-            req = urllib.request.Request(
-                url,
-                headers={
-                    "User-Agent": (
-                        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                        "AppleWebKit/537.36 (KHTML, like Gecko) "
-                        "Chrome/120.0.0.0 Safari/537.36"
-                    ),
-                    "Referer": cfg["referer"],
-                    "Accept": "image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
-                },
-            )
-            with urllib.request.urlopen(req, timeout=25) as resp:
-                data = resp.read()
-            if not data:
-                raise ValueError("空响应")
+
+        # 逐个候选 URL 重试：图床偶发返回空响应，重试 3 次
+        data = b""
+        last_err = ""
+        for try_url in _cover_urls(url):
+            for attempt in range(3):
+                try:
+                    req = urllib.request.Request(
+                        try_url,
+                        headers={
+                            "User-Agent": (
+                                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                                "Chrome/120.0.0.0 Safari/537.36"
+                            ),
+                            "Referer": cfg["referer"],
+                            "Accept": "image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
+                        },
+                    )
+                    with urllib.request.urlopen(req, timeout=25) as resp:
+                        data = resp.read()
+                    # 空响应 / 过小（占位图）都视为失败，换候选或重试
+                    if len(data) > 1024:
+                        break
+                    last_err = f"响应过小({len(data)}B)"
+                    data = b""
+                except Exception as e:
+                    last_err = str(e)
+                    data = b""
+                if attempt < 2:
+                    time.sleep(0.8 * (attempt + 1))
+            if data:
+                break
+
+        if data:
             dest.write_bytes(data)
             it["cover_local"] = f"{rel_dir}/{dest.name}"
             ok += 1
-        except Exception as e:
-            print(f"[{kind}] 封面下载失败 {it['title']}: {e}")
+        else:
+            print(f"[{kind}] 封面下载失败 {it['title']}: {last_err}")
     return ok
 
 

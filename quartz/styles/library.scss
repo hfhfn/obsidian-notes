@@ -281,6 +281,39 @@
   color: var(--light) !important;
 }
 
+/* ===== 视频类宽图布局（缩略图占满整卡宽度） ===== */
+.book-card-wide {
+  padding: 0;
+  overflow: hidden;
+}
+
+.book-cover-wide {
+  position: relative;
+  width: 100%;
+  /* 16:9 由内联 style 覆盖，这里兜底 */
+  aspect-ratio: 16 / 9;
+  background: var(--lightgray);
+  line-height: 0;
+}
+
+.book-cover-wide .book-cover-link {
+  aspect-ratio: auto !important;
+  height: 100%;
+  border-radius: 0;
+}
+
+.book-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding: 0.75rem 0.9rem 0.9rem;
+}
+
+/* 视频卡片里标题不再需要两行截断的紧凑样式 */
+.book-card-wide .book-title {
+  font-size: 0.95rem !important;
+}
+
 /* 窄屏适配 */
 @media (max-width: 600px) {
   .book-grid {
