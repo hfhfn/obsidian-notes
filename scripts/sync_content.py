@@ -953,13 +953,23 @@ class Sync:
             n = sum(1 for _ in mod_att.rglob("*") if _.is_file())
             self.report["module_attachments"] = n
 
+        # 各模块的数据源不同：
+        #   藏书馆 / 观影库 → 始终用 obsidian-site/modules/
+        #     它们的内容主体是豆瓣榜单（scripts/candidates/*.json），
+        #     vault 里只有几个早期测试笔记，放进 Obsidian 只是噪音。
+        #   视频与专题 → 优先 vault
+        #     用户在 Obsidian 里编辑笔记和 _assets，构建时从这里读。
+        VAULT_FIRST = {"视频与专题"}
+
         for name in MODULE_DIRS:
-            # 三个库以 vault（D:\private\obsidian）为主源：
-            # 用户在 Obsidian 里直接编辑，构建时从这里读。
-            # vault 里没有（首次迁移 / 新环境）才回退到 obsidian-site/modules/。
-            src = VAULT / name
-            if not src.is_dir():
+            if name in VAULT_FIRST:
+                src = VAULT / name
+                if not src.is_dir():
+                    src = MODULES / name
+            else:
                 src = MODULES / name
+                if not src.is_dir():
+                    src = VAULT / name
             if not src.is_dir():
                 self.report["warnings"].append(f"模块目录不存在：{name}")
                 continue

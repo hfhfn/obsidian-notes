@@ -378,12 +378,12 @@ def write_note(nb, got, force=False):
             rel = f"_assets/{slug}/{fname}"
             # 点图在页内放大（灯箱），不用跳新标签页 —— 跳出去再回退会丢失滚动位置。
             # 关闭方式：点遮罩任意处 / 按 ESC / 点右上角 ×
+            # 纯 markdown 图片引用：Obsidian 里能直接看，
+            # 站点构建时由 inject_notebooklm.py 换成灯箱版本。
             lines += [
                 f"### {label}",
                 "",
-                f'<img src="{rel}" alt="{label}" class="nlm-infographic nlm-zoomable" loading="lazy">',
-                "",
-                "<sub>点图放大 · ESC 或点空白处关闭</sub>",
+                f"![{label}]({rel})",
                 "",
             ]
 
@@ -391,22 +391,24 @@ def write_note(nb, got, force=False):
             url = r2map.get(f"{slug}/{k}", "")
             lines += [f"### {label}", ""]
             if url:
+                # 纯 md 链接：Obsidian 里点开是浏览器 PDF 阅读器，
+                # 站点构建时换成内嵌 iframe。
                 lines += [
-                    f'<iframe src="{url}#view=FitH" class="nlm-slides" '
-                    f'title="{label}" loading="lazy"></iframe>',
-                    "",
-                    f"<sub>[全屏打开]({url})</sub>",
+                    f"[打开 {label}（PDF）]({url})",
                     "",
                 ]
             else:
                 lines += ["（待上传 R2）", ""]
 
         elif k == "mind-map":
-            tree = render_mindmap(v["path"], title)
+            # 纯 md：只放一个指向 json 的链接。
+            # 站点构建时 inject_notebooklm.py 读这个 json 渲染成 markmap。
+            # 这样 Obsidian 里不会看到一大坨 HTML，站点功能不受影响。
+            fname = Path(v["path"]).name
             lines += [
                 f"### {label}",
                 "",
-                tree if tree else "（思维导图解析失败）",
+                f"[{label}（可交互）](_assets/{slug}/{fname})",
                 "",
             ]
 
