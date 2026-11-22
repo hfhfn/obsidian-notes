@@ -248,20 +248,12 @@ plugins:
       position: beforeBody
       priority: 5
       condition: not-index
+  # 评论改用自建（nx-comments），不再用 giscus。
+  # giscus 只能用 GitHub 账号登录，与站点自己的登录（邮箱/Google/GitHub）不统一。
   - source: "@quartz-community/comments"
+    enabled: false
+  - source: "./quartz/plugins-local/nx-comments"
     enabled: true
-    options:
-      provider: giscus
-      options:
-        repo: hfhfn/obsidian-notes
-        repoId: R_kgDOV1QwWg
-        category: Announcements
-        categoryId: DIC_kwDOV1QwWs4DLkMX
-        mapping: pathname
-        strict: false
-        reactionsEnabled: true
-        inputPosition: top
-        lang: zh-CN
     layout:
       position: afterBody
       priority: 10

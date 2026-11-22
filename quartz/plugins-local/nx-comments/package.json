@@ -1,0 +1,30 @@
+{
+  "name": "nx-comments",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
+    "./components": { "types": "./dist/components.d.ts", "import": "./dist/components.js" },
+    "./package.json": "./package.json"
+  },
+  "license": "MIT",
+  "quartz": {
+    "name": "nx-comments",
+    "displayName": "Comments",
+    "category": "component",
+    "version": "1.0.0",
+    "quartzVersion": ">=5.1.0",
+    "dependencies": [],
+    "defaultOrder": 60,
+    "defaultEnabled": false,
+    "defaultOptions": {},
+    "components": {
+      "Comments": {
+        "displayName": "Comments",
+        "defaultPosition": "afterBody",
+        "defaultPriority": 60
+      }
+    }
+  }
+}
