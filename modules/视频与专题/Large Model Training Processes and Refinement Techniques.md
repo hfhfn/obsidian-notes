@@ -25,7 +25,55 @@ created: "2026-09-04"
 
 ### 思维导图
 
-<div class="mm-wrap"><div class="mm-root">大模型完整训练全过程</div><ul class="mm-list mm-top"><li><details open><summary>心智塑造 (训练阶段)</summary><ul class="mm-list"><li><details open><summary>预训练 (Pre-training)</summary><ul class="mm-list"><li class="mm-leaf">非结构化海量文本</li><li class="mm-leaf">文字接龙/预测下个Token</li><li class="mm-leaf">Transformer架构</li><li class="mm-leaf">生成基础大模型</li></ul></details></li><li><details open><summary>有监督微调 (SFT)</summary><ul class="mm-list"><li class="mm-leaf">高质量人工标注数据</li><li class="mm-leaf">问答规范手册</li><li class="mm-leaf">构建对话模型</li></ul></details></li><li><details open><summary>强化学习 (RLHF)</summary><ul class="mm-list"><li class="mm-leaf">奖励模型 (Reward Model)</li><li class="mm-leaf">人类偏好对齐</li><li class="mm-leaf">PPO/GRPO算法</li><li class="mm-leaf">智商/推理能力提升 (数学/编程)</li></ul></details></li></ul></details></li><li><details open><summary>肉体改造 (轻量化/部署)</summary><ul class="mm-list"><li><details open><summary>LoRA微调</summary><ul class="mm-list"><li class="mm-leaf">低秩矩阵分解</li><li class="mm-leaf">外挂插件式微调</li><li class="mm-leaf">降低显存/算力成本</li></ul></details></li><li><details open><summary>模型蒸馏 (Distillation)</summary><ul class="mm-list"><li class="mm-leaf">大模型带小模型</li><li class="mm-leaf">学习Token概率 (狭义)</li><li class="mm-leaf">学习生成数据 (广义)</li></ul></details></li><li><details open><summary>模型量化 (Quantization)</summary><ul class="mm-list"><li class="mm-leaf">精度减配 (FP16转INT4)</li><li class="mm-leaf">压缩参数空间</li><li class="mm-leaf">端侧部署</li></ul></details></li></ul></details></li><li><details open><summary>核心概念与技术</summary><ul class="mm-list"><li><details open><summary>Token分词</summary><ul class="mm-list"><li class="mm-leaf">数字ID映射</li><li class="mm-leaf">压缩效率</li><li class="mm-leaf">跨语言能力</li><li class="mm-leaf">词表大小挑战</li></ul></details></li><li><details open><summary>参数量 (Scale)</summary><ul class="mm-list"><li class="mm-leaf">数十亿至千亿级</li><li class="mm-leaf">质量比数量更重要</li></ul></details></li><li><details open><summary>模型分类</summary><ul class="mm-list"><li class="mm-leaf">闭源模型 (不公开权重)</li><li class="mm-leaf">开源模型 (可下载权重)</li></ul></details></li></ul></details></li><li><details open><summary>推理与应用优化</summary><ul class="mm-list"><li class="mm-leaf">提示词 (Prompt) 精简</li><li class="mm-leaf">Batch批量推理</li><li class="mm-leaf">结果缓存</li><li class="mm-leaf">垂直领域适配</li></ul></details></li></ul></div>
+```mermaid
+mindmap
+  root((大模型完整训练全过程))
+    心智塑造 （训练阶段）
+      预训练 （Pre-training）
+        非结构化海量文本
+        文字接龙/预测下个Token
+        Transformer架构
+        生成基础大模型
+      有监督微调 （SFT）
+        高质量人工标注数据
+        问答规范手册
+        构建对话模型
+      强化学习 （RLHF）
+        奖励模型 （Reward Model）
+        人类偏好对齐
+        PPO/GRPO算法
+        智商/推理能力提升 （数学/编程）
+    肉体改造 （轻量化/部署）
+      LoRA微调
+        低秩矩阵分解
+        外挂插件式微调
+        降低显存/算力成本
+      模型蒸馏 （Distillation）
+        大模型带小模型
+        学习Token概率 （狭义）
+        学习生成数据 （广义）
+      模型量化 （Quantization）
+        精度减配 （FP16转INT4）
+        压缩参数空间
+        端侧部署
+    核心概念与技术
+      Token分词
+        数字ID映射
+        压缩效率
+        跨语言能力
+        词表大小挑战
+      参数量 （Scale）
+        数十亿至千亿级
+        质量比数量更重要
+      模型分类
+        闭源模型 （不公开权重）
+        开源模型 （可下载权重）
+    推理与应用优化
+      提示词 （Prompt） 精简
+      Batch批量推理
+      结果缓存
+      垂直领域适配
+```
 
 ### 信息图
 
@@ -44,4 +92,12 @@ created: "2026-09-04"
 
 ## 摘要
 
-（在 NotebookLM 里点「摘要」复制正文粘到这里）
+构建先进的人工智能系统包含一个完整的生命周期，通过结构化的阶段将原始数据转化为
+功能强大的应用程序。最初，工程师将非结构化文本处理成被称为 token 
+的标准化数字单位，通过海量文本预测来构建基座模型。随后，开发者结合 supervised 
+fine-tuning 
+与人类偏好对齐技术，来塑造人工智能的行为和价值观。为了确保软件能够在标准硬件上
+高效运行且不产生过高计算成本，从业者会应用诸如 parameter-efficient 
+fine-tuning、knowledge distillation 和 quantization 
+等专门的优化方法。最终，这些先进的流程成功地将庞大的参数架构转化为适用于日常消
+费级设备和企业级部署的轻量、实用工具。

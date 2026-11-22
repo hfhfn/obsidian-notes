@@ -25,7 +25,65 @@ created: "2026-09-01"
 
 ### 思维导图
 
-<div class="mm-wrap"><div class="mm-root">字节Agent &amp; RAG架构通关指南</div><ul class="mm-list mm-top"><li><details open><summary>单Agent核心基石</summary><ul class="mm-list"><li><details open><summary>工业级工具调用流程</summary><ul class="mm-list"><li class="mm-leaf">定义: JsonSchema描述书</li><li class="mm-leaf">触发: 结构化解析</li><li class="mm-leaf">执行: 异常与超时控制</li><li class="mm-leaf">反馈: 推理闭环</li></ul></details></li><li><details open><summary>五道安全观卡</summary><ul class="mm-list"><li class="mm-leaf">工具过滤: 避免误触发</li><li class="mm-leaf">参数防错: 类型与缺失校验</li><li class="mm-leaf">格式强固: 防止恶意注入</li><li class="mm-leaf">沙箱隔离: 执行环境安全</li><li class="mm-leaf">结果清洗: 确保数据干净</li></ul></details></li><li><details open><summary>Token治理与长上下文</summary><ul class="mm-list"><li class="mm-leaf">优先原则: 任务完成/近期相关</li><li class="mm-leaf">压缩方法: 滑动窗口/摘要提取</li><li class="mm-leaf">精细化治理: RAG检索/重要性打分</li></ul></details></li></ul></details></li><li><details open><summary>分布式协同与架构进阶</summary><ul class="mm-list"><li><details open><summary>高阶调用模式</summary><ul class="mm-list"><li class="mm-leaf">ReAct范式: 思考与行动交织</li><li class="mm-leaf">工作流编排: DAG有向无环图</li><li class="mm-leaf">轻量模型裁判: 动态路判定</li><li class="mm-leaf">事件总线: 异步消息分发</li></ul></details></li><li><details open><summary>MCP协议</summary><ul class="mm-list"><li class="mm-leaf">统一插件规范</li><li class="mm-leaf">解决适配地狱</li><li class="mm-leaf">标准化请求与响应</li></ul></details></li></ul></details></li><li><details open><summary>生产级RAG架构</summary><ul class="mm-list"><li class="mm-leaf">流程: Retrieve and Read</li><li class="mm-leaf">优化: 端到端强化学习微调</li><li><details open><summary>向量检索引擎</summary><ul class="mm-list"><li class="mm-leaf">文本切块与密集向量化</li><li class="mm-leaf">相似度计算: 欧式距离/余弦相似度</li><li class="mm-leaf">加速算法: Faiss/HNSW</li><li class="mm-leaf">核心价值: 语意匹配</li></ul></details></li></ul></details></li><li><details open><summary>记忆系统与状态管理</summary><ul class="mm-list"><li><details open><summary>三级记忆分层</summary><ul class="mm-list"><li class="mm-leaf">短期记忆: 对话上下文</li><li class="mm-leaf">工作记忆: 任务中间变量</li><li class="mm-leaf">长期记忆: 偏好与外部知识库</li></ul></details></li><li><details open><summary>物理存储实现</summary><ul class="mm-list"><li class="mm-leaf">Redis在线缓存</li><li class="mm-leaf">向量/关系型数据库持久化</li><li class="mm-leaf">LRU/重要性评分淘汰</li></ul></details></li><li><details open><summary>多Agent协作</summary><ul class="mm-list"><li class="mm-leaf">通信协议: 合同网/拍卖机制</li><li class="mm-leaf">状态流转: FSM有限状态机</li><li class="mm-leaf">一致性: 分布式共识算法</li></ul></details></li></ul></details></li><li><details open><summary>系统评估与消容实验</summary><ul class="mm-list"><li><details open><summary>量化指标体系</summary><ul class="mm-list"><li class="mm-leaf">系统级: 成功率/时延/完成率</li><li class="mm-leaf">质量级: 幻觉率/忠实度/相关性</li></ul></details></li><li><details open><summary>消容实验设计</summary><ul class="mm-list"><li class="mm-leaf">控制变量验证</li><li class="mm-leaf">模块效能剥离</li><li class="mm-leaf">吞吐极限评估</li></ul></details></li></ul></details></li></ul></div>
+```mermaid
+mindmap
+  root((字节Agent & RAG架构通关指南))
+    单Agent核心基石
+      工业级工具调用流程
+        定义: JsonSchema描述书
+        触发: 结构化解析
+        执行: 异常与超时控制
+        反馈: 推理闭环
+      五道安全观卡
+        工具过滤: 避免误触发
+        参数防错: 类型与缺失校验
+        格式强固: 防止恶意注入
+        沙箱隔离: 执行环境安全
+        结果清洗: 确保数据干净
+      Token治理与长上下文
+        优先原则: 任务完成/近期相关
+        压缩方法: 滑动窗口/摘要提取
+        精细化治理: RAG检索/重要性打分
+    分布式协同与架构进阶
+      高阶调用模式
+        ReAct范式: 思考与行动交织
+        工作流编排: DAG有向无环图
+        轻量模型裁判: 动态路判定
+        事件总线: 异步消息分发
+      MCP协议
+        统一插件规范
+        解决适配地狱
+        标准化请求与响应
+    生产级RAG架构
+      流程: Retrieve and Read
+      优化: 端到端强化学习微调
+      向量检索引擎
+        文本切块与密集向量化
+        相似度计算: 欧式距离/余弦相似度
+        加速算法: Faiss/HNSW
+        核心价值: 语意匹配
+    记忆系统与状态管理
+      三级记忆分层
+        短期记忆: 对话上下文
+        工作记忆: 任务中间变量
+        长期记忆: 偏好与外部知识库
+      物理存储实现
+        Redis在线缓存
+        向量/关系型数据库持久化
+        LRU/重要性评分淘汰
+      多Agent协作
+        通信协议: 合同网/拍卖机制
+        状态流转: FSM有限状态机
+        一致性: 分布式共识算法
+    系统评估与消容实验
+      量化指标体系
+        系统级: 成功率/时延/完成率
+        质量级: 幻觉率/忠实度/相关性
+      消容实验设计
+        控制变量验证
+        模块效能剥离
+        吞吐极限评估
+```
 
 ### 信息图
 
@@ -44,4 +102,10 @@ created: "2026-09-01"
 
 ## 摘要
 
-（在 NotebookLM 里点「摘要」复制正文粘到这里）
+所提供的源材料概述了像 ByteDance 等大型科技公司资深 AI 
+工程师岗位的核心架构要求与面试考点，对比了基础初级原型与工业级生产系统。为了获
+得高薪并应对高并发流量，开发者必须掌握高级单 Agent 架构、遵循严格 MCP 
+协议的安全工具执行，以及智能 context window 管理。此外，材料还探讨了复杂的多 
+Agent 框架，详细介绍了如何实现生产级 RAG 引擎、三层 memory 
+系统以及分布式状态协调。最后，材料强调，验证系统性能需要严格的定量评估指标和可
+控的消融实验，而不是主观假设。

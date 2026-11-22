@@ -39,4 +39,11 @@ created: "2026-01-24"
 
 ## 摘要
 
-（在 NotebookLM 里点「摘要」复制正文粘到这里）
+DeepSeek Engram 论文通过引入一种建立在 Memory Network 和 n-gram 
+方法先前研究基础上的外部 memory lookup 
+机制，解决了大语言模型中知识检索的高计算成本问题。通过高效的 hash 函数集成稀疏 
+n-gram 
+embedding，该架构允许模型即时检索事实性知识，而无需繁重的逐层计算。该方法成功将
+模型大小与计算成本解耦，在遵循 Scaling Law 
+原则的同时，提升了在知识密集型任务上的性能。此外，嵌入表在推理过程中可以卸载到 
+CPU 内存中，为高效扩展 Transformer 的能力提供了一种精简可行的方式。

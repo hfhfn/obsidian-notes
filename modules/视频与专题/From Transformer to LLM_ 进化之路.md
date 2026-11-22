@@ -25,7 +25,58 @@ created: "2026-08-30"
 
 ### 思维导图
 
-<div class="mm-wrap"><div class="mm-root">从 Transformer 到大模型原理与演进</div><ul class="mm-list mm-top"><li><details open><summary>底层本质</summary><ul class="mm-list"><li class="mm-leaf">通用函数形式</li><li class="mm-leaf">输入/输出定义 (文本预测)</li><li class="mm-leaf">神经网络权重训练</li></ul></details></li><li><details open><summary>文本数字化过程</summary><ul class="mm-list"><li class="mm-leaf">分词 (Tokenization)</li><li class="mm-leaf">词源 (Token)</li><li class="mm-leaf">词嵌入 (Embedding)</li><li class="mm-leaf">嵌入矩阵 (Embedding Matrix)</li></ul></details></li><li><details open><summary>Transformer 核心架构 (Block)</summary><ul class="mm-list"><li><details open><summary>注意力机制 (Attention)</summary><ul class="mm-list"><li class="mm-leaf">加权求和获取上下文</li><li class="mm-leaf">QKV 向量 (Query, Key, Value)</li><li class="mm-leaf">多头注意力 (MHA)</li></ul></details></li><li><details open><summary>前馈神经网络 (FFN)</summary><ul class="mm-list"><li class="mm-leaf">升维与降维特征提取</li></ul></details></li><li><details open><summary>辅助组件</summary><ul class="mm-list"><li class="mm-leaf">位置编码 (Positional Encoding)</li><li class="mm-leaf">残差连接 (Residual Connection)</li><li class="mm-leaf">归一化 (Layer/RMS Normalization)</li></ul></details></li><li><details open><summary>输出层</summary><ul class="mm-list"><li class="mm-leaf">线性投影 (Linear Projection)</li><li class="mm-leaf">Softmax (概率转换)</li></ul></details></li></ul></details></li><li><details open><summary>训练与智力涌现</summary><ul class="mm-list"><li><details open><summary>训练阶段</summary><ul class="mm-list"><li class="mm-leaf">预训练 (Pre-train, 自监督)</li><li class="mm-leaf">监督微调 (SFT)</li><li class="mm-leaf">强化学习 (RLHF/RLVR)</li></ul></details></li><li><details open><summary>智力表现</summary><ul class="mm-list"><li class="mm-leaf">少样本学习 (Few-shot)</li><li class="mm-leaf">思维链 (CoT)</li></ul></details></li></ul></details></li><li><details open><summary>应用层与 Agent 演进</summary><ul class="mm-list"><li><details open><summary>交互概念</summary><ul class="mm-list"><li class="mm-leaf">提示词 (Prompt)</li><li class="mm-leaf">上下文与记忆 (Context/Memory)</li></ul></details></li><li><details open><summary>智能体 (Agent)</summary><ul class="mm-list"><li class="mm-leaf">工具与函数调用 (Function Calling)</li><li class="mm-leaf">检索增强生成 (RAG)</li><li class="mm-leaf">模型上下文协议 (MCP)</li></ul></details></li><li><details open><summary>工程化与流程</summary><ul class="mm-list"><li class="mm-leaf">工作流 (Workflow)</li><li class="mm-leaf">技能 (Skill)</li><li class="mm-leaf">子智能体 (Sub-agent)</li></ul></details></li></ul></details></li><li><details open><summary>现代架构改良路线</summary><ul class="mm-list"><li class="mm-leaf">混合专家模型 (MoE/DeepSeek-MoE)</li><li class="mm-leaf">稀疏/线性注意力 (MQA/GQA/MLA/Mamba)</li><li class="mm-leaf">旋转位置编码 (RoPE)</li><li class="mm-leaf">残差连接优化 (DeepSeek-V3)</li></ul></details></li></ul></div>
+```mermaid
+mindmap
+  root((从 Transformer 到大模型原理与演进))
+    底层本质
+      通用函数形式
+      输入/输出定义 （文本预测）
+      神经网络权重训练
+    文本数字化过程
+      分词 （Tokenization）
+      词源 （Token）
+      词嵌入 （Embedding）
+      嵌入矩阵 （Embedding Matrix）
+    Transformer 核心架构 （Block）
+      注意力机制 （Attention）
+        加权求和获取上下文
+        QKV 向量 （Query, Key, Value）
+        多头注意力 （MHA）
+      前馈神经网络 （FFN）
+        升维与降维特征提取
+      辅助组件
+        位置编码 （Positional Encoding）
+        残差连接 （Residual Connection）
+        归一化 （Layer/RMS Normalization）
+      输出层
+        线性投影 （Linear Projection）
+        Softmax （概率转换）
+    训练与智力涌现
+      训练阶段
+        预训练 （Pre-train, 自监督）
+        监督微调 （SFT）
+        强化学习 （RLHF/RLVR）
+      智力表现
+        少样本学习 （Few-shot）
+        思维链 （CoT）
+    应用层与 Agent 演进
+      交互概念
+        提示词 （Prompt）
+        上下文与记忆 （Context/Memory）
+      智能体 （Agent）
+        工具与函数调用 （Function Calling）
+        检索增强生成 （RAG）
+        模型上下文协议 （MCP）
+      工程化与流程
+        工作流 （Workflow）
+        技能 （Skill）
+        子智能体 （Sub-agent）
+    现代架构改良路线
+      混合专家模型 （MoE/DeepSeek-MoE）
+      稀疏/线性注意力 （MQA/GQA/MLA/Mamba）
+      旋转位置编码 （RoPE）
+      残差连接优化 （DeepSeek-V3）
+```
 
 ### 信息图
 
@@ -44,4 +95,12 @@ created: "2026-08-30"
 
 ## 摘要
 
-（在 NotebookLM 里点「摘要」复制正文粘到这里）
+提供的源文本逐字稿对 Transformer 
+架构和大语言模型进行了全面且通俗易懂的拆解，解释了从基础神经网络到 tokenization
+和 vector embeddings 
+的一切内容。它通过强调输入和输出的清晰定义简化了复杂的数学概念，并详细阐述了 
+attention 机制与 QKV 向量背后的核心原理。此外，文中还探讨了 Retrieval-Augmented
+Generation (RAG)、AI agents 以及 post-training 
+方法等先进技术如何提升模型的实用性。最后，它回顾了语言模型的历史演进与架构改进
+，指出虽然像 positional encoding 和 normalization 
+这类次要组件得到了广泛优化，但结构性创新已基本进入平台期。

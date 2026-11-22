@@ -25,7 +25,54 @@ created: "2026-09-01"
 
 ### 思维导图
 
-<div class="mm-wrap"><div class="mm-root">Transformer Architecture</div><ul class="mm-list mm-top"><li><details open><summary>Evolution of NLP Models</summary><ul class="mm-list"><li class="mm-leaf">N-gram: Statistical next-word prediction</li><li class="mm-leaf">Word Embedding: High-dimensional semantic vectors</li><li class="mm-leaf">RNN: Sequential processing with memory</li><li class="mm-leaf">LSTM: Long-term memory and gating mechanisms</li><li><details open><summary>Previous Limitations</summary><ul class="mm-list"><li class="mm-leaf">Sequential calculation bottleneck</li><li class="mm-leaf">Information loss over long distances</li></ul></details></li></ul></details></li><li><details open><summary>Attention Mechanism</summary><ul class="mm-list"><li class="mm-leaf">Core Concept: Token mutual interaction</li><li><details open><summary>The QKV Triad</summary><ul class="mm-list"><li class="mm-leaf">Query (Q): Search intention</li><li class="mm-leaf">Key (K): Information label</li><li class="mm-leaf">Value (V): Actual content</li></ul></details></li><li><details open><summary>Calculation Process</summary><ul class="mm-list"><li class="mm-leaf">Q and K dot product matching</li><li class="mm-leaf">Scaling factor (sqrt d) for stability</li><li class="mm-leaf">Softmax for weight distribution</li><li class="mm-leaf">Weighted sum of Values (V)</li></ul></details></li><li class="mm-leaf">Self-Attention: Within the same sequence</li></ul></details></li><li><details open><summary>Structural Components</summary><ul class="mm-list"><li><details open><summary>Multi-Head Attention</summary><ul class="mm-list"><li class="mm-leaf">Multiple observation spaces</li><li class="mm-leaf">Parallel relationship learning</li></ul></details></li><li><details open><summary>Positional Encoding</summary><ul class="mm-list"><li class="mm-leaf">Restores sequence order</li><li class="mm-leaf">Added to word embeddings</li></ul></details></li><li><details open><summary>Feed-Forward Network (FFN)</summary><ul class="mm-list"><li class="mm-leaf">Information analysis and reasoning</li><li class="mm-leaf">Feature combination within tokens</li></ul></details></li><li><details open><summary>Residual Connection (Add &amp; Norm)</summary><ul class="mm-list"><li class="mm-leaf">Shortcut for gradient flow</li><li class="mm-leaf">Solves gradient vanishing in deep layers</li></ul></details></li></ul></details></li><li><details open><summary>Encoder-Decoder Architecture</summary><ul class="mm-list"><li><details open><summary>Encoder</summary><ul class="mm-list"><li class="mm-leaf">Encodes source text meaning</li><li class="mm-leaf">Bi-directional visibility</li></ul></details></li><li><details open><summary>Decoder</summary><ul class="mm-list"><li class="mm-leaf">One-by-one token generation</li><li class="mm-leaf">Masked Attention: Hides future tokens</li><li class="mm-leaf">Cross Attention: Queries the Encoder</li></ul></details></li><li><details open><summary>Output Layer</summary><ul class="mm-list"><li class="mm-leaf">Linear layer and Softmax</li><li class="mm-leaf">Probability distribution over vocabulary</li></ul></details></li></ul></details></li></ul></div>
+```mermaid
+mindmap
+  root((Transformer Architecture))
+    Evolution of NLP Models
+      N-gram: Statistical next-word prediction
+      Word Embedding: High-dimensional semantic vectors
+      RNN: Sequential processing with memory
+      LSTM: Long-term memory and gating mechanisms
+      Previous Limitations
+        Sequential calculation bottleneck
+        Information loss over long distances
+    Attention Mechanism
+      Core Concept: Token mutual interaction
+      The QKV Triad
+        Query （Q）: Search intention
+        Key （K）: Information label
+        Value （V）: Actual content
+      Calculation Process
+        Q and K dot product matching
+        Scaling factor （sqrt d） for stability
+        Softmax for weight distribution
+        Weighted sum of Values （V）
+      Self-Attention: Within the same sequence
+    Structural Components
+      Multi-Head Attention
+        Multiple observation spaces
+        Parallel relationship learning
+      Positional Encoding
+        Restores sequence order
+        Added to word embeddings
+      Feed-Forward Network （FFN）
+        Information analysis and reasoning
+        Feature combination within tokens
+      Residual Connection （Add & Norm）
+        Shortcut for gradient flow
+        Solves gradient vanishing in deep layers
+    Encoder-Decoder Architecture
+      Encoder
+        Encodes source text meaning
+        Bi-directional visibility
+      Decoder
+        One-by-one token generation
+        Masked Attention: Hides future tokens
+        Cross Attention: Queries the Encoder
+      Output Layer
+        Linear layer and Softmax
+        Probability distribution over vocabulary
+```
 
 ### 信息图
 
@@ -44,4 +91,13 @@ created: "2026-09-01"
 
 ## 摘要
 
-（在 NotebookLM 里点「摘要」复制正文粘到这里）
+Transformer 架构通过克服 RNNs 和 LSTMs 
+等早期模型的顺序处理局限性，彻底改变了人工智能领域。通过引入由 Query (Q)、Key 
+(K) 和 Value (V) 向量驱动的 self-attention 和 multi-head attention 
+机制，该模型允许句子中的每个 token 
+都能同时直接相互作用并交换信息。为了配合使该架构实现高效的并行处理，模型添加了 
+positional encodings 以保留词序。此外，feed-forward networks、residual 
+connections 和 masking 
+等组件协同工作，以稳定深度训练并防止未来数据的过早泄露。最终，结合使用 
+cross-attention 的 encoders 和 decoders 
+能够胜任翻译和文本生成等复杂任务，构成了现代大语言模型背后的基础框架。

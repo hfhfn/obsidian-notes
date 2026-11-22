@@ -24,7 +24,36 @@ created: "2026-02-28"
 
 ### 思维导图
 
-<div class="mm-wrap"><div class="mm-root">OpenClaw (OpenCloud) 基本操作指南</div><ul class="mm-list mm-top"><li><details open><summary>初始化与重置</summary><ul class="mm-list"><li><details open><summary>opencloud init</summary><ul class="mm-list"><li class="mm-leaf">重新走一遍初始设置流程</li></ul></details></li></ul></details></li><li><details open><summary>配置管理 (config)</summary><ul class="mm-list"><li><details open><summary>opencloud config</summary><ul class="mm-list"><li class="mm-leaf">model: 独立设置模型</li><li class="mm-leaf">channels: 配置聊天渠道</li></ul></details></li></ul></details></li><li><details open><summary>运行状态检查</summary><ul class="mm-list"><li><details open><summary>opencloud status</summary><ul class="mm-list"><li class="mm-leaf">查看运行状态与错误信息</li></ul></details></li></ul></details></li><li><details open><summary>Gateway 服务控制</summary><ul class="mm-list"><li class="mm-leaf">前台运行: opencloud gateway</li><li class="mm-leaf">后台服务安装: opencloud gateway install</li><li class="mm-leaf">后台启动: opencloud gateway start</li><li class="mm-leaf">停止服务: opencloud gateway stop</li><li class="mm-leaf">重启服务: opencloud gateway restart</li></ul></details></li><li><details open><summary>快捷访问</summary><ul class="mm-list"><li><details open><summary>opencloud dashboard</summary><ul class="mm-list"><li class="mm-leaf">自动带Token打开Web界面</li></ul></details></li></ul></details></li><li><details open><summary>故障排查</summary><ul class="mm-list"><li><details open><summary>opencloud logs --follow</summary><ul class="mm-list"><li class="mm-leaf">实时查看运行日志</li><li class="mm-leaf">排查API Key或认证错误</li></ul></details></li></ul></details></li><li><details open><summary>系统更新</summary><ul class="mm-list"><li><details open><summary>opencloud update</summary><ul class="mm-list"><li class="mm-leaf">修复Bug与提升安全性</li></ul></details></li></ul></details></li></ul></div>
+```mermaid
+mindmap
+  root((OpenClaw （OpenCloud） 基本操作指南))
+    初始化与重置
+      opencloud init
+        重新走一遍初始设置流程
+    配置管理 （config）
+      opencloud config
+        model: 独立设置模型
+        channels: 配置聊天渠道
+    运行状态检查
+      opencloud status
+        查看运行状态与错误信息
+    Gateway 服务控制
+      前台运行: opencloud gateway
+      后台服务安装: opencloud gateway install
+      后台启动: opencloud gateway start
+      停止服务: opencloud gateway stop
+      重启服务: opencloud gateway restart
+    快捷访问
+      opencloud dashboard
+        自动带Token打开Web界面
+    故障排查
+      opencloud logs --follow
+        实时查看运行日志
+        排查API Key或认证错误
+    系统更新
+      opencloud update
+        修复Bug与提升安全性
+```
 
 ### 信息图
 
@@ -37,4 +66,8 @@ created: "2026-02-28"
 
 ## 摘要
 
-（在 NotebookLM 里点「摘要」复制正文粘到这里）
+所提供的资料概述了安装后有效管理 OpenCloud 
+并进行故障排除所需的基本命令行操作。用户可以使用特定命令重新进入初始化流程，选
+择性地修改模型和渠道等配置，并检查当前的运行状态。此外，说明中还详细介绍了如何
+控制后台服务、快速启动控制面板界面、查看系统日志以诊断错误，以及保持软件更新。
+掌握这些基础操作程序有助于防止常见的连接故障，并确保平台平稳运行。

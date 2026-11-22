@@ -25,7 +25,34 @@ created: "2026-08-29"
 
 ### 思维导图
 
-<div class="mm-wrap"><div class="mm-root">Qwen 3.8-27B Local Deployment (8GB VRAM)</div><ul class="mm-list mm-top"><li><details open><summary>Hardware Environment</summary><ul class="mm-list"><li class="mm-leaf">GPU: RTX 2070 (8GB VRAM)</li><li class="mm-leaf">CPU: Threads set to P-core count</li><li class="mm-leaf">Memory: Offload destination for layers</li></ul></details></li><li><details open><summary>Quantization Strategy</summary><ul class="mm-list"><li class="mm-leaf">Selected: IQ4_XS (Better logic and speed)</li><li class="mm-leaf">Avoided: IQ1/IQ2 (Looping and context issues)</li><li class="mm-leaf">Avoided: Q3 (Slower than Q4/IQ4)</li></ul></details></li><li><details open><summary>Configuration Parameters</summary><ul class="mm-list"><li class="mm-leaf">GPU Offload: 26 layers</li><li class="mm-leaf">KV Cache: Q4 quantization</li><li class="mm-leaf">Predictive Decoding: MTP set to 2</li><li class="mm-leaf">Dify: Increased timeout judgment</li></ul></details></li><li><details open><summary>Reasoning (Thinking) Optimization</summary><ul class="mm-list"><li class="mm-leaf">Thinking Mode: Enable for Q4+ models</li><li class="mm-leaf">Problem: Max token overflow/infinite loops</li><li class="mm-leaf">Solution: Fixed reasoning budget/budget value</li><li class="mm-leaf">Benefit: Richer content and detail</li></ul></details></li><li><details open><summary>Testing and Results</summary><ul class="mm-list"><li class="mm-leaf">Logical Reasoning: Passes contradiction tests</li><li class="mm-leaf">Image Recognition: High accuracy (locations/details)</li><li class="mm-leaf">Speed: 1 token/sec (8GB VRAM limit)</li><li class="mm-leaf">Requirement: 16GB VRAM for smooth workflow</li><li class="mm-leaf">Advantage: Better for local use than 3.8-Flash-Next</li></ul></details></li></ul></div>
+```mermaid
+mindmap
+  root((Qwen 3.8-27B Local Deployment （8GB VRAM）))
+    Hardware Environment
+      GPU: RTX 2070 （8GB VRAM）
+      CPU: Threads set to P-core count
+      Memory: Offload destination for layers
+    Quantization Strategy
+      Selected: IQ4_XS （Better logic and speed）
+      Avoided: IQ1/IQ2 （Looping and context issues）
+      Avoided: Q3 （Slower than Q4/IQ4）
+    Configuration Parameters
+      GPU Offload: 26 layers
+      KV Cache: Q4 quantization
+      Predictive Decoding: MTP set to 2
+      Dify: Increased timeout judgment
+    Reasoning （Thinking） Optimization
+      Thinking Mode: Enable for Q4+ models
+      Problem: Max token overflow/infinite loops
+      Solution: Fixed reasoning budget/budget value
+      Benefit: Richer content and detail
+    Testing and Results
+      Logical Reasoning: Passes contradiction tests
+      Image Recognition: High accuracy （locations/details）
+      Speed: 1 token/sec （8GB VRAM limit）
+      Requirement: 16GB VRAM for smooth workflow
+      Advantage: Better for local use than 3.8-Flash-Next
+```
 
 ### 信息图
 
@@ -44,4 +71,10 @@ created: "2026-08-29"
 
 ## 摘要
 
-（在 NotebookLM 里点「摘要」复制正文粘到这里）
+提供的逐字稿展示了如何在配备 8GB VRAM 显卡的普通计算机上本地部署先进的 Qwen 
+3.8-27B 模型。由于高精度量化版本超出了有限的显存容量，演示者采用了 IQ4 
+量化设置，并结合了策略性的硬件管理，例如将层卸载至 GPU 以及压缩 context 
+caches。通过包含逻辑谜题、图像识别和创意场景生成的各项测试，视频突出了在正确配
+置 thinking mode 
+时该模型令人印象深刻的推理能力。最终，虽然在低端硬件上运行此配置对于日常任务来
+说非常缓慢，但该演示证明了只要参数配置正确，本地部署是完全可行的。

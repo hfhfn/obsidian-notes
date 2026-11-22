@@ -24,7 +24,46 @@ created: "2026-05-03"
 
 ### 思维导图
 
-<div class="mm-wrap"><div class="mm-root">Claude Code 高级开发技巧</div><ul class="mm-list mm-top"><li><details open><summary>核心理念</summary><ul class="mm-list"><li class="mm-leaf">流程化管理</li><li class="mm-leaf">解决 AI 无记忆问题</li><li class="mm-leaf">提升代码质量</li><li class="mm-leaf">将 AI 视为人类工程师</li></ul></details></li><li><details open><summary>五大关键技能</summary><ul class="mm-list"><li><details open><summary>Grill Me (深度盘问)</summary><ul class="mm-list"><li class="mm-leaf">建立共同理解</li><li class="mm-leaf">遍历设计树分支</li><li class="mm-leaf">解析决策依赖</li><li class="mm-leaf">探索现有代码库</li></ul></details></li><li><details open><summary>Write a PRD (撰写需求文档)</summary><ul class="mm-list"><li class="mm-leaf">描述功能终点</li><li class="mm-leaf">定义用户故事 (User Stories)</li><li class="mm-leaf">记录实现决策</li><li class="mm-leaf">提交为 GitHub Issue</li></ul></details></li><li><details open><summary>PRD to Issues (拆分任务)</summary><ul class="mm-list"><li class="mm-leaf">规划实现路径</li><li class="mm-leaf">垂直切片 (Vertical Slices)</li><li class="mm-leaf">识别未知领域</li><li class="mm-leaf">建立任务阻塞关系</li></ul></details></li><li><details open><summary>TDD (测试驱动开发)</summary><ul class="mm-list"><li class="mm-leaf">红-绿-重构循环</li><li class="mm-leaf">先写测试再写代码</li><li class="mm-leaf">设计可测试的接口</li><li class="mm-leaf">提高输出稳定性</li></ul></details></li><li><details open><summary>Improve Architecture (重构架构)</summary><ul class="mm-list"><li class="mm-leaf">消除认知负担</li><li class="mm-leaf">深化浅层模块</li><li class="mm-leaf">多智能体并行设计接口</li><li class="mm-leaf">生成重构 RFC</li></ul></details></li></ul></details></li><li><details open><summary>工程实践工具</summary><ul class="mm-list"><li class="mm-leaf">Ralph Loop (执行循环)</li><li class="mm-leaf">GitHub Issues 管理</li><li class="mm-leaf">示踪弹 (Tracer Bullets) 理念</li><li class="mm-leaf">上下文窗口优化</li></ul></details></li></ul></div>
+```mermaid
+mindmap
+  root((Claude Code 高级开发技巧))
+    核心理念
+      流程化管理
+      解决 AI 无记忆问题
+      提升代码质量
+      将 AI 视为人类工程师
+    五大关键技能
+      Grill Me （深度盘问）
+        建立共同理解
+        遍历设计树分支
+        解析决策依赖
+        探索现有代码库
+      Write a PRD （撰写需求文档）
+        描述功能终点
+        定义用户故事 （User Stories）
+        记录实现决策
+        提交为 GitHub Issue
+      PRD to Issues （拆分任务）
+        规划实现路径
+        垂直切片 （Vertical Slices）
+        识别未知领域
+        建立任务阻塞关系
+      TDD （测试驱动开发）
+        红-绿-重构循环
+        先写测试再写代码
+        设计可测试的接口
+        提高输出稳定性
+      Improve Architecture （重构架构）
+        消除认知负担
+        深化浅层模块
+        多智能体并行设计接口
+        生成重构 RFC
+    工程实践工具
+      Ralph Loop （执行循环）
+      GitHub Issues 管理
+      示踪弹 （Tracer Bullets） 理念
+      上下文窗口优化
+```
 
 ### 信息图
 
@@ -37,4 +76,11 @@ created: "2026-05-03"
 
 ## 摘要
 
-（在 NotebookLM 里点「摘要」复制正文粘到这里）
+由于 AI coding agents 缺乏记忆，开发者必须建立严格的工作流程和自定义 
+skills，以成功引导其自动化工具并提升整体代码质量。为了实现这一目标，工程师依赖
+于特定的技术，例如使用 grill me skill 
+进行深入的规划对话，创建详细的产品需求文档（PRD），并将该目标规划拆解为易于管理
+的 GitHub issues。此外，实施测试驱动开发（TDD）能够强制 agent 遵循可靠的 
+red-green-refactor 循环，从而大幅提升实现的可靠性。最后，利用 architecture 
+improvement skill 有助于将混乱的项目重构为结构良好的模块，这最终使 AI 
+能够生成更整洁、更可维护的代码。

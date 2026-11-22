@@ -24,7 +24,57 @@ created: "2026-07-11"
 
 ### 思维导图
 
-<div class="mm-wrap"><div class="mm-root">LLM Wiki (LMwiki)</div><ul class="mm-list mm-top"><li><details open><summary>Core Concept</summary><ul class="mm-list"><li class="mm-leaf">Knowledge Engineering System</li><li class="mm-leaf">Ingestion-driven vs. Query-driven</li><li class="mm-leaf">Compilation into Long-term Assets</li><li class="mm-leaf">Knowledge Runtime</li></ul></details></li><li><details open><summary>Evolutionary Path</summary><ul class="mm-list"><li class="mm-leaf">2020: RAG (External Knowledge Access)</li><li class="mm-leaf">2024: GraphRAG (Global Relationships)</li><li class="mm-leaf">2026: LMwiki (Incremental Compilation)</li></ul></details></li><li><details open><summary>Architecture (Three Layers)</summary><ul class="mm-list"><li class="mm-leaf">Raw Materials (Immutable PDF/Code/Logs)</li><li class="mm-leaf">Wiki Derived Layer (Entities/Concepts/Synthesis)</li><li class="mm-leaf">Schema Constraint Layer (Rules/Naming/Sourcing)</li></ul></details></li><li><details open><summary>Operation Control Plane</summary><ul class="mm-list"><li class="mm-leaf">Index.md (Navigation &amp; Categories)</li><li class="mm-leaf">Log.md (Event &amp; Audit Trail)</li><li class="mm-leaf">Front Matter (Metadata &amp; Hard Constraints)</li><li class="mm-leaf">Overview.md (Cognitive Snapshot)</li></ul></details></li><li><details open><summary>Page Types</summary><ul class="mm-list"><li class="mm-leaf">Source &amp; Entity</li><li class="mm-leaf">Concept &amp; Comparison</li><li class="mm-leaf">Question &amp; Synthesis</li><li class="mm-leaf">Decision &amp; Knowledge Gap</li></ul></details></li><li><details open><summary>Core Workflows</summary><ul class="mm-list"><li><details open><summary>Ingest</summary><ul class="mm-list"><li class="mm-leaf">Normalization</li><li class="mm-leaf">Cross-referencing</li><li class="mm-leaf">Incremental Update</li></ul></details></li><li class="mm-leaf">Crystallization (Chat to Wiki)</li><li class="mm-leaf">Lint (Structural &amp; Semantic Health)</li><li class="mm-leaf">Deep Research (Active Discovery)</li></ul></details></li><li><details open><summary>Advanced Strategies</summary><ul class="mm-list"><li><details open><summary>Adversarial Ingest</summary><ul class="mm-list"><li class="mm-leaf">Multi-agent Verification</li><li class="mm-leaf">Explicit Verdicts (Supported/Contradicted)</li></ul></details></li><li><details open><summary>Adaptive Retrieval</summary><ul class="mm-list"><li class="mm-leaf">Query Routing</li><li class="mm-leaf">Hybrid Search (BM25/Vector/Graph)</li></ul></details></li></ul></details></li><li><details open><summary>Risks &amp; Challenges</summary><ul class="mm-list"><li class="mm-leaf">Hallucination Loop (Self-reinforcement)</li><li class="mm-leaf">Fine-grained Information Loss</li><li class="mm-leaf">Shift in Maintenance Costs</li></ul></details></li><li><details open><summary>Application Scenarios</summary><ul class="mm-list"><li class="mm-leaf">Long-term Theme Research</li><li class="mm-leaf">Codebase &amp; Literature Understanding</li><li class="mm-leaf">Competitive Intelligence</li><li class="mm-leaf">Personal Second Brain</li></ul></details></li></ul></div>
+```mermaid
+mindmap
+  root((LLM Wiki （LMwiki）))
+    Core Concept
+      Knowledge Engineering System
+      Ingestion-driven vs. Query-driven
+      Compilation into Long-term Assets
+      Knowledge Runtime
+    Evolutionary Path
+      2020: RAG （External Knowledge Access）
+      2024: GraphRAG （Global Relationships）
+      2026: LMwiki （Incremental Compilation）
+    Architecture （Three Layers）
+      Raw Materials （Immutable PDF/Code/Logs）
+      Wiki Derived Layer （Entities/Concepts/Synthesis）
+      Schema Constraint Layer （Rules/Naming/Sourcing）
+    Operation Control Plane
+      Index.md （Navigation & Categories）
+      Log.md （Event & Audit Trail）
+      Front Matter （Metadata & Hard Constraints）
+      Overview.md （Cognitive Snapshot）
+    Page Types
+      Source & Entity
+      Concept & Comparison
+      Question & Synthesis
+      Decision & Knowledge Gap
+    Core Workflows
+      Ingest
+        Normalization
+        Cross-referencing
+        Incremental Update
+      Crystallization （Chat to Wiki）
+      Lint （Structural & Semantic Health）
+      Deep Research （Active Discovery）
+    Advanced Strategies
+      Adversarial Ingest
+        Multi-agent Verification
+        Explicit Verdicts （Supported/Contradicted）
+      Adaptive Retrieval
+        Query Routing
+        Hybrid Search （BM25/Vector/Graph）
+    Risks & Challenges
+      Hallucination Loop （Self-reinforcement）
+      Fine-grained Information Loss
+      Shift in Maintenance Costs
+    Application Scenarios
+      Long-term Theme Research
+      Codebase & Literature Understanding
+      Competitive Intelligence
+      Personal Second Brain
+```
 
 ### 演示文稿
 
@@ -35,4 +85,13 @@ created: "2026-07-11"
 
 ## 摘要
 
-（在 NotebookLM 里点「摘要」复制正文粘到这里）
+LLMWiki 
+代表了人工智能领域的一次范式转变，它从传统的查询驱动检索转向作为一个长期知识运
+行时工作的增量编译系统。该架构不再将每次对话交互视为临时事件，而是利用结构化 
+schema 
+和原材料摄取，持续更新导航页面、操作控制文件以及交叉引用的资产。通过将内容组织
+进不同的层级——包括不可变的原始数据、衍生 wiki 
+知识和行为约束——该系统成功解决了传统工具高昂的维护成本以及缺乏持久资产保留的问
+题。此外，高级实现方案还融合了对抗性摄取和多维验证流水线，以降低自我强化幻觉和
+错误信息传播的风险。最终，这一框架将大语言模型从暂态的问答引擎提升为随时间推移
+变得越来越聪明、越来越有条理的宝贵知识库。

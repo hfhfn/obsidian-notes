@@ -24,7 +24,70 @@ created: "2026-06-06"
 
 ### 思维导图
 
-<div class="mm-wrap"><div class="mm-root">Git &amp; GitHub Core Concepts</div><ul class="mm-list mm-top"><li><details open><summary>Basics &amp; Version Control</summary><ul class="mm-list"><li class="mm-leaf">Manual vs Auto Control</li><li class="mm-leaf">.git Hidden Folder</li><li class="mm-leaf">Commit Snapshots</li><li class="mm-leaf">Commit History Chain</li></ul></details></li><li><details open><summary>Environment Setup</summary><ul class="mm-list"><li class="mm-leaf">Git Installation</li><li class="mm-leaf">VS Code Editor</li><li class="mm-leaf">GitHub Account</li><li class="mm-leaf">AI Agent Configuration</li></ul></details></li><li><details open><summary>Core File Management</summary><ul class="mm-list"><li class="mm-leaf">Init (Initialization)</li><li><details open><summary>.gitignore</summary><ul class="mm-list"><li class="mm-leaf">Secrets (.env)</li><li class="mm-leaf">Dependencies (node_modules)</li></ul></details></li><li><details open><summary>Staging Area</summary><ul class="mm-list"><li class="mm-leaf">Git Add</li><li class="mm-leaf">Staged Changes</li></ul></details></li></ul></details></li><li><details open><summary>Commit &amp; Undo</summary><ul class="mm-list"><li><details open><summary>Commit ID (Hash)</summary><ul class="mm-list"><li class="mm-leaf">Long ID</li><li class="mm-leaf">Short ID (7 digits)</li></ul></details></li><li class="mm-leaf">Discard (Uncommitted)</li><li class="mm-leaf">Reset (Forced History)</li><li class="mm-leaf">Revert (Safe Inverse)</li><li class="mm-leaf">Diff (Compare Changes)</li></ul></details></li><li><details open><summary>Branching System</summary><ul class="mm-list"><li class="mm-leaf">Master/Main Branch</li><li class="mm-leaf">Feature Branches</li><li class="mm-leaf">Merging Branches</li><li class="mm-leaf">Merge Conflict Resolution</li><li class="mm-leaf">HEAD Pointer</li><li class="mm-leaf">Checkout (Switching)</li></ul></details></li><li><details open><summary>Remote Operations</summary><ul class="mm-list"><li class="mm-leaf">Clone (Download)</li><li class="mm-leaf">Push (Upload)</li><li class="mm-leaf">Pull (Fetch + Merge)</li><li class="mm-leaf">Syncing Changes</li></ul></details></li><li><details open><summary>GitHub Features</summary><ul class="mm-list"><li class="mm-leaf">Repositories (Public/Private)</li><li class="mm-leaf">README (Project Intro)</li><li class="mm-leaf">Issues (Bug/Task Tracking)</li><li class="mm-leaf">Stars &amp; Forks</li><li class="mm-leaf">Releases (Versions)</li><li><details open><summary>Shortcuts</summary><ul class="mm-list"><li class="mm-leaf">'/' (Search)</li><li class="mm-leaf">'t' (File Finder)</li><li class="mm-leaf">'.' (Web VS Code)</li></ul></details></li></ul></details></li><li><details open><summary>Collaboration Workflow</summary><ul class="mm-list"><li class="mm-leaf">Forking (Copy to Self)</li><li class="mm-leaf">Pull Request (PR)</li><li class="mm-leaf">Code Review</li><li class="mm-leaf">Upstream Syncing</li><li class="mm-leaf">Collaborators Settings</li></ul></details></li><li><details open><summary>Advanced Features</summary><ul class="mm-list"><li class="mm-leaf">Worktree (Parallel Folders)</li><li class="mm-leaf">Codespaces (Cloud IDE)</li><li class="mm-leaf">Cherry-Pick (Selective Merge)</li><li class="mm-leaf">Stash (Temp Storage)</li><li class="mm-leaf">Rebase (Linear History)</li></ul></details></li></ul></div>
+```mermaid
+mindmap
+  root((Git & GitHub Core Concepts))
+    Basics & Version Control
+      Manual vs Auto Control
+      .git Hidden Folder
+      Commit Snapshots
+      Commit History Chain
+    Environment Setup
+      Git Installation
+      VS Code Editor
+      GitHub Account
+      AI Agent Configuration
+    Core File Management
+      Init （Initialization）
+      .gitignore
+        Secrets （.env）
+        Dependencies （node_modules）
+      Staging Area
+        Git Add
+        Staged Changes
+    Commit & Undo
+      Commit ID （Hash）
+        Long ID
+        Short ID （7 digits）
+      Discard （Uncommitted）
+      Reset （Forced History）
+      Revert （Safe Inverse）
+      Diff （Compare Changes）
+    Branching System
+      Master/Main Branch
+      Feature Branches
+      Merging Branches
+      Merge Conflict Resolution
+      HEAD Pointer
+      Checkout （Switching）
+    Remote Operations
+      Clone （Download）
+      Push （Upload）
+      Pull （Fetch + Merge）
+      Syncing Changes
+    GitHub Features
+      Repositories （Public/Private）
+      README （Project Intro）
+      Issues （Bug/Task Tracking）
+      Stars & Forks
+      Releases （Versions）
+      Shortcuts
+        '/' （Search）
+        't' （File Finder）
+        '.' （Web VS Code）
+    Collaboration Workflow
+      Forking （Copy to Self）
+      Pull Request （PR）
+      Code Review
+      Upstream Syncing
+      Collaborators Settings
+    Advanced Features
+      Worktree （Parallel Folders）
+      Codespaces （Cloud IDE）
+      Cherry-Pick （Selective Merge）
+      Stash （Temp Storage）
+      Rebase （Linear History）
+```
 
 ### 演示文稿
 
@@ -35,4 +98,11 @@ created: "2026-06-06"
 
 ## 摘要
 
-（在 NotebookLM 里点「摘要」复制正文粘到这里）
+本视频教程讲解了如何在 AI 时代高效使用 Git 和 
+GitHub，强调用户无需死记硬背复杂的命令，因为可以通过自然语言利用 
+AI。它概述了本地仓库、commit、branch 和 working tree 
+等核心版本控制概念，以便安全地追踪变更并管理项目历史。演示者展示了如何初始化项
+目、处理合并冲突，以及使用 discard、reset 和 revert 
+等撤销操作来纠正错误。此外，内容还涵盖了远程仓库同步、cloning 
+以及用于开源协作贡献的 pull request。最后，探讨了 stashing、cherry-picking 和 
+rebasing 等高级操作，以帮助开发者保持清晰高效的版本控制工作流。

@@ -25,7 +25,44 @@ created: "2026-09-09"
 
 ### 思维导图
 
-<div class="mm-wrap"><div class="mm-root">高阶 RAG 架构与落地实践</div><ul class="mm-list mm-top"><li><details open><summary>传统向量检索局限</summary><ul class="mm-list"><li class="mm-leaf">单跳事实匹配天花板</li><li class="mm-leaf">跨文档推理链条断裂</li><li class="mm-leaf">TopK 扩大导致信息迷失</li><li class="mm-leaf">实体别名对齐失败</li></ul></details></li><li><details open><summary>核心挑战 (四大关卡)</summary><ul class="mm-list"><li class="mm-leaf">多跳推理能力缺失</li><li class="mm-leaf">实体关系抽取脆弱</li><li class="mm-leaf">向量与图评分体系难融合</li><li class="mm-leaf">全量图谱维护成本高</li></ul></details></li><li><details open><summary>知识图谱构建流程</summary><ul class="mm-list"><li class="mm-leaf">轻量级小模型快速初筛</li><li class="mm-leaf">垂直少样本高阶模型精修</li><li class="mm-leaf">多维属性特征实体对齐</li><li class="mm-leaf">源头元数据强制锚定</li></ul></details></li><li><details open><summary>混合检索架构</summary><ul class="mm-list"><li class="mm-leaf">意图分类器动态分流</li><li class="mm-leaf">简单事实走向量检索</li><li class="mm-leaf">层级架构走图谱遍历</li><li class="mm-leaf">复杂推导触发双路混合检索</li><li class="mm-leaf">交叉编码器统一重排</li></ul></details></li><li><details open><summary>大模型生成与防幻觉</summary><ul class="mm-list"><li class="mm-leaf">结构化拓扑路径注入</li><li class="mm-leaf">系统提示词思维链约束</li><li class="mm-leaf">白盒化证据溯源</li><li class="mm-leaf">可视化推导子图渲染</li></ul></details></li><li><details open><summary>生产级实战经验</summary><ul class="mm-list"><li><details open><summary>量化监控指标</summary><ul class="mm-list"><li class="mm-leaf">实体/关系抽取准确率</li><li class="mm-leaf">实体对齐成功率</li><li class="mm-leaf">知识覆盖率</li></ul></details></li><li class="mm-leaf">增量热更新与熔断机制</li><li class="mm-leaf">阶梯式测评集 (单跳至综述)</li><li class="mm-leaf">版本回滚与自动化 AB 测试</li></ul></details></li></ul></div>
+```mermaid
+mindmap
+  root((高阶 RAG 架构与落地实践))
+    传统向量检索局限
+      单跳事实匹配天花板
+      跨文档推理链条断裂
+      TopK 扩大导致信息迷失
+      实体别名对齐失败
+    核心挑战 （四大关卡）
+      多跳推理能力缺失
+      实体关系抽取脆弱
+      向量与图评分体系难融合
+      全量图谱维护成本高
+    知识图谱构建流程
+      轻量级小模型快速初筛
+      垂直少样本高阶模型精修
+      多维属性特征实体对齐
+      源头元数据强制锚定
+    混合检索架构
+      意图分类器动态分流
+      简单事实走向量检索
+      层级架构走图谱遍历
+      复杂推导触发双路混合检索
+      交叉编码器统一重排
+    大模型生成与防幻觉
+      结构化拓扑路径注入
+      系统提示词思维链约束
+      白盒化证据溯源
+      可视化推导子图渲染
+    生产级实战经验
+      量化监控指标
+        实体/关系抽取准确率
+        实体对齐成功率
+        知识覆盖率
+      增量热更新与熔断机制
+      阶梯式测评集 （单跳至综述）
+      版本回滚与自动化 AB 测试
+```
 
 ### 信息图
 
@@ -44,4 +81,12 @@ created: "2026-09-09"
 
 ## 摘要
 
-（在 NotebookLM 里点「摘要」复制正文粘到这里）
+传统的向量检索方法通常难以应对复杂的多步推理任务，因为它们严格依赖单点匹配，这
+在信息分散于多个文档时会导致上下文碎片化和严重的幻觉。为了克服这些局限性，先进
+架构实现了知识图谱框架，利用轻量级模型和 prompt 
+优化来准确提取、对齐和存储实体，同时将其直接锚定到原始文本源。基于意图的智能路
+由动态管理查询，将简单问题定向至向量检索，将复杂的多跳查询引导至结合了向量和图
+谱方法的混合检索系统。在生成阶段，结构化的图路径和严格的 chain-of-thought 
+约束被注入大语言模型中，以消除盲目猜测，提供完全可追溯且透明的答案。最后，生产
+环境通过严格的定量监控、增量热更新、熔断机制和分层评估测试套件来维持系统可靠性
+，从而保证稳健的性能。

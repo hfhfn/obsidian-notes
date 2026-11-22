@@ -25,7 +25,105 @@ created: "2026-09-30"
 
 ### 思维导图
 
-<div class="mm-wrap"><div class="mm-root">Milvus向量数据库架构解析</div><ul class="mm-list mm-top"><li><details open><summary>底层核心概念</summary><ul class="mm-list"><li><details open><summary>向量与语义理解</summary><ul class="mm-list"><li><details><summary>多模态转换</summary><ul class="mm-list"><li class="mm-leaf">文本图像音视频转换</li><li class="mm-leaf">浮点数组向量生成</li></ul></details></li><li><details><summary>高维空间距离计算</summary><ul class="mm-list"><li class="mm-leaf">空间近邻点相似度</li><li class="mm-leaf">跨模态语义关联匹配</li></ul></details></li></ul></details></li><li><details open><summary>向量与标量结合</summary><ul class="mm-list"><li><details><summary>混合检索机制</summary><ul class="mm-list"><li class="mm-leaf">向量特征相似度比对</li><li class="mm-leaf">传统结构化条件过滤</li></ul></details></li><li><details><summary>元数据管理</summary><ul class="mm-list"><li class="mm-leaf">ID与上传者标识</li><li class="mm-leaf">分类标签与宽高比</li></ul></details></li></ul></details></li><li><details open><summary>核心索引技术</summary><ul class="mm-list"><li><details><summary>标量传统索引</summary><ul class="mm-list"><li class="mm-leaf">B+树数字大小比较</li><li class="mm-leaf">倒排索引字段过滤</li></ul></details></li><li><details><summary>近似最近邻索引</summary><ul class="mm-list"><li class="mm-leaf">分层导航小世界 HNSW</li><li class="mm-leaf">聚类量化压缩 IVFPQ</li></ul></details></li></ul></details></li></ul></details></li><li><details open><summary>存储组织结构</summary><ul class="mm-list"><li><details open><summary>数据存储单元</summary><ul class="mm-list"><li><details><summary>数据段 Segment</summary><ul class="mm-list"><li class="mm-leaf">向量特征独立成列</li><li class="mm-leaf">标量字段打包逻辑</li></ul></details></li><li><details><summary>动态写入区</summary><ul class="mm-list"><li class="mm-leaf">Growing Segment 内存区</li><li class="mm-leaf">支持未建索引直接查</li></ul></details></li><li><details><summary>固化持久化区</summary><ul class="mm-list"><li class="mm-leaf">Sealed Segment 封存</li><li class="mm-leaf">索引与原始数据分离</li></ul></details></li></ul></details></li><li><details open><summary>逻辑组织层级</summary><ul class="mm-list"><li><details><summary>业务分区 Partition</summary><ul class="mm-list"><li class="mm-leaf">表情包风景照分类</li><li class="mm-leaf">分区裁剪提升效率</li></ul></details></li><li><details><summary>逻辑表 Collection</summary><ul class="mm-list"><li class="mm-leaf">关系型数据库表映射</li><li class="mm-leaf">统一管理分段组件</li></ul></details></li></ul></details></li><li><details open><summary>后台数据优化</summary><ul class="mm-list"><li><details><summary>小文件合并 Compaction</summary><ul class="mm-list"><li class="mm-leaf">碎片段紧凑化处理</li><li class="mm-leaf">文件数量稳定控制</li></ul></details></li><li><details><summary>后台异步构建索引</summary><ul class="mm-list"><li class="mm-leaf">ANN向量索引生成</li><li class="mm-leaf">对象存储回传机制</li></ul></details></li></ul></details></li></ul></details></li><li><details open><summary>分布式集群架构</summary><ul class="mm-list"><li><details open><summary>核心设计原则</summary><ul class="mm-list"><li><details><summary>数据分片机制</summary><ul class="mm-list"><li class="mm-leaf">主键哈希均匀分发</li><li class="mm-leaf">单机容量突破限制</li></ul></details></li><li><details><summary>存算分离架构</summary><ul class="mm-list"><li class="mm-leaf">S3对象存储持久化</li><li class="mm-leaf">计算节点按需加载</li></ul></details></li></ul></details></li><li><details open><summary>专业节点分工</summary><ul class="mm-list"><li><details><summary>网关接入 Proxy</summary><ul class="mm-list"><li class="mm-leaf">统一对接读写请求</li><li class="mm-leaf">结果汇总返回应用</li></ul></details></li><li><details><summary>协调层 Coordinator</summary><ul class="mm-list"><li class="mm-leaf">集群状态元数据管理</li><li class="mm-leaf">ETCD一致性存储</li></ul></details></li><li><details><summary>读写分离节点</summary><ul class="mm-list"><li class="mm-leaf">Data Node 消费写入</li><li class="mm-leaf">Query Node 内存检索</li><li class="mm-leaf">Index Node 构建索引</li></ul></details></li></ul></details></li><li><details open><summary>高可用与容灾</summary><ul class="mm-list"><li><details><summary>预写日志机制 WAL</summary><ul class="mm-list"><li class="mm-leaf">分布式消息队列削峰</li><li class="mm-leaf">消费位点断点续读</li></ul></details></li><li><details><summary>多副本查询容灾</summary><ul class="mm-list"><li class="mm-leaf">多节点内存备份</li><li class="mm-leaf">故障自动流量切换</li></ul></details></li></ul></details></li></ul></details></li><li><details open><summary>典型业务链路</summary><ul class="mm-list"><li><details open><summary>写入业务链路</summary><ul class="mm-list"><li><details><summary>特征提取与打包</summary><ul class="mm-list"><li class="mm-leaf">图像模型生成向量</li><li class="mm-leaf">SDK封装标量字段</li></ul></details></li><li><details><summary>异步写入与固化</summary><ul class="mm-list"><li class="mm-leaf">消息队列快速响应</li><li class="mm-leaf">内存写入与定期Flush</li></ul></details></li></ul></details></li><li><details open><summary>混合检索链路</summary><ul class="mm-list"><li><details><summary>并发分发检索</summary><ul class="mm-list"><li class="mm-leaf">Proxy路由分发请求</li><li class="mm-leaf">向量与标量索引交集</li></ul></details></li><li><details><summary>全局重排返回</summary><ul class="mm-list"><li class="mm-leaf">局部结果汇总归并</li><li class="mm-leaf">相似度排序输出</li></ul></details></li></ul></details></li></ul></details></li><li><details open><summary>AI时代技术定位</summary><ul class="mm-list"><li><details open><summary>大模型外挂组件</summary><ul class="mm-list"><li class="mm-leaf">长期记忆存储库</li><li class="mm-leaf">动态模糊匹配中枢</li></ul></details></li><li><details open><summary>传统关系库互补</summary><ul class="mm-list"><li class="mm-leaf">传统库管理严谨交易</li><li class="mm-leaf">向量库处理模糊匹配</li></ul></details></li></ul></details></li></ul></div>
+```mermaid
+mindmap
+  root((Milvus向量数据库架构解析))
+    底层核心概念
+      向量与语义理解
+        多模态转换
+          文本图像音视频转换
+          浮点数组向量生成
+        高维空间距离计算
+          空间近邻点相似度
+          跨模态语义关联匹配
+      向量与标量结合
+        混合检索机制
+          向量特征相似度比对
+          传统结构化条件过滤
+        元数据管理
+          ID与上传者标识
+          分类标签与宽高比
+      核心索引技术
+        标量传统索引
+          B+树数字大小比较
+          倒排索引字段过滤
+        近似最近邻索引
+          分层导航小世界 HNSW
+          聚类量化压缩 IVFPQ
+    存储组织结构
+      数据存储单元
+        数据段 Segment
+          向量特征独立成列
+          标量字段打包逻辑
+        动态写入区
+          Growing Segment 内存区
+          支持未建索引直接查
+        固化持久化区
+          Sealed Segment 封存
+          索引与原始数据分离
+      逻辑组织层级
+        业务分区 Partition
+          表情包风景照分类
+          分区裁剪提升效率
+        逻辑表 Collection
+          关系型数据库表映射
+          统一管理分段组件
+      后台数据优化
+        小文件合并 Compaction
+          碎片段紧凑化处理
+          文件数量稳定控制
+        后台异步构建索引
+          ANN向量索引生成
+          对象存储回传机制
+    分布式集群架构
+      核心设计原则
+        数据分片机制
+          主键哈希均匀分发
+          单机容量突破限制
+        存算分离架构
+          S3对象存储持久化
+          计算节点按需加载
+      专业节点分工
+        网关接入 Proxy
+          统一对接读写请求
+          结果汇总返回应用
+        协调层 Coordinator
+          集群状态元数据管理
+          ETCD一致性存储
+        读写分离节点
+          Data Node 消费写入
+          Query Node 内存检索
+          Index Node 构建索引
+      高可用与容灾
+        预写日志机制 WAL
+          分布式消息队列削峰
+          消费位点断点续读
+        多副本查询容灾
+          多节点内存备份
+          故障自动流量切换
+    典型业务链路
+      写入业务链路
+        特征提取与打包
+          图像模型生成向量
+          SDK封装标量字段
+        异步写入与固化
+          消息队列快速响应
+          内存写入与定期Flush
+      混合检索链路
+        并发分发检索
+          Proxy路由分发请求
+          向量与标量索引交集
+        全局重排返回
+          局部结果汇总归并
+          相似度排序输出
+    AI时代技术定位
+      大模型外挂组件
+        长期记忆存储库
+        动态模糊匹配中枢
+      传统关系库互补
+        传统库管理严谨交易
+        向量库处理模糊匹配
+```
 
 ### 信息图
 
@@ -44,4 +142,11 @@ created: "2026-09-30"
 
 ## 摘要
 
-（在 NotebookLM 里点「摘要」复制正文粘到这里）
+所提供的来源全面解析了 Milvus 
+向量数据库架构，解释了它如何通过将各种媒体转化为多维浮点向量来处理复杂的语义信
+息。文中详细阐述了其层级化数据组织，将信息组织为表、分区和不可变的数据段，以优
+化检索性能与存储效率。此外，说明中重点介绍了 Milvus 
+的分布式系统设计，指出其采用存算分离、读写分离与消息队列来确保高可用性与弹性扩
+展能力。通过将用于向量计算的近似最近邻索引与传统标量过滤相结合，该数据库有效地
+弥合了模糊语义匹配与结构化数据查询之间的鸿沟。最终，来源将 Milvus 
+定位为不可或缺的 AI 内存扩展，旨在补充而非替代传统的关系型数据库。

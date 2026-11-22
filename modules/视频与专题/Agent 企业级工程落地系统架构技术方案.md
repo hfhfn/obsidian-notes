@@ -25,7 +25,70 @@ created: "2026-08-27"
 
 ### 思维导图
 
-<div class="mm-wrap"><div class="mm-root">Agent系统架构与工程落地</div><ul class="mm-list mm-top"><li><details open><summary>六层系统架构</summary><ul class="mm-list"><li class="mm-leaf">入口层: 鉴权、限流、路由</li><li class="mm-leaf">编排层: 任务拆解与子任务生成</li><li class="mm-leaf">模型层: 决策与逻辑推断</li><li class="mm-leaf">工具层: 外部API与数据库交互</li><li class="mm-leaf">记忆层: 实时上下文读写</li><li class="mm-leaf">缓存层: 高频热数据存储</li></ul></details></li><li><details open><summary>规划执、执行、反思闭环</summary><ul class="mm-list"><li><details open><summary>状态机控制</summary><ul class="mm-list"><li class="mm-leaf">规划 (Plan): 设定验收标准</li><li class="mm-leaf">执行 (Execute): 模型与工具调度</li><li class="mm-leaf">反思 (Reflect): 错误驱动重新规划</li></ul></details></li><li><details open><summary>三道保险</summary><ul class="mm-list"><li class="mm-leaf">最大重试轮次</li><li class="mm-leaf">单次执行超时</li><li class="mm-leaf">人工兜底机制</li></ul></details></li></ul></details></li><li><details open><summary>记忆分级与缓存策略</summary><ul class="mm-list"><li class="mm-leaf">短期上下文: Redis会话缓存</li><li class="mm-leaf">会话摘要: 动态压缩主线</li><li class="mm-leaf">用户长期画像: 向量库语义召回</li><li class="mm-leaf">业务知识库: 强一致性数据库</li><li class="mm-leaf">缓存准则: 强制TTL与细粒度绑定</li></ul></details></li><li><details open><summary>向量数据库选型</summary><ul class="mm-list"><li class="mm-leaf">Chroma: 本地轻量化原型开发</li><li class="mm-leaf">Pinecone: SaaS托管免运维</li><li class="mm-leaf">Milvus: 云原生存算分离/大规模私有化</li><li class="mm-leaf">检索增强: 业务元数据 (Metadata) 融合</li></ul></details></li><li><details open><summary>工具调用 (Tool Calling) 保障</summary><ul class="mm-list"><li><details open><summary>五层防护</summary><ul class="mm-list"><li class="mm-leaf">Schema与格式校验</li><li class="mm-leaf">参数自动补齐</li><li class="mm-leaf">权限控制</li><li class="mm-leaf">幂等控制</li><li class="mm-leaf">结果逻辑校验</li></ul></details></li><li><details open><summary>四步熔断机制</summary><ul class="mm-list"><li class="mm-leaf">记录失败轨迹/剔除工具</li><li class="mm-leaf">强制切断并回传堆栈</li><li class="mm-leaf">规则化兜底输出</li><li class="mm-leaf">核心链路转人工</li></ul></details></li><li class="mm-leaf">描述公式: 用途+边界+约束+禁忌场景</li></ul></details></li><li><details open><summary>RAG系统优化</summary><ul class="mm-list"><li><details open><summary>分段策略 (Chunking)</summary><ul class="mm-list"><li class="mm-leaf">FAQ: 300-500字精细切分</li><li class="mm-leaf">基础文档: 800-1200字保留上下文</li><li class="mm-leaf">结构化数据: 属性化存储与检索</li></ul></details></li><li><details open><summary>检索优化</summary><ul class="mm-list"><li class="mm-leaf">混合检索 (BM25+向量)</li><li class="mm-leaf">查询改写 (Query Rewrite)</li><li class="mm-leaf">重排序 (Reranker)</li><li class="mm-leaf">元数据硬过滤</li></ul></details></li></ul></details></li><li><details open><summary>性能优化与高并发</summary><ul class="mm-list"><li><details open><summary>响应延时优化</summary><ul class="mm-list"><li class="mm-leaf">并行调用与离线预计算</li><li class="mm-leaf">大小模型路由</li><li class="mm-leaf">流式输出 (Streaming)</li><li class="mm-leaf">接口超时熔断</li></ul></details></li><li><details open><summary>弹性伸缩架构</summary><ul class="mm-list"><li class="mm-leaf">网关限流排队</li><li class="mm-leaf">无状态执行层: K8S HPA横向扩容</li><li class="mm-leaf">有状态资源层: 长短任务队列隔离</li></ul></details></li></ul></details></li></ul></div>
+```mermaid
+mindmap
+  root((Agent系统架构与工程落地))
+    六层系统架构
+      入口层: 鉴权、限流、路由
+      编排层: 任务拆解与子任务生成
+      模型层: 决策与逻辑推断
+      工具层: 外部API与数据库交互
+      记忆层: 实时上下文读写
+      缓存层: 高频热数据存储
+    规划执、执行、反思闭环
+      状态机控制
+        规划 （Plan）: 设定验收标准
+        执行 （Execute）: 模型与工具调度
+        反思 （Reflect）: 错误驱动重新规划
+      三道保险
+        最大重试轮次
+        单次执行超时
+        人工兜底机制
+    记忆分级与缓存策略
+      短期上下文: Redis会话缓存
+      会话摘要: 动态压缩主线
+      用户长期画像: 向量库语义召回
+      业务知识库: 强一致性数据库
+      缓存准则: 强制TTL与细粒度绑定
+    向量数据库选型
+      Chroma: 本地轻量化原型开发
+      Pinecone: SaaS托管免运维
+      Milvus: 云原生存算分离/大规模私有化
+      检索增强: 业务元数据 （Metadata） 融合
+    工具调用 （Tool Calling） 保障
+      五层防护
+        Schema与格式校验
+        参数自动补齐
+        权限控制
+        幂等控制
+        结果逻辑校验
+      四步熔断机制
+        记录失败轨迹/剔除工具
+        强制切断并回传堆栈
+        规则化兜底输出
+        核心链路转人工
+      描述公式: 用途+边界+约束+禁忌场景
+    RAG系统优化
+      分段策略 （Chunking）
+        FAQ: 300-500字精细切分
+        基础文档: 800-1200字保留上下文
+        结构化数据: 属性化存储与检索
+      检索优化
+        混合检索 （BM25+向量）
+        查询改写 （Query Rewrite）
+        重排序 （Reranker）
+        元数据硬过滤
+    性能优化与高并发
+      响应延时优化
+        并行调用与离线预计算
+        大小模型路由
+        流式输出 （Streaming）
+        接口超时熔断
+      弹性伸缩架构
+        网关限流排队
+        无状态执行层: K8S HPA横向扩容
+        有状态资源层: 长短任务队列隔离
+```
 
 ### 信息图
 
@@ -44,4 +107,12 @@ created: "2026-08-27"
 
 ## 摘要
 
-（在 NotebookLM 里点「摘要」复制正文粘到这里）
+构建生产级 AI agent 需要超越基础的 prompt 
+engineering，专注于稳健的系统架构与工程实践。稳定的部署依赖于将系统清晰地拆分为
+六个层级，涵盖从入口网关到模型与内存组件。为确保可靠性，开发者必须实现包含循环
+限制和 fallback 
+机制的状态机控制，以防止无限执行循环。有效管理内存与缓存需要采用结构化的多层级
+方法，并配合严格的一致性规则以避免数据污染。此外，优化 Retrieval-Augmented 
+Generation (RAG) 依赖于精准的文档分块、混合搜索方法以及 reranking 
+机制来提升准确率。最终，处理高并发和可扩展性需要将无状态执行与有状态存储解耦，
+并配合稳健的熔断与限流机制。

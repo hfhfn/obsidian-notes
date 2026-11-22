@@ -25,7 +25,47 @@ created: "2026-09-17"
 
 ### 思维导图
 
-<div class="mm-wrap"><div class="mm-root">企业级RAG全链路权限防泄密</div><ul class="mm-list mm-top"><li><details open><summary>核心安全陷阱</summary><ul class="mm-list"><li class="mm-leaf">权限颗粒度过粗 (文档级 vs 切片级)</li><li class="mm-leaf">同步延迟漏洞 (人员异动空窗期)</li><li class="mm-leaf">逻辑拼图攻击 (多点公开信息推导机密)</li><li class="mm-leaf">明文标签泄密 (元数据暴露组织架构)</li></ul></details></li><li><details open><summary>前置过滤体系</summary><ul class="mm-list"><li class="mm-leaf">实时调用统一权限中心</li><li class="mm-leaf">多维身份状态查询 (部门/职级/项目)</li><li class="mm-leaf">动态布尔过滤表达式注入</li><li class="mm-leaf">向量引擎索引层混合查询</li><li class="mm-leaf">无权限切片时强制断流</li></ul></details></li><li><details open><summary>后置校验体系</summary><ul class="mm-list"><li class="mm-leaf">溯元映射 (原切片支撑检查)</li><li class="mm-leaf">逐句密集比对</li><li class="mm-leaf">动态脱敏 (抹掉敏感实体)</li><li class="mm-leaf">预设安全模板替换</li></ul></details></li><li><details open><summary>切片级打标逻辑</summary><ul class="mm-list"><li class="mm-leaf">结构化版式解析 (识别章节目)</li><li class="mm-leaf">权限继承与复写机制</li><li class="mm-leaf">敏感特征探测/密集提升</li><li class="mm-leaf">元数据属性封装 (职级/业务线/保密期)</li></ul></details></li><li><details open><summary>深水区进阶架构</summary><ul class="mm-list"><li><details open><summary>权限向量隐视匹配</summary><ul class="mm-list"><li class="mm-leaf">消除明文标签</li><li class="mm-leaf">权向量编码器</li><li class="mm-leaf">复合特征向量融合</li><li class="mm-leaf">多维空间几何对齐</li></ul></details></li><li><details open><summary>前置意图识别网</summary><ul class="mm-list"><li class="mm-leaf">意图分类模型</li><li class="mm-leaf">逻辑探针痕迹检测</li><li class="mm-leaf">推理距离约束 (禁止跨域串联)</li></ul></details></li></ul></details></li><li><details open><summary>生产运维与工程底线</summary><ul class="mm-list"><li class="mm-leaf">MS级权限变更感知 (EventBus/Kafka)</li><li class="mm-leaf">漏斗式双校验 (粗筛保吞吐/精校保安全)</li><li class="mm-leaf">Fail-Secure 安全失效原则</li><li class="mm-leaf">故障熔断降级 (全公开只读模式)</li><li class="mm-leaf">宁可不答，绝不越权</li></ul></details></li></ul></div>
+```mermaid
+mindmap
+  root((企业级RAG全链路权限防泄密))
+    核心安全陷阱
+      权限颗粒度过粗 （文档级 vs 切片级）
+      同步延迟漏洞 （人员异动空窗期）
+      逻辑拼图攻击 （多点公开信息推导机密）
+      明文标签泄密 （元数据暴露组织架构）
+    前置过滤体系
+      实时调用统一权限中心
+      多维身份状态查询 （部门/职级/项目）
+      动态布尔过滤表达式注入
+      向量引擎索引层混合查询
+      无权限切片时强制断流
+    后置校验体系
+      溯元映射 （原切片支撑检查）
+      逐句密集比对
+      动态脱敏 （抹掉敏感实体）
+      预设安全模板替换
+    切片级打标逻辑
+      结构化版式解析 （识别章节目）
+      权限继承与复写机制
+      敏感特征探测/密集提升
+      元数据属性封装 （职级/业务线/保密期）
+    深水区进阶架构
+      权限向量隐视匹配
+        消除明文标签
+        权向量编码器
+        复合特征向量融合
+        多维空间几何对齐
+      前置意图识别网
+        意图分类模型
+        逻辑探针痕迹检测
+        推理距离约束 （禁止跨域串联）
+    生产运维与工程底线
+      MS级权限变更感知 （EventBus/Kafka）
+      漏斗式双校验 （粗筛保吞吐/精校保安全）
+      Fail-Secure 安全失效原则
+      故障熔断降级 （全公开只读模式）
+      宁可不答，绝不越权
+```
 
 ### 信息图
 
@@ -44,4 +84,12 @@ created: "2026-09-17"
 
 ## 摘要
 
-（在 NotebookLM 里点「摘要」复制正文粘到这里）
+构建企业级 RAG 
+知识库需要强大的安全架构，这远不止于基础的文档级打标，以防止数据泄漏。有效的系
+统必须实现切片级权限粒度，确保访问控制直接嵌入到单个文本 chunk 
+中，而不是一律统一对待整个文件。为了防御诸如 puzzle 
+attacks（拼图攻击）这类复杂风险——即用户从多个公开片段中拼凑出敏感结论——部署结合
+检索前过滤与生成后校验的双门防御机制至关重要。此外，在高度敏感的环境中，系统应
+当采用先进的权限向量 embeddings，以消除明文 metadata 
+漏洞。最终，保持严格的运维规程（例如在身份中心发生故障时立即进行 fail-secure 
+熔断），能够确保生产环境中的安全与合规不受影响。
