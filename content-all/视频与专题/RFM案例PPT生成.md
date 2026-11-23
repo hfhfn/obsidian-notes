@@ -16,9 +16,7 @@ created: "2026-03-14"
 
 ### 演示文稿
 
-<iframe src="https://pdf.hfhfn.dpdns.org/notebooklm/RFM%E6%A1%88%E4%BE%8BPPT%E7%94%9F%E6%88%90/slide-deck.pdf#view=FitH" class="nlm-slides" title="演示文稿" loading="lazy"></iframe>
-
-<sub>[全屏打开](https://pdf.hfhfn.dpdns.org/notebooklm/RFM%E6%A1%88%E4%BE%8BPPT%E7%94%9F%E6%88%90/slide-deck.pdf)</sub>
+[打开 演示文稿（PDF）](https://pdf.hfhfn.dpdns.org/notebooklm/RFM%E6%A1%88%E4%BE%8BPPT%E7%94%9F%E6%88%90/slide-deck.pdf)
 
 ## 摘要
 
