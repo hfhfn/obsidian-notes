@@ -177,22 +177,56 @@ export async function fetchEmail(name, accessToken) {
             providerUid: String(user.id || user.login || pick.email),
           }
         }
-        // 一个 verified 都没有 —— 明确告诉用户该怎么做
-        const hasUnverified = list.some((e) => !e.verified)
+        // 一个 verified 都没有。
+        //
+        // 这里不能直接拒绝登录 —— 用户反馈过「GitHub 登录一直失败」，
+        // 而他的账号是正常的，只是没把邮箱设为 primary+verified，
+        // 或者 GitHub App 的授权没带 user:email scope（旧授权会复用）。
+        //
+        // GitHub 给每个账号都提供一个稳定的 noreply 地址：
+        //   <id>+<login>@users.noreply.github.com
+        // 用它做身份标识是安全的：唯一、稳定、不可伪造，
+        // 只是不能用来发信 —— 而登录本来也不需要发信。
+        //
+        // 用 noreply 登录的账号，之后可以在账号页绑定真实邮箱，
+        // resolveAccount 会把它们合并成同一个账号。
+        const uid = user.id || user.login
+        const login = user.login || "user"
+        if (uid) {
+          return {
+            email: `${uid}+${login}@users.noreply.github.com`.toLowerCase(),
+            name: user.name || login,
+            providerUid: String(uid),
+            needsEmailBind: true,
+          }
+        }
         return {
-          error: hasUnverified
-            ? "你的 GitHub 账号邮箱都还没验证。请到 GitHub → Settings → Emails 完成验证后再登录。"
-            : "你的 GitHub 账号没有可用邮箱。请到 GitHub → Settings → Emails 添加并验证一个邮箱。",
+          error: "你的 GitHub 账号没有可用邮箱，也没拿到账号 ID。请稍后重试。",
         }
       }
     }
 
-    // 兜底：/user.email（极少情况 emails 接口不可用）
+    // 兜底 1：/user.email（公开邮箱）
     if (user.email) {
       return {
         email: String(user.email).toLowerCase(),
         name: user.name || user.login || null,
         providerUid: String(user.id || user.login || user.email),
+      }
+    }
+
+    // 兜底 2：noreply 地址。
+    // 走到这里说明 /user/emails 不可用（常见原因：GitHub App 授权时
+    // 用户没同意 user:email scope，而 GitHub 对已授权 App 不会重新询问），
+    // 且 /user.email 为空（用户设置了隐私）。
+    // 直接拒绝会让登录彻底不可用，用 noreply 兜底保证能登进来。
+    const uid = user.id || user.login
+    if (uid) {
+      return {
+        email: `${uid}+${user.login || "user"}@users.noreply.github.com`.toLowerCase(),
+        name: user.name || user.login || null,
+        providerUid: String(uid),
+        needsEmailBind: true,
       }
     }
     return null

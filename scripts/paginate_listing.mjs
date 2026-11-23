@@ -89,9 +89,16 @@ const RUNTIME = `
       render(1);
     });
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
-  else bind();
-  document.addEventListener('nav', bind);
+  // 接全局调度器（scripts/inject_reinit.mjs）。
+  // 之前只监听 DOMContentLoaded + nav —— 视频与专题的 _assets 列表是
+  // Quartz 生成的子目录页，SPA 导航进去时分页脚本不重跑，必须刷新。
+  if (window.__nxOnReinit) {
+    window.__nxOnReinit(bind);
+  } else {
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
+    else bind();
+    document.addEventListener('nav', bind);
+  }
 })();
 `
 

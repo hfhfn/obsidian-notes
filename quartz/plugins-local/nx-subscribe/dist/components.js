@@ -69,6 +69,18 @@ const CSS = `
 }
 .sb-msg.ok { color: var(--tertiary); }
 .sb-msg.err { color: #c0392b; }
+.sb-unsub { margin-top: .9rem; font-size: .8rem; }
+.sb-unsub summary { cursor: pointer; color: var(--darkgray); list-style: none; }
+.sb-unsub summary::-webkit-details-marker { display: none; }
+.sb-unsub summary:hover { color: var(--secondary); }
+.sb-unsub-desc { margin: .5rem 0 .6rem; color: var(--darkgray); line-height: 1.5; }
+.sb-unsub-form { margin-top: .3rem; }
+.sb-btn-ghost { background: transparent !important; color: var(--darkgray) !important;
+  border: 1px solid var(--lightgray) !important; box-shadow: none !important; }
+.sb-btn-ghost:hover { border-color: var(--secondary) !important; color: var(--secondary) !important; }
+.sb-unsub-msg { margin-top: .5rem; font-size: .78rem; color: var(--darkgray); }
+.sb-unsub-msg.ok { color: var(--tertiary); }
+.sb-unsub-msg.err { color: #c0392b; }
 
 @media all and (max-width: 800px) {
   .sb-wrap { padding: 1rem; }
@@ -129,11 +141,51 @@ const RUNTIME = `
     }
   }
 
+  // 退订请求：发一封带退订链接的邮件。
+  // 不直接退订 —— 否则任何知道别人邮箱的人都能替他退订。
+  async function unsubRequest(e) {
+    e.preventDefault();
+    var form = e.target;
+    var input = form.querySelector(".sb-input");
+    var btn = form.querySelector(".sb-btn");
+    var msg = form.parentElement.querySelector(".sb-unsub-msg");
+    var email = (input.value || "").trim();
+    if (!email || !msg) return;
+
+    btn.disabled = true;
+    var old = btn.textContent;
+    btn.textContent = "发送中…";
+    msg.className = "sb-unsub-msg";
+    msg.textContent = "";
+
+    try {
+      var r = await fetch("/api/public/unsubscribe-request", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email: email }),
+      });
+      var d = await r.json().catch(function () { return {}; });
+      msg.className = "sb-unsub-msg " + (r.ok ? "ok" : "err");
+      // 不管邮箱是否订阅过都回同一句话，避免探测他人是否订阅
+      msg.textContent = r.ok
+        ? (d.message || "如果这个邮箱订阅过，退订链接已发送，请查收邮件。")
+        : (d.message || "发送失败，请稍后再试");
+      if (r.ok) input.value = "";
+    } catch (err) {
+      msg.className = "sb-unsub-msg err";
+      msg.textContent = "网络异常，请稍后再试";
+    } finally {
+      btn.disabled = false;
+      btn.textContent = old;
+    }
+  }
+
   function init() {
     document.querySelectorAll(".sb-form").forEach(function (f) {
       if (f.dataset.bound) return;
       f.dataset.bound = "1";
-      f.addEventListener("submit", submit);
+      // 退订表单用 sb-unsub-form 标记，走另一个处理函数
+      f.addEventListener("submit", f.classList.contains("sb-unsub-form") ? unsubRequest : submit);
     });
   }
   document.addEventListener("nav", init);
@@ -161,6 +213,24 @@ export function SubscribeBox() {
         h("button", { class: "sb-btn", type: "submit" }, "订阅"),
       ),
       h("div", { class: "sb-msg" }),
+      // 退订入口。
+      // 退订需要 unsub_token，只有邮件里才有，浏览器不知道。
+      // 所以这里给两条路：
+      //   1. 从推送邮件底部点「退订」链接（带 token，直接生效）
+      //   2. 在这里填邮箱 → 走 /api/public/unsubscribe-request 发一封带
+      //      退订链接的邮件，防止「不是本人拿别人邮箱乱退订」
+      h("details", { class: "sb-unsub" },
+        h("summary", {}, "想退订？"),
+        h("p", { class: "sb-unsub-desc" }, "填订阅时用的邮箱，我们会发一封带退订链接的邮件给你。"),
+        h("form", { class: "sb-form sb-unsub-form", onsubmit: "return false" },
+          h("input", {
+            class: "sb-input", type: "email", name: "email",
+            placeholder: "订阅时的邮箱", required: true, autocomplete: "email",
+          }),
+          h("button", { class: "sb-btn sb-btn-ghost", type: "submit" }, "发退订链接"),
+        ),
+        h("div", { class: "sb-unsub-msg" }),
+      ),
     )
   }
 
