@@ -373,42 +373,28 @@ const RUNTIME = `
   };
 
   window.__pbLogout = function () {
-    // 登出分两步，缺一不可：
+    // 私有站必须走 Cloudflare Access 的登出端点，否则边缘会话还在 ——
+    // 清了 cookie 也没用，Access 会立刻用 SSO 会话重新签发，
+    // 表现就是用户说的「退出的瞬间自动登录」。
     //
-    //   1. POST /api/auth/logout
-    //      清自建会话 notes_session，同时清掉 Access 的 4 个 cookie
-    //      （CF_Authorization / CF_Binding / CF_Device / CF_Session）。
-    //      之前只清 2 个 → 用户反馈「登出后依然是已登录」。
-    //
-    //   2. GET /cdn-cgi/access/logout（仅私有站）
-    //      清 Cloudflare 边缘会话。这个端点**不返回跳转**（实测 200 无
-    //      Location），所以只能由我们 fetch 它、拿 Set-Cookie，再自己跳。
-    //
-    //      之前把用户直接送到 team 域的登出页，那个页面没有跳转逻辑，
-    //      浏览器停在那儿 → 用户看到「还是刚才那个界面」。
-    function finish(redirect) {
-      acctState = null;
-      location.href = redirect || "/";
-    }
-
+    // 端点的两个坑（都实测过）：
+    //   参数必须叫 returnTo，用 redirect_url 会返回 Error 页面且不清 cookie
+    //   域名必须是 team 域，同域 /cdn-cgi/access/logout 也是 Error 页面
+    // 正确的 URL 由后端 /api/auth/logout 生成（见该文件头部注释）。
     fetch("/api/auth/logout", { method: "POST", credentials: "include" })
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (d) {
-        var redirect = (d && d.redirect) || "/";
-        if (d && d.needsAccessLogout) {
-          // 清边缘会话，然后跳登录页。用 no-store 保证拿到最新 Set-Cookie。
-          return fetch("/cdn-cgi/access/logout", {
-            credentials: "include",
-            cache: "no-store",
-          })
-            .then(function () { finish(redirect); })
-            .catch(function () { finish(redirect); });
+        acctState = null;
+        if (d && d.accessLogoutUrl) {
+          // 交给 Access：它会清边缘会话并 302 回首页，
+          // 那时没有会话，Access 自动弹自己的登录页。
+          location.href = d.accessLogoutUrl;
+        } else {
+          location.href = (d && d.redirect) || "/";
         }
-        finish(redirect);
       })
       .catch(function () {
-        // 接口挂了也要给个合理落点：都回首页
-        // （私有站回首页时 Access 会自动弹它自己的登录页）
+        // 接口挂了也要给个合理落点
         acctState = null;
         location.href = "/";
       });

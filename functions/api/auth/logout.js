@@ -13,14 +13,34 @@
  *       CF_Binding         设备绑定
  *       CF_Device          设备标识
  *       CF_Session         会话
- *     之前只清了 CF_Authorization + CF_AppSession（后者根本不存在），
- *     剩下 3 个还在 → 刷新后 Access 仍认得你 → 用户反馈「登出后依然是已登录」。
+ *     只清 CF_Authorization 不够 → 刷新后 Access 仍认得你
+ *     → 用户反馈「登出后依然是已登录」/「退出的瞬间自动登录」。
  *
- * 而且：同域 /cdn-cgi/access/logout 端点只清 cookie、**不返回跳转**
- * （实测 200 且无 Location），team 域的端点也一样。所以不能靠它做跳转，
- * 必须由前端自己 fetch 它（Set-Cookie 依然生效），再自行跳转到登录页。
+ * ⚠️ 登出端点只能用 **team 域**，参数必须叫 **returnTo**：
+ *
+ *   ✓ https://<team>.cloudflareaccess.com/cdn-cgi/access/logout?returnTo=<url>
+ *       → 302 Found + 4 条 Set-Cookie（真的清掉了）
+ *
+ *   ✗ 同域 https://<site>/cdn-cgi/access/logout
+ *       → 200 Error 页面（「Error ・ Cloudflare Access」），不清任何 cookie
+ *   ✗ 同域 + ?returnTo=
+ *       → 400 Bad Request
+ *   ✗ team 域 + ?redirect_url=
+ *       → 200 Error 页面，不清任何 cookie
+ *
+ * 之前用 redirect_url 是错的 —— 端点只返回错误页，cookie 一个都没清，
+ * 于是「退出的瞬间又自动登录」（Access 还认得你）。
+ * 之前还试过把用户直接送到 team 域登出页，但那个页面 302 回站点后
+ * 浏览器停在中间态，用户看到「还是刚才那个界面」。
+ *
+ * 所以现在的做法：
+ *   1. 本接口自己发 Set-Cookie 清掉全部 Access cookie（双保险）
+ *   2. 同时返回 accessLogoutUrl（正确的 team 域 + returnTo）
+ *   3. 前端跳过去，由 Access 清边缘会话并 302 回站点首页
  */
 import { clearSessionCookie } from "../_session.js"
+
+const ACCESS_TEAM_DOMAIN = "https://fragrant-lake-4e06.cloudflareaccess.com"
 
 /** 判断当前请求是否来自受 Access 保护的私有站 */
 function isPrivateHost(request) {
@@ -56,22 +76,16 @@ function clearAccessCookies(request) {
 }
 
 /**
- * 登出后落点。
+ * 私有站的登出地址。
  *
- * 公开站 → 首页（未登录状态的首页）
- *
- * 私有站 → 首页。不要跳我们自己的 /login：
- *   私有站真正的登录方式是 Cloudflare Access，跳回站内任意受保护页面
- *   时 Access 会自动弹出它自己的登录页（邮箱验证码）。
- *   我们自己那个 /login 页面在私有站没有 OAuth 按钮（Access 项目没配
- *   Google/GitHub 的 secret），也不该承担登录职责 —— 它只是公开站的登录页。
- *
- *   前提是 Access 的 cookie 和边缘会话都清干净了，否则 Access 仍认得你，
- *   跳过去直接就是已登录状态。清 cookie 见 clearAccessCookies，
- *   清边缘会话由前端额外 fetch 一次 /cdn-cgi/access/logout。
+ * 必须是 team 域 + returnTo（见文件头部的实测对照）。
+ * returnTo 指向私有站首页：登出后 Access 会 302 回去，
+ * 那时已经没有会话，Access 会自动弹出它自己的登录页。
  */
-function landingPath(privateSite) {
-  return "/"
+function accessLogoutUrl(request) {
+  const origin = new URL(request.url).origin
+  const back = `${origin}/`
+  return `${ACCESS_TEAM_DOMAIN}/cdn-cgi/access/logout?returnTo=${encodeURIComponent(back)}`
 }
 
 export async function onRequestPost({ request }) {
@@ -89,10 +103,10 @@ export async function onRequestPost({ request }) {
   return new Response(
     JSON.stringify({
       ok: true,
-      // 私有站前端还要额外 fetch 一次 /cdn-cgi/access/logout 清边缘会话，
-      // 那个端点不返回跳转，所以落点由这里给。
-      needsAccessLogout: privateSite,
-      redirect: landingPath(privateSite),
+      // 私有站：前端拿到就跳过去，由 Access 清边缘会话
+      // 公开站：没有 Access，直接回首页
+      accessLogoutUrl: privateSite ? accessLogoutUrl(request) : null,
+      redirect: "/",
     }),
     { status: 200, headers },
   )
@@ -103,7 +117,7 @@ export async function onRequestGet({ request }) {
   const privateSite = isPrivateHost(request)
 
   const headers = new Headers({
-    location: landingPath(privateSite),
+    location: privateSite ? accessLogoutUrl(request) : "/",
     "cache-control": "no-store",
   })
   headers.append("set-cookie", clearSessionCookie())
