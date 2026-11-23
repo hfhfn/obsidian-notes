@@ -30,7 +30,8 @@ const KINDS = {
     // 字段统一：豆瓣榜单卡和笔记卡共用同一套顺序，缺失的自动跳过
     // 评分/作者已在「星级行 + 副标题」显示，info 里不重复
     infoOrder: ["年份", "页数", "开始", "读完"],
-    perPage: 0, rows: 4,
+    cols: 5,        // 与 library.scss 的 .book-grid 保持一致
+    perPage: 15,    // cols × 3 行
   },
   movie: {
     dir: "观影库",
@@ -45,7 +46,8 @@ const KINDS = {
     ],
     // 评分/导演已在「星级行 + 副标题」显示，info 里不重复
     infoOrder: ["年份", "类型", "地区", "片长", "集数", "开始", "看完"],
-    perPage: 0, rows: 4,
+    cols: 4,        // 与 library.scss 的 .book-grid[data-for="movie"] 一致
+    perPage: 12,    // cols × 3 行
   },
   video: {
     dir: "视频与专题",
@@ -60,7 +62,8 @@ const KINDS = {
       { key: "全部", label: "全部" },
     ],
     infoOrder: ["时长", "频道", "平台", "整理"],
-    perPage: 0, rows: 4,
+    cols: 3,        // 与 library.scss 的 .book-grid[data-for="video"] 一致
+    perPage: 9,     // cols × 3 行
     // 视频类特有：卡片上显示「看原视频」和衍生笔记角标
     showSourceLink: true,
     showDerived: true,
@@ -89,20 +92,22 @@ export const FILTER_JS = `
   // 为什么要按列数算：藏书馆 5 列、观影库 4 列、视频与专题 3 列，
   // 窄屏还会降列。写死 12 时，5 列的库最后一行只剩 2 张（12 % 5 = 2），
   // 看起来像漏了数据。按列数整数倍翻页，每页都是完整行。
-  function columnsOf(grid){
-    var cs = getComputedStyle(grid).gridTemplateColumns;
-    if (!cs || cs === 'none') return 1;
-    // "160px 160px 160px" 或 "repeat(5, ...)" 计算后都是像素列表
-    var n = cs.trim().split(/\s+/).filter(Boolean).length;
-    return n > 0 ? n : 1;
-  }
-
+  // 每页条数直接从 data-perpage 读，由构建时按列数算好写进 HTML。
+  //
+  // 为什么不在运行时读 CSS 列数：
+  //   render() 可能在网格还没完成布局时执行（父容器宽度 0、
+  //   尚未插入文档、字体未加载……），这时 getComputedStyle 的
+  //   gridTemplateColumns 是 "none" 或只返回 1 列，
+  //   每页条数就算错（3 列变成 1×3=3）—— 这正是「每页 3 个」的根因。
+  //   榜单分页之所以一直正常，就是因为它在构建时静态切好，不依赖布局。
+  //   这里改成同样的思路：构建时算好，运行时只读。
   function perPageOf(grid){
-    // 每页 = 列数 × 3 行。用户明确要求「都用列数的 3 倍」。
-    // 藏书馆 5 列 → 15、观影库 4 列 → 12、视频与专题 3 列 → 9。
-    // 按列数整数倍翻页，每页都是完整行，最后一行不会只剩一两张。
-    var cols = columnsOf(grid);
-    return Math.max(cols * 3, cols);  // 兜底至少一页一整行
+    var n = Number(grid.getAttribute('data-perpage'));
+    if (n > 0) return n;
+    // 兜底：老页面没有 data-perpage 时按库的固定列数
+    var kind = grid.getAttribute('data-for') || '';
+    var cols = { book: 5, movie: 4, video: 3 }[kind] || 3;
+    return cols * 3;
   }
 
   function render(tabs, grid, pager, key, page){
@@ -210,6 +215,26 @@ export const FILTER_JS = `
       }
 
       state[kind].page = render(tabs, grid, pager, curKey, 1);
+
+      // 布局完成后重算。
+      //
+      // 首次 render 可能发生在网格还没排版时（父容器宽度为 0 或
+      // 尚未插入文档），getComputedStyle 拿不到真实列数，
+      // columnsOf 只能返回兜底值 —— 导致每页条数算错（3 列变成 1 列 × 3）。
+      //
+      // 用多次延迟重算覆盖布局完成的各种时机。render 是幂等的，
+      // 多跑几次没有副作用（只是重新分配 display）。
+      function repaginate(){
+        var st = state[kind] || { key: curKey, page: 1 };
+        st.page = render(tabs, grid, pager, st.key, st.page);
+        state[kind] = st;
+      }
+      [0, 60, 200, 600].forEach(function(ms){ setTimeout(repaginate, ms); });
+      if (document.readyState === 'complete') {
+        repaginate();
+      } else {
+        window.addEventListener('load', repaginate, { once: true });
+      }
 
       // inject_charts 在标记后插入/移除卡片时会派发 shelf-changed，
       // 但之前没有任何监听者 —— 所以后插的卡片不参与分页。

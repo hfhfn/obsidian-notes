@@ -29,7 +29,8 @@ const KINDS = {
       doing: "在读",
       done: "读过",
     },
-    perPage: 18,
+    // 榜单网格 .lc-grid 默认 6 列 → 每页 6 × 2 = 12 条（两整行）
+    perPage: 12,
   },
   movie: {
     dir: "观影库",
@@ -39,7 +40,7 @@ const KINDS = {
       doing: "在看",
       done: "看过",
     },
-    perPage: 18,
+    perPage: 12,
   },
 }
 

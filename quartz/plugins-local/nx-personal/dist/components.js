@@ -373,9 +373,11 @@ const RUNTIME = `
   };
 
   window.__pbLogout = function () {
-    // 私有站的登录态是 Cloudflare Access 签发的，光清 notes_session
-    // 等于没退（刷新后 Access 还认得你）。后端会返回 accessLogoutUrl，
-    // 跳过去才算真正登出。
+    // 两个站点分流：
+    //   公开站 → 清 cookie 后直接回首页（它不在 Access 后面，
+    //            跳 Access 登出页只会看到 "No Access cookie found"）
+    //   私有站 → 必须先走 Access 登出清边缘会话，否则刷新还是登录态；
+    //            登出后落到公开站首页，避免又被私有站 Access 拦一次
     fetch("/api/auth/logout", { method: "POST", credentials: "include" })
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (d) {
@@ -383,7 +385,7 @@ const RUNTIME = `
         if (d && d.accessLogoutUrl) {
           location.href = d.accessLogoutUrl;
         } else {
-          location.href = "/";
+          location.href = (d && d.redirect) || "/";
         }
       })
       .catch(function () {

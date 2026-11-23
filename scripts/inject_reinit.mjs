@@ -49,14 +49,41 @@ const RUNTIME = `
       catch (e) { console.error('[nx] reinit handler failed', e); }
     }
     try { document.dispatchEvent(new CustomEvent('nx:reinit', { detail: { reason: reason } })); } catch (e) {}
+
+    // 派发 Quartz 自己的 render 事件。
+    //
+    // 为什么需要：Quartz 很多组件的初始化都写成
+    //   document.addEventListener("nav", init)
+    //   document.addEventListener("render", init)
+    // 首次加载这两个事件都不发 —— 组件（日夜切换按钮等）就不会绑定。
+    // 之前 explorer 也是同一个坑，当时单独打了补丁；这里统一解决：
+    // 调度器每次 run() 都补发一次 render，让所有监听 render 的组件
+    // 自己重新初始化（它们的 init 都是幂等的）。
+    try {
+      document.dispatchEvent(new CustomEvent('render', { detail: { url: location.pathname } }));
+    } catch (e) {}
   }
   window.__nxReinit = run;
 
   // 1) DOM 就绪
+  //
+  // 额外：多次延迟补发 render。
+  // Quartz 的组件在 afterDOMLoaded 里注册 nav/render 监听，
+  // 但首次加载不会自动触发。run() 里有 50ms 节流，单次调用可能被吞，
+  // 所以这里分几拍补发，确保按钮（日夜切换等）一定绑上。
+  function bootRender(){
+    try {
+      document.dispatchEvent(new CustomEvent('render', { detail: { url: location.pathname } }));
+    } catch (e) {}
+  }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', function(){ run('domcontentloaded'); });
   } else {
     run('immediate');
+  }
+  [0, 80, 300, 900].forEach(function(ms){ setTimeout(bootRender, ms); });
+  if (document.readyState !== 'complete') {
+    window.addEventListener('load', bootRender, { once: true });
   }
 
   // 2) Quartz SPA 导航
