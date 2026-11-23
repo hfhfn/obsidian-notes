@@ -48,6 +48,29 @@ export const EXPLORER_EXPAND_RUNTIME = `
     document.dispatchEvent(new CustomEvent('render', { detail: { url: location.pathname } }));
   }
 
+  // ===== A2. 「探索」标题折叠 =====
+  //
+  // 为什么不能依赖 Quartz 自己的绑定：
+  //   它的绑定代码在 W() 里，而且要等 trie 数据异步加载完才执行。
+  //   我们的 __nxBoot 轮询到「列表有内容」就停了，可能正好错过
+  //   绑定那一刻；而且 SPA 导航后新按钮需要重新绑。
+  //   这里自己绑一份，逻辑与 Quartz 完全一致（toggle .collapsed
+  //   + 同步 aria-expanded），只是保证一定会绑上。
+  function bindExplorerToggle(){
+    var btns = document.querySelectorAll('.explorer-toggle');
+    for (var i = 0; i < btns.length; i++) {
+      var b = btns[i];
+      if (b.dataset.nxCollapse) continue;
+      b.dataset.nxCollapse = '1';
+      b.addEventListener('click', function(){
+        var ex = this.closest('.explorer');
+        if (!ex) return;
+        var collapsed = ex.classList.toggle('collapsed');
+        ex.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+      });
+    }
+  }
+
   // ===== B. 点目录名：toggle + 跳转 =====
   function toggleFolder(a){
     var li = a.closest('li');
@@ -82,6 +105,7 @@ export const EXPLORER_EXPAND_RUNTIME = `
   var tries = 0;
   function tick(){
     triggerInitialRender();
+    bindExplorerToggle();
     bind();
 
     var ul = document.querySelector('.explorer-ul');
@@ -89,8 +113,9 @@ export const EXPLORER_EXPAND_RUNTIME = `
     var allBound = btns.length > 0 && Array.prototype.every.call(
       btns, function(a){ return a.dataset.nxToggle === '1'; }
     );
+    var togglesBound = document.querySelectorAll('.explorer-toggle[data-nx-collapse]').length > 0;
     // 渲染完成 + 全部绑定完成就停
-    if (ul && ul.children.length > 1 && allBound) return;
+    if (ul && ul.children.length > 1 && allBound && togglesBound) return;
 
     if (++tries > 50) return;              // 最多约 5 秒
     setTimeout(tick, 100);

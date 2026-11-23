@@ -18,6 +18,9 @@ export const STATE_COOKIE = "oauth_state"
 const STATE_TTL_SECONDS = 600
 
 /** provider 配置：授权地址、token 地址、用户信息地址、scope */
+// GitHub API 要求的 User-Agent。用站点名+用途，便于 GitHub 侧识别。
+const USER_AGENT = "hfhfn-notes-auth (+https://notes.hfhfn.dpdns.org)"
+
 export const PROVIDERS = {
   google: {
     authUrl: "https://accounts.google.com/o/oauth2/v2/auth",
@@ -127,9 +130,18 @@ export async function exchangeCode(env, name, code, redirect) {
  */
 export async function fetchEmail(name, accessToken) {
   const p = PROVIDERS[name]
-  const auth = { authorization: "Bearer " + accessToken }
+  // GitHub 的 REST API 强制要求 User-Agent，缺了会直接 403：
+  //   "Request forbidden by administrative rules.
+  //    Please make sure your request has a User-Agent header"
+  // 这不是 scope 问题，也不是限流 —— 就是缺头。
+  // 放在这里一次，所有基于 auth 的请求（/user、/user/emails）都带上。
+  const auth = {
+    authorization: "Bearer " + accessToken,
+    "user-agent": USER_AGENT,
+    accept: "application/json",
+  }
 
-  const r = await fetch(p.userUrl, { headers: { ...auth, accept: "application/json" } })
+  const r = await fetch(p.userUrl, { headers: auth })
   if (!r.ok) {
     const body = await r.text().catch(() => "")
     console.error(`[oauth:${name}] userinfo failed`, r.status, body.slice(0, 300))
@@ -178,9 +190,7 @@ export async function fetchEmail(name, accessToken) {
     // 先查 /user/emails —— 它比 /user.email 更全，且带 verified 标记。
     // 之前优先用 user.email：那个字段可能是未验证的公开邮箱，
     // 也可能为空（用户设置了隐私），两种情况都会导致登录失败。
-    const er = await fetch(p.emailsUrl, {
-      headers: { ...auth, accept: "application/json" },
-    })
+    const er = await fetch(p.emailsUrl, { headers: auth })
     console.log("[oauth:github] /user/emails status =", er.status)
     if (!er.ok) {
       const body = await er.text().catch(() => "")

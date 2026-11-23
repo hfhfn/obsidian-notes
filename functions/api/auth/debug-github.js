@@ -36,7 +36,7 @@ export async function onRequestGet({ request, env }) {
   const token = url.searchParams.get("token")
   if (token) {
     const headers = {
-      authorization: `Bearer ${token}`,
+      authorization: "Bearer " + token,
       accept: "application/json",
       "user-agent": "notes-site-debug",
     }

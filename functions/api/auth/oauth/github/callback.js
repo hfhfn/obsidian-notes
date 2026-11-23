@@ -50,7 +50,7 @@ export async function onRequestGet({ request, env }) {
     const debug = url.searchParams.get("debug") === "1"
     if (debug) {
       // 直接再查一次 GitHub，把原始响应展示出来
-      const auth = { authorization: `Bearer ${accessToken}`, accept: "application/json" }
+      const auth = { authorization: "Bearer " + accessToken, accept: "application/json", "user-agent": "hfhfn-notes-auth" }
       let detail = {}
       try {
         const ur = await fetch("https://api.github.com/user", { headers: auth })
