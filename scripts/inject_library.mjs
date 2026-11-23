@@ -359,15 +359,17 @@ function renderCard(item, cfg, depth, kind) {
 
   let cornerBtn = ""
   if (isVideo) {
-    // 隐藏按钮只在【公开站】渲染，且由前端按登录态决定是否可见。
+    // 隐藏按钮在两个站都渲染，但默认 display:none。
     //
-    // 为什么不在私有站：私有站整个域名在 Cloudflare Access 后面，
-    // /api/* 请求被 Access 拦成 302 跳登录页（返回 HTML 不是 JSON），
-    // fetch 解析失败 → 按钮永远「没反应」。
-    // 而隐藏语义本来就是「让公开站不显示」，在公开站操作更直接。
-    // style="display:none" —— 默认不显示，hydrateVideoHide 确认是管理员后
-    // 才显示出来。普通读者完全看不到这个开关。
-    cornerBtn = (!IS_PRIVATE && slug)
+    // 公开站：普通读者不该看到这个开关 → hydrateVideoHide 确认 isAdmin
+    //         才显示。
+    // 私有站：整个域名在 Cloudflare Access 后面（只有自己进得来），
+    //         无需再按 isAdmin 隐藏；但仍等 hydrateVideoHide 拉完
+    //         hidden 列表再显示，避免按钮状态和实际不符。
+    //
+    // 注：私有站的 /api/video-visibility 已加 Access bypass，
+    //     否则请求会被拦成 302 跳登录页（返回 HTML），fetch 解析失败。
+    cornerBtn = slug
       ? `<button class="vid-hide" data-slug="${esc(slug)}" title="在公开站隐藏这条" aria-label="隐藏" style="display:none">👁</button>`
       : ""
   } else if (itemKey) {

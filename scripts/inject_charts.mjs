@@ -991,8 +991,15 @@ const RUNTIME = `
             })
           });
 
+          // 响应不是 JSON 说明被中间层拦了（Access 302 跳登录页 / 网关错误页），
+          // 明确告诉用户，不要静默失败。
           var d = null;
-          try { d = await r.json(); } catch (e) {}
+          try {
+            d = await r.json();
+          } catch (e) {
+            toast('操作失败：服务端返回的不是 JSON（HTTP ' + r.status + '）', { kind: 'error' });
+            return;
+          }
 
           if (d && d.ok) {
             if (card) card.remove();
@@ -1052,8 +1059,15 @@ const RUNTIME = `
             credentials: 'same-origin',
             body: JSON.stringify({ slug: slug, hidden: next })
           });
+          // 响应不是 JSON 说明被中间层拦了（Access 302 跳登录页 / 网关错误页），
+          // 明确告诉用户，不要静默失败。
           var d = null;
-          try { d = await r.json(); } catch (e) {}
+          try {
+            d = await r.json();
+          } catch (e) {
+            toast('操作失败：服务端返回的不是 JSON（HTTP ' + r.status + '）', { kind: 'error' });
+            return;
+          }
 
           if (d && d.ok) {
             btn.setAttribute('data-hidden', next ? '1' : '0');
@@ -1086,16 +1100,35 @@ const RUNTIME = `
     if (!btns.length) return;
     try {
       var r = await fetch('/api/video-visibility', { credentials: 'same-origin' });
-      if (!r.ok) return;
-      var d0 = await r.json().catch(function(){ return null; });
+      if (!r.ok) {
+        console.warn('[vid-hide] GET', r.status, '（Access 拦截？）');
+        return;
+      }
 
-      // 只有管理员才显示隐藏按钮。API 的 GET 会返回 isAdmin。
-      if (!d0 || !d0.isAdmin) {
+      // 只读一次 body —— 之前 r.json() 调了两次，第二次必然抛
+      // "body already read"，整个 hydrate 静默失败，按钮状态不回填。
+      var d = await r.json().catch(function(){ return null; });
+      if (!d) {
+        console.warn('[vid-hide] 响应不是 JSON（可能被 Access 拦截）');
+        return;
+      }
+
+      // 未登录 → 不显示
+      if (!d.authed) {
         btns.forEach(function(b){ b.style.display = 'none'; });
         return;
       }
+
+      // 公开站：只有管理员才显示这个开关（普通读者看不到）
+      // 私有站：整个域名只有自己进得来，不需要再判 isAdmin
+      var isPrivate = /^private\./.test(location.hostname);
+      if (!isPrivate && !d.isAdmin) {
+        btns.forEach(function(b){ b.style.display = 'none'; });
+        return;
+      }
+
       btns.forEach(function(b){ b.style.display = ''; });
-      var d = await r.json();
+
       var set = {};
       (d.hidden || []).forEach(function(s){ set[s] = 1; });
       btns.forEach(function(btn){
@@ -1106,9 +1139,14 @@ const RUNTIME = `
           btn.title = '已在公开站隐藏（点击恢复）';
           var card = btn.closest('.book-card');
           if (card) card.classList.add('is-hidden-public');
+        } else {
+          btn.setAttribute('data-hidden', '0');
+          btn.textContent = '👁';
         }
       });
-    } catch (e) {}
+    } catch (e) {
+      console.warn('[vid-hide] hydrate failed', e);
+    }
   }
 
   // 页内提示条。替代 alert/confirm —— 原生弹窗会阻塞页面，
