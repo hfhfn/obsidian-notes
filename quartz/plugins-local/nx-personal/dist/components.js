@@ -57,18 +57,24 @@ const CSS = `
 .pb-pop .pb-head {
   padding: .1rem .35rem .4rem; margin-bottom: .25rem;
   border-bottom: 1px solid var(--lightgray);
-  color: var(--gray); font-size: .7rem;
+  color: var(--gray); font-size: .7rem !important;
   text-transform: uppercase; letter-spacing: .06em;
 }
 .pb-pop .pb-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .15rem; }
+/* 主题弹层里的每个主题名。
+   字号必须 !important —— 同 .pb-btn 的原因：Quartz 的组件样式在
+   @layer quartz-base 里，任何未分层的 button{font-size:16px} 都能压掉它。
+   （用户反馈过「主题点开里面具体主题名称的字体大小也有同样问题」。）
+   为了不再一处一处补，见文件末尾的「字体锁定」区块。 */
 .pb-theme {
   display: block; width: 100%; text-align: left;
   padding: .34rem .45rem; margin: 0;
   border: none; border-radius: 6px; background: none;
-  color: var(--darkgray); font-size: 0.76rem;
+  color: var(--darkgray); font-size: 0.76rem !important;
   font-family: var(--bodyFont); cursor: pointer;
   transition: background-color .15s, color .15s;
 }
+.pb-theme span, .pb-theme * { font-size: inherit !important; }
 .pb-theme:hover { background: var(--highlight); color: var(--secondary); }
 .pb-theme.is-on { color: var(--secondary); font-weight: 600; }
 .pb-theme.is-on::after { content: " ✓"; }

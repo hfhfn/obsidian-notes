@@ -31,7 +31,7 @@ const CSS = `
 }
 .nc-count {
   color: var(--gray);
-  font-size: 0.82rem;
+  font-size: 0.82rem !important;
 }
 .nc-login-hint {
   margin: 0 0 1rem;
@@ -39,7 +39,7 @@ const CSS = `
   border: 1px solid var(--lightgray);
   border-radius: 8px;
   color: var(--darkgray);
-  font-size: 0.85rem;
+  font-size: 0.85rem !important;
   line-height: 1.6;
 }
 .nc-login-hint a {
@@ -59,7 +59,7 @@ const CSS = `
   background: var(--light);
   color: var(--dark);
   font-family: var(--bodyFont);
-  font-size: 0.88rem;
+  font-size: 0.88rem !important;
   line-height: 1.6;
   resize: vertical;
 }
@@ -76,7 +76,7 @@ const CSS = `
 }
 .nc-who {
   color: var(--gray);
-  font-size: 0.78rem;
+  font-size: 0.78rem !important;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -134,16 +134,16 @@ const CSS = `
   margin-bottom: 0.15rem;
 }
 .nc-name {
-  font-size: 0.85rem;
+  font-size: 0.85rem !important;
   font-weight: 600;
   color: var(--dark);
 }
 .nc-time {
   color: var(--gray);
-  font-size: 0.74rem;
+  font-size: 0.74rem !important;
 }
 .nc-text {
-  font-size: 0.87rem;
+  font-size: 0.87rem !important;
   line-height: 1.65;
   color: var(--darkgray);
   word-break: break-word;
@@ -200,12 +200,12 @@ const CSS = `
 }
 .nc-empty {
   color: var(--gray);
-  font-size: 0.84rem;
+  font-size: 0.84rem !important;
   padding: 0.6rem 0;
 }
 .nc-error {
   color: #e05252;
-  font-size: 0.8rem;
+  font-size: 0.8rem !important;
   margin-top: 0.4rem;
 }
 `

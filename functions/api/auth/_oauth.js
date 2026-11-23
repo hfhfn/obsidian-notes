@@ -150,12 +150,28 @@ export async function fetchEmail(name, accessToken) {
   }
 
   if (name === "github") {
+    // 诊断：把 /user 的关键字段记下来，便于排查「拿不到邮箱」
+    console.log(
+      "[oauth:github] /user =",
+      JSON.stringify({
+        login: user.login,
+        id: user.id,
+        email: user.email,
+        hasId: Boolean(user.id),
+      }),
+    )
+
     // 先查 /user/emails —— 它比 /user.email 更全，且带 verified 标记。
     // 之前优先用 user.email：那个字段可能是未验证的公开邮箱，
     // 也可能为空（用户设置了隐私），两种情况都会导致登录失败。
     const er = await fetch(p.emailsUrl, {
       headers: { ...auth, accept: "application/json" },
     })
+    console.log("[oauth:github] /user/emails status =", er.status)
+    if (!er.ok) {
+      const body = await er.text().catch(() => "")
+      console.log("[oauth:github] /user/emails body =", body.slice(0, 200))
+    }
     if (er.ok) {
       const list = await er.json().catch(() => null)
       if (Array.isArray(list) && list.length) {

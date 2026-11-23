@@ -1275,39 +1275,12 @@ const RUNTIME = `
     window.addEventListener('popstate', boot);
   }
 })();
-`
+`;
 
-// 把 RUNTIME 注入到站内所有页面。
-//
-// 为什么必须全站注入：Quartz 是 SPA，从首页/任意笔记点进藏书馆时
-// 只替换 body，目标页面的 <script> 不会重新执行。之前只在
-// 藏书馆/观影库两个 index.html 里注入 —— 从别处点进来时脚本不存在，
-// 59 个按钮全部无反应，必须手动刷新。这就是用户反复反馈的问题。
-const RUNTIME_MARKER = "/* charts-runtime */";
+export const CHARTS_RUNTIME = RUNTIME
 
-function injectRuntimeEverywhere(distDir) {
-  let touched = 0;
-  const walk = (dir) => {
-    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
-      const full = path.join(dir, e.name);
-      if (e.isDirectory()) {
-        if (e.name === "vendor" || e.name === "static") continue;
-        walk(full);
-      } else if (e.name.endsWith(".html")) {
-        let h = fs.readFileSync(full, "utf-8");
-        if (h.includes(RUNTIME_MARKER)) continue;      // 幂等
-        if (!h.includes("</body>")) continue;
-        // 必须替换最后一个 </body> —— 页面内联 JS 可能含 </body> 字面量
-        const _at = h.lastIndexOf("</body>")
-        if (_at >= 0) h = h.slice(0, _at) + inlineScript(RUNTIME_MARKER + "\n" + RUNTIME) + h.slice(_at)
-        fs.writeFileSync(full, h);
-        touched++;
-      }
-    }
-  };
-  walk(distDir);
-  return touched;
-}
+// RUNTIME 的注入已统一由 scripts/bundle_runtime.mjs 处理（全站单文件，可缓存）。
+
 
 function inject(distDir) {
   const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)))
@@ -1362,10 +1335,6 @@ function inject(distDir) {
     console.log(`[charts:${kind}] ${total} 条（本地封面 ${withCover}）→ 标签页 ${cfg.dir}/index.html`)
     n++
   }
-
-  // 关键：RUNTIME 注入全站，否则从别的页面 SPA 导航进来时脚本不存在
-  const touched = injectRuntimeEverywhere(distDir)
-  console.log(`[charts] runtime 注入 ${touched} 个页面`)
 
   return n
 }

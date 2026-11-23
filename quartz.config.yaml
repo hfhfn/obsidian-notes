@@ -168,10 +168,13 @@ plugins:
     options:
       # 面板标题
       title: "探索"
-      # 点击文件夹直接展开/收起，而不是跳转到文件夹首页。
-      # Quartz 默认是 "link"（点击=跳转，只有点左边小箭头才展开），
-      # 用户反馈「每个目录点击都不会自动展开」，改成 collapse。
-      folderClickBehavior: "collapse"
+      # 点击目录名 = 跳转到目录页（那里有 MOC 导航卡片）；
+      # 点击左侧小箭头 = 展开/收起子项。
+      #
+      # 不能用 "collapse"：那样点击只展开、永远进不到目录页，
+      # 用户就看不到目录页的 MOC 导航（反馈「目录点击显示 MOC 没成功」）。
+      # 用 "link" 后两种操作都保留，互不冲突。
+      folderClickBehavior: "link"
       # 默认展开第一层，省一次点击
       folderDefaultState: "open"
       # 归档放最后；其余保持「文件夹在前、同级按名称」的默认顺序

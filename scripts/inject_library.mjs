@@ -70,7 +70,7 @@ const KINDS = {
 const PLACEHOLDER = "<!-- LIBRARY_GRID -->"
 
 // 标签页筛选逻辑。内联进页面，避免 Quartz 不复制 quartz/static 下的文件。
-const FILTER_JS = `
+export const FILTER_JS = `
 (function(){
   // 状态筛选 + 分页。
   // 分页是按「当前 tab 的可见卡片」算的，不是按全部卡片，
@@ -169,7 +169,6 @@ const FILTER_JS = `
     });
   }
   // 三层保障：Quartz SPA 导航时目标页面的内联脚本不执行，
-  // 所以这段 JS 必须全站注入（见 injectFilterEverywhere）。
   var moT = null;
   var lastAt = 0;
   function needs(){
@@ -209,7 +208,9 @@ const FILTER_JS = `
     window.addEventListener('popstate', boot);
   }
 })();
-`
+`;
+
+// FILTER_JS 已在上面 const 声明，bundle_runtime 直接 import 使用
 
 // 输出目录是 dist-all 说明在构建私有站（管理员才能访问），
 // 这时才渲染「公开站隐藏」开关。
@@ -590,37 +591,13 @@ const FILTER_MARKER = "/* library-filter */";
  * 页面里 —— 从别处点进来时标签切换（想读/在读/已读）全部没反应，
  * 必须手动刷新。
  */
-function injectFilterEverywhere(distDir) {
-  let touched = 0
-  const walk = (dir) => {
-    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
-      const full = path.join(dir, e.name)
-      if (e.isDirectory()) {
-        if (e.name === "vendor" || e.name === "static") continue
-        walk(full)
-      } else if (e.name.endsWith(".html")) {
-        let h = fs.readFileSync(full, "utf-8")
-        if (h.includes(FILTER_MARKER)) continue
-        if (!h.includes("</body>")) continue
-        // 必须替换最后一个 </body> —— 页面内联 JS 可能含 </body> 字面量
-        const _at = h.lastIndexOf("</body>")
-        if (_at >= 0) h = h.slice(0, _at) + inlineScript(FILTER_MARKER + "\n" + FILTER_JS) + h.slice(_at)
-        fs.writeFileSync(full, h)
-        touched++
-      }
-    }
-  }
-  walk(distDir)
-  return touched
-}
+// FILTER_JS 的注入已统一由 scripts/bundle_runtime.mjs 处理。
 
 export function injectLibrary(distDir) {
   let total = 0
   for (const kind of Object.keys(KINDS)) {
     total += injectKind(distDir, kind)
   }
-  const touched = injectFilterEverywhere(distDir)
-  console.log(`[library] filter 注入 ${touched} 个页面`)
   return total
 }
 

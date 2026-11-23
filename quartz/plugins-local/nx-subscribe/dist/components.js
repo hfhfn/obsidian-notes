@@ -18,7 +18,7 @@ const CSS = `
 .sb-title {
   display: flex; align-items: center; gap: .45rem;
   margin: 0 0 .35rem;
-  font-size: 1.05rem; font-weight: 700;
+  font-size: 1.05rem !important; font-weight: 700;
   color: var(--dark);
   font-family: var(--headerFont);
 }
@@ -26,7 +26,7 @@ const CSS = `
 .sb-desc {
   margin: 0 0 .95rem;
   color: var(--gray);
-  font-size: .86rem;
+  font-size: .86rem !important;
 }
 .sb-form { display: flex; gap: .55rem; flex-wrap: wrap; }
 .sb-input {
@@ -36,7 +36,7 @@ const CSS = `
   border-radius: 8px;
   background: var(--light);
   color: var(--darkgray);
-  font-size: .88rem;
+  font-size: .88rem !important;
   font-family: var(--bodyFont);
   transition: border-color .15s;
 }
@@ -53,7 +53,7 @@ const CSS = `
   border-radius: 8px;
   background: var(--secondary);
   color: #fff;
-  font-size: .88rem;
+  font-size: .88rem !important;
   font-family: var(--bodyFont);
   font-weight: 600;
   cursor: pointer;
@@ -64,12 +64,12 @@ const CSS = `
 .sb-btn[disabled] { opacity: .55; cursor: default; }
 .sb-msg {
   margin-top: .65rem;
-  font-size: .82rem;
+  font-size: .82rem !important;
   min-height: 1.2em;
 }
 .sb-msg.ok { color: var(--tertiary); }
 .sb-msg.err { color: #c0392b; }
-.sb-unsub { margin-top: .9rem; font-size: .8rem; }
+.sb-unsub { margin-top: .9rem; font-size: .8rem !important; }
 .sb-unsub summary { cursor: pointer; color: var(--darkgray); list-style: none; }
 .sb-unsub summary::-webkit-details-marker { display: none; }
 .sb-unsub summary:hover { color: var(--secondary); }
@@ -78,7 +78,7 @@ const CSS = `
 .sb-btn-ghost { background: transparent !important; color: var(--darkgray) !important;
   border: 1px solid var(--lightgray) !important; box-shadow: none !important; }
 .sb-btn-ghost:hover { border-color: var(--secondary) !important; color: var(--secondary) !important; }
-.sb-unsub-msg { margin-top: .5rem; font-size: .78rem; color: var(--darkgray); }
+.sb-unsub-msg { margin-top: .5rem; font-size: .78rem !important; color: var(--darkgray); }
 .sb-unsub-msg.ok { color: var(--tertiary); }
 .sb-unsub-msg.err { color: #c0392b; }
 

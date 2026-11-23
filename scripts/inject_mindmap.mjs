@@ -489,7 +489,9 @@ const RUNTIME = `
   }
   document.addEventListener('nav', bootAll);
 })();
-`
+`;
+
+export const MINDMAP_RUNTIME = RUNTIME
 
 function walk(dir, out = []) {
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -562,9 +564,8 @@ function inject(distDir) {
     }
 
     h = h.replace("</head>", `<style>${CSS}</style>${tags}</head>`)
-    // 必须替换最后一个 </body> —— 页面内联 JS 可能含 </body> 字面量
-    const _at = h.lastIndexOf("</body>")
-    if (_at >= 0) h = h.slice(0, _at) + inlineScript(RUNTIME) + h.slice(_at)
+    // RUNTIME 的注入已统一由 scripts/bundle_runtime.mjs 处理（全站单文件）。
+    // 这里只做页面级的数据标记（data-mm-slug / 样式）。
     fs.writeFileSync(f, h)
     touched++
   }

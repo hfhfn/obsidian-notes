@@ -17,7 +17,7 @@ const CSS = `
   border: 1px solid var(--lightgray);
   border-radius: 9px;
   background: color-mix(in srgb, var(--lightgray) 22%, transparent);
-  font-size: 0.84rem;
+  font-size: 0.84rem !important;
 }
 .na-btn {
   display: inline-flex;
@@ -28,7 +28,7 @@ const CSS = `
   border-radius: 7px;
   background: transparent;
   color: var(--darkgray);
-  font-size: 0.84rem;
+  font-size: 0.84rem !important;
   font-family: var(--bodyFont);
   cursor: pointer;
   transition: background-color .15s ease, color .15s ease, border-color .15s ease;
@@ -43,7 +43,7 @@ const CSS = `
 .na-sep { width: 1px; height: 1.1em; background: var(--lightgray); }
 .na-meta {
   display: inline-flex; align-items: center; gap: .3rem;
-  color: var(--gray); font-size: .78rem; margin-left: auto;
+  color: var(--gray); font-size: .78rem !important; margin-left: auto;
 }
 .na-meta svg { width: 14px; height: 14px; }
 
@@ -52,7 +52,7 @@ const CSS = `
   position: fixed; left: 50%; bottom: 2rem; transform: translateX(-50%);
   z-index: 999; padding: .6rem 1rem; border-radius: 9px;
   background: var(--dark); color: var(--light);
-  font-size: .84rem; font-family: var(--bodyFont);
+  font-size: .84rem !important; font-family: var(--bodyFont);
   box-shadow: 0 8px 24px rgba(0,0,0,.2);
   opacity: 0; transition: opacity .2s ease; pointer-events: none;
 }

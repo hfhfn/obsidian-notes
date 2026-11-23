@@ -20,7 +20,7 @@ const CSS = `
   border-bottom: 2px solid transparent;
   background: none;
   color: var(--gray);
-  font-size: 0.85rem;
+  font-size: 0.85rem !important;
   font-family: var(--headerFont);
   font-weight: 600;
   cursor: pointer;

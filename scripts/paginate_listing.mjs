@@ -89,18 +89,59 @@ const RUNTIME = `
       render(1);
     });
   }
-  // 接全局调度器（scripts/inject_reinit.mjs）。
-  // 之前只监听 DOMContentLoaded + nav —— 视频与专题的 _assets 列表是
-  // Quartz 生成的子目录页，SPA 导航进去时分页脚本不重跑，必须刷新。
-  if (window.__nxOnReinit) {
-    window.__nxOnReinit(bind);
+  // 自己管自己的初始化。
+  //
+  // 为什么不用全局调度器：paginate 的脚本是内联在页面里的普通 <script>，
+  // 执行时机早于 body 末尾注入的调度器（window.__nxOnReinit 还不存在），
+  // 走调度器分支会静默跳过。这里用「立即跑 + 定时重试 + nav 重跑」三保险，
+  // 不依赖任何外部注入顺序。
+  var tries = 0;
+  function bindUntil(){
+    bind();
+    var lists = document.querySelectorAll('.page-listing');
+    var done = lists.length > 0 && Array.prototype.every.call(lists, function(l){
+      return l.dataset.plBound === '1'
+        || l.querySelectorAll('ul.section-ul > li').length <= 1;
+    });
+    if (done || ++tries > 40) return;   // 最多约 4 秒
+    setTimeout(bindUntil, 100);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bindUntil);
   } else {
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bind);
-    else bind();
-    document.addEventListener('nav', bind);
+    bindUntil();
+  }
+  // nav 触发时 Quartz 可能还没把新 article 插进 DOM，
+  // 延迟一拍再跑，并给足重试次数。
+  document.addEventListener('nav', function(){
+    tries = 0;
+    setTimeout(bindUntil, 60);
+    setTimeout(bindUntil, 300);
+    setTimeout(bindUntil, 800);
+  });
+  window.addEventListener('popstate', function(){
+    tries = 0;
+    setTimeout(bindUntil, 60);
+    setTimeout(bindUntil, 300);
+  });
+
+  // 如果调度器后来才就绪，也接上（双保险，bind 内部有 plBound 幂等）
+  if (window.__nxOnReinit) {
+    window.__nxOnReinit(function(){ tries = 0; bindUntil(); });
+  } else {
+    var waitReinit = setInterval(function(){
+      if (window.__nxOnReinit) {
+        window.__nxOnReinit(function(){ tries = 0; bindUntil(); });
+        clearInterval(waitReinit);
+      }
+    }, 100);
+    setTimeout(function(){ clearInterval(waitReinit); }, 5000);
   }
 })();
-`
+`;
+
+export const PAGER_RUNTIME = RUNTIME
 
 function pagerHtml() {
   return `<div class="pl-pager">
@@ -172,7 +213,9 @@ function inject(distDir, per = DEFAULT_PER) {
       if (e.isDirectory()) {
         if (e.name === "_assets" || e.name === "static" || e.name === "tags") continue
         walk(p)
-      } else if (e.name === "index.html") {
+      } else if (e.name.endsWith(".html")) {
+        // 全站注入需要所有页面，不只是 index.html ——
+        // Quartz 的普通页是 <slug>.html，占了绝大多数。
         files.push(p)
       }
     }
@@ -180,27 +223,30 @@ function inject(distDir, per = DEFAULT_PER) {
   walk(distDir)
 
   let n = 0
+  let scriptInjected = 0
+
   for (const f of files) {
     let html = fs.readFileSync(f, "utf-8")
-    if (!html.includes('class="page-listing"')) continue
-    if (html.includes('class="pl-pager"')) continue // 幂等
 
-    const r = paginateOne(html, per)
-    if (!r) continue
-
-    // 注入样式和脚本（只插一次）
-    if (!html.includes(".pl-pager")) {
-      r.html = r.html.replace("</head>", `<style>${CSS}</style></head>`)
-      // 必须替换最后一个 </body> —— 页面内联 JS 可能含 </body> 字面量
-      const _at = r.html.lastIndexOf("</body>")
-      if (_at >= 0) r.html = r.html.slice(0, _at) + inlineScript(RUNTIME) + r.html.slice(_at)
+    // --- 第一步：给含 page-listing 的页面插入分页器 DOM ---
+    if (html.includes('class="page-listing"') && !html.includes('class="pl-pager"')) {
+      const r = paginateOne(html, per)
+      if (r) {
+        html = r.html
+        const rel = path.relative(distDir, f).replace(/\\/g, "/")
+        console.log(`[listing-pager] ${rel}  ${r.itemCount} 条 → 分页`)
+        n++
+      }
     }
 
-    fs.writeFileSync(f, r.html, "utf-8")
-    const rel = path.relative(distDir, f).replace(/\\/g, "/")
-    console.log(`[listing-pager] ${rel}  ${r.itemCount} 条 → 分页`)
-    n++
+    // 运行时注入已统一由 scripts/bundle_runtime.mjs 处理。
+    // 这里只负责插入分页器 DOM。
+
+    if (html !== fs.readFileSync(f, "utf-8")) {
+      fs.writeFileSync(f, html, "utf-8")
+    }
   }
+  if (scriptInjected) console.log(`[listing-pager] runtime 注入 ${scriptInjected} 个页面`)
   return n
 }
 

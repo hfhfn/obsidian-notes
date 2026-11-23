@@ -36,7 +36,7 @@ const CSS = `
 }
 .tl-icon {
   flex: 0 0 auto;
-  font-size: 0.9rem;
+  font-size: 0.9rem !important;
   line-height: 1;
 }
 `
