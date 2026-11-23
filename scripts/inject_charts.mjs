@@ -973,7 +973,18 @@ const RUNTIME = `
             credentials: 'same-origin',
             body: JSON.stringify({
               itemKey: key,
-              kind: btn.getAttribute('data-kind') || (card && card.classList.contains('book-card-wide') ? 'video' : 'book'),
+              // kind 必须准确：shelf-remove 按钮本身没有 data-kind，
+              // 之前回退成 'book'，导致电影被存成 kind='book'，
+              // hydrate 时按 kind 拉数据拉不到，卡片刷新后又出现。
+              // 从 item_key 前缀推断最可靠（movie:xxx / book:xxx / video:xxx）。
+              kind: (function(){
+                var k = btn.getAttribute('data-kind');
+                if (k) return k;
+                var m = /^(book|movie|video):/.exec(key || '');
+                if (m) return m[1];
+                if (card && card.classList.contains('book-card-wide')) return 'video';
+                return 'book';
+              })(),
               title: (card && card.querySelector('.book-title') || {}).textContent || '',
               status: 'hidden',
               progress: 0
@@ -1076,6 +1087,14 @@ const RUNTIME = `
     try {
       var r = await fetch('/api/video-visibility', { credentials: 'same-origin' });
       if (!r.ok) return;
+      var d0 = await r.json().catch(function(){ return null; });
+
+      // 只有管理员才显示隐藏按钮。API 的 GET 会返回 isAdmin。
+      if (!d0 || !d0.isAdmin) {
+        btns.forEach(function(b){ b.style.display = 'none'; });
+        return;
+      }
+      btns.forEach(function(b){ b.style.display = ''; });
       var d = await r.json();
       var set = {};
       (d.hidden || []).forEach(function(s){ set[s] = 1; });

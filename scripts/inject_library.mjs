@@ -270,7 +270,9 @@ function renderCard(item, cfg, depth, kind) {
     ? `<div class="book-rating"><span class="stars">${item.stars}</span>${item.rating ? `<span class="score">${esc(item.rating)}</span>` : ""}</div>`
     : ""
 
-  // info 是 {标签: 值} 的字典，按 cfg.infoOrder 排序输出
+  // info 是 {标签: 值} 的字典。
+  // 书架卡保持「标签: 值」每项一行 —— 用户明确要求这样更易读
+  // （榜单卡用紧凑单行，两者风格不同是有意的）。
   const info = item.info || {}
   const infoRows = []
   for (const label of cfg.infoOrder) {
@@ -357,10 +359,16 @@ function renderCard(item, cfg, depth, kind) {
 
   let cornerBtn = ""
   if (isVideo) {
-    // 隐藏按钮只在私有站渲染：私有站是管理员才能进的，
-    // 公开站不该让普通读者看到这个开关。
-    cornerBtn = (IS_PRIVATE && slug)
-      ? `<button class="vid-hide" data-slug="${esc(slug)}" title="在公开站隐藏这条" aria-label="隐藏">👁</button>`
+    // 隐藏按钮只在【公开站】渲染，且由前端按登录态决定是否可见。
+    //
+    // 为什么不在私有站：私有站整个域名在 Cloudflare Access 后面，
+    // /api/* 请求被 Access 拦成 302 跳登录页（返回 HTML 不是 JSON），
+    // fetch 解析失败 → 按钮永远「没反应」。
+    // 而隐藏语义本来就是「让公开站不显示」，在公开站操作更直接。
+    // style="display:none" —— 默认不显示，hydrateVideoHide 确认是管理员后
+    // 才显示出来。普通读者完全看不到这个开关。
+    cornerBtn = (!IS_PRIVATE && slug)
+      ? `<button class="vid-hide" data-slug="${esc(slug)}" title="在公开站隐藏这条" aria-label="隐藏" style="display:none">👁</button>`
       : ""
   } else if (itemKey) {
     cornerBtn = `<button class="shelf-remove" data-item="${esc(itemKey)}" title="从书架移除" aria-label="移除">×</button>`

@@ -30,7 +30,14 @@ export async function onRequestGet({ request, env }) {
     const { results } = await env.DB.prepare(
       `SELECT slug FROM video_visibility WHERE hidden = 1`,
     ).all()
-    return json({ authed: true, hidden: (results || []).map((r) => r.slug) })
+    // isAdmin 让前端决定是否显示隐藏按钮 —— 普通读者看不到这个开关
+    const admins = adminEmails(env)
+    const isAdmin = admins.includes(String(user.email || "").toLowerCase())
+    return json({
+      authed: true,
+      isAdmin,
+      hidden: (results || []).map((r) => r.slug),
+    })
   } catch (e) {
     return json({ error: String(e) }, 500)
   }

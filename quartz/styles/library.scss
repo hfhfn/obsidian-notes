@@ -215,13 +215,22 @@
   font-weight: 600;
 }
 
-/* 信息行 */
+/* 信息行 —— 和榜单卡的 lc-sub 同风格：单行、· 分隔、超长省略 */
 .book-info {
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
   font-size: 0.74rem !important;
   color: var(--gray);
+}
+
+.book-meta {
+  font-size: 0.72rem !important;
+  color: var(--gray);
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .book-info .info-row {

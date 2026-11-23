@@ -429,39 +429,17 @@ const RUNTIME = `
   //  3. URL 延迟回收，否则下载还没开始就被撤销。
   // 真正触发「保存文件」，且保证文件名带后缀。
   //
-  // 踩过的坑（按顺序）：
-  //   1. window.open(blobUrl)        → 只是打开预览页
-  //   2. image/svg+xml / text/html   → Chrome 当「可显示」，忽略 download
-  //   3. blob: + octet-stream        → 部分环境仍忽略 a.download，存成无后缀
+  // 踩坑记录（每一次都只解决了一部分环境）：
+  //   1. window.open(blobUrl)             → 只打开预览，不下载
+  //   2. image/svg+xml / text/html        → Chrome 当「可显示」，忽略 download
+  //   3. blob: + octet-stream             → 部分环境存成无后缀
+  //   4. File([blob], name)               → 部分环境仍用 blob URL 的 UUID 当文件名
   //
-  // 现在用两层：
-  //   主路 —— File 对象（自带 name，Chrome 优先用它当文件名）
-  //   兜底 —— data: URL + download 属性
+  // 最终方案：data: URL。
+  // data URL 没有「URL 里的文件名」可抢，浏览器只能老实使用 a.download，
+  // 这是唯一在所有 Chrome/Edge/Firefox 版本上都稳定带后缀的做法。
+  // 代价是 base64 让体积涨 33%，但 SVG 6KB、HTML 350KB，完全可接受。
   function downloadBlob(blob, filename){
-    var done = false;
-
-    // 主路：File 构造函数带 name，文件名最可靠
-    try {
-      var file = new File([blob], filename, { type: 'application/octet-stream' });
-      var url1 = URL.createObjectURL(file);
-      var a1 = document.createElement('a');
-      a1.href = url1;
-      a1.download = filename;
-      a1.style.display = 'none';
-      document.body.appendChild(a1);
-      a1.click();
-      setTimeout(function(){
-        if (a1.parentNode) a1.parentNode.removeChild(a1);
-        URL.revokeObjectURL(url1);
-      }, 10000);
-      done = true;
-    } catch (e) {
-      done = false;
-    }
-
-    if (done) return;
-
-    // 兜底：data URL。体积较大但 download 属性最稳。
     var reader = new FileReader();
     reader.onload = function(){
       var a = document.createElement('a');
@@ -472,7 +450,7 @@ const RUNTIME = `
       a.click();
       setTimeout(function(){
         if (a.parentNode) a.parentNode.removeChild(a);
-      }, 10000);
+      }, 5000);
     };
     reader.readAsDataURL(blob);
   }
