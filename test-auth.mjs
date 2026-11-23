@@ -25,9 +25,12 @@ CREATE TABLE users (
 );
 CREATE TABLE bookmarks (
   email TEXT NOT NULL, slug TEXT NOT NULL, title TEXT,
+  user_id TEXT,
   created_at TEXT NOT NULL DEFAULT (datetime('now')),
   PRIMARY KEY (email, slug)
 );
+-- 007 迁移引入：业务数据按 user_id 归属（多登录方式共享同一账号）
+CREATE UNIQUE INDEX IF NOT EXISTS uniq_bookmarks_uid_slug ON bookmarks(user_id, slug);
 CREATE TABLE history (
   email TEXT NOT NULL, slug TEXT NOT NULL, title TEXT,
   visits INTEGER NOT NULL DEFAULT 1,

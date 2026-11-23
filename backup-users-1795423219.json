@@ -1,0 +1,45 @@
+[
+  {
+    "results": [
+      {
+        "email": "hfhfncjsy@gmail.com",
+        "name": "feihu han",
+        "first_seen": "2026-11-21 06:20:14",
+        "last_seen": "2026-11-23 08:38:54",
+        "id": "a10766efe8725b93"
+      },
+      {
+        "email": "hfhfn@sina.com",
+        "name": "hfhfn",
+        "first_seen": "2026-11-21 15:03:00",
+        "last_seen": "2026-11-23 08:35:45",
+        "id": "38283b6a78bdaa5a"
+      },
+      {
+        "email": "test@hfhfn.local",
+        "name": "测试用户",
+        "first_seen": "2026-11-23 01:47:40",
+        "last_seen": "2026-11-23 06:55:09",
+        "id": "998fe2496e33c3cc"
+      }
+    ],
+    "success": true,
+    "meta": {
+      "served_by": "v3-prod",
+      "served_by_region": "APAC",
+      "served_by_colo": "HKG",
+      "served_by_primary": true,
+      "timings": {
+        "sql_duration_ms": 0.146
+      },
+      "duration": 0.146,
+      "changes": 0,
+      "last_row_id": 0,
+      "changed_db": false,
+      "size_after": 212992,
+      "rows_read": 3,
+      "rows_written": 0,
+      "total_attempts": 1
+    }
+  }
+]

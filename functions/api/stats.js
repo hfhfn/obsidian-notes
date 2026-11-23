@@ -20,10 +20,11 @@ export async function onRequestGet({ request, env }) {
   const user = await getUser(request, env)
   let liked = false
   if (user) {
+    const uid = user.userId || user.email
     const mine = await env.DB.prepare(
-      "SELECT 1 FROM likes WHERE email = ? AND slug = ?",
+      "SELECT 1 FROM likes WHERE user_id = ? AND slug = ?",
     )
-      .bind(user.email, slug)
+      .bind(uid, slug)
       .first()
     liked = !!mine
   }
@@ -66,15 +67,17 @@ export async function onRequestPost({ request, env }) {
   const { user, response } = await requireUser(request, env)
   if (!user) return response
 
+  const uid = user.userId || user.email
+
   if (action === "like") {
     await env.DB.prepare(
-      "INSERT OR IGNORE INTO likes (email, slug) VALUES (?, ?)",
+      "INSERT OR IGNORE INTO likes (user_id, email, slug) VALUES (?, ?, ?)",
     )
-      .bind(user.email, slug)
+      .bind(uid, user.email, slug)
       .run()
   } else if (action === "unlike") {
-    await env.DB.prepare("DELETE FROM likes WHERE email = ? AND slug = ?")
-      .bind(user.email, slug)
+    await env.DB.prepare("DELETE FROM likes WHERE user_id = ? AND slug = ?")
+      .bind(uid, slug)
       .run()
   } else {
     return json({ ok: false, error: "bad_action" }, 400)

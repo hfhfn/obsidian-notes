@@ -39,12 +39,42 @@ export async function onRequestGet({ request, env }) {
   out.authed = true
   out.email = payload.email
   out.exp = payload.exp
-  // 侧边栏账号入口要显示昵称，从 users 表取（没有就用邮箱前缀）
+  // userId 是业务数据的归属键 —— 前端和调试都需要它来确认
+  // 「多个登录方式是否真的归到了同一个账号」。
+  out.userId = payload.uid || null
+
+  // 老会话可能没有 uid（登录时 identities 表还没建），补查一次
+  if (!out.userId) {
+    try {
+      const row = await env.DB.prepare(
+        "SELECT user_id FROM account_links WHERE email = ?",
+      )
+        .bind(payload.email)
+        .first()
+      out.userId = row?.user_id || null
+    } catch {
+      // 表还没建就忽略
+    }
+  }
+
+  // 侧边栏账号入口要显示昵称。
+  // 优先按 user_id 找（同一个人的多个邮箱里任意一个有名字都行），
+  // 找不到再退回按 email 查。
   try {
-    const row = await env.DB.prepare("SELECT name FROM users WHERE email = ?")
-      .bind(payload.email)
-      .first()
-    if (row?.name) out.name = row.name
+    if (out.userId) {
+      const row = await env.DB.prepare(
+        "SELECT name FROM users WHERE id = ? AND name IS NOT NULL LIMIT 1",
+      )
+        .bind(out.userId)
+        .first()
+      if (row?.name) out.name = row.name
+    }
+    if (!out.name) {
+      const row = await env.DB.prepare("SELECT name FROM users WHERE email = ?")
+        .bind(payload.email)
+        .first()
+      if (row?.name) out.name = row.name
+    }
   } catch {
     // 查不到不影响登录态判断
   }

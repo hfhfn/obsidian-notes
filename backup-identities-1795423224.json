@@ -1,0 +1,45 @@
+[
+  {
+    "results": [
+      {
+        "provider": "password",
+        "provider_uid": "test@hfhfn.local",
+        "user_id": "998fe2496e33c3cc",
+        "email": "test@hfhfn.local",
+        "created_at": "2026-11-23 01:54:11"
+      },
+      {
+        "provider": "google",
+        "provider_uid": "109641066651736580001",
+        "user_id": "a10766efe8725b93",
+        "email": "hfhfncjsy@gmail.com",
+        "created_at": "2026-11-23 02:36:36"
+      },
+      {
+        "provider": "github",
+        "provider_uid": "52401958",
+        "user_id": "a10766efe8725b93",
+        "email": "hfhfn@sina.com",
+        "created_at": "2026-11-23 08:19:42"
+      }
+    ],
+    "success": true,
+    "meta": {
+      "served_by": "v3-prod",
+      "served_by_region": "APAC",
+      "served_by_colo": "HKG",
+      "served_by_primary": true,
+      "timings": {
+        "sql_duration_ms": 0.1536
+      },
+      "duration": 0.1536,
+      "changes": 0,
+      "last_row_id": 0,
+      "changed_db": false,
+      "size_after": 212992,
+      "rows_read": 3,
+      "rows_written": 0,
+      "total_attempts": 1
+    }
+  }
+]

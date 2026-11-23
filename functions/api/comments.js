@@ -48,14 +48,16 @@ function displayName(email, name) {
   return local.slice(0, 40) || "匿名"
 }
 
-/** 简易限流：同一邮箱 60 秒内最多 3 条评论 */
-async function rateLimited(db, email) {
+/** 简易限流：同一账号 60 秒内最多 3 条评论 */
+async function rateLimited(db, uid) {
+  // 按 user_id 而不是 email —— 否则同一个人的两个邮箱
+  // 各自都能发 3 条，限流等于被绕过。
   const row = await db
     .prepare(
       `SELECT COUNT(*) AS n FROM comments
-       WHERE email = ? AND created_at > datetime('now', '-60 seconds')`,
+       WHERE user_id = ? AND created_at > datetime('now', '-60 seconds')`,
     )
-    .bind(email)
+    .bind(uid)
     .first()
   return (row?.n ?? 0) >= 3
 }
@@ -151,7 +153,7 @@ export async function onRequestPost({ request, env }) {
   if (!slug) return json({ ok: false, error: "missing_slug" }, 400)
   if (!text) return json({ ok: false, error: "empty_body" }, 400)
   if (text.length > MAX_BODY) return json({ ok: false, error: "too_long" }, 400)
-  if (await rateLimited(env.DB, user.email)) {
+  if (await rateLimited(env.DB, user.userId || user.email)) {
     return json({ ok: false, error: "rate_limited" }, 429)
   }
 
@@ -172,10 +174,10 @@ export async function onRequestPost({ request, env }) {
   await touchUser(env.DB, user)
 
   const res = await env.DB.prepare(
-    `INSERT INTO comments (slug, parent_id, email, name, body)
-     VALUES (?, ?, ?, ?, ?)`,
+    `INSERT INTO comments (slug, parent_id, user_id, email, name, body)
+     VALUES (?, ?, ?, ?, ?, ?)`,
   )
-    .bind(slug, finalParentId, user.email, user.name || null, text)
+    .bind(slug, finalParentId, user.userId || user.email, user.email, user.name || null, text)
     .run()
 
   return json({ ok: true, id: res.meta?.last_row_id ?? null })
@@ -231,12 +233,19 @@ export async function onRequestDelete({ request, env }) {
   const id = Number(body?.id)
   if (!id) return json({ ok: false, error: "missing_id" }, 400)
 
-  const row = await env.DB.prepare("SELECT email FROM comments WHERE id = ? AND deleted_at IS NULL")
+  const row = await env.DB.prepare(
+    "SELECT user_id, email FROM comments WHERE id = ? AND deleted_at IS NULL",
+  )
     .bind(id)
     .first()
   if (!row) return json({ ok: false, error: "no_comment" }, 404)
 
-  if (row.email !== user.email && !isAdmin(env, user.email)) {
+  // 按 user_id 判断归属：同一个人的任一登录方式都能删自己的评论。
+  // 老数据 user_id 可能为空，回退比较 email。
+  const mine = row.user_id
+    ? row.user_id === (user.userId || user.email)
+    : row.email === user.email
+  if (!mine && !isAdmin(env, user.email)) {
     return json({ ok: false, error: "forbidden" }, 403)
   }
 

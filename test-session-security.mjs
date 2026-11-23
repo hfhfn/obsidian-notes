@@ -5,7 +5,9 @@ import { signSession } from "./functions/api/_session.js"
 
 const sqlite = new DatabaseSync(":memory:")
 sqlite.exec(`CREATE TABLE bookmarks (email TEXT NOT NULL, slug TEXT NOT NULL, title TEXT,
-  created_at TEXT NOT NULL DEFAULT (datetime('now')), PRIMARY KEY (email, slug));`)
+  user_id TEXT,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')), PRIMARY KEY (email, slug));
+CREATE UNIQUE INDEX IF NOT EXISTS uniq_bookmarks_uid_slug ON bookmarks(user_id, slug);`)
 
 const env = { DB: makeD1(sqlite), SESSION_SECRET: "real-secret" }
 const { onRequestGet } = await import("./functions/api/bookmarks.js")

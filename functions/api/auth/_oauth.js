@@ -277,11 +277,10 @@ export async function fetchEmail(name, accessToken) {
 
 /** 登录成功后统一签发会话 */
 export async function finishLogin(env, user, redirect) {
-  await touchUser(env.DB, user)
-
   // 解析统一账号：同一个人的 Google / GitHub / 两个邮箱都归到同一个 userId。
   // 失败不阻断登录（退化成按 email 处理），但要记日志。
   let userId = null
+  let needsBind = false
   try {
     const acc = await resolveAccount(env.DB, env, {
       provider: user.provider || "email",
@@ -290,9 +289,37 @@ export async function finishLogin(env, user, redirect) {
       name: user.name,
     })
     userId = acc.userId
+    needsBind = Boolean(acc.needsBind)
   } catch (e) {
     console.error("[account] resolveAccount failed", e)
   }
+
+  // ---- GitHub 只给了 noreply 邮箱 → 不建号，引导绑定真实邮箱 ----
+  //
+  // 为什么不直接拿 noreply 建号：那样会得到一个永远无法用邮箱找回、
+  // 也无法和 Gmail 账号归并的「影子账号」，用户换个方式登录就是另一个人。
+  // 用户明确要求这种情况先绑邮箱。
+  //
+  // 这里不签发会话（用户还没真正登录），只把待绑定的 GitHub 身份
+  // 通过 URL 参数传给绑定页，由它连同验证码一起提交给 /api/auth/bind-email。
+  if (needsBind) {
+    const q = new URLSearchParams({
+      need: "bind",
+      provider: user.provider || "github",
+      puid: String(user.providerUid || ""),
+      name: user.name || "",
+    })
+    return new Response(null, {
+      status: 302,
+      headers: {
+        location: `/bind-email?${q.toString()}`,
+        "cache-control": "no-store",
+      },
+    })
+  }
+
+  // 走到这里才算真正登录成功，可以建档
+  await touchUser(env.DB, user)
 
   const days = 30
   const exp = Math.floor(Date.now() / 1000) + days * 86400

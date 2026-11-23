@@ -8,11 +8,12 @@ export async function onRequestGet({ request, env }) {
   const { user, response } = await requireUser(request, env)
   if (!user) return response
 
+  const uid = user.userId || user.email
   const rows = await env.DB.prepare(
     `SELECT slug, title, created_at FROM bookmarks
-     WHERE email = ? ORDER BY created_at DESC LIMIT 500`,
+     WHERE user_id = ? ORDER BY created_at DESC LIMIT 500`,
   )
-    .bind(user.email)
+    .bind(uid)
     .all()
 
   return json({ ok: true, items: rows.results ?? [] })
@@ -33,25 +34,27 @@ export async function onRequestPost({ request, env }) {
   const title = String(body?.title ?? "").trim().slice(0, 300)
   if (!slug) return json({ ok: false, error: "missing_slug" }, 400)
 
+  const uid = user.userId || user.email
+
   await touchUser(env.DB, user)
 
   const existing = await env.DB.prepare(
-    "SELECT 1 FROM bookmarks WHERE email = ? AND slug = ?",
+    "SELECT 1 FROM bookmarks WHERE user_id = ? AND slug = ?",
   )
-    .bind(user.email, slug)
+    .bind(uid, slug)
     .first()
 
   if (existing) {
-    await env.DB.prepare("DELETE FROM bookmarks WHERE email = ? AND slug = ?")
-      .bind(user.email, slug)
+    await env.DB.prepare("DELETE FROM bookmarks WHERE user_id = ? AND slug = ?")
+      .bind(uid, slug)
       .run()
     return json({ ok: true, bookmarked: false })
   }
 
   await env.DB.prepare(
-    "INSERT INTO bookmarks (email, slug, title) VALUES (?, ?, ?)",
+    "INSERT INTO bookmarks (user_id, email, slug, title) VALUES (?, ?, ?, ?)",
   )
-    .bind(user.email, slug, title)
+    .bind(uid, user.email, slug, title)
     .run()
   return json({ ok: true, bookmarked: true })
 }
