@@ -39,6 +39,15 @@ export async function onRequestGet({ request, env }) {
   out.authed = true
   out.email = payload.email
   out.exp = payload.exp
+  // 侧边栏账号入口要显示昵称，从 users 表取（没有就用邮箱前缀）
+  try {
+    const row = await env.DB.prepare("SELECT name FROM users WHERE email = ?")
+      .bind(payload.email)
+      .first()
+    if (row?.name) out.name = row.name
+  } catch {
+    // 查不到不影响登录态判断
+  }
   out.isAdmin = String(env.ADMIN_EMAILS || "")
     .split(",")
     .map((s) => s.trim().toLowerCase())

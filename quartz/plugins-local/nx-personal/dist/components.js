@@ -79,6 +79,36 @@ const CSS = `
 .pb-theme.is-on { color: var(--secondary); font-weight: 600; }
 .pb-theme.is-on::after { content: " ✓"; }
 .pb-wrap { position: relative; display: flex; flex: 1 1 0; min-width: 0; }
+
+/* 账号入口 */
+.pb-account-wrap { position: relative; }
+.pb-account-pop { width: 14rem; padding: .5rem; }
+.pb-account-info { padding: .15rem .45rem .5rem; border-bottom: 1px solid var(--lightgray); margin-bottom: .35rem; }
+.pb-account-name { font-size: 0.82rem !important; font-weight: 600; color: var(--dark); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pb-account-mail { font-size: 0.7rem !important; color: var(--gray); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: .1rem; }
+.pb-account-links { display: flex; flex-direction: column; gap: .05rem; }
+.pb-account-link {
+  display: block; padding: .34rem .45rem; border-radius: 6px;
+  color: var(--darkgray) !important; text-decoration: none !important;
+  font-size: 0.78rem !important; font-weight: 400 !important;
+}
+.pb-account-link:hover { background: var(--highlight); color: var(--secondary) !important; }
+.pb-account-logout {
+  display: block; width: 100%; text-align: left;
+  margin-top: .3rem; padding: .34rem .45rem;
+  border: none; border-radius: 6px; background: none;
+  color: #c0392b !important; font-size: 0.78rem !important;
+  font-family: var(--bodyFont); cursor: pointer;
+}
+.pb-account-logout:hover { background: var(--highlight); }
+/* 已登录时按钮上显示头像圆圈 */
+.pb-account-btn.is-authed svg { display: none; }
+.pb-account-avatar {
+  width: 15px; height: 15px; border-radius: 50%; flex: 0 0 auto;
+  background: var(--secondary); color: var(--light);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 9px !important; font-weight: 600; line-height: 1;
+}
 .pb-wrap > .pb-btn { width: 100%; }
 
 /* 三个入口平分宽度。直接按百分比分配，避免 <a> 与 <div> 在 flex 收缩
@@ -138,6 +168,7 @@ const THEMES = {
 const ICONS = {
   bookmark: "M6 3h12a1 1 0 0 1 1 1v16l-7-4-7 4V4a1 1 0 0 1 1-1z",
   history: "M12 8v5l3 2M3.05 11a9 9 0 1 1 .5 4",
+  user: "M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z",
   palette: "M12 3a9 9 0 1 0 0 18h1.5a2 2 0 0 0 0-4H13a1 1 0 0 1 0-2h4a4 4 0 0 0 4-4c0-4-4-8-9-8z",
   user: "M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z",
 }
@@ -197,9 +228,120 @@ const RUNTIME = `
     }
   };
   document.addEventListener("click", function (e) {
-    if (!e.target.closest(".pb-wrap")) window.__pbCloseTheme();
+    // 点在账号按钮/面板上时不要关闭 —— 否则按钮的 click 先触发打开，
+    // 紧接着冒泡到 document 又被这里关掉，表现成「点了没反应」。
+    if (!e.target.closest(".pb-wrap")) {
+      window.__pbCloseTheme();
+    }
+    if (!e.target.closest(".pb-account-wrap")) {
+      window.__pbCloseAccount();
+    }
   });
+
+  // ===== 账号入口 =====
+  //
+  // 静态站不知道访客是谁，所以服务端只渲染「登录」，
+  // 前端查 /api/whoami 后按结果切换。
+  //
+  // 缓存策略：结果记在内存（不是 localStorage）——
+  // 用户退出后不该残留已登录态，但同一页面内切来切去不必反复请求。
+  var acctState = null;
+  var acctFetching = false;
+
+  window.__pbCloseAccount = function () {
+    var p = document.querySelector("[data-pb-account-panel]");
+    if (p) p.hidden = true;
+  };
+
+  window.__pbToggleAccount = function (btn) {
+    var p = document.querySelector("[data-pb-account-panel]");
+    if (!p) return;
+    // 用 DOM 上的标记判断，不用闭包变量 ——
+    // RUNTIME 在 SPA 导航后可能被重新执行，闭包里的 acctState 会丢，
+    // 导致「已登录但点不开菜单」。
+    var authed = btn && btn.classList.contains("is-authed");
+    if (!authed) {
+      location.href = "/login?redirect=" + encodeURIComponent(location.pathname + location.search);
+      return;
+    }
+    var willOpen = p.hidden;
+    p.hidden = !willOpen;
+    if (willOpen) {
+      var r = btn.getBoundingClientRect();
+      p.style.top = (r.bottom + 6) + "px";
+      p.style.left = Math.max(8, r.left) + "px";
+      var w = p.offsetWidth || 224;
+      if (r.left + w > window.innerWidth - 8) {
+        p.style.left = Math.max(8, window.innerWidth - w - 8) + "px";
+      }
+    }
+  };
+
+  window.__pbLogout = function () {
+    fetch("/api/auth/logout", { method: "POST", credentials: "include" })
+      .catch(function () {})
+      .then(function () {
+        acctState = null;
+        location.href = "/";
+      });
+  };
+
+  function renderAccount(me) {
+    acctState = me;
+    var btn = document.querySelector(".pb-account-btn");
+    if (!btn) return;
+    var panel = document.querySelector("[data-pb-account-panel]");
+    var label = btn.querySelector("span");
+
+    if (me && me.authed) {
+      btn.classList.add("is-authed");
+      btn.setAttribute("href", "#");
+      btn.setAttribute("title", me.email || "我的账号");
+      // 头像：邮箱首字母
+      var initial = (me.name || me.email || "?").trim().charAt(0).toUpperCase();
+      if (!btn.querySelector(".pb-account-avatar")) {
+        var av = document.createElement("span");
+        av.className = "pb-account-avatar";
+        av.textContent = initial;
+        btn.insertBefore(av, label);
+      }
+      if (label) label.textContent = (me.name || me.email || "").split("@")[0] || "账号";
+      if (panel) {
+        var nm = panel.querySelector("[data-pb-account-name]");
+        var ml = panel.querySelector("[data-pb-account-mail]");
+        if (nm) nm.textContent = me.name || "（未设置昵称）";
+        if (ml) ml.textContent = me.email || "";
+      }
+      btn.onclick = function (e) {
+        e.preventDefault();
+        window.__pbToggleAccount(btn);
+      };
+    } else {
+      btn.classList.remove("is-authed");
+      btn.setAttribute("href", "/login?redirect=" + encodeURIComponent(location.pathname + location.search));
+      btn.setAttribute("title", "登录");
+      if (label) label.textContent = "登录";
+      var old = btn.querySelector(".pb-account-avatar");
+      if (old) old.remove();
+      btn.onclick = null;
+      if (panel) panel.hidden = true;
+    }
+  }
+
+  function loadAccount(force) {
+    if (acctFetching) return;
+    if (acctState && !force) { renderAccount(acctState); return; }
+    acctFetching = true;
+    fetch("/api/whoami", { credentials: "include" })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) { renderAccount(d || { authed: false }); })
+      .catch(function () { renderAccount({ authed: false }); })
+      .then(function () { acctFetching = false; });
+  }
+
   document.addEventListener("nav", syncTheme);
+  document.addEventListener("nav", function () { loadAccount(true); });
+  loadAccount(false);
   document.addEventListener("themechange", function () {
     applyTheme(localStorage.getItem(TKEY) || "default");
   });
@@ -234,6 +376,39 @@ export function PersonalBar() {
                 class: "pb-theme", "data-pb-theme": name,
                 onclick: `window.__pbSetTheme('${name}');window.__pbCloseTheme();`,
               }, THEMES[name].label))),
+        ),
+      ),
+
+      // 账号入口：主流做法是「未登录 → 登录按钮；已登录 → 头像 + 下拉菜单」。
+      //
+      // 为什么放在这一排而不是右上角：
+      //   Quartz 右上角是搜索/暗色/阅读模式，属于「读」的操作；
+      //   收藏/足迹/主题/账号属于「我」的操作，归在一起更顺。
+      //
+      // 服务端只渲染未登录态，登录态由运行时查 /api/whoami 后替换 ——
+      // 静态站没法知道访客是谁，必须前端补。
+      h("div", { class: "pb-wrap pb-account-wrap" },
+        h("a", {
+          class: "pb-btn pb-account-btn",
+          href: "/login?redirect=" + encodeURIComponent("/"),
+          title: "登录",
+          "data-pb-account": "guest",
+        }, icon(ICONS.user), h("span", {}, "登录")),
+
+        h("div", { class: "pb-pop pb-account-pop", "data-pb-account-panel": "", hidden: true },
+          h("div", { class: "pb-head", "data-pb-account-head": "" }, "我的账号"),
+          h("div", { class: "pb-account-info" },
+            h("div", { class: "pb-account-name", "data-pb-account-name": "" }, ""),
+            h("div", { class: "pb-account-mail", "data-pb-account-mail": "" }, ""),
+          ),
+          h("div", { class: "pb-account-links" },
+            h("a", { class: "pb-account-link", href: "/my/bookmarks" }, "我的收藏"),
+            h("a", { class: "pb-account-link", href: "/my/history" }, "浏览足迹"),
+          ),
+          h("button", {
+            class: "pb-account-logout",
+            onclick: "window.__pbLogout()",
+          }, "退出登录"),
         ),
       ),
     )
