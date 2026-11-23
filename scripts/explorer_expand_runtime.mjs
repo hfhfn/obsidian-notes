@@ -56,19 +56,31 @@ export const EXPLORER_EXPAND_RUNTIME = `
   //   绑定那一刻；而且 SPA 导航后新按钮需要重新绑。
   //   这里自己绑一份，逻辑与 Quartz 完全一致（toggle .collapsed
   //   + 同步 aria-expanded），只是保证一定会绑上。
+  // 用 document 捕获阶段接管，而不是逐个绑元素。
+  //
+  // 为什么：Quartz 自己在 W() 里也绑了 .explorer-toggle。如果它绑上了
+  // （时机取决于 trie 异步加载，不稳定），两个 handler 各 toggle 一次
+  // → 净效果为零，表现就是「点了没反应」。日夜按钮踩过同一个坑。
+  // 捕获阶段先执行 + stopImmediatePropagation 挡住它，保证只切一次。
   function bindExplorerToggle(){
-    var btns = document.querySelectorAll('.explorer-toggle');
-    for (var i = 0; i < btns.length; i++) {
-      var b = btns[i];
-      if (b.dataset.nxCollapse) continue;
-      b.dataset.nxCollapse = '1';
-      b.addEventListener('click', function(){
-        var ex = this.closest('.explorer');
-        if (!ex) return;
-        var collapsed = ex.classList.toggle('collapsed');
-        ex.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
-      });
-    }
+    if (window.__nxExplorerCapture) return;
+    window.__nxExplorerCapture = true;
+    document.addEventListener('click', function(ev){
+      var t = ev.target;
+      if (!t || !t.closest) return;
+      var btn = t.closest('.explorer-toggle');
+      if (!btn) return;
+      var ex = btn.closest('.explorer');
+      if (!ex) return;
+      ev.preventDefault();
+      ev.stopImmediatePropagation();
+      var collapsed = ex.classList.toggle('collapsed');
+      ex.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+      btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+    }, true);
+    // 打标记，让 __nxBoot 的完成判定能识别
+    var all = document.querySelectorAll('.explorer-toggle');
+    for (var i = 0; i < all.length; i++) all[i].dataset.nxCollapse = '1';
   }
 
   // ===== B. 点目录名：toggle + 跳转 =====
@@ -86,15 +98,27 @@ export const EXPLORER_EXPAND_RUNTIME = `
     li.classList.toggle('open', willOpen);
   }
 
+  // 目录名点击同样用捕获阶段：先展开子项，再放行跳转。
+  //
+  // 不 preventDefault —— 用户要求「点目录名既展开又跳转」。
+  // 但要挡住 Quartz 自己的 folder-button handler，否则它再 toggle 一次
+  // 就等于没展开（刚打开又被关掉）。
   function bind(){
-    document.querySelectorAll('.explorer-ul a.folder-button').forEach(function(a){
-      if (a.dataset.nxToggle) return;
-      a.dataset.nxToggle = '1';
-      a.addEventListener('click', function(){
-        // 先 toggle，再让浏览器正常跳转到目录页（不 preventDefault）
+    // 监听只注册一次（document 级委托，SPA 换 body 后依然有效）
+    if (!window.__nxFolderCapture) {
+      window.__nxFolderCapture = true;
+      document.addEventListener('click', function(ev){
+        var t = ev.target;
+        if (!t || !t.closest) return;
+        var a = t.closest('.explorer-ul a.folder-button');
+        if (!a) return;
+        ev.stopImmediatePropagation();   // 挡住 Quartz 的，但不阻止默认跳转
         toggleFolder(a);
-      });
-    });
+      }, true);
+    }
+    // 标记每次都要补 —— 导航后是新 DOM，旧标记随旧节点一起没了
+    var all = document.querySelectorAll('.explorer-ul a.folder-button');
+    for (var i = 0; i < all.length; i++) all[i].dataset.nxToggle = '1';
   }
 
   // ===== 调度 =====
