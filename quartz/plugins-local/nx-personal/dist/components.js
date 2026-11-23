@@ -80,6 +80,88 @@ const CSS = `
 .pb-theme.is-on::after { content: " ✓"; }
 .pb-wrap { position: relative; display: flex; flex: 1 1 0; min-width: 0; }
 
+/* ===== 账号入口（第二行） ===== */
+.pb-personal { display: flex; flex-direction: column; gap: .4rem; margin: .6rem 0 1rem; }
+.pb-account-row { position: relative; display: flex; }
+.pb-account-btn {
+  display: flex; align-items: center; gap: .4rem;
+  width: 100%; padding: .38rem .6rem;
+  border: 1px solid var(--lightgray); border-radius: 7px;
+  background: transparent; color: var(--darkgray);
+  font-size: 0.76rem !important;
+  font-weight: 400;
+  font-family: var(--bodyFont);
+  text-decoration: none;
+  cursor: pointer;
+  transition: border-color .15s, color .15s, background-color .15s;
+}
+.pb-account-btn:hover { border-color: var(--secondary); color: var(--secondary); background: var(--highlight); }
+.pb-account-btn svg { width: 13px; height: 13px; flex: 0 0 auto; }
+.pb-account-label {
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-size: inherit !important;
+}
+.pb-account-pop { width: 15rem; padding: .5rem; }
+.pb-account-info { padding: .15rem .45rem .5rem; border-bottom: 1px solid var(--lightgray); margin-bottom: .35rem; }
+.pb-account-name { font-size: 0.82rem !important; font-weight: 600; color: var(--dark); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pb-account-mail { font-size: 0.7rem !important; color: var(--gray); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: .1rem; }
+.pb-account-links { display: flex; flex-direction: column; gap: .05rem; }
+.pb-account-link {
+  display: block; padding: .34rem .45rem; border-radius: 6px;
+  color: var(--darkgray) !important; text-decoration: none !important;
+  font-size: 0.78rem !important; font-weight: 400 !important;
+}
+.pb-account-link:hover { background: var(--highlight); color: var(--secondary) !important; }
+.pb-account-logout {
+  display: block; width: 100%; text-align: left;
+  margin-top: .3rem; padding: .34rem .45rem;
+  border: none; border-radius: 6px; background: none;
+  color: #c0392b !important; font-size: 0.78rem !important;
+  font-family: var(--bodyFont); cursor: pointer;
+}
+.pb-account-logout:hover { background: var(--highlight); }
+.pb-account-btn.is-authed svg { display: none; }
+.pb-account-avatar {
+  width: 15px; height: 15px; border-radius: 50%; flex: 0 0 auto;
+  background: var(--secondary); color: var(--light);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 9px !important; font-weight: 600; line-height: 1;
+}
+
+/* 主题弹层 */
+.pb-pop {
+  position: fixed; z-index: 70;
+  width: 16rem; padding: .45rem;
+  border: 1px solid var(--lightgray); border-radius: 9px;
+  background: var(--light); box-shadow: 0 10px 30px rgba(0,0,0,.14);
+}
+.pb-pop[hidden] { display: none; }
+.pb-pop .pb-head {
+  padding: .1rem .35rem .4rem; margin-bottom: .25rem;
+  border-bottom: 1px solid var(--lightgray);
+  color: var(--gray); font-size: .7rem !important;
+  text-transform: uppercase; letter-spacing: .06em;
+}
+.pb-pop .pb-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .15rem; }
+/* 主题弹层里的每个主题名。
+   字号必须 !important —— 同 .pb-btn 的原因：Quartz 的组件样式在
+   @layer quartz-base 里，任何未分层的 button{font-size:16px} 都能压掉它。
+   （用户反馈过「主题点开里面具体主题名称的字体大小也有同样问题」。）
+   为了不再一处一处补，见文件末尾的「字体锁定」区块。 */
+.pb-theme {
+  display: block; width: 100%; text-align: left;
+  padding: .34rem .45rem; margin: 0;
+  border: none; border-radius: 6px; background: none;
+  color: var(--darkgray); font-size: 0.76rem !important;
+  font-family: var(--bodyFont); cursor: pointer;
+  transition: background-color .15s, color .15s;
+}
+.pb-theme span, .pb-theme * { font-size: inherit !important; }
+.pb-theme:hover { background: var(--highlight); color: var(--secondary); }
+.pb-theme.is-on { color: var(--secondary); font-weight: 600; }
+.pb-theme.is-on::after { content: " ✓"; }
+.pb-wrap { position: relative; display: flex; flex: 1 1 0; min-width: 0; }
+
 /* 账号入口 */
 .pb-account-wrap { position: relative; }
 .pb-account-pop { width: 14rem; padding: .5rem; }
@@ -291,7 +373,7 @@ const RUNTIME = `
     var btn = document.querySelector(".pb-account-btn");
     if (!btn) return;
     var panel = document.querySelector("[data-pb-account-panel]");
-    var label = btn.querySelector("span");
+    var label = btn.querySelector(".pb-account-label") || btn.querySelector("span");
 
     if (me && me.authed) {
       btn.classList.add("is-authed");
@@ -354,49 +436,49 @@ const RUNTIME = `
 
 export function PersonalBar() {
   const Bar = () =>
-    h("div", { class: "pb-bar" },
-      h("a", {
-        class: "pb-btn", href: "/my/bookmarks", title: "我的收藏",
-      }, icon(ICONS.bookmark), h("span", {}, "收藏")),
+    h("div", { class: "pb-personal" },
+      // 第一行：收藏 / 足迹 / 主题
+      h("div", { class: "pb-bar" },
+        h("a", {
+          class: "pb-btn", href: "/my/bookmarks", title: "我的收藏",
+        }, icon(ICONS.bookmark), h("span", {}, "收藏")),
 
-      h("a", {
-        class: "pb-btn", href: "/my/history", title: "浏览足迹",
-      }, icon(ICONS.history), h("span", {}, "足迹")),
+        h("a", {
+          class: "pb-btn", href: "/my/history", title: "浏览足迹",
+        }, icon(ICONS.history), h("span", {}, "足迹")),
 
-      h("div", { class: "pb-wrap" },
-        h("button", {
-          class: "pb-btn", title: "切换主题",
-          onclick: "window.__pbToggleTheme(this)",
-        }, icon(ICONS.palette), h("span", {}, "主题")),
-        h("div", { class: "pb-pop", "data-pb-theme-panel": "", hidden: true },
-          h("div", { class: "pb-head" }, "主题"),
-          h("div", { class: "pb-grid" },
-            Object.keys(THEMES).map((name) =>
-              h("button", {
-                class: "pb-theme", "data-pb-theme": name,
-                onclick: `window.__pbSetTheme('${name}');window.__pbCloseTheme();`,
-              }, THEMES[name].label))),
+        h("div", { class: "pb-wrap" },
+          h("button", {
+            class: "pb-btn", title: "切换主题",
+            onclick: "window.__pbToggleTheme(this)",
+          }, icon(ICONS.palette), h("span", {}, "主题")),
+          h("div", { class: "pb-pop", "data-pb-theme-panel": "", hidden: true },
+            h("div", { class: "pb-head" }, "主题"),
+            h("div", { class: "pb-grid" },
+              Object.keys(THEMES).map((name) =>
+                h("button", {
+                  class: "pb-theme", "data-pb-theme": name,
+                  onclick: `window.__pbSetTheme('${name}');window.__pbCloseTheme();`,
+                }, THEMES[name].label))),
+          ),
         ),
       ),
 
-      // 账号入口：主流做法是「未登录 → 登录按钮；已登录 → 头像 + 下拉菜单」。
+      // 第二行：账号入口
       //
-      // 为什么放在这一排而不是右上角：
-      //   Quartz 右上角是搜索/暗色/阅读模式，属于「读」的操作；
-      //   收藏/足迹/主题/账号属于「我」的操作，归在一起更顺。
-      //
-      // 服务端只渲染未登录态，登录态由运行时查 /api/whoami 后替换 ——
-      // 静态站没法知道访客是谁，必须前端补。
-      h("div", { class: "pb-wrap pb-account-wrap" },
+      // 为什么不跟上面三个挤一排：侧边栏内容宽度约 260-320px，
+      // 四个按钮平分后每个只剩 ~70px，文字被截断还会溢出。
+      // 账号单独一行给足宽度，也符合主流做法。
+      h("div", { class: "pb-account-row" },
         h("a", {
-          class: "pb-btn pb-account-btn",
+          class: "pb-account-btn",
           href: "/login?redirect=" + encodeURIComponent("/"),
           title: "登录",
           "data-pb-account": "guest",
-        }, icon(ICONS.user), h("span", {}, "登录")),
+        }, icon(ICONS.user), h("span", { class: "pb-account-label" }, "登录")),
 
         h("div", { class: "pb-pop pb-account-pop", "data-pb-account-panel": "", hidden: true },
-          h("div", { class: "pb-head", "data-pb-account-head": "" }, "我的账号"),
+          h("div", { class: "pb-head" }, "我的账号"),
           h("div", { class: "pb-account-info" },
             h("div", { class: "pb-account-name", "data-pb-account-name": "" }, ""),
             h("div", { class: "pb-account-mail", "data-pb-account-mail": "" }, ""),

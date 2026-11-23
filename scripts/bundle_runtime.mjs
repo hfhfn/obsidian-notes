@@ -62,6 +62,8 @@ async function build() {
   parts.push(wrap("charts-runtime", await extractRuntime("scripts/inject_charts.mjs", "CHARTS_RUNTIME")))
   parts.push(wrap("markmap", await extractRuntime("scripts/inject_mindmap.mjs", "MINDMAP_RUNTIME")))
   parts.push(wrap("listing-pager", await extractRuntime("scripts/paginate_listing.mjs", "PAGER_RUNTIME")))
+  // 点目录名 = 切换展开/折叠 + 跳转。
+  // （之前那版只加 .open 从不移除，导致折叠永远不生效；现在用 toggle。）
   parts.push(wrap("explorer-expand", await extractRuntime("scripts/explorer_expand_runtime.mjs", "EXPLORER_EXPAND_RUNTIME")))
 
   return parts.join("")

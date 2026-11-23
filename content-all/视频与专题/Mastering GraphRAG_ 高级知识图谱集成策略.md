@@ -26,9 +26,7 @@ mindmap-plugin: markmap
 
 ### 思维导图
 
-> 🖥 [用浏览器打开完整脑图](_assets/Mastering%20GraphRAG_%20高级知识图谱集成策略/mindmap.html)（可拖动、折叠、全屏）
-
-[查看原始数据](_assets/Mastering%20GraphRAG_%20高级知识图谱集成策略/mind-map.json)
+<div class="mm-wrap" data-mm="1" data-mm-title="Mastering GraphRAG: 高级知识图谱集成策略" data-mm-slug="ma-teringgraphrag-高级知识图谱集成策略"><div class="mm-toolbar"><button data-mm-act="fit">适应窗口</button><button data-mm-act="expand">全部展开</button><button data-mm-act="collapse">折叠到底</button><span class="mm-sep"></span><label>字号 <input class="mm-font" type="range" min="11" max="24" value="15"></label><label>间距 <input class="mm-space" type="range" min="4" max="40" value="12"></label><span class="mm-sep"></span><button data-mm-act="html" title="导出可交互 HTML">导出 HTML</button><button data-mm-act="svg" title="导出静态 SVG">导出 SVG</button><button data-mm-act="full">全屏</button></div><svg class="mm-canvas"></svg><div class="mm-hint">拖动平移 · 滚轮缩放 · 点击节点折叠</div><script type="application/json" class="mm-data">{"name": "高阶 RAG 架构与落地实践", "children": [{"name": "传统向量检索局限", "children": [{"name": "单跳事实匹配天花板"}, {"name": "跨文档推理链条断裂"}, {"name": "TopK 扩大导致信息迷失"}, {"name": "实体别名对齐失败"}]}, {"name": "核心挑战 (四大关卡)", "children": [{"name": "多跳推理能力缺失"}, {"name": "实体关系抽取脆弱"}, {"name": "向量与图评分体系难融合"}, {"name": "全量图谱维护成本高"}]}, {"name": "知识图谱构建流程", "children": [{"name": "轻量级小模型快速初筛"}, {"name": "垂直少样本高阶模型精修"}, {"name": "多维属性特征实体对齐"}, {"name": "源头元数据强制锚定"}]}, {"name": "混合检索架构", "children": [{"name": "意图分类器动态分流"}, {"name": "简单事实走向量检索"}, {"name": "层级架构走图谱遍历"}, {"name": "复杂推导触发双路混合检索"}, {"name": "交叉编码器统一重排"}]}, {"name": "大模型生成与防幻觉", "children": [{"name": "结构化拓扑路径注入"}, {"name": "系统提示词思维链约束"}, {"name": "白盒化证据溯源"}, {"name": "可视化推导子图渲染"}]}, {"name": "生产级实战经验", "children": [{"name": "量化监控指标", "children": [{"name": "实体/关系抽取准确率"}, {"name": "实体对齐成功率"}, {"name": "知识覆盖率"}]}, {"name": "增量热更新与熔断机制"}, {"name": "阶梯式测评集 (单跳至综述)"}, {"name": "版本回滚与自动化 AB 测试"}]}]}</script></div>
 
 ### 信息图
 
@@ -36,7 +34,9 @@ mindmap-plugin: markmap
 
 ### 演示文稿
 
-[打开 演示文稿（PDF）](https://pdf.hfhfn.dpdns.org/notebooklm/Mastering%20GraphRAG_%20%E9%AB%98%E7%BA%A7%E7%9F%A5%E8%AF%86%E5%9B%BE%E8%B0%B1%E9%9B%86%E6%88%90%E7%AD%96%E7%95%A5/slide-deck.pdf)
+<iframe src="https://pdf.hfhfn.dpdns.org/notebooklm/Mastering%20GraphRAG_%20%E9%AB%98%E7%BA%A7%E7%9F%A5%E8%AF%86%E5%9B%BE%E8%B0%B1%E9%9B%86%E6%88%90%E7%AD%96%E7%95%A5/slide-deck.pdf#view=FitH" class="nlm-slides" title="演示文稿" loading="lazy"></iframe>
+
+<sub>[全屏打开](https://pdf.hfhfn.dpdns.org/notebooklm/Mastering%20GraphRAG_%20%E9%AB%98%E7%BA%A7%E7%9F%A5%E8%AF%86%E5%9B%BE%E8%B0%B1%E9%9B%86%E6%88%90%E7%AD%96%E7%95%A5/slide-deck.pdf)</sub>
 
 ## 摘要
 

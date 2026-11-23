@@ -223,7 +223,7 @@ function inject(distDir, per = DEFAULT_PER) {
   walk(distDir)
 
   let n = 0
-  let scriptInjected = 0
+  let styled = 0
 
   for (const f of files) {
     let html = fs.readFileSync(f, "utf-8")
@@ -239,14 +239,19 @@ function inject(distDir, per = DEFAULT_PER) {
       }
     }
 
-    // 运行时注入已统一由 scripts/bundle_runtime.mjs 处理。
-    // 这里只负责插入分页器 DOM。
+    // CSS 仍然按页注入（只在有分页器的页面）。
+    // 之前把注入逻辑整体挪到 bundle_runtime 时，把 CSS 一起删了 ——
+    // 结果分页器有 DOM 但没样式，flex 不生效、按钮挤在左边不居中。
+    if (html.includes('class="pl-pager"') && !html.includes(".pl-pager{")) {
+      html = html.replace("</head>", `<style>${CSS}</style></head>`)
+      styled++
+    }
 
     if (html !== fs.readFileSync(f, "utf-8")) {
       fs.writeFileSync(f, html, "utf-8")
     }
   }
-  if (scriptInjected) console.log(`[listing-pager] runtime 注入 ${scriptInjected} 个页面`)
+  if (styled) console.log(`[listing-pager] 样式注入 ${styled} 个页面`)
   return n
 }
 

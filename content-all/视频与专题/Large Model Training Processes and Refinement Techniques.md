@@ -26,9 +26,7 @@ mindmap-plugin: markmap
 
 ### 思维导图
 
-> 🖥 [用浏览器打开完整脑图](_assets/Large%20Model%20Training%20Processes%20and%20Refinement%20Techniques/mindmap.html)（可拖动、折叠、全屏）
-
-[查看原始数据](_assets/Large%20Model%20Training%20Processes%20and%20Refinement%20Techniques/mind-map.json)
+<div class="mm-wrap" data-mm="1" data-mm-title="Large Model Training Processes and Refinement Techniques" data-mm-slug="largemodeltrainingproce-e-andrefinementtechnique-"><div class="mm-toolbar"><button data-mm-act="fit">适应窗口</button><button data-mm-act="expand">全部展开</button><button data-mm-act="collapse">折叠到底</button><span class="mm-sep"></span><label>字号 <input class="mm-font" type="range" min="11" max="24" value="15"></label><label>间距 <input class="mm-space" type="range" min="4" max="40" value="12"></label><span class="mm-sep"></span><button data-mm-act="html" title="导出可交互 HTML">导出 HTML</button><button data-mm-act="svg" title="导出静态 SVG">导出 SVG</button><button data-mm-act="full">全屏</button></div><svg class="mm-canvas"></svg><div class="mm-hint">拖动平移 · 滚轮缩放 · 点击节点折叠</div><script type="application/json" class="mm-data">{"name": "大模型完整训练全过程", "children": [{"name": "心智塑造 (训练阶段)", "children": [{"name": "预训练 (Pre-training)", "children": [{"name": "非结构化海量文本"}, {"name": "文字接龙/预测下个Token"}, {"name": "Transformer架构"}, {"name": "生成基础大模型"}]}, {"name": "有监督微调 (SFT)", "children": [{"name": "高质量人工标注数据"}, {"name": "问答规范手册"}, {"name": "构建对话模型"}]}, {"name": "强化学习 (RLHF)", "children": [{"name": "奖励模型 (Reward Model)"}, {"name": "人类偏好对齐"}, {"name": "PPO/GRPO算法"}, {"name": "智商/推理能力提升 (数学/编程)"}]}]}, {"name": "肉体改造 (轻量化/部署)", "children": [{"name": "LoRA微调", "children": [{"name": "低秩矩阵分解"}, {"name": "外挂插件式微调"}, {"name": "降低显存/算力成本"}]}, {"name": "模型蒸馏 (Distillation)", "children": [{"name": "大模型带小模型"}, {"name": "学习Token概率 (狭义)"}, {"name": "学习生成数据 (广义)"}]}, {"name": "模型量化 (Quantization)", "children": [{"name": "精度减配 (FP16转INT4)"}, {"name": "压缩参数空间"}, {"name": "端侧部署"}]}]}, {"name": "核心概念与技术", "children": [{"name": "Token分词", "children": [{"name": "数字ID映射"}, {"name": "压缩效率"}, {"name": "跨语言能力"}, {"name": "词表大小挑战"}]}, {"name": "参数量 (Scale)", "children": [{"name": "数十亿至千亿级"}, {"name": "质量比数量更重要"}]}, {"name": "模型分类", "children": [{"name": "闭源模型 (不公开权重)"}, {"name": "开源模型 (可下载权重)"}]}]}, {"name": "推理与应用优化", "children": [{"name": "提示词 (Prompt) 精简"}, {"name": "Batch批量推理"}, {"name": "结果缓存"}, {"name": "垂直领域适配"}]}]}</script></div>
 
 ### 信息图
 
@@ -36,7 +34,9 @@ mindmap-plugin: markmap
 
 ### 演示文稿
 
-[打开 演示文稿（PDF）](https://pdf.hfhfn.dpdns.org/notebooklm/Large%20Model%20Training%20Processes%20and%20Refinement%20Techniques/slide-deck.pdf)
+<iframe src="https://pdf.hfhfn.dpdns.org/notebooklm/Large%20Model%20Training%20Processes%20and%20Refinement%20Techniques/slide-deck.pdf#view=FitH" class="nlm-slides" title="演示文稿" loading="lazy"></iframe>
+
+<sub>[全屏打开](https://pdf.hfhfn.dpdns.org/notebooklm/Large%20Model%20Training%20Processes%20and%20Refinement%20Techniques/slide-deck.pdf)</sub>
 
 ## 摘要
 

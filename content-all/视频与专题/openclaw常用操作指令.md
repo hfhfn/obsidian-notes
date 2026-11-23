@@ -25,13 +25,13 @@ mindmap-plugin: markmap
 
 ### 思维导图
 
-> 🖥 [用浏览器打开完整脑图](_assets/openclaw常用操作指令/mindmap.html)（可拖动、折叠、全屏）
-
-[查看原始数据](_assets/openclaw常用操作指令/mind-map.json)
+<div class="mm-wrap" data-mm="1" data-mm-title="openclaw常用操作指令" data-mm-slug="openclaw常用操作指令"><div class="mm-toolbar"><button data-mm-act="fit">适应窗口</button><button data-mm-act="expand">全部展开</button><button data-mm-act="collapse">折叠到底</button><span class="mm-sep"></span><label>字号 <input class="mm-font" type="range" min="11" max="24" value="15"></label><label>间距 <input class="mm-space" type="range" min="4" max="40" value="12"></label><span class="mm-sep"></span><button data-mm-act="html" title="导出可交互 HTML">导出 HTML</button><button data-mm-act="svg" title="导出静态 SVG">导出 SVG</button><button data-mm-act="full">全屏</button></div><svg class="mm-canvas"></svg><div class="mm-hint">拖动平移 · 滚轮缩放 · 点击节点折叠</div><script type="application/json" class="mm-data">{"name": "OpenClaw (OpenCloud) 基本操作指南", "children": [{"name": "初始化与重置", "children": [{"name": "opencloud init", "children": [{"name": "重新走一遍初始设置流程"}]}]}, {"name": "配置管理 (config)", "children": [{"name": "opencloud config", "children": [{"name": "model: 独立设置模型"}, {"name": "channels: 配置聊天渠道"}]}]}, {"name": "运行状态检查", "children": [{"name": "opencloud status", "children": [{"name": "查看运行状态与错误信息"}]}]}, {"name": "Gateway 服务控制", "children": [{"name": "前台运行: opencloud gateway"}, {"name": "后台服务安装: opencloud gateway install"}, {"name": "后台启动: opencloud gateway start"}, {"name": "停止服务: opencloud gateway stop"}, {"name": "重启服务: opencloud gateway restart"}]}, {"name": "快捷访问", "children": [{"name": "opencloud dashboard", "children": [{"name": "自动带Token打开Web界面"}]}]}, {"name": "故障排查", "children": [{"name": "opencloud logs --follow", "children": [{"name": "实时查看运行日志"}, {"name": "排查API Key或认证错误"}]}]}, {"name": "系统更新", "children": [{"name": "opencloud update", "children": [{"name": "修复Bug与提升安全性"}]}]}]}</script></div>
 
 ### 信息图
 
-![信息图](_assets/openclaw常用操作指令/infographic.webp)
+<img src="../attachments/modules/视频与专题/_assets/openclaw常用操作指令/infographic.webp" alt="信息图" class="nlm-infographic nlm-zoomable" loading="lazy">
+
+<sub>点图放大 · ESC 或点空白处关闭</sub>
 
 ## 摘要
 

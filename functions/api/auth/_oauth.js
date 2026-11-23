@@ -127,7 +127,7 @@ export async function exchangeCode(env, name, code, redirect) {
  */
 export async function fetchEmail(name, accessToken) {
   const p = PROVIDERS[name]
-  const auth = { authorization: `Bearer ${accessToken}` }
+  const auth = { authorization: "Bearer " + accessToken }
 
   const r = await fetch(p.userUrl, { headers: { ...auth, accept: "application/json" } })
   if (!r.ok) {

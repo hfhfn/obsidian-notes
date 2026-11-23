@@ -84,6 +84,27 @@ function buildInheritRules(css) {
 /** 生成注入到每个页面的全局兜底样式 */
 function buildGlobalCss() {
   return `
+/* ===== explorer 箭头常驻 =====
+   Quartz 默认只在 hover 时显示折叠箭头，用户不知道目录可以展开。
+   用户明确反馈「不要只能点箭头，不友好」—— 除了把点击目标扩大到
+   目录名（见 explorer_expand_runtime.mjs），也要让箭头一直可见。 */
+.explorer-ul .folder-icon {
+  opacity: .55 !important;
+  transition: opacity .15s, transform .15s;
+}
+.explorer-ul .folder-container:hover .folder-icon { opacity: 1 !important; }
+/* 展开时箭头朝下，收起时朝右 —— 给一个明确的视觉状态 */
+.explorer-ul li > .folder-outer.open ~ .folder-container .folder-icon,
+.explorer-ul .folder-container[aria-expanded="true"] .folder-icon {
+  transform: rotate(0deg);
+}
+.explorer-ul .folder-container[aria-expanded="false"] .folder-icon {
+  transform: rotate(-90deg);
+}
+/* 目录名可点击区域扩大，更容易点中 */
+.explorer-ul .folder-container { cursor: pointer; }
+.explorer-ul a.folder-button { flex: 1 1 auto; }
+
 /* ===== 字号保护（自动生成，见 scripts/harden_font_sizes.mjs）=====
    为什么需要：Quartz 组件样式在 @layer quartz-base 内，
    未分层的规则（浏览器扩展、用户样式表）永远优先于它。
