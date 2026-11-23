@@ -33,10 +33,13 @@ CREATE TABLE bookmarks (
 CREATE UNIQUE INDEX IF NOT EXISTS uniq_bookmarks_uid_slug ON bookmarks(user_id, slug);
 CREATE TABLE history (
   email TEXT NOT NULL, slug TEXT NOT NULL, title TEXT,
+  user_id TEXT,
   visits INTEGER NOT NULL DEFAULT 1,
   last_seen TEXT NOT NULL DEFAULT (datetime('now')),
   PRIMARY KEY (email, slug)
 );
+-- 008 迁移：足迹按 user_id 归属（多登录方式共享同一份足迹）
+CREATE UNIQUE INDEX IF NOT EXISTS uniq_history_uid_slug ON history(user_id, slug);
 CREATE TABLE login_codes (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   email TEXT NOT NULL, code_hash TEXT, expires_at TEXT,

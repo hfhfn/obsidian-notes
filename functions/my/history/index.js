@@ -5,10 +5,12 @@ export async function onRequestGet({ request, env }) {
   const user = await getUser(request, env)
   if (!user) return html(SHELL("我的足迹", LOGIN_EMPTY(path)))
 
+  // 按 user_id 查，多登录方式共享同一份足迹
+  const uid = user.userId || user.email
   const rows = await env.DB.prepare(
     `SELECT slug, title, visits, last_seen FROM history
-     WHERE email = ? ORDER BY last_seen DESC LIMIT 500`,
-  ).bind(user.email).all()
+     WHERE user_id = ? ORDER BY last_seen DESC LIMIT 500`,
+  ).bind(uid).all()
 
   return html(SHELL("我的足迹", renderHistory(rows.results ?? [])))
 }

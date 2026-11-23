@@ -92,7 +92,7 @@ export async function onRequestGet({ request, env }) {
   if (ids.length) {
     const placeholders = ids.map(() => "?").join(",")
     const rr = await env.DB.prepare(
-      `SELECT comment_id, emoji, email FROM comment_reactions
+      `SELECT comment_id, emoji, user_id FROM comment_reactions
        WHERE comment_id IN (${placeholders})`,
     )
       .bind(...ids)
@@ -197,22 +197,24 @@ async function handleReaction({ env, user, body }) {
   if (!exists) return json({ ok: false, error: "no_comment" }, 404)
 
   const mine = await env.DB.prepare(
-    "SELECT 1 FROM comment_reactions WHERE comment_id = ? AND email = ? AND emoji = ?",
+    "SELECT 1 FROM comment_reactions WHERE comment_id = ? AND user_id = ? AND emoji = ?",
   )
-    .bind(commentId, user.email, emoji)
+    .bind(commentId, user.userId || user.email, emoji)
     .first()
 
   if (mine) {
     await env.DB.prepare(
-      "DELETE FROM comment_reactions WHERE comment_id = ? AND email = ? AND emoji = ?",
+      "DELETE FROM comment_reactions WHERE comment_id = ? AND user_id = ? AND emoji = ?",
     )
-      .bind(commentId, user.email, emoji)
+      .bind(commentId, user.userId || user.email, emoji)
       .run()
     return json({ ok: true, active: false })
   }
 
-  await env.DB.prepare("INSERT INTO comment_reactions (comment_id, email, emoji) VALUES (?, ?, ?)")
-    .bind(commentId, user.email, emoji)
+  await env.DB.prepare(
+    "INSERT INTO comment_reactions (comment_id, user_id, email, emoji) VALUES (?, ?, ?, ?)",
+  )
+    .bind(commentId, user.userId || user.email, user.email, emoji)
     .run()
   return json({ ok: true, active: true })
 }

@@ -98,12 +98,11 @@ export const FILTER_JS = `
   }
 
   function perPageOf(grid){
-    // data-rows 默认 4 行；data-perpage 保留为「最少条数」的兜底
-    var rows = Number(grid.getAttribute('data-rows')) || 4;
+    // 每页 = 列数 × 3 行。用户明确要求「都用列数的 3 倍」。
+    // 藏书馆 5 列 → 15、观影库 4 列 → 12、视频与专题 3 列 → 9。
+    // 按列数整数倍翻页，每页都是完整行，最后一行不会只剩一两张。
     var cols = columnsOf(grid);
-    var n = cols * rows;
-    var min = Number(grid.getAttribute('data-perpage')) || 0;
-    return Math.max(n, min > 0 ? Math.min(min, n * 2) : n);
+    return Math.max(cols * 3, cols);  // 兜底至少一页一整行
   }
 
   function render(tabs, grid, pager, key, page){

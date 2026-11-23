@@ -373,9 +373,20 @@ const RUNTIME = `
   };
 
   window.__pbLogout = function () {
+    // 私有站的登录态是 Cloudflare Access 签发的，光清 notes_session
+    // 等于没退（刷新后 Access 还认得你）。后端会返回 accessLogoutUrl，
+    // 跳过去才算真正登出。
     fetch("/api/auth/logout", { method: "POST", credentials: "include" })
-      .catch(function () {})
-      .then(function () {
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (d) {
+        acctState = null;
+        if (d && d.accessLogoutUrl) {
+          location.href = d.accessLogoutUrl;
+        } else {
+          location.href = "/";
+        }
+      })
+      .catch(function () {
         acctState = null;
         location.href = "/";
       });

@@ -29,7 +29,7 @@ const KINDS = {
       doing: "在读",
       done: "读过",
     },
-    perPage: 12,
+    perPage: 18,
   },
   movie: {
     dir: "观影库",
@@ -39,7 +39,7 @@ const KINDS = {
       doing: "在看",
       done: "看过",
     },
-    perPage: 12,
+    perPage: 18,
   },
 }
 
