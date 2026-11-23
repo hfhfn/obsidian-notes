@@ -1,3 +1,13 @@
 public
 node_modules
 .quartz-cache
+
+# 第三方 vendor 资源，不参与格式检查
+# quartz/static/vendor/markmap/markmap-lib.min.js 是个占位文件，
+# 内容就是一行 "Couldn't find the requested file /dist/browser/index.js in markmap-lib."，
+# prettier 会当成 JS 解析并报 SyntaxError（Unterminated string constant）。
+quartz/static/vendor
+dist-all
+dist-public
+content-all
+content-public
