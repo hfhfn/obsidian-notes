@@ -11,6 +11,7 @@
  */
 import fs from "node:fs"
 import path from "node:path"
+import { inlineScript } from "./_inline.mjs"
 import { fileURLToPath } from "node:url"
 
 // 用真实元素而不是 HTML 注释：Quartz 渲染 md 时会把裸注释挪到 body 末尾，
@@ -1260,19 +1261,19 @@ const RUNTIME = `
     setTimeout(function(){ if (needsInit()) safeInit(); }, 600);
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', boot);
+  // 接全局调度器（scripts/inject_reinit.mjs）。
+  // 之前自己写 MutationObserver + 轮询，重复且易漏。
+  if (window.__nxOnReinit) {
+    window.__nxOnReinit(function(){ if (needsInit()) safeInit(); });
   } else {
-    boot();
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', boot);
+    } else {
+      boot();
+    }
+    document.addEventListener('nav', boot);
+    window.addEventListener('popstate', boot);
   }
-  document.addEventListener('nav', boot);
-  window.addEventListener('popstate', boot);
-
-  (function poll(n){
-    if (n <= 0) return;
-    if (needsInit()) safeInit();
-    setTimeout(function(){ poll(n - 1); }, 800);
-  })(12);
 })();
 `
 
@@ -1296,10 +1297,9 @@ function injectRuntimeEverywhere(distDir) {
         let h = fs.readFileSync(full, "utf-8");
         if (h.includes(RUNTIME_MARKER)) continue;      // 幂等
         if (!h.includes("</body>")) continue;
-        h = h.replace(
-          "</body>",
-          `<script>${RUNTIME_MARKER}\n${RUNTIME}</script></body>`,
-        );
+        // 必须替换最后一个 </body> —— 页面内联 JS 可能含 </body> 字面量
+        const _at = h.lastIndexOf("</body>")
+        if (_at >= 0) h = h.slice(0, _at) + inlineScript(RUNTIME_MARKER + "\n" + RUNTIME) + h.slice(_at)
         fs.writeFileSync(full, h);
         touched++;
       }

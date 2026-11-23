@@ -10,6 +10,7 @@
  */
 import fs from "node:fs"
 import path from "node:path"
+import { inlineScript } from "./_inline.mjs"
 import { fileURLToPath } from "node:url"
 
 // 两类媒体的差异集中在这张表，渲染逻辑共用
@@ -197,15 +198,16 @@ const FILTER_JS = `
     setTimeout(function(){ if (needs()) safe(); }, 150);
     setTimeout(function(){ if (needs()) safe(); }, 600);
   }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
-  else boot();
-  document.addEventListener('nav', boot);
-  window.addEventListener('popstate', boot);
-  (function poll(n){
-    if (n <= 0) return;
-    if (needs()) safe();
-    setTimeout(function(){ poll(n - 1); }, 800);
-  })(12);
+  // 接全局调度器（scripts/inject_reinit.mjs）。
+  // 之前自己写 MutationObserver + 轮询，重复且易漏。
+  if (window.__nxOnReinit) {
+    window.__nxOnReinit(function(){ if (needs()) safe(); });
+  } else {
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+    else boot();
+    document.addEventListener('nav', boot);
+    window.addEventListener('popstate', boot);
+  }
 })();
 `
 
@@ -600,10 +602,9 @@ function injectFilterEverywhere(distDir) {
         let h = fs.readFileSync(full, "utf-8")
         if (h.includes(FILTER_MARKER)) continue
         if (!h.includes("</body>")) continue
-        h = h.replace(
-          "</body>",
-          `<script>${FILTER_MARKER}\n${FILTER_JS}</script></body>`,
-        )
+        // 必须替换最后一个 </body> —— 页面内联 JS 可能含 </body> 字面量
+        const _at = h.lastIndexOf("</body>")
+        if (_at >= 0) h = h.slice(0, _at) + inlineScript(FILTER_MARKER + "\n" + FILTER_JS) + h.slice(_at)
         fs.writeFileSync(full, h)
         touched++
       }

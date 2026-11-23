@@ -63,7 +63,8 @@ const RUNTIME = `
 
   document.addEventListener("nav", init);
   document.addEventListener("render", init);
-  if (document.readyState !== "loading") init();
+  if (window.__nxOnReinit) window.__nxOnReinit(init);
+  else if (document.readyState !== "loading") init();
   else document.addEventListener("DOMContentLoaded", init);
 })();
 `

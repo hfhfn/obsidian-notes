@@ -14,7 +14,10 @@
  *   首次加载就成了空白。
  *
  * 修法：
- *   在注册监听器之后补一次「如果 DOM 已就绪就立即执行」。
+ *   接到 scripts/inject_reinit.mjs 的全局调度器上（window.__nxOnReinit），
+ *   不再自己写「立即执行 + DOMContentLoaded」的一次性判断。
+ *   调度器覆盖 DOMContentLoaded / nav / popstate / DOM 变化 / 多轮延迟，
+ *   所有组件共用一套时机，不会互相漏。
  *
  * 为什么写成构建时 patch 而不是直接改 node_modules：
  *   node_modules 会被 npm install 覆盖，补丁必须可重现。
@@ -34,9 +37,9 @@ const MARKER = "[Explorer] init error"
 const ANCHOR = 'document.addEventListener("nav",W);document.addEventListener("render",W);'
 const PATCHED =
   ANCHOR +
-  'if(document.readyState!=="loading"){try{W({detail:{url:location.pathname}})}catch(e){console.error("' +
+  'if(window.__nxOnReinit){window.__nxOnReinit(function(){try{W({detail:{url:location.pathname}})}catch(e){console.error("' +
   MARKER +
-  '",e)}}else{document.addEventListener("DOMContentLoaded",W)}'
+  '",e)}})}else if(document.readyState!=="loading"){try{W({detail:{url:location.pathname}})}catch(e){}}else{document.addEventListener("DOMContentLoaded",W)}'
 
 let patched = 0
 for (const rel of targets) {

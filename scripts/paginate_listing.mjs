@@ -12,6 +12,7 @@
  * 用法: node scripts/paginate_listing.mjs dist-public [--per 20]
  */
 import fs from "node:fs"
+import { inlineScript } from "./_inline.mjs"
 import path from "node:path"
 
 const MARKER = "<!--LISTING_PAGER-->"
@@ -183,7 +184,9 @@ function inject(distDir, per = DEFAULT_PER) {
     // 注入样式和脚本（只插一次）
     if (!html.includes(".pl-pager")) {
       r.html = r.html.replace("</head>", `<style>${CSS}</style></head>`)
-      r.html = r.html.replace("</body>", `<script>${RUNTIME}</script></body>`)
+      // 必须替换最后一个 </body> —— 页面内联 JS 可能含 </body> 字面量
+      const _at = r.html.lastIndexOf("</body>")
+      if (_at >= 0) r.html = r.html.slice(0, _at) + inlineScript(RUNTIME) + r.html.slice(_at)
     }
 
     fs.writeFileSync(f, r.html, "utf-8")

@@ -256,8 +256,6 @@ function slugFromPath() {
 // 就会读取这个属性（那时函数还没被调用），拿到 undefined，脚本不会被打包。
 const RUNTIME = `
 (function(){
-  if (window.__ncInit) return;
-  window.__ncInit = true;
 
   var API = ${JSON.stringify(API)};
   var EMOJIS = ${JSON.stringify(["👍", "❤️", "🎉", "🤔", "👀"])};
@@ -353,7 +351,8 @@ const RUNTIME = `
     var hint = state.me
       ? ''
       : '<div class="nc-login-hint">登录后即可评论、回应表情。'
-        + '支持邮箱验证码 / Google / GitHub，<a href="/login?redirect=" + encodeURIComponent(location.pathname) + '">去登录 →</a></div>';
+        + '支持邮箱验证码 / Google / GitHub，'
+      + '<a href="/login?redirect=' + encodeURIComponent(location.pathname) + '">去登录 →</a></div>';
 
     var form = state.me
       ? '<div class="nc-form">'
@@ -472,12 +471,34 @@ const RUNTIME = `
     }
   });
 
-  // 初次加载 + SPA 切页后重新加载
+  // 初次加载 + SPA 切页后重新加载。
+  //
+  // 不再自己写重试逻辑 —— 统一交给 scripts/inject_reinit.mjs 注入的
+  // 全局调度器（window.__nxOnReinit）。它会覆盖
+  // DOMContentLoaded / nav / popstate / DOM 变化 / 多轮延迟。
+  //
+  // 之前踩的坑：用 window.__ncInit 做一次性守卫，首页执行时
+  // .nc-wrap 还不存在，守卫已置 true，之后从首页点进文章页
+  // 评论区永远是空的。
   function boot(){
-    if (findRoot()) load();
+    var root = findRoot();
+    if (!root) return;                 // 当前页没有评论区，安全返回
+    if (root.dataset.ncLoaded === '1') return;   // 已经渲染过
+    root.dataset.ncLoaded = '1';
+    load();
   }
-  boot();
-  document.addEventListener('nav', boot);
+
+  if (window.__nxOnReinit) {
+    window.__nxOnReinit(boot);
+  } else {
+    // 调度器还没注入（极早期），退回监听 nav
+    boot();
+    document.addEventListener('nav', function(){
+      var r = findRoot();
+      if (r) delete r.dataset.ncLoaded;
+      boot();
+    });
+  }
 })();
 `
 

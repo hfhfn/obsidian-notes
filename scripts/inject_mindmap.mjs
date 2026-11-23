@@ -6,6 +6,7 @@
  */
 import fs from "node:fs"
 import path from "node:path"
+import { inlineScript } from "./_inline.mjs"
 
 const VENDOR = ["vendor/markmap/d3.min.js", "vendor/markmap/markmap-view.min.js"]
 
@@ -475,8 +476,17 @@ const RUNTIME = `
 
   function bootAll(){ boot(); reclassInfographic(); bindZoom(); }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bootAll);
-  else bootAll();
+  // 接全局调度器（scripts/inject_reinit.mjs）：
+  // 覆盖 DOMContentLoaded / nav / popstate / DOM 变化 / 多轮延迟。
+  // 之前只监听 DOMContentLoaded + nav，首次进详情页时 markmap 的
+  // 容器尺寸还是 0，渲染出来是空白，必须刷新。
+  if (window.__nxOnReinit) {
+    window.__nxOnReinit(bootAll);
+  } else if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootAll);
+  } else {
+    bootAll();
+  }
   document.addEventListener('nav', bootAll);
 })();
 `
@@ -552,7 +562,9 @@ function inject(distDir) {
     }
 
     h = h.replace("</head>", `<style>${CSS}</style>${tags}</head>`)
-    h = h.replace("</body>", `<script>${RUNTIME}</script></body>`)
+    // 必须替换最后一个 </body> —— 页面内联 JS 可能含 </body> 字面量
+    const _at = h.lastIndexOf("</body>")
+    if (_at >= 0) h = h.slice(0, _at) + inlineScript(RUNTIME) + h.slice(_at)
     fs.writeFileSync(f, h)
     touched++
   }
