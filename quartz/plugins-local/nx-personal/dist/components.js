@@ -428,19 +428,48 @@ const RUNTIME = `
     }
   }
 
+  // 渲染账号按钮。
+  //
+  // 踩过的坑：这里原来只在脚本执行时调一次 loadAccount()。
+  // 但这段脚本可能在 .pb-account-btn 还没进 DOM 时执行 ——
+  // renderAccount 里 if (!btn) return 会直接退出，之后再也不重试，
+  // 表现成「明明登录了，侧边栏还是显示登录按钮」。
+  // 所以：拿到 whoami 结果后，如果按钮还不存在就轮询等它出现。
+  var pendingAccount = null;
+
+  function applyAccount(me) {
+    acctState = me;
+    var tries = 0;
+    (function tryRender() {
+      var btn = document.querySelector(".pb-account-btn");
+      if (btn) {
+        renderAccount(me);
+        pendingAccount = null;
+        return;
+      }
+      if (++tries > 60) { pendingAccount = me; return; }  // 约 6 秒后放弃
+      setTimeout(tryRender, 100);
+    })();
+  }
+
   function loadAccount(force) {
     if (acctFetching) return;
-    if (acctState && !force) { renderAccount(acctState); return; }
+    if (acctState && !force) { applyAccount(acctState); return; }
     acctFetching = true;
     fetch("/api/whoami", { credentials: "include" })
       .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (d) { renderAccount(d || { authed: false }); })
-      .catch(function () { renderAccount({ authed: false }); })
+      .then(function (d) { applyAccount(d || { authed: false }); })
+      .catch(function () { applyAccount({ authed: false }); })
       .then(function () { acctFetching = false; });
   }
 
+  // SPA 导航后按钮是新 DOM，重新渲染一次（不重新请求，用缓存状态）
+  document.addEventListener("nav", function () {
+    if (acctState) applyAccount(acctState);
+    else loadAccount(false);
+  });
+
   document.addEventListener("nav", syncTheme);
-  document.addEventListener("nav", function () { loadAccount(true); });
   loadAccount(false);
   document.addEventListener("themechange", function () {
     applyTheme(localStorage.getItem(TKEY) || "default");

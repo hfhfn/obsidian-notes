@@ -35,3 +35,4 @@ __pycache__/
 # 抓取的候选清单（临时产物，随时可重新抓）
 scripts/candidates/
 .hidden-slugs.json
+.tmp-mm/
