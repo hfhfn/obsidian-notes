@@ -131,11 +131,25 @@ export async function fetchEmail(name, accessToken) {
 
   const r = await fetch(p.userUrl, { headers: { ...auth, accept: "application/json" } })
   if (!r.ok) {
-    console.error(`[oauth:${name}] userinfo failed`, r.status)
-    return null
+    const body = await r.text().catch(() => "")
+    console.error(`[oauth:${name}] userinfo failed`, r.status, body.slice(0, 300))
+    // 不要把失败原因吞掉 —— 之前返回裸 null，用户只看到笼统的
+    // 「没有返回已验证的邮箱」，完全无法定位。
+    return {
+      error:
+        `${name} 的 /user 接口返回 ${r.status}。` +
+        (r.status === 401
+          ? "访问令牌无效或已过期，请重新登录。"
+          : r.status === 403
+            ? "GitHub 拒绝了请求，可能是 scope 不足或触发了限流。"
+            : "请稍后重试。") +
+        (body ? ` 详情：${body.slice(0, 120)}` : ""),
+    }
   }
   const user = await r.json().catch(() => null)
-  if (!user) return null
+  if (!user) {
+    return { error: `${name} 的 /user 接口返回了非 JSON 内容。` }
+  }
 
   if (name === "google") {
     const email = user.email

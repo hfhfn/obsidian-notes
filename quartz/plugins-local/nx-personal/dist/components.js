@@ -315,7 +315,11 @@ const RUNTIME = `
     if (!e.target.closest(".pb-wrap")) {
       window.__pbCloseTheme();
     }
-    if (!e.target.closest(".pb-account-wrap")) {
+    // 注意选择器必须和实际 DOM 一致：账号入口的外层是 .pb-account-row，
+    // 不是 .pb-account-wrap（那个类在重构时去掉了）。
+    // 写成不存在的类会导致判断永远为真 —— 每次点击都把刚打开的面板关掉，
+    // 表现成「点了没反应」。
+    if (!e.target.closest(".pb-account-row")) {
       window.__pbCloseAccount();
     }
   });
@@ -347,15 +351,24 @@ const RUNTIME = `
       return;
     }
     var willOpen = p.hidden;
-    p.hidden = !willOpen;
+
     if (willOpen) {
+      // 必须先取消 hidden 再量尺寸 —— hidden 状态下 offsetWidth 是 0，
+      // 之前用它算位置会让面板跑到 (0,0) 或者宽度算错，
+      // 表现成「点了没反应 / 面板看不见」。
+      p.hidden = false;
+      p.style.visibility = "hidden";
       var r = btn.getBoundingClientRect();
-      p.style.top = (r.bottom + 6) + "px";
-      p.style.left = Math.max(8, r.left) + "px";
       var w = p.offsetWidth || 224;
-      if (r.left + w > window.innerWidth - 8) {
-        p.style.left = Math.max(8, window.innerWidth - w - 8) + "px";
+      var left = Math.max(8, r.left);
+      if (left + w > window.innerWidth - 8) {
+        left = Math.max(8, window.innerWidth - w - 8);
       }
+      p.style.top = (r.bottom + 6) + "px";
+      p.style.left = left + "px";
+      p.style.visibility = "";
+    } else {
+      p.hidden = true;
     }
   };
 
@@ -377,7 +390,12 @@ const RUNTIME = `
 
     if (me && me.authed) {
       btn.classList.add("is-authed");
-      btn.setAttribute("href", "#");
+      // 不能设 href="#" —— 点击会触发 hash 导航，页面跳走，
+      // 面板刚打开就没了（用户反馈「点了没反应」）。
+      // 用 button 语义：移除 href，交给 onclick 处理。
+      btn.removeAttribute("href");
+      btn.setAttribute("role", "button");
+      btn.setAttribute("tabindex", "0");
       btn.setAttribute("title", me.email || "我的账号");
       // 头像：邮箱首字母
       var initial = (me.name || me.email || "?").trim().charAt(0).toUpperCase();

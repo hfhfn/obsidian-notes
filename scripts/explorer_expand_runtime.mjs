@@ -1,46 +1,63 @@
 #!/usr/bin/env node
 /**
- * 点目录名：切换展开/折叠 + 跳转到目录页（MOC）。
+ * Explorer 增强：首次渲染 + 点目录名切换展开/折叠。
  *
- * 用户要求：
- *   「点击目录名跳转到 MOC 页面，并且可以展开或折叠，
- *     不要只能点箭头，不友好」
+ * 背景（踩过的坑，按时间顺序）：
  *
- * Quartz 原生行为（folderClickBehavior: "link"）：
- *   点目录名 → 只跳转
- *   点左侧箭头 → 只展开/折叠
- *   两个操作分散在两个小目标上，箭头只有 12×12px，很难点。
+ *   1. Quartz 原版：afterDOMLoaded 只注册 nav/render 监听，首次加载不渲染，
+ *      探索列表是空的 → 我写 patch_explorer_init.mjs 直接改 node_modules，
+ *      补一次「DOM 就绪就立即 W()」。
  *
- * 本脚本把两个操作合到目录名上：
- *   点目录名 → 切换展开状态 + 跳转
+ *   2. 那个补丁带来两个新问题：
+ *      - 补丁把 W() 挂在 __nxOnReinit 上，每次 DOM 变化都重渲染，
+ *        用户折叠「探索」后又被展开 → 「探索不能折叠」
+ *      - 改成只跑一次后，W() 执行时折叠按钮还没插入 DOM，
+ *        按钮的 click 没绑上 → 「点了完全没反应」
  *
- * 实现要点：
- *   1. 绑在 a.folder-button 上（真正带 href 的元素）
- *   2. 先 toggle 再放行跳转 —— 不要 preventDefault，
- *      用户要的是「既展开又进页面」
- *   3. 展开状态由 .folder-outer 的 .open class 控制，
- *      同时同步 .folder-container 的 aria-expanded 供读屏使用
- *   4. 幂等：用 data-nx-expand 标记，避免 SPA 导航后重复绑定
+ *   3. 结论：不该去 patch 第三方组件。Quartz 自己会在 nav/render 时处理，
+ *      我们只需要在「DOM 确实就绪」时手动触发一次 render 事件，
+ *      让它自己的 W() 跑一遍 —— 不重写它的逻辑，也不重复调用。
  *
- * 这段逻辑由 scripts/bundle_runtime.mjs 打进全站运行时。
+ * 本脚本做两件事：
+ *   A. 首次加载后触发一次 `render` 事件（Quartz 监听这个事件来渲染 explorer）
+ *   B. 给 a.folder-button 绑 click：toggle 展开状态 + 放行跳转
+ *
+ * 关键约束：
+ *   - A 只做一次（用 window.__nxExplorerRendered 标记）
+ *   - 不在 DOM 变化时反复触发 A，否则会重置用户的折叠状态
+ *   - B 幂等，靠 data-nx-toggle 标记
  */
 
 export const EXPLORER_EXPAND_RUNTIME = `
 (function(){
-  /* explorer-expand-toggle */
-  if (window.__nxExplorerToggle) return;
-  window.__nxExplorerToggle = true;
+  /* explorer-enhance */
 
+  // ===== A. 首次渲染 =====
+  //
+  // Quartz 的 explorer 在 afterDOMLoaded 里注册了：
+  //   document.addEventListener("nav", W)
+  //   document.addEventListener("render", W)
+  // 但首次加载这两个事件都不发，所以列表是空的。
+  // 这里等 DOM 里真的出现 .explorer-ul 之后，派发一次 render 事件。
+  function triggerInitialRender(){
+    if (window.__nxExplorerRendered) return;
+    var ul = document.querySelector('.explorer-ul');
+    if (!ul) return;                       // 还没渲染出来，等下一轮
+    window.__nxExplorerRendered = 1;
+    // 派发 Quartz 自己监听的 render 事件，让它按原生逻辑渲染一次
+    document.dispatchEvent(new CustomEvent('render', { detail: { url: location.pathname } }));
+  }
+
+  // ===== B. 点目录名：toggle + 跳转 =====
   function toggleFolder(a){
     var li = a.closest('li');
     if (!li) return;
     var outer = li.querySelector(':scope > .folder-outer');
-    if (!outer) return;                 // 叶子节点（普通笔记），没有子项
+    if (!outer) return;                    // 叶子节点没有子项
 
     var willOpen = !outer.classList.contains('open');
     outer.classList.toggle('open', willOpen);
 
-    // 同步 aria 与箭头朝向，读屏和视觉都要对
     var fc = a.closest('.folder-container');
     if (fc) fc.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
     li.classList.toggle('open', willOpen);
@@ -50,36 +67,47 @@ export const EXPLORER_EXPAND_RUNTIME = `
     document.querySelectorAll('.explorer-ul a.folder-button').forEach(function(a){
       if (a.dataset.nxToggle) return;
       a.dataset.nxToggle = '1';
-
       a.addEventListener('click', function(){
-        // 先切换，再让浏览器正常跳转。
-        // 顺序很重要：如果先跳转，SPA 会换掉整个 body，
-        // 旧 DOM 上的 toggle 就白做了。
+        // 先 toggle，再让浏览器正常跳转到目录页（不 preventDefault）
         toggleFolder(a);
-        // 不 preventDefault —— 保留「跳到目录页看 MOC」的行为
       });
     });
   }
 
-  // 立刻试 + 定时重试 + nav 重跑，覆盖 Quartz 换 DOM 的各种时机
+  // ===== 调度 =====
+  //
+  // 用短间隔轮询代替 MutationObserver：
+  // explorer 的 DOM 在 SPA 导航后会整体替换，轮询更容易覆盖到
+  // 「新节点已插入但还没绑事件」的窗口。
   var tries = 0;
-  function bindUntil(){
+  function tick(){
+    triggerInitialRender();
     bind();
-    var ok = document.querySelectorAll('.explorer-ul a.folder-button').length > 0
-      && Array.prototype.every.call(
-           document.querySelectorAll('.explorer-ul a.folder-button'),
-           function(a){ return a.dataset.nxToggle === '1'; }
-         );
-    if (ok || ++tries > 40) return;
-    setTimeout(bindUntil, 100);
+
+    var ul = document.querySelector('.explorer-ul');
+    var btns = document.querySelectorAll('.explorer-ul a.folder-button');
+    var allBound = btns.length > 0 && Array.prototype.every.call(
+      btns, function(a){ return a.dataset.nxToggle === '1'; }
+    );
+    // 渲染完成 + 全部绑定完成就停
+    if (ul && ul.children.length > 1 && allBound) return;
+
+    if (++tries > 50) return;              // 最多约 5 秒
+    setTimeout(tick, 100);
   }
 
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', bindUntil);
+    document.addEventListener('DOMContentLoaded', function(){ tries = 0; tick(); });
   } else {
-    bindUntil();
+    tick();
   }
-  document.addEventListener('nav', function(){ tries = 0; bindUntil(); });
-  window.addEventListener('popstate', function(){ tries = 0; bindUntil(); });
+
+  // SPA 导航后重跑（新的 DOM 需要重新绑）
+  document.addEventListener('nav', function(){
+    tries = 0;
+    // 导航后 explorer 会自己重渲染，不用再派发 render 事件
+    setTimeout(tick, 80);
+  });
+  window.addEventListener('popstate', function(){ tries = 0; setTimeout(tick, 80); });
 })();
 `;
