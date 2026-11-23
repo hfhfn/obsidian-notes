@@ -301,6 +301,51 @@
   font-size: 0.76rem;
 }
 
+/* 跳页输入框 —— 三套分页器（书架 / 榜单 / 笔记列表）共用 */
+.lib-jump,
+.lc-jump,
+.pl-jump {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--gray);
+  font-size: 0.76rem !important;
+}
+
+.lib-jump-input,
+.lc-jump-input,
+.pl-jump-input {
+  width: 3.4rem;
+  padding: 0.2rem 0.35rem;
+  border: 1px solid var(--lightgray);
+  border-radius: 6px;
+  background: none;
+  color: var(--darkgray) !important;
+  font-family: var(--bodyFont);
+  font-size: 0.76rem !important;
+  text-align: center;
+  /* 去掉 number 类型的上下箭头，窄框里太挤 */
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+.lib-jump-input::-webkit-outer-spin-button,
+.lib-jump-input::-webkit-inner-spin-button,
+.lc-jump-input::-webkit-outer-spin-button,
+.lc-jump-input::-webkit-inner-spin-button,
+.pl-jump-input::-webkit-outer-spin-button,
+.pl-jump-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.lib-jump-input:focus,
+.lc-jump-input:focus,
+.pl-jump-input:focus {
+  outline: none;
+  border-color: var(--secondary);
+}
+
 /* 空状态 */
 .library-empty {
   padding: 2.5rem 1rem;

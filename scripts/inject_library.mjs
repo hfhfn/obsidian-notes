@@ -146,9 +146,20 @@ export const FILTER_JS = `
         var info = pager.querySelector('.lib-pinfo');
         var prev = pager.querySelector('[data-prev]');
         var next = pager.querySelector('[data-next]');
+        var first = pager.querySelector('[data-first]');
+        var last = pager.querySelector('[data-last]');
+        var jump = pager.querySelector('.lib-jump-input');
         if (info) info.textContent = '第 ' + page + ' / ' + pages + ' 页（共 ' + show.length + ' 条）';
         if (prev) prev.disabled = (page === 1);
         if (next) next.disabled = (page === pages);
+        if (first) first.disabled = (page === 1);
+        if (last) last.disabled = (page === pages);
+        if (jump) {
+          // 只在值不同时改，避免打断用户输入
+          if (String(jump.value) !== String(page)) jump.value = page;
+          jump.max = pages;
+          jump.setAttribute('data-pages', pages);
+        }
       }
     }
     return page;
@@ -204,14 +215,37 @@ export const FILTER_JS = `
       });
 
       if (pager) {
+        function go(p){
+          state[kind].page = render(tabs, grid, pager, state[kind].key, p);
+        }
         var prev = pager.querySelector('[data-prev]');
         var next = pager.querySelector('[data-next]');
-        if (prev) prev.addEventListener('click', function(){
-          state[kind].page = render(tabs, grid, pager, state[kind].key, state[kind].page - 1);
+        var first = pager.querySelector('[data-first]');
+        var last = pager.querySelector('[data-last]');
+        var jump = pager.querySelector('.lib-jump-input');
+
+        if (prev) prev.addEventListener('click', function(){ go(state[kind].page - 1); });
+        if (next) next.addEventListener('click', function(){ go(state[kind].page + 1); });
+        if (first) first.addEventListener('click', function(){ go(1); });
+        if (last) last.addEventListener('click', function(){
+          var pages = Number(jump && jump.getAttribute('data-pages')) || 1;
+          go(pages);
         });
-        if (next) next.addEventListener('click', function(){
-          state[kind].page = render(tabs, grid, pager, state[kind].key, state[kind].page + 1);
-        });
+
+        if (jump) {
+          // 回车或失焦时跳转。输入非法/越界由 render 内部夹到合法范围。
+          function commit(){
+            var v = parseInt(jump.value, 10);
+            if (!isNaN(v)) go(v);
+            else jump.value = state[kind].page;
+          }
+          jump.addEventListener('keydown', function(ev){
+            if (ev.key === 'Enter') { ev.preventDefault(); commit(); jump.blur(); }
+          });
+          jump.addEventListener('blur', commit);
+          // 阻止点击输入框时的冒泡，避免被别的委托监听当成翻页
+          jump.addEventListener('click', function(ev){ ev.stopPropagation(); });
+        }
       }
 
       state[kind].page = render(tabs, grid, pager, curKey, 1);
@@ -624,9 +658,14 @@ export function injectKind(distDir, kind) {
     <div class="library-tabs" data-for="${kind}" role="tablist">${tabs}</div>
     <div class="book-grid" data-for="${kind}" data-active="全部" data-perpage="${perPage}" data-rows="${rows}">${cards}</div>
     <div class="library-pager" data-for="${kind}">
+      <button class="lib-pbtn" data-first disabled title="第一页">« 首页</button>
       <button class="lib-pbtn" data-prev disabled>← 上一页</button>
       <span class="lib-pinfo">第 1 页</span>
       <button class="lib-pbtn" data-next>下一页 →</button>
+      <button class="lib-pbtn" data-last title="最后一页">末页 »</button>
+      <span class="lib-jump">
+        跳至 <input class="lib-jump-input" type="number" min="1" value="1" inputmode="numeric"> 页
+      </span>
     </div>
   `
 

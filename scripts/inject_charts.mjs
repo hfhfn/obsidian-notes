@@ -509,10 +509,13 @@ function renderCharts(data, kind) {
 
       const pager =
         pages > 1
-          ? `<div class="lc-pager">
+          ? `<div class="lc-pager" data-tab="${si}" data-pages="${pages}">
+              <button class="lc-pbtn" data-first="${si}" disabled title="第一页">« 首页</button>
               <button class="lc-pbtn" data-prev="${si}" disabled>← 上一页</button>
               <span class="lc-pinfo" data-info="${si}">第 1 / ${pages} 页</span>
               <button class="lc-pbtn" data-next="${si}">下一页 →</button>
+              <button class="lc-pbtn" data-last="${si}" title="最后一页">末页 »</button>
+              <span class="lc-jump">跳至 <input class="lc-jump-input" type="number" min="1" max="${pages}" value="1" inputmode="numeric" data-jump="${si}"> 页</span>
             </div>`
           : ""
 
@@ -554,7 +557,10 @@ const RUNTIME = `
         if (grids.length <= 1) return;
         var prev = panel.querySelector('[data-prev]');
         var next = panel.querySelector('[data-next]');
+        var first = panel.querySelector('[data-first]');
+        var last = panel.querySelector('[data-last]');
         var info = panel.querySelector('[data-info]');
+        var jump = panel.querySelector('.lc-jump-input');
         var cur = 1;
         function show(n){
           cur = Math.max(1, Math.min(n, grids.length));
@@ -562,9 +568,26 @@ const RUNTIME = `
           if (info) info.textContent = '第 ' + cur + ' / ' + grids.length + ' 页';
           if (prev) prev.disabled = cur === 1;
           if (next) next.disabled = cur === grids.length;
+          if (first) first.disabled = cur === 1;
+          if (last) last.disabled = cur === grids.length;
+          if (jump && String(jump.value) !== String(cur)) jump.value = cur;
         }
         if (prev) prev.addEventListener('click', function(){ show(cur - 1); });
         if (next) next.addEventListener('click', function(){ show(cur + 1); });
+        if (first) first.addEventListener('click', function(){ show(1); });
+        if (last) last.addEventListener('click', function(){ show(grids.length); });
+        if (jump) {
+          function commit(){
+            var v = parseInt(jump.value, 10);
+            if (!isNaN(v)) show(v);
+            else jump.value = cur;
+          }
+          jump.addEventListener('keydown', function(ev){
+            if (ev.key === 'Enter') { ev.preventDefault(); commit(); jump.blur(); }
+          });
+          jump.addEventListener('blur', commit);
+          jump.addEventListener('click', function(ev){ ev.stopPropagation(); });
+        }
         show(1);
       });
     });

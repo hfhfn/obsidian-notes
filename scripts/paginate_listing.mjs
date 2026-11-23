@@ -73,17 +73,43 @@ const RUNTIME = `
           var info = p.querySelector('.pl-pinfo');
           var prev = p.querySelector('[data-prev]');
           var next = p.querySelector('[data-next]');
+          var first = p.querySelector('[data-first]');
+          var last = p.querySelector('[data-last]');
+          var jump = p.querySelector('.pl-jump-input');
           if (info) info.textContent = '第 ' + cur + ' / ' + pages + ' 页（共 ' + items.length + ' 条）';
           if (prev) prev.disabled = cur === 1;
           if (next) next.disabled = cur === pages;
+          if (first) first.disabled = cur === 1;
+          if (last) last.disabled = cur === pages;
+          if (jump) {
+            if (String(jump.value) !== String(cur)) jump.value = cur;
+            jump.max = pages;
+          }
         });
       }
 
       pagers.forEach(function(p){
         var prev = p.querySelector('[data-prev]');
         var next = p.querySelector('[data-next]');
+        var first = p.querySelector('[data-first]');
+        var last = p.querySelector('[data-last]');
+        var jump = p.querySelector('.pl-jump-input');
         if (prev) prev.addEventListener('click', function(){ render(cur - 1); });
         if (next) next.addEventListener('click', function(){ render(cur + 1); });
+        if (first) first.addEventListener('click', function(){ render(1); });
+        if (last) last.addEventListener('click', function(){ render(pages); });
+        if (jump) {
+          function commit(){
+            var v = parseInt(jump.value, 10);
+            if (!isNaN(v)) render(v);
+            else jump.value = cur;
+          }
+          jump.addEventListener('keydown', function(ev){
+            if (ev.key === 'Enter') { ev.preventDefault(); commit(); jump.blur(); }
+          });
+          jump.addEventListener('blur', commit);
+          jump.addEventListener('click', function(ev){ ev.stopPropagation(); });
+        }
       });
 
       render(1);
@@ -145,9 +171,12 @@ export const PAGER_RUNTIME = RUNTIME
 
 function pagerHtml() {
   return `<div class="pl-pager">
+    <button class="pl-pbtn" data-first disabled title="第一页">« 首页</button>
     <button class="pl-pbtn" data-prev disabled>← 上一页</button>
     <span class="pl-pinfo">第 1 页</span>
     <button class="pl-pbtn" data-next>下一页 →</button>
+    <button class="pl-pbtn" data-last title="最后一页">末页 »</button>
+    <span class="pl-jump">跳至 <input class="pl-jump-input" type="number" min="1" value="1" inputmode="numeric"> 页</span>
   </div>`
 }
 
