@@ -30,8 +30,8 @@ const KINDS = {
     // 字段统一：豆瓣榜单卡和笔记卡共用同一套顺序，缺失的自动跳过
     // 评分/作者已在「星级行 + 副标题」显示，info 里不重复
     infoOrder: ["年份", "页数", "开始", "读完"],
-    cols: 5,        // 与 library.scss 的 .book-grid 保持一致
-    perPage: 15,    // cols × 3 行
+    cols: 5,        // 与 library.scss 的 .book-grid[data-for="book"] 一致
+    perPage: 10,    // cols × 2 行
   },
   movie: {
     dir: "观影库",
@@ -47,7 +47,7 @@ const KINDS = {
     // 评分/导演已在「星级行 + 副标题」显示，info 里不重复
     infoOrder: ["年份", "类型", "地区", "片长", "集数", "开始", "看完"],
     cols: 4,        // 与 library.scss 的 .book-grid[data-for="movie"] 一致
-    perPage: 12,    // cols × 3 行
+    perPage: 8,     // cols × 2 行
   },
   video: {
     dir: "视频与专题",

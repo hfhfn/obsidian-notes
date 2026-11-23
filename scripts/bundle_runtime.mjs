@@ -56,6 +56,9 @@ async function build() {
 
   // 1) 调度器最先 —— 其他模块会调用 window.__nxOnReinit
   parts.push(wrap("reinit-dispatcher", await extractRuntime("scripts/inject_reinit.mjs", "REINIT_RUNTIME")))
+  // 日夜切换按钮：直接绑元素，不派发 render 事件
+  // （派发 render 会让 graph 无限重建 → OOM，见 inject_theme_button.mjs 注释）
+  parts.push(wrap("theme-button", await extractRuntime("scripts/inject_theme_button.mjs", "RUNTIME")))
 
   // 2) 各功能模块（顺序无所谓，但都要在调度器之后）
   parts.push(wrap("library-filter", await extractRuntime("scripts/inject_library.mjs", "FILTER_JS")))
