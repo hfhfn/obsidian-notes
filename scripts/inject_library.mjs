@@ -30,7 +30,7 @@ const KINDS = {
     // 字段统一：豆瓣榜单卡和笔记卡共用同一套顺序，缺失的自动跳过
     // 评分/作者已在「星级行 + 副标题」显示，info 里不重复
     infoOrder: ["年份", "页数", "开始", "读完"],
-    perPage: 20,
+    perPage: 12,
   },
   movie: {
     dir: "观影库",
@@ -45,7 +45,7 @@ const KINDS = {
     ],
     // 评分/导演已在「星级行 + 副标题」显示，info 里不重复
     infoOrder: ["年份", "类型", "地区", "片长", "集数", "开始", "看完"],
-    perPage: 20,
+    perPage: 12,
   },
   video: {
     dir: "视频与专题",
@@ -60,7 +60,7 @@ const KINDS = {
       { key: "全部", label: "全部" },
     ],
     infoOrder: ["时长", "频道", "平台", "整理"],
-    perPage: 20,
+    perPage: 12,
     // 视频类特有：卡片上显示「看原视频」和衍生笔记角标
     showSourceLink: true,
     showDerived: true,
@@ -128,6 +128,29 @@ export const FILTER_JS = `
     return page;
   }
 
+  // 卡片集合变化后重新分页。
+  //
+  // 场景：藏书馆/观影库的服务端卡片只有几本（来自笔记 frontmatter），
+  // 用户标记的书是登录后动态插进来的。原来分页只在初始 render() 算一次，
+  // 后插的卡片不参与分页 —— 表现为「标记了 25 本，但看不到分页器」。
+  //
+  // 这里暴露一个可反复调用的入口，inject_charts 在插入/移除卡片后调它。
+  window.__nxRepaginate = function (kindHint) {
+    document.querySelectorAll('.library-tabs').forEach(function(tabs){
+      var kind = tabs.getAttribute('data-for') || 'x';
+      if (kindHint && kind !== kindHint) return;
+      var grid = tabs.nextElementSibling;
+      while (grid && !grid.classList.contains('book-grid')) grid = grid.nextElementSibling;
+      if (!grid) return;
+      var pager = grid.nextElementSibling;
+      while (pager && !pager.classList.contains('library-pager')) pager = pager.nextElementSibling;
+      var st = state[kind] || { key: '全部', page: 1 };
+      // 卡片变多/变少后当前页可能越界，render 内部会夹到合法范围
+      st.page = render(tabs, grid, pager, st.key, st.page);
+      state[kind] = st;
+    });
+  };
+
   function setup(){
     document.querySelectorAll('.library-tabs').forEach(function(tabs){
       var grid = tabs.nextElementSibling;
@@ -166,6 +189,17 @@ export const FILTER_JS = `
       }
 
       state[kind].page = render(tabs, grid, pager, curKey, 1);
+
+      // inject_charts 在标记后插入/移除卡片时会派发 shelf-changed，
+      // 但之前没有任何监听者 —— 所以后插的卡片不参与分页。
+      if (!grid.dataset.shelfBound) {
+        grid.dataset.shelfBound = '1';
+        grid.addEventListener('shelf-changed', function(){
+          var st = state[kind] || { key: '全部', page: 1 };
+          st.page = render(tabs, grid, pager, st.key, st.page);
+          state[kind] = st;
+        });
+      }
     });
   }
   // 三层保障：Quartz SPA 导航时目标页面的内联脚本不执行，

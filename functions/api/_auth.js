@@ -40,12 +40,22 @@ export async function getUser(request, env) {
         // 会话里已经带了就不再查库；老会话没有就补一次。
         let userId = payload.uid || null
         if (!userId && env?.DB) {
+          // 老会话（签发时还没有 identities 表）没有 uid，补查一次。
+          // 先查 account_links（权威），再退回 identities（同一个人的
+          // 任一登录方式登记过就能命中）。
           try {
             const row = await env.DB
               .prepare(`SELECT user_id FROM account_links WHERE email = ?`)
               .bind(email)
               .first()
             userId = row?.user_id || null
+            if (!userId) {
+              const alt = await env.DB
+                .prepare(`SELECT user_id FROM identities WHERE email = ? LIMIT 1`)
+                .bind(email)
+                .first()
+              userId = alt?.user_id || null
+            }
           } catch (e) { /* 表还没建，忽略 */ }
         }
         return {
@@ -84,10 +94,28 @@ export async function getUser(request, env) {
   const payload = await verifyAccessJwt(accessToken, env)
   if (!payload) return null
 
-  const email = payload.email || payload.sub
+  const email = String(payload.email || payload.sub || "").toLowerCase()
   if (!email) return null
 
-  return { email: String(email).toLowerCase(), name: payload.name || null }
+  // ⚠️ 必须补出 userId。
+  //
+  // 之前这里直接 return { email, name }，没有 userId ——
+  // 而所有业务 API 都写 `user.userId || user.email`。
+  // 走 Access 登录时 userId 为 undefined，就退化成按 email 查，
+  // 查不到任何数据 → 用户看到「换个邮箱登录就看不到收藏和观影库」。
+  // （走 notes_session 的路径有 uid，所以同一个人的两种登录方式表现不一致。）
+  let userId = null
+  try {
+    const row = await env.DB
+      .prepare(`SELECT user_id FROM account_links WHERE email = ?`)
+      .bind(email)
+      .first()
+    userId = row?.user_id || null
+  } catch {
+    // 表还没建就忽略，退化成按 email
+  }
+
+  return { email, userId, name: payload.name || null }
 }
 
 /**

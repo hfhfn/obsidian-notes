@@ -1,1470 +1,1470 @@
 {
  "langchain-入门讲义": {
   "title": "ai大模型/langchain/langchain1.0-课堂讲义",
-  "mtime": 1795425928
+  "mtime": 1795428417
  },
  "ai/ai-moc": {
   "title": "AI MOC",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai/ai文件夹内容思维导图.canvas": {
   "title": "AI文件夹内容思维导图",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai": {
   "title": "AI",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai/ai开场白": {
   "title": "AI开场白",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai/ai开场白/opening_speeches": {
   "title": "opening_speeches",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai/ai开场白/walkthrough": {
   "title": "walkthrough",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai/ai认知笔记-and-知识前沿": {
   "title": "AI认知笔记&amp;知识前沿",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai/ai认知笔记-and-知识前沿/对人类仿生的智能理解(智源研究院)": {
   "title": "对人类仿生的智能理解(智源研究院)",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai/ai认知笔记-and-知识前沿/探索智能的本质（三语版）": {
   "title": "探索智能的本质（三语版）",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai/ai认知笔记-and-知识前沿/涌现——多即是智能": {
   "title": "涌现——多即是智能",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai/ai认知笔记-and-知识前沿/硅基文明守望者": {
   "title": "硅基文明守望者",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai/ai认知笔记-and-知识前沿/贝叶斯定理：ai与人脑意识共享的秘密算法，一场“受控的幻觉”": {
   "title": "贝叶斯定理：AI与人脑意识共享的秘密算法，一场“受控的幻觉”",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai/ai认知笔记-and-知识前沿/预测下一个词的智慧": {
   "title": "预测下一个词的智慧",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai/强化学习": {
   "title": "强化学习",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai/强化学习/第28集-强化学习的基本原理｜在试错中寻找最优解": {
   "title": "第28集 强化学习的基本原理：在试错中寻找最优解",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai/机器学习": {
   "title": "机器学习",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai/机器学习/xgboost并行化技术详解": {
   "title": "XGBoost并行化技术详解",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai/机器学习/机器学习图解指南（statquest）": {
   "title": "机器学习图解指南（StatQuest）",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai/机器学习/机器学习知识点彩图版": {
   "title": "机器学习知识点彩图版",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai/模型评估/3分类评估指标对比": {
   "title": "3分类评估指标对比（交互工具）",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai/模型评估/deepseek-多分类样本均衡处理": {
   "title": "多分类样本不均衡处理（DeepSeek 问答整理）",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai/模型评估": {
   "title": "模型评估",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai/模型评估/幻觉率-准确率-拒答率联合评估": {
   "title": "幻觉率、准确率、拒答率联合评估",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai/深度学习": {
   "title": "深度学习",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai/深度学习/搜索引擎-and-es流水线详解": {
   "title": "搜索引擎&amp;ES流水线详解",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai/深度学习/矩阵分解方法比较：svd、cp、tucker": {
   "title": "矩阵分解方法比较：SVD、CP、Tucker",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "aigc/aigc-moc": {
   "title": "AIGC MOC",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "aigc/coze_aigc_带货工作流操作文档": {
   "title": "coze_aigc_带货工作流操作文档",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "aigc/coze带货视频流程可视化": {
   "title": "Coze 带货视频流程可视化（交互工具）",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "aigc/image2.0-提示词模板": {
   "title": "Image2.0 提示词模板",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "aigc": {
   "title": "AIGC",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "aigc/境外有境：真实摄影×东方超现实极简版画提示词": {
   "title": "境外有境：真实摄影 × 东方超现实极简版画提示词",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "aigc/生图模板-and-生图技巧": {
   "title": "生图模板&amp;生图技巧",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "aigc/notebooklm/2025最新！notebooklm一键出专业ppt，12套神级提示词直接抄": {
   "title": "2025最新！NotebookLM一键出专业PPT，12套神级提示词直接抄",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "aigc/notebooklm/9个notebooklm高级技巧": {
   "title": "9个NotebookLM高级技巧",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "aigc/notebooklm": {
   "title": "NotebookLM",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "aigc/notebooklm/notebooklm---ppt不同风格的提示词集合": {
   "title": "NotebookLM - PPT不同风格的提示词集合",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/2026后端转型ai大模型开发": {
   "title": "2026后端转型AI大模型开发",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/ai大模型-moc": {
   "title": "AI 大模型 MOC",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型": {
   "title": "AI大模型",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/未整理问题收集": {
   "title": "未整理问题收集",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/现代ai全栈技术全景图": {
   "title": "现代AI全栈技术全景图",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/12种agent-harness设计模式": {
   "title": "12种 Agent Harness 设计模式",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/agent-hook-智能体指令约束技术指南": {
   "title": "Agent Hook-智能体指令约束技术指南（100%稳定与安全）",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/agent-loop-核心结构与工程实践": {
   "title": "Agent Loop 核心结构与工程实践",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/agent-memory-basic-memory-智能体长期记忆系统完整指南": {
   "title": "Agent Memory-Basic Memory-智能体长期记忆系统完整指南",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/agent主流架构对比与选型": {
   "title": "Agent主流架构对比与选型",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/agent八大主流架构解析": {
   "title": "Agent 八大主流架构解析",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/agent基础丨大厂面试": {
   "title": "Agent 基础丨大厂面试（九大能力板块）",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/agent工具调用准确率明显下降怎么办？（工具从10个到100个）": {
   "title": "面试官：Agent 调用准确率明显下降怎么办（工具从 10 个到 100 个）",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/agent演进全过程-loop工程到graph工程": {
   "title": "Agent 演进全过程：从 Tool Use 到 Multi-Agent，从 Loop 工程到 Graph 工程",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/agent结构化输出与工具调用_fc_tooluse_mcp_pydantic": {
   "title": "Agent 结构化输出与工具调用（Function Calling / Tool Use / MCP / 校验）",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/agent跨会话长期记忆-五问架构": {
   "title": "Agent 跨会话长期记忆：五问架构",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/agent长任务怎么管控": {
   "title": "Agent 长任务管控方法论",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/ai-agent沙箱-cubesandbox与deepseekharness": {
   "title": "AI Agent 沙箱与执行隔离",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/ai-电商客服-agent-从0到1-实现思路": {
   "title": "AI 电商客服 Agent 从0到1 实现思路",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/ai智能体消息通道分层设计": {
   "title": "AI智能体消息通道分层设计",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/anthropic-agent产品设计新范式": {
   "title": "Anthropic-Agent产品设计新范式",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/asyncio协程调度与6.12回调逻辑": {
   "title": "asyncio 协程调度与 6.12 回调逻辑",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/claude-code-架构深度拆解：从一个-ai-编程工具到完整的-agent-runtime-框架": {
   "title": "Claude Code 架构深度拆解：从一个 AI 编程工具到完整的 Agent Runtime 框架",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/deepseek-a2a_sdk与mcp关系": {
   "title": "A2A SDK 与 MCP 的关系",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/deepseek-await异步方法详解": {
   "title": "asyncio await并发与FastAPI并发模型",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/deepseek-function-calling返回json": {
   "title": "Function Calling 机制与返回JSON",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/deepseek-协程线程对比": {
   "title": "协程 vs 线程对比（含Python并发选型）",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/deepseek-工具调用代理需执行器": {
   "title": "工具调用代理需不需要执行器",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/harness-五要素图文笔记": {
   "title": "Harness 五要素面试题（字节）· 精读笔记",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/hitl人工介入与决策发布": {
   "title": "HITL 人工介入与决策发布（6.9-6.10）",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent": {
   "title": "Agent",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/jev-给agent的快速决策引擎": {
   "title": "Jev：给 Agent 的快速决策引擎",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/l3-18-06-沙箱隔离：让agent的危险操作套上防护罩": {
   "title": "L3-18-06 沙箱隔离：让 Agent 的危险操作套上防护罩",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/langchain-loop-engineering四层架构": {
   "title": "LangChain Loop Engineering 四层架构",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/langgraph循环直到满足条件": {
   "title": "LangGraph 循环直到满足条件（生成-评估-反馈）",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/openai-和-anthropic-协议哪个更好用？": {
   "title": "OpenAI Responses 与 Anthropic Messages 协议对比",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/pydantic工具类优化-校验器与langchain工具集成": {
   "title": "Pydantic 工具类优化（校验器与 LangChain 工具集成）",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/super-agent-设计探索：迈向更自主的-agent-系统": {
   "title": "Super-agent 设计探索：迈向更自主的 Agent 系统",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/五种-agent-模式详解": {
   "title": "五种 Agent 模式详解",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/什么时候该拆多agent": {
   "title": "什么时候该拆多Agent",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/在agent中落地react模式（reasoning-+-acting）": {
   "title": "在Agent中落地ReAct模式（Reasoning + Acting）",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/多agent协作方式全景与a2a-综合笔记": {
   "title": "多Agent协作方式全景与A2A-综合笔记",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/多agent协作系统面试与架构解析": {
   "title": "多Agent协作系统面试与架构解析",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/多agent协作范式七种与a2a协议": {
   "title": "多Agent协作范式七种与A2A协议",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/多agent编排-langgraph原生supervisor与swarm实现": {
   "title": "多Agent编排-LangGraph原生Supervisor与Swarm实现",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/大模型agent记忆写入机制设计": {
   "title": "大模型 Agent 记忆写入机制设计",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/循环工程的艺术（langchain-loop-engineering-原文）": {
   "title": "循环工程的艺术（LangChain Loop Engineering 原文）",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/生产级agent工程架构蓝图-从demo到千万级并发": {
   "title": "生产级Agent工程架构蓝图（从Demo到千万级并发）",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/看完这条-你对ai的理解碾压90的人": {
   "title": "看完这条：AI 七层全貌（Token→Skills）",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/第13集｜三分钟带你搞懂：鹅厂agent面试题——为什么选择手搓agent而不用langchain？": {
   "title": "第13集｜鹅厂Agent面试题——为什么选择手搓Agent而不用LangChain？",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/美团智能问答拆解": {
   "title": "美团智能问答拆解",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/agent/自动会议纪要agent设计": {
   "title": "自动会议纪要Agent设计",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/ai-coding/claude-code安装常用mcp命令": {
   "title": "Claude Code安装常用MCP命令",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/ai-coding/claude-code源码解析": {
   "title": "claude code源码解析",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/ai-coding/claude-code相关命令-and-插件-and-设置": {
   "title": "claude code相关命令&amp;插件&amp;设置",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/ai-coding/claude_code_全攻略ppt": {
   "title": "Claude_Code_全攻略PPT",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/ai-coding": {
   "title": "AI-Coding",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/ai-coding/openclaw常用命令": {
   "title": "openclaw常用命令",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/langchain": {
   "title": "LangChain",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/langchain/langchain-langgraph-agent开发笔记": {
   "title": "LangChain / LangGraph Agent 开发笔记",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/langchain/langchain-moc": {
   "title": "LangChain MOC",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/langchain/langchain1.0-rag+agent综合示例": {
   "title": "LangChain 1.0 RAG+Agent 综合示例",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/langchain/langchain1.0-课堂讲义": {
   "title": "LangChain 1.0 课堂讲义",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/langchain/langchain1.0迁移总纲": {
   "title": "LangChain 1.0 迁移总纲",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/langchain/生产环境全链路-langgraph-agent-·-完整笔记": {
   "title": "生产环境全链路 LangGraph Agent",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/mcp/deepseek-mcp-stdio模式解析": {
   "title": "MCP stdio 模式解析",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/mcp/deepseek-mcp与fastmcp区别": {
   "title": "MCP官方SDK 与 FastMCP 区别",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/mcp/deepseek-mcp传输协议对比": {
   "title": "MCP传输协议对比 SSE 与 Streamable HTTP",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/mcp/deepseek-mcp接入代码示例": {
   "title": "MCP接入代码示例与LangChain集成",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/mcp": {
   "title": "mcp",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/mcp/streamable-http-对比-sse": {
   "title": "Streamable HTTP 对比 SSE",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/rag/agentic-rag-检索决策权交给模型": {
   "title": "Agentic RAG：把检索决策权交给模型",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/rag/colbert深度解析": {
   "title": "ColBERT深度解析",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/rag/cross-encoder（交叉编码器）": {
   "title": "Cross Encoder（交叉编码器）",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/rag": {
   "title": "rag",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/rag/llm-wiki-文档构建原理与知识库实现": {
   "title": "LLM-Wiki 文档构建原理与知识库实现",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/rag/llm-wiki风格rag-引用溯源": {
   "title": "LLM-Wiki 风格 RAG + 引用溯源（LangChain 1.0）",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/rag/milvus-完整学习笔记": {
   "title": "Milvus 完整学习笔记",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/rag/milvus向量数据库架构与向量检索原理解析": {
   "title": "Milvus向量数据库架构与向量检索原理解析",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/rag/multiqueryrag-图文笔记": {
   "title": "知识库高效召回：从 Multi-Query 到 Hybrid + Reranker",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/rag/rag-企业级架构实战：从事故到生产级防御": {
   "title": "RAG 企业级架构实战：从事故到生产级防御",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/rag/ragas评估数据准备与指标详解": {
   "title": "RAGAS 评估数据准备与指标详解",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/rag/rag检索可靠性系统设计": {
   "title": "RAG检索可靠性系统设计",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/rag/rag检索策略全面解析": {
   "title": "RAG检索策略全面解析",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/rag/rag系统核心技术与实现": {
   "title": "RAG系统核心技术与实现",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/rag/rag评估框架": {
   "title": "RAG评估框架",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/rag/企业知识库选型-rag-vs-llm-wiki-vs-ontology": {
   "title": "企业知识库选型：RAG vs LLM Wiki vs Ontology",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/rag/家装公司问答系统": {
   "title": "家装公司问答系统",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/rag/对比学习与套娃表征（rag检索训练）": {
   "title": "对比学习与套娃表征（RAG检索训练）",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/rag/干了2年大模型开发居然只会换embedding": {
   "title": "干了2年大模型开发居然只会换Embedding",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/rag/文档解析工具选型思路": {
   "title": "文档解析工具选型思路",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/rag/检索精确率和召回率直观展示": {
   "title": "检索精确率和召回率直观展示（交互工具）",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/rag/生产级-rag-实现笔记：分层架构、全局索引与有界循环": {
   "title": "生产级 RAG 实现笔记：分层架构、全局索引与有界循环",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/rag/分块策略": {
   "title": "分块策略",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/rag/分块策略/rag中-分块(chunk)和重叠(overlap)-大小怎么定": {
   "title": "RAG中 分块(chunk)和重叠(overlap) 大小怎么定",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/rag/分块策略/rag中的分块策略": {
   "title": "RAG 中的分块策略",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/rag/分块策略/语义分块与延迟分块详解": {
   "title": "语义分块与延迟分块详解",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/rag/混合检索/bm25与倒排索引笔记": {
   "title": "BM25与倒排索引笔记",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/rag/混合检索": {
   "title": "混合检索",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/rag/混合检索/milvus-混合检索与稀疏向量完全指南": {
   "title": "Milvus 混合检索与稀疏向量完全指南",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/rag/混合检索/向量数据库与稀疏检索学习笔记": {
   "title": "向量数据库与稀疏检索学习笔记",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/rag/混合检索/混合检索排序方式-rrf": {
   "title": "混合检索排序方式 RRF",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/skills": {
   "title": "Skills",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/skills/skills文档": {
   "title": "Skills文档",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/skills/【万字长文】claude-skills完全指南：从概念到实战": {
   "title": "【万字长文】Claude Skills完全指南：从概念到实战",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/多模态学习/alexnet技术创新": {
   "title": "AlexNet技术创新",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/多模态学习/clip和siglip革新多模态学习": {
   "title": "Clip和SigLip革新多模态学习",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/多模态学习": {
   "title": "多模态学习",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/多模态学习/vi-transformer图像分类": {
   "title": "VI-transformer图像分类",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/多模态学习/扩散模型和gan模型": {
   "title": "扩散模型和GAN模型",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大模型训练-and-微调-and-推理/deepseek-mla满秩高熵应对": {
   "title": "DeepSeek-MLA满秩高熵应对",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大模型训练-and-微调-and-推理": {
   "title": "大模型训练&amp;微调&amp;推理",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大模型训练-and-微调-and-推理/rlhf训练性能波动深度解析": {
   "title": "RLHF训练性能波动深度解析",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大模型训练-and-微调-and-推理/大模型微调oom-生产防线笔记": {
   "title": "大模型微调OOM-生产防线笔记",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大模型训练-and-微调-and-推理/大模型微调与灾难性遗忘-lora解析": {
   "title": "大模型微调与灾难性遗忘——LoRA解析",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大模型训练-and-微调-and-推理/大模型训练推理框架对比": {
   "title": "大模型训练推理框架对比",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大模型训练-and-微调-and-推理/大模型训练注意力崩塌怎么办": {
   "title": "大模型训练注意力崩塌怎么办",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大模型训练-and-微调-and-推理/深度学习优化器核心笔记": {
   "title": "深度学习优化器核心笔记",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大模型训练-and-微调-and-推理/模型微调": {
   "title": "模型微调",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大模型训练-and-微调-and-推理/模型微调/p-tuning-overview-and-key-features-explained": {
   "title": "P-Tuning Overview and Key Features Explained",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大模型训练-and-微调-and-推理/模型微调/qwen2.5-lora微调四框架对比": {
   "title": "Qwen2.5 LoRA / QLoRA 微调四框架对比",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大模型训练-and-微调-and-推理/模型微调/智能诊疗机器人训练": {
   "title": "智能诊疗机器人训练",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大模型训练-and-微调-and-推理/模型微调/高效微调lora,adapter,prefix-tuning,p-tuning等作用范围": {
   "title": "高效微调LoRA,Adapter,Prefix-tuning,P-tuning等作用范围",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大模型训练-and-微调-and-推理/模型推理/8gb显存运行27b模型部署优化指南": {
   "title": "8GB显存运行27B模型部署优化指南",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大模型训练-and-微调-and-推理/模型推理": {
   "title": "模型推理",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大模型训练-and-微调-and-推理/模型推理/llama_cpp_笔记": {
   "title": "llama_cpp_笔记",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大模型训练-and-微调-and-推理/模型推理/llm推理优化完整知识梳理": {
   "title": "LLM推理优化完整知识梳理",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大模型训练-and-微调-and-推理/模型推理/transformer注意力机制与推理优化全栈": {
   "title": "Transformer注意力机制与推理优化全栈",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大模型训练-and-微调-and-推理/模型推理/vllm_推理部署框架详解": {
   "title": "vLLM_推理部署框架详解",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大模型训练-and-微调-and-推理/模型推理/大模型推理优化全栈架构.canvas": {
   "title": "大模型推理优化全栈架构",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大语言模型学习/chatgpt本质与未来展望解析": {
   "title": "ChatGPT本质与未来展望解析",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大语言模型学习/deepseek-v4-四项核心优化（交互图解）": {
   "title": "DeepSeek-V4 四项核心优化（交互图解）",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大语言模型学习": {
   "title": "大语言模型学习",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大语言模型学习/llm_architecture_evolution": {
   "title": "LLM_Architecture_Evolution",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大语言模型学习/llm_first_principles": {
   "title": "LLM_First_Principles",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大语言模型学习/llm与transformer底层原理与架构演进总纲": {
   "title": "LLM 与 Transformer 底层原理与架构演进总纲",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大语言模型学习/llm算法演进": {
   "title": "LLM算法演进",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大语言模型学习/rlhf的强大之处-gpt3到chatgpt": {
   "title": "RLHF的强大之处-GPT3到ChatGPT",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大语言模型学习/transformer架构和自注意力机制": {
   "title": "transformer架构和自注意力机制",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大语言模型学习/关于transformer架构和世界模型以及多模态、概率模型的一些思考": {
   "title": "关于transformer架构和世界模型以及多模态、概率模型的一些思考",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大语言模型学习/分析大模型架构进展(从gpt1-deepseekr1)": {
   "title": "分析大模型架构进展(从GPT1-DeepseekR1)",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大语言模型学习/多模态模型进化树": {
   "title": "多模态模型进化树",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大语言模型学习/大模型发展脉络(canvas版)": {
   "title": "大模型发展脉络（交互工具）",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大语言模型学习/大模型技术发展与演进": {
   "title": "大模型技术发展与演进",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大语言模型学习/大模型进化树": {
   "title": "大模型架构进化树（交互工具）",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大语言模型学习/bert/bert模型家族进化树": {
   "title": "BERT 模型家族进化树（交互工具）",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大语言模型学习/bert/bert重新定义语言理解模型": {
   "title": "Bert重新定义语言理解模型",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大语言模型学习/bert": {
   "title": "bert",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大语言模型学习/大模型技术点/04注意力机制（下）：多头、kvcache与flashattention": {
   "title": "04 注意力机制（下）：多头、KVcache 与 FlashAttention",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大语言模型学习/大模型技术点": {
   "title": "大模型技术点",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大语言模型学习/大模型技术点/mqa-gqa-mla-kv-cache瘦身三剑客": {
   "title": "MQA / GQA / MLA：KV Cache 瘦身三剑客",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大语言模型学习/大模型技术点/rmsnorm_vs_layernorm": {
   "title": "RMSNorm_vs_LayerNorm",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大语言模型学习/大模型技术点/rope旋转位置编码": {
   "title": "RoPE 旋转位置编码",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大语言模型学习/大模型技术点/三种seq2seq结构(seq2seq演变)": {
   "title": "三种 seq2seq 结构（seq2seq 演变）",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大语言模型学习/大模型技术点/从seq2seq到attention": {
   "title": "从seq2seq到attention",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大语言模型学习/大模型技术点/何恺明resnet(微软)-姚顺雨react(腾讯)-姚顺宇(google)": {
   "title": "何恺明ResNet(微软)-姚顺雨React(腾讯)-姚顺宇(google)",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大语言模型学习/大模型技术点/归一化与相似度等价关系": {
   "title": "归一化与相似度等价关系",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大语言模型学习/大语言模型简史": {
   "title": "大语言模型简史",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大语言模型学习/大语言模型简史/大语言模型简史2025": {
   "title": "大语言模型简史2025",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/大语言模型学习/大语言模型简史/大语言模型简史2025（pdf版）": {
   "title": "大语言模型简史2025（PDF版）",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/本体与知识图谱/aip-evolve医院案例-ai推理成本优化": {
   "title": "AIP Evolve 医院案例：AI 推理成本优化",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/本体与知识图谱/ai数据价值重估-trace-eval-governance": {
   "title": "AI 数据价值重估：Trace · Eval · Governance",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/本体与知识图谱": {
   "title": "本体与知识图谱",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/本体与知识图谱/palantir企业ai架构深度拆解": {
   "title": "Palantir 企业 AI 架构深度拆解（Foundry · Ontology · AIP）",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/本体与知识图谱/本体-ontology-全景（概念·标准·构建·落地）": {
   "title": "本体 Ontology 全景（概念·标准·构建·落地）",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/本体与知识图谱/本体建模自检清单": {
   "title": "本体建模自检清单",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/本体与知识图谱/本体论落地实践-从数据中台到智能中台": {
   "title": "本体论落地实践：从数据中台到智能中台",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/面试题": {
   "title": "面试题",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/面试题/agent面试/agent面试第4期：这19道把我问懵了（58-76题）": {
   "title": "Agent 面试第 4 期（58-76 题）· 带答案整理版",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/面试题/agent面试/deepseek-agent-三面面经-16题设计追问": {
   "title": "DeepSeek Agent 三面面经：16 题设计追问",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/面试题/agent面试": {
   "title": "Agent面试",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/面试题/agent面试/大模型面试题-agent-2026版-带答案": {
   "title": "大模型面试题-Agent-2026版-带答案",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/面试题/agent面试/大模型面试题-agent-2026版-精简": {
   "title": "大模型面试题-Agent-2026版-精简",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/面试题/agent面试/大模型面试题-agent-2026版": {
   "title": "大模型面试题-Agent-2026版",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/面试题/llm面试题及答案/0-大模型（llms）面试问题": {
   "title": "0-大模型（LLMs）面试问题",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/面试题/llm面试题及答案/1-基础知识篇": {
   "title": "1-基础知识篇",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/面试题/llm面试题及答案/2-进阶面试题1": {
   "title": "2-进阶面试题1",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/面试题/llm面试题及答案/3-进阶面试题2": {
   "title": "3-进阶面试题2",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/面试题/llm面试题及答案/4-微调面试题": {
   "title": "4-微调面试题",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/面试题/llm面试题及答案": {
   "title": "LLM面试题及答案",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/面试题/rag面试": {
   "title": "RAG面试",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/面试题/rag面试/rag系统里面最难搞定的是哪个部分": {
   "title": "RAG系统里面最难搞定的是哪个部分",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/面试题/transformer面试题及答案/0-transformer面试问题": {
   "title": "0-Transformer面试问题",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/面试题/transformer面试题及答案/1-基础原理与数学模型": {
   "title": "1-基础原理与数学模型",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/面试题/transformer面试题及答案/2-训练与优化1": {
   "title": "2-训练与优化1",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/面试题/transformer面试题及答案/3-训练与优化2": {
   "title": "3-训练与优化2",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/面试题/transformer面试题及答案/4-应用与实践+技术深入(1-13)": {
   "title": "4-应用与实践+技术深入(1-13)",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/面试题/transformer面试题及答案/5-技术深入(14-25)+性能优化": {
   "title": "5-技术深入(14-25)+性能优化",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/面试题/transformer面试题及答案/6-特定应用": {
   "title": "6-特定应用",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "ai大模型/面试题/transformer面试题及答案": {
   "title": "Transformer面试题及答案",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "cs(计科)/cs-moc": {
   "title": "CS 计科 MOC",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "cs(计科)": {
   "title": "CS(计科)",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "cs(计科)/前端-and-浏览器": {
   "title": "前端&amp;浏览器",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "cs(计科)/前端-and-浏览器/在浏览器中编辑html文件元素(elements)并保存为新html文件": {
   "title": "在浏览器中编辑html文件元素(Elements)并保存为新html文件",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "cs(计科)/开发/deepseek-python-json序列化方案对比": {
   "title": "DeepSeek-Python-JSON序列化方案对比",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "cs(计科)/开发": {
   "title": "开发",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "cs(计科)/开发/异步场景常见解决方案": {
   "title": "异步场景常见解决方案",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "cs(计科)/数据库/deepseek-参数化查询防注入原理": {
   "title": "DeepSeek-参数化查询防注入原理",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "cs(计科)/数据库/deepseek-缓存穿透雪崩防护与布隆过滤器": {
   "title": "DeepSeek-缓存穿透雪崩防护与布隆过滤器",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "cs(计科)/数据库": {
   "title": "数据库",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "cs(计科)/数据库/sql关键字书写顺序-and-计数索引原理": {
   "title": "sql关键字书写顺序&amp;计数索引原理",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "cs(计科)/数据库/为什么多对多关系需要第三张中间表记录两张表的关联关系!": {
   "title": "为什么多对多关系需要第三张中间表记录两张表的关联关系!",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "cs(计科)/数据库/数据库设计-对比一张宽表和分表存储": {
   "title": "数据库设计-对比一张宽表和分表存储",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "cs(计科)/数据库/数据库，同步连接池-vs-异步连接池": {
   "title": "数据库，同步连接池 vs 异步连接池",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "cs(计科)/数据库/窗口函数使用场景": {
   "title": "窗口函数使用场景",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "cs(计科)/组成原理/cpu指令完整执行流程详解": {
   "title": "CPU指令完整执行流程详解",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "cs(计科)/组成原理/cpu指令执行流程.canvas": {
   "title": "CPU指令执行流程",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "cs(计科)/组成原理": {
   "title": "组成原理",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "cs(计科)/运维相关": {
   "title": "运维相关",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "cs(计科)/运维相关/viztracer_python性能分析工具详解": {
   "title": "VizTracer_Python性能分析工具详解",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "cs(计科)/运维相关/k8s+gitlab开发和部署": {
   "title": "K8s+Gitlab开发和部署",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "cs(计科)/运维相关/k8s+gitlab开发和部署/sg-prod-deploy部署标签要点解释": {
   "title": "sg-prod-deploy部署标签要点解释",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "cs(计科)/运维相关/k8s+gitlab开发和部署/开发运维整体流程": {
   "title": "开发运维整体流程",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "tags": {
   "title": "标签索引",
-  "mtime": 1795425934
+  "mtime": 1795428424
  },
  "工作/docker-端口绑定错误": {
   "title": "Docker 端口绑定错误",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作": {
   "title": "工作",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/windows刷新网络ip": {
   "title": "DeepSeek",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/使用到的docker命令收集": {
   "title": "使用到的docker命令收集",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/写简历指南(保姆级)": {
   "title": "写简历指南(保姆级)",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/工作-moc": {
   "title": "工作 MOC",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/提示词-and-coze-and-dify/dify异常问题或额外配置操作": {
   "title": "Dify异常问题或额外配置操作",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/提示词-and-coze-and-dify": {
   "title": "提示词&amp;coze&amp;dify",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/提示词-and-coze-and-dify/ragflow-v0.25.6-部署笔记": {
   "title": "RAGFlow-v0.25.6-部署笔记",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/提示词-and-coze-and-dify/提示词工程如何从最底层原理改变模型输出": {
   "title": "提示词工程如何从最底层原理改变模型输出",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/提示词-and-coze-and-dify/提示词工程能否本质上提升大模型能力？": {
   "title": "提示词工程能否本质上提升大模型能力？",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/求职-and-职场": {
   "title": "求职&amp;职场",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/求职-and-职场/第10集-你认识大厂，不认识大厂幼年体和伪幼年体": {
   "title": "第10集 如何识别真正的大厂幼年体，避开「伪幼年体」公司",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/面试收集": {
   "title": "面试收集",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/面试收集/面试收集-moc": {
   "title": "面试收集 MOC",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/面试收集/面试核心知识库-分享版": {
   "title": "AI大模型开发岗 面试核心知识库（分享版）",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/面试收集/面试题-模板": {
   "title": "面试题-模板",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/面试收集/00_题库/01-后端-and-开发": {
   "title": "后端&amp;开发",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/面试收集/00_题库/02-数据库": {
   "title": "数据库",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/面试收集/00_题库/03-系统-and-网络": {
   "title": "系统&amp;网络",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/面试收集/00_题库/04-数据结构-and-算法": {
   "title": "数据结构&amp;算法",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/面试收集/00_题库/05-ai-and-大模型": {
   "title": "AI&amp;大模型",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/面试收集/00_题库/06-前端-and-工程": {
   "title": "前端&amp;工程",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/面试收集/00_题库": {
   "title": "00_题库",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/面试收集/10_项目深挖/agent系统-项目深挖": {
   "title": "Agent系统-项目深挖",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/面试收集/10_项目深挖": {
   "title": "10_项目深挖",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/面试收集/10_项目深挖/langgraph线程隔离与状态持久化": {
   "title": "LangGraph线程隔离与状态持久化",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/面试收集/10_项目深挖/业务降级与问题定位方法论": {
   "title": "业务降级与问题定位方法论",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/面试收集/10_项目深挖/平台化分工协作-底座与业务分层": {
   "title": "平台化分工协作-底座与业务分层",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/面试收集/10_项目深挖/项目叙事与简历表述": {
   "title": "项目叙事与简历表述",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/面试收集/20_专题研究/ab实验-设计与显著性检验": {
   "title": "AB 实验：设计与显著性检验",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/面试收集/20_专题研究/ai-coding工具-对比": {
   "title": "AI-Coding工具对比",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/面试收集/20_专题研究/aigc生态-研究笔记": {
   "title": "AIGC 生态-研究笔记",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/面试收集/20_专题研究": {
   "title": "20_专题研究",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/面试收集/20_专题研究/mcp与skill-对比": {
   "title": "MCP与skill-对比",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/面试收集/20_专题研究/nginx-代理与负载均衡": {
   "title": "Nginx-代理与负载均衡",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/面试收集/20_专题研究/大模型api-选型与成本优化": {
   "title": "大模型API-选型与成本优化",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/面试收集/20_专题研究/并发限流-工程化": {
   "title": "并发限流-工程化",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/面试收集/20_专题研究/提示词工程vsagent-对比": {
   "title": "提示词工程 vs Agent 系统 → 系统性对比",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/面试收集/20_专题研究/模型部署-vllm": {
   "title": "模型部署-vLLM",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/面试收集/20_专题研究/第126集-面试必问：项目具体做过哪些工程化优化？你该怎样回答？": {
   "title": "第126集 面试必问：项目做过哪些工程化优化（AIGC 五层框架）",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/面试收集/30_面试实务/ai工具个人项目-低代码案例": {
   "title": "AI工具个人项目 &amp; 低代码案例",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/面试收集/30_面试实务": {
   "title": "30_面试实务",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/面试收集/30_面试实务/tob-项目-甲方沟通要点": {
   "title": "ToB-项目-甲方沟通要点",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/面试收集/30_面试实务/面试-场景设计题": {
   "title": "面试-场景设计题",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/面试收集/30_面试实务/面试-收尾反问与交流技巧": {
   "title": "面试-收尾反问与交流技巧",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "工作/面试收集/30_面试实务/面试-真题复盘": {
   "title": "面试-真题复盘",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "应用-and-工具笔记/antigravity配置指南": {
   "title": "Antigravity配置指南",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "应用-and-工具笔记/claude-hud状态栏恢复指南": {
   "title": "Claude HUD 自定义状态栏：安装、恢复与排错指南",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "应用-and-工具笔记/git操作---复刻别人项目并保持对应的代码更新": {
   "title": "Git操作 - 复刻别人项目并保持对应的代码更新",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "应用-and-工具笔记": {
   "title": "应用&amp;工具笔记",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "应用-and-工具笔记/picgo图床配置": {
   "title": "PicGo图床配置",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "应用-and-工具笔记/powershell美化，oh-my-posh安装和配置": {
   "title": "powershell美化，oh-my-posh安装和配置",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "应用-and-工具笔记/windows配置powershell的初始化启动文件（初始化oh-my-posh和conda）": {
   "title": "Windows配置PowerShell的初始化启动文件（初始化oh-my-posh和conda）",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "应用-and-工具笔记/工具-moc": {
   "title": "应用&amp;工具笔记 MOC",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "应用-and-工具笔记/点名随机原理": {
   "title": "点名随机原理",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "应用-and-工具笔记/解决新创建的conda环境不在自定义的conda安装目录下的envs中": {
   "title": "解决新创建的conda环境不在自定义的conda安装目录下的envs中",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "应用-and-工具笔记/clash配置/clash-party-dns-防泄露配置": {
   "title": "Clash Party DNS 防泄露配置",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "应用-and-工具笔记/clash配置": {
   "title": "Clash配置",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "应用-and-工具笔记/clash配置/mihomo-party-和-clash-verge-rev的扩展配置脚本": {
   "title": "Mihomo Party 和 Clash Verge Rev的扩展配置脚本",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "应用-and-工具笔记/clash配置/配置clash的profiles和bypass（这种是临时方法，一旦刷新订阅信息又要重新配置）": {
   "title": "配置clash的profiles和bypass（这种是临时方法，一旦刷新订阅信息又要重新配置）",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "应用-and-工具笔记/docker安装mysql": {
   "title": "docker安装mysql",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "应用-and-工具笔记/docker安装mysql/mysql终端powershell中文显示乱码的问题": {
   "title": "mysql终端powershell中文显示乱码的问题",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "应用-and-工具笔记/obsidian": {
   "title": "obsidian",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "应用-and-工具笔记/obsidian/obsidian-插件": {
   "title": "obsidian 插件",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "藏书馆/code": {
   "title": "Code",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "藏书馆": {
   "title": "藏书馆",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "藏书馆/mona-lisa-overdrive": {
   "title": "Mona Lisa Overdrive",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "藏书馆/如何阅读一本书": {
   "title": "如何阅读一本书",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "观影库": {
   "title": "观影库",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "观影库/三体（腾讯版）": {
   "title": "三体（腾讯版）",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "观影库/沙丘2": {
   "title": "沙丘2",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/2023–2026-llm架构的演进-technical-roadmap": {
   "title": "2023–2026 LLM架构的演进 Technical Roadmap",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/agent-harness工程化实践": {
   "title": "Agent Harness工程化实践",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/agent-hooks_-专业可靠的自动化控制机制": {
   "title": "Agent Hooks: 专业可靠的自动化控制机制",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/agent-企业级工程落地系统架构技术方案": {
   "title": "Agent 企业级工程落地系统架构技术方案",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/agent生产力_-四组-skills": {
   "title": "Agent生产力:  四组 Skills",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/ai-代码审核与全流程质量保障指南": {
   "title": "AI 代码审核与全流程质量保障指南",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/ai-动画视频创作完全指南": {
   "title": "AI 动画视频创作完全指南",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/ai时代,-命令行界面(cli)的复兴": {
   "title": "AI时代, 命令行界面(CLI)的复兴",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/claude-code-从0到1全攻略": {
   "title": "Claude Code 从0到1全攻略",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/claude-code泄露解读": {
   "title": "claude code泄露解读",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/decoding-transformer-architecture_-from-attention-to-qkv-mec": {
   "title": "Decoding Transformer Architecture: From Attention to QKV Mechanics",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/deepseek-super-agent-架构解析": {
   "title": "DeepSeek Super-agent 架构解析",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/deepseek-超级智能体架构解析": {
   "title": "DeepSeek 超级智能体架构解析",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/deepseek的engram论文_-高效记忆网络作为moe架构的补充": {
   "title": "Deepseek的Engram论文: 高效记忆网络作为MOE架构的补充",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/from-loop-to-graph_-工程可靠的多智能体系统": {
   "title": "From Loop to Graph: 工程可靠的多智能体系统",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/from-transformer-to-llm_-进化之路": {
   "title": "From Transformer to LLM: 进化之路",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题": {
   "title": "视频与专题",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/large-model-training-processes-and-refinement-techniques": {
   "title": "Large Model Training Processes and Refinement Techniques",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/llm-wiki：rag与知识工程流程的演进": {
   "title": "LLM-Wiki：RAG与知识工程流程的演进",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/mastering-bytedance-agent-and-rag-architectures": {
   "title": "Mastering ByteDance Agent and RAG Architectures",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/mastering-graphrag_-高级知识图谱集成策略": {
   "title": "Mastering GraphRAG: 高级知识图谱集成策略",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/mattpocock_skills仓库的ai-coding工程流程skills": {
   "title": "mattpocock/skills仓库的AI-Coding工程流程Skills",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/milvus-向量数据库架构和系统设计": {
   "title": "Milvus 向量数据库架构和系统设计",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/openclaw常用操作指令": {
   "title": "openclaw常用操作指令",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/qwen-27b-8gb-vram-本地部署优化": {
   "title": "Qwen-27B 8GB VRAM 本地部署优化",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/“涌现”-量变引起质变的过程与自然界的演化逻辑高度契合": {
   "title": "“涌现” 量变引起质变的过程与自然界的演化逻辑高度契合",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/中国ai产业冰山图": {
   "title": "中国AI产业冰山图",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/从向量到transformer,-大模型演进历程": {
   "title": "从向量到transformer, 大模型演进历程",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/企业rag安全：全链接权限和防泄漏策略": {
   "title": "企业RAG安全：全链接权限和防泄漏策略",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/优化rag检索：查询重写工程指南": {
   "title": "优化RAG检索：查询重写工程指南",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/在ai时代掌握git和github": {
   "title": "在AI时代掌握Git和GitHub",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/大模型评估-lm-eval-实用指南": {
   "title": "大模型评估 lm-eval 实用指南",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/技术视频制作的自主agent工作流": {
   "title": "技术视频制作的自主Agent工作流",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/智力涌现_-预测下一个token": {
   "title": "智力涌现: 预测下一个token",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/智能体进化：长程agent-自主规划记忆执行复杂任务": {
   "title": "智能体进化：长程Agent-自主规划记忆执行复杂任务",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/杰弗里辛顿_-数字智能的演进与生存危机": {
   "title": "杰弗里辛顿: 数字智能的演进与生存危机",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/构建生产级agent-memory系统架构": {
   "title": "构建生产级Agent Memory系统架构",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/海量实时广告流平台的架构设计与核心实践": {
   "title": "海量实时广告流平台的架构设计与核心实践",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/_assets": {
   "title": "_assets",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/_assets/杰弗里辛顿_-数字智能的演进与生存危机": {
   "title": "杰弗里辛顿_ 数字智能的演进与生存危机",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/_assets/杰弗里辛顿_-数字智能的演进与生存危机/report": {
   "title": "report",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/_assets/海量实时广告流平台的架构设计与核心实践": {
   "title": "海量实时广告流平台的架构设计与核心实践",
-  "mtime": 1795425935
+  "mtime": 1795428425
  },
  "视频与专题/_assets/海量实时广告流平台的架构设计与核心实践/report": {
   "title": "report",
-  "mtime": 1795425935
+  "mtime": 1795428425
  }
 }

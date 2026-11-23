@@ -923,6 +923,10 @@ const RUNTIME = `
           if (existing && it.status !== 'hidden') {
             var map2 = STATUS_TO_TAB[kind] || STATUS_TO_TAB.book;
             existing.setAttribute('data-status', map2[it.status] || map2.wish);
+            // 状态变了所属标签也变了，分页要重算 ——
+            // 否则「已读」标签下多了一张卡但分页器还是旧的页数。
+            var g2 = existing.closest('.book-grid');
+            if (g2) g2.dispatchEvent(new CustomEvent('shelf-changed', { bubbles: true }));
             return;
           }
 
@@ -935,11 +939,18 @@ const RUNTIME = `
         (d.items || []).forEach(function(it){
           if (it.status === 'hidden') hiddenKeys[it.item_key] = 1;
         });
+        var removedAny = false;
         Object.keys(hiddenKeys).forEach(function(key){
           document.querySelectorAll('.book-card[data-item="' + key + '"]').forEach(function(card){
             card.remove();
+            removedAny = true;
           });
         });
+        if (removedAny) {
+          document.querySelectorAll('.book-grid').forEach(function(g){
+            g.dispatchEvent(new CustomEvent('shelf-changed', { bubbles: true }));
+          });
+        }
       } catch (e) { /* 未登录静默 */ }
     }
   }
