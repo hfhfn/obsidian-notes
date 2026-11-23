@@ -533,6 +533,10 @@ export function PersonalBar() {
           h("div", { class: "pb-account-links" },
             h("a", { class: "pb-account-link", href: "/my/bookmarks" }, "我的收藏"),
             h("a", { class: "pb-account-link", href: "/my/history" }, "浏览足迹"),
+            // 绑定其他邮箱：把第二个登录方式并入当前账号。
+            // 系统无法自动判断「a@gmail.com 和 b@qq.com 是同一个人」，
+            // 只能让用户自己声明。
+            h("a", { class: "pb-account-link", href: "/bind-email?mode=add" }, "绑定其他邮箱"),
           ),
           h("button", {
             class: "pb-account-logout",

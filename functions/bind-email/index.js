@@ -18,18 +18,29 @@ import { SHELL, html, esc } from "../my/_shared.js"
 
 export async function onRequestGet({ request, env }) {
   const url = new URL(request.url)
-  const provider = String(url.searchParams.get("provider") || "github")
+  const mode = String(url.searchParams.get("mode") || "")
+  const provider = String(url.searchParams.get("provider") || "")
   const puid = String(url.searchParams.get("puid") || "")
   const name = String(url.searchParams.get("name") || "")
 
+  // 两种入口：
+  //   mode=add    已登录用户主动把另一个邮箱并入当前账号
+  //   need=bind   GitHub 只给了 noreply，登录被拦下，必须先绑真实邮箱
+  const isAdd = mode === "add"
   const providerLabel = provider === "github" ? "GitHub" : provider === "google" ? "Google" : provider
 
-  const body = `
-<h1>绑定邮箱</h1>
-<p class="sub">
+  const intro = isAdd
+    ? `<p class="sub">
+  如果你用多个邮箱或多种方式登录过，绑定到这里就能共用同一份收藏、足迹和书架。
+</p>`
+    : `<p class="sub">
   你的 ${esc(providerLabel)} 账号没有返回可用的邮箱地址。
   为了让你以后用任意方式登录都能看到同一份数据，请绑定一个真实邮箱。
-</p>
+</p>`
+
+  const body = `
+<h1>${isAdd ? "绑定其他邮箱" : "绑定邮箱"}</h1>
+${intro}
 
 ${name ? `<p class="bind-who">当前身份：<strong>${esc(name)}</strong></p>` : ""}
 

@@ -16,7 +16,7 @@
  *   - 邮箱属于同一账号（已绑过）→ 幂等成功
  *   - 邮箱未被占用 → 绑到当前账号，并把该邮箱名下的历史业务数据一起迁过来
  */
-import { json } from "../_auth.js"
+import { json, getUser } from "../_auth.js"
 import { signSession, sessionCookie } from "../_session.js"
 import { resolveAccount } from "../_account.js"
 
@@ -92,9 +92,27 @@ export async function onRequestPost({ request, env }) {
   }
   await db.prepare("UPDATE login_codes SET consumed = 1 WHERE id = ?").bind(row.id).run()
 
-  // ---- 目标账号：优先 provider 身份（GitHub 被拦的情况）----
+  // ---- 目标账号 ----
+  // 三种来源，按优先级：
+  //   1. 当前已登录会话（账号面板点「绑定其他邮箱」）→ 绑到我自己
+  //   2. provider 身份（GitHub noreply 被拦下，还没登录）→ 绑到那个身份
+  //   3. 都没有 → 按邮箱走普通登录
   let targetUserId = null
-  if (provider && providerUid) {
+
+  const me = await getUser(request, env)
+  if (me?.email) {
+    // 已登录：绑到自己名下。补查一次 uid 以防老会话没有。
+    targetUserId = me.userId || null
+    if (!targetUserId) {
+      const r2 = await db
+        .prepare(`SELECT user_id FROM account_links WHERE email = ?`)
+        .bind(String(me.email).toLowerCase())
+        .first()
+      targetUserId = r2?.user_id || null
+    }
+  }
+
+  if (!targetUserId && provider && providerUid) {
     const idRow = await db
       .prepare(`SELECT user_id FROM identities WHERE provider = ? AND provider_uid = ?`)
       .bind(provider, providerUid)

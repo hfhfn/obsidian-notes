@@ -30,7 +30,7 @@ const KINDS = {
     // 字段统一：豆瓣榜单卡和笔记卡共用同一套顺序，缺失的自动跳过
     // 评分/作者已在「星级行 + 副标题」显示，info 里不重复
     infoOrder: ["年份", "页数", "开始", "读完"],
-    perPage: 12,
+    perPage: 0, rows: 4,
   },
   movie: {
     dir: "观影库",
@@ -45,7 +45,7 @@ const KINDS = {
     ],
     // 评分/导演已在「星级行 + 副标题」显示，info 里不重复
     infoOrder: ["年份", "类型", "地区", "片长", "集数", "开始", "看完"],
-    perPage: 12,
+    perPage: 0, rows: 4,
   },
   video: {
     dir: "视频与专题",
@@ -60,7 +60,7 @@ const KINDS = {
       { key: "全部", label: "全部" },
     ],
     infoOrder: ["时长", "频道", "平台", "整理"],
-    perPage: 12,
+    perPage: 0, rows: 4,
     // 视频类特有：卡片上显示「看原视频」和衍生笔记角标
     showSourceLink: true,
     showDerived: true,
@@ -84,10 +84,32 @@ export const FILTER_JS = `
     });
   }
 
+  // 每页条数 = 当前列数 × 行数。
+  //
+  // 为什么要按列数算：藏书馆 5 列、观影库 4 列、视频与专题 3 列，
+  // 窄屏还会降列。写死 12 时，5 列的库最后一行只剩 2 张（12 % 5 = 2），
+  // 看起来像漏了数据。按列数整数倍翻页，每页都是完整行。
+  function columnsOf(grid){
+    var cs = getComputedStyle(grid).gridTemplateColumns;
+    if (!cs || cs === 'none') return 1;
+    // "160px 160px 160px" 或 "repeat(5, ...)" 计算后都是像素列表
+    var n = cs.trim().split(/\s+/).filter(Boolean).length;
+    return n > 0 ? n : 1;
+  }
+
+  function perPageOf(grid){
+    // data-rows 默认 4 行；data-perpage 保留为「最少条数」的兜底
+    var rows = Number(grid.getAttribute('data-rows')) || 4;
+    var cols = columnsOf(grid);
+    var n = cols * rows;
+    var min = Number(grid.getAttribute('data-perpage')) || 0;
+    return Math.max(n, min > 0 ? Math.min(min, n * 2) : n);
+  }
+
   function render(tabs, grid, pager, key, page){
     var all = grid.querySelectorAll('.book-card');
     var show = visibleCards(grid, key);
-    var per = Number(grid.getAttribute('data-perpage')) || 20;
+    var per = perPageOf(grid);
     var pages = Math.max(1, Math.ceil(show.length / per));
     if (page > pages) page = pages;
     if (page < 1) page = 1;
@@ -198,6 +220,22 @@ export const FILTER_JS = `
           var st = state[kind] || { key: '全部', page: 1 };
           st.page = render(tabs, grid, pager, st.key, st.page);
           state[kind] = st;
+        });
+      }
+
+      // 列数随窗口宽度变化（5 列 → 4 列 → 2 列 → 1 列），
+      // 每页条数也跟着变。不重算的话缩窄窗口后每页还是旧的条数，
+      // 行会断在半截。
+      if (!grid.dataset.resizeBound) {
+        grid.dataset.resizeBound = '1';
+        var rt = null;
+        window.addEventListener('resize', function(){
+          clearTimeout(rt);
+          rt = setTimeout(function(){
+            var st = state[kind] || { key: '全部', page: 1 };
+            st.page = render(tabs, grid, pager, st.key, st.page);
+            state[kind] = st;
+          }, 150);
         });
       }
     });
@@ -556,10 +594,11 @@ export function injectKind(distDir, kind) {
   const cards = items.map((it) => renderCard(it, cfg, depth, kind)).join("")
   const tabs = renderTabs(cfg, "全部")
 
-  const perPage = cfg.perPage || 20
+  const perPage = cfg.perPage || 0
+  const rows = cfg.rows || 4
   const block = `
     <div class="library-tabs" data-for="${kind}" role="tablist">${tabs}</div>
-    <div class="book-grid" data-for="${kind}" data-active="全部" data-perpage="${perPage}">${cards}</div>
+    <div class="book-grid" data-for="${kind}" data-active="全部" data-perpage="${perPage}" data-rows="${rows}">${cards}</div>
     <div class="library-pager" data-for="${kind}">
       <button class="lib-pbtn" data-prev disabled>← 上一页</button>
       <span class="lib-pinfo">第 1 页</span>
