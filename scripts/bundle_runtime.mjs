@@ -59,6 +59,8 @@ async function build() {
   // 日夜切换按钮：直接绑元素，不派发 render 事件
   // （派发 render 会让 graph 无限重建 → OOM，见 inject_theme_button.mjs 注释）
   parts.push(wrap("theme-button", await extractRuntime("scripts/inject_theme_button.mjs", "RUNTIME")))
+  // 登出后按后退不能回到已登录的旧页面（bfcache 恢复时重新校验）
+  parts.push(wrap("auth-revalidate", await extractRuntime("scripts/inject_auth_revalidate.mjs", "RUNTIME")))
 
   // 2) 各功能模块（顺序无所谓，但都要在调度器之后）
   parts.push(wrap("library-filter", await extractRuntime("scripts/inject_library.mjs", "FILTER_JS")))

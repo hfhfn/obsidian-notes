@@ -66,15 +66,20 @@ for(__i=0;__i<j.length;__i++){
   }
   __arr.x[__i]=__s.x;__arr.y[__i]=__s.y;
 }
-__arr.ready=true;
+/* 首帧必须放行：此时还没有上一帧可比，__maxd 恒为 0，
+   如果直接按「静止」处理会一帧都不画，画布全空。
+   用户反馈「关系图谱显示不出来了」就是这个。 */
+if(!__arr.ready){__arr.ready=true;requestAnimationFrame(se);return}
 /* 位移平方 < 0.09（约 0.3px）视为静止 → 300ms 后再看 */
 if(__maxd<0.09){
-  /* 静止：停掉 PIXI 自动 ticker，只保留低频巡检 */
   try{if(window.__nxPixiApp&&window.__nxPixiApp.ticker)window.__nxPixiApp.ticker.stop()}catch(e){}
   if(se.__timer)return;
   se.__timer=setTimeout(function(){se.__timer=null;se()},300);
   return;
 }
+/* 节点又在动了（拖动/缩放/重新模拟）：确保 PIXI ticker 恢复，
+   否则之前静止时停掉的 ticker 不会自己醒来，画面会冻住。 */
+try{var __app=window.__nxPixiApp;if(__app&&__app.ticker&&!__app.ticker.started)__app.ticker.start()}catch(e){}
 requestAnimationFrame(se)}}`
 
 const MARKER = "nx-patch: 静止后停止重绘"

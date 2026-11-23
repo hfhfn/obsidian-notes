@@ -55,9 +55,23 @@ function clearAccessCookies(request) {
   return out
 }
 
-/** 登出后落点：私有站回自己的登录页，公开站回首页 */
+/**
+ * 登出后落点。
+ *
+ * 公开站 → 首页（未登录状态的首页）
+ *
+ * 私有站 → 首页。不要跳我们自己的 /login：
+ *   私有站真正的登录方式是 Cloudflare Access，跳回站内任意受保护页面
+ *   时 Access 会自动弹出它自己的登录页（邮箱验证码）。
+ *   我们自己那个 /login 页面在私有站没有 OAuth 按钮（Access 项目没配
+ *   Google/GitHub 的 secret），也不该承担登录职责 —— 它只是公开站的登录页。
+ *
+ *   前提是 Access 的 cookie 和边缘会话都清干净了，否则 Access 仍认得你，
+ *   跳过去直接就是已登录状态。清 cookie 见 clearAccessCookies，
+ *   清边缘会话由前端额外 fetch 一次 /cdn-cgi/access/logout。
+ */
 function landingPath(privateSite) {
-  return privateSite ? "/login?loggedout=1" : "/"
+  return "/"
 }
 
 export async function onRequestPost({ request }) {
