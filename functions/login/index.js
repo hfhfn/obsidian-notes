@@ -36,8 +36,16 @@ export async function onRequestGet({ request, env }) {
   </div>`
     : ""
 
+  // 从私有站登出后会带 loggedout=1 回来，显示一条确认提示，
+  // 否则用户看到登录页会以为「我是不是被踢了/出错了」。
+  const justLoggedOut = url.searchParams.get("loggedout") === "1"
+  const logoutNotice = justLoggedOut
+    ? `<div class="notice-ok">✓ 你已退出登录</div>`
+    : ""
+
   const body = `
 <h1>登录</h1>
+${logoutNotice}
 <p class="sub">输入邮箱，我们会发一个 6 位验证码给你。无需密码、无需注册。</p>
 
 <form id="step1" class="auth-form">
@@ -86,6 +94,16 @@ ${oauthBlock}
 </p>
 
 <style>
+.notice-ok {
+  margin: 0 0 1rem;
+  padding: 0.6rem 0.9rem;
+  border: 1px solid var(--secondary);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--secondary) 10%, transparent);
+  color: var(--secondary);
+  font-size: 0.88rem;
+}
+
   .auth-form { display:flex; flex-direction:column; gap:.55rem; margin:0 0 1.2rem; }
   .auth-form[hidden] { display:none; }
   .auth-form label { font-size:.82rem; color:var(--gray); }

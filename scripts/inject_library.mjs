@@ -64,6 +64,7 @@ const KINDS = {
     infoOrder: ["时长", "频道", "平台", "整理"],
     cols: 3,        // 与 library.scss 的 .book-grid[data-for="video"] 一致
     perPage: 9,     // cols × 3 行
+    sortable: true, // 视频按「整理」日期排序，默认倒序（最新在前）
     // 视频类特有：卡片上显示「看原视频」和衍生笔记角标
     showSourceLink: true,
     showDerived: true,
@@ -108,6 +109,28 @@ export const FILTER_JS = `
     var kind = grid.getAttribute('data-for') || '';
     var cols = { book: 5, movie: 4, video: 3 }[kind] || 3;
     return cols * 3;
+  }
+
+  // 按 data-date 重排卡片 DOM。
+  //
+  // 日期格式是 YYYY-MM-DD，字符串比较即可正确排序。
+  // 没有日期的卡片（data-date 缺失或空）一律排到最后，不管正序倒序 ——
+  // 它们没有时间信息，混在中间会让用户误以为是某个时间点的内容。
+  function applySort(grid, dir){
+    var cards = [].slice.call(grid.querySelectorAll('.book-card'));
+    if (!cards.length) return;
+    var sign = dir === 'desc' ? -1 : 1;
+    cards.sort(function(a, b){
+      var da = a.getAttribute('data-date') || '';
+      var db = b.getAttribute('data-date') || '';
+      if (!da && !db) return 0;
+      if (!da) return 1;          // 无日期永远排后
+      if (!db) return -1;
+      if (da === db) return 0;
+      return da < db ? -sign : sign;
+    });
+    // appendChild 会移动已有节点，按排好的顺序依次追加即可
+    for (var i = 0; i < cards.length; i++) grid.appendChild(cards[i]);
   }
 
   function render(tabs, grid, pager, key, page){
@@ -202,9 +225,27 @@ export const FILTER_JS = `
 
       var active = tabs.querySelector('button[aria-selected="true"]');
       var curKey = active ? (active.getAttribute('data-target') || '全部') : '全部';
-      state[kind] = { key: curKey, page: 1 };
+      state[kind] = { key: curKey, page: 1, dir: 'desc' };
 
-      tabs.querySelectorAll('button').forEach(function(btn){
+      // ---- 排序切换（视频与专题）----
+      //
+      // 卡片在 HTML 里是构建时按标题排好的。这里按 data-date 重排 DOM，
+      // 排完必须重新 render —— 否则分页的 slice 还是按旧顺序取，
+      // 出现「第 1 页显示的是旧的第 1 批」。
+      var sortBtn = tabs.querySelector('.lib-sort');
+      if (sortBtn) {
+        sortBtn.addEventListener('click', function(ev){
+          ev.stopPropagation();   // 别让 tab 的委托监听接走
+          var dir = sortBtn.getAttribute('data-dir') === 'desc' ? 'asc' : 'desc';
+          sortBtn.setAttribute('data-dir', dir);
+          sortBtn.textContent = dir === 'desc' ? '↓ 最新在前' : '↑ 最早在前';
+          state[kind].dir = dir;
+          applySort(grid, dir);
+          state[kind].page = render(tabs, grid, pager, state[kind].key, 1);
+        });
+      }
+
+      tabs.querySelectorAll('button[data-target]').forEach(function(btn){
         btn.addEventListener('click', function(){
           tabs.querySelectorAll('button').forEach(function(b){ b.setAttribute('aria-selected','false'); });
           btn.setAttribute('aria-selected','true');
@@ -247,6 +288,10 @@ export const FILTER_JS = `
           jump.addEventListener('click', function(ev){ ev.stopPropagation(); });
         }
       }
+
+      // 默认按倒序排一次（视频与专题：最新整理的在前）。
+      // 其他库没有 data-date，applySort 是空操作。
+      if (sortBtn) applySort(grid, 'desc');
 
       state[kind].page = render(tabs, grid, pager, curKey, 1);
 
@@ -370,6 +415,11 @@ function noteHref(item, depth) {
 }
 
 function renderCard(item, cfg, depth, kind) {
+  // 排序用日期：视频类取 info["整理"]（笔记 frontmatter 里的 created），
+  // 书影类取 info["读完"]/["看完"]，都没有就空串（排序时排最后）。
+  const infoMap = item.info || {}
+  const sortDate =
+    infoMap["整理"] || infoMap["读完"] || infoMap["看完"] || infoMap["开始"] || ""
   const cover = coverSrc(item, depth)
   const href = noteHref(item, depth)
   const hasNote = Boolean(item.slug)
@@ -512,6 +562,7 @@ function renderCard(item, cfg, depth, kind) {
   return `
     <div class="book-card${hasNote ? " has-note" : ""}${wide ? " book-card-wide" : ""}"
          data-status="${esc(item.status)}"
+         ${sortDate ? `data-date="${esc(sortDate)}"` : ""}
          ${itemKey ? `data-item="${esc(itemKey)}"` : ""}
          ${slug ? `data-slug="${esc(slug)}"` : ""}>
       ${cornerBtn}
@@ -654,8 +705,13 @@ export function injectKind(distDir, kind) {
 
   const perPage = cfg.perPage || 0
   const rows = cfg.rows || 4
+  // 可排序的库（视频与专题）在标签栏右侧加一个排序切换
+  const sortBtn = cfg.sortable
+    ? `<button class="lib-sort" data-for="${kind}" data-dir="desc" title="按整理日期排序">↓ 最新在前</button>`
+    : ""
+
   const block = `
-    <div class="library-tabs" data-for="${kind}" role="tablist">${tabs}</div>
+    <div class="library-tabs" data-for="${kind}" role="tablist">${tabs}${sortBtn}</div>
     <div class="book-grid" data-for="${kind}" data-active="全部" data-perpage="${perPage}" data-rows="${rows}">${cards}</div>
     <div class="library-pager" data-for="${kind}">
       <button class="lib-pbtn" data-first disabled title="第一页">« 首页</button>

@@ -301,6 +301,26 @@
   font-size: 0.76rem;
 }
 
+/* 排序切换按钮（视频与专题）—— 贴在标签栏右侧 */
+.lib-sort {
+  margin-left: auto;
+  padding: 0.24rem 0.7rem;
+  border: 1px solid var(--lightgray);
+  border-radius: 6px;
+  background: none;
+  color: var(--gray) !important;
+  font-family: var(--bodyFont);
+  font-size: 0.76rem !important;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+
+.lib-sort:hover {
+  border-color: var(--secondary);
+  color: var(--secondary) !important;
+}
+
 /* 跳页输入框 —— 三套分页器（书架 / 榜单 / 笔记列表）共用 */
 .lib-jump,
 .lc-jump,

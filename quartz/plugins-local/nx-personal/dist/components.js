@@ -389,8 +389,9 @@ const RUNTIME = `
         }
       })
       .catch(function () {
+        // 接口挂了也要给个合理落点：私有站回登录页，公开站回首页
         acctState = null;
-        location.href = "/";
+        location.href = location.hostname.indexOf("private.") === 0 ? "/login?loggedout=1" : "/";
       });
   };
 
