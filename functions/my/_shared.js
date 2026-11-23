@@ -85,9 +85,19 @@ export function esc(s) {
 export { getUser } from "../api/_auth.js"
 
 
+/**
+ * 未登录提示。
+ *
+ * 之前只写「用邮箱验证码登录」，用户以为站点只支持验证码，
+ * 不知道还能用 Google / GitHub —— 和评论区的提示不一致。
+ * 现在统一说明三种方式。
+ */
 export const LOGIN_EMPTY = (path) => `<div class="empty">
-  这个页面需要登录才能查看。<br><br>
-  <a href="/login?redirect=${encodeURIComponent(path)}">用邮箱验证码登录 →</a>
+  这个页面需要登录才能查看。<br>
+  <span style="color:var(--gray);font-size:.86rem">
+    支持邮箱验证码 / Google / GitHub 登录
+  </span><br><br>
+  <a href="/login?redirect=${encodeURIComponent(path)}">去登录 →</a>
 </div>`
 
 export function renderBookmarks(items) {

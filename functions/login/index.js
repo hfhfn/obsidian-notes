@@ -48,6 +48,21 @@ export async function onRequestGet({ request, env }) {
   <button class="btn primary" type="submit" id="sendBtn">发送验证码</button>
 </form>
 
+<details class="pwd-block">
+  <summary>用密码登录</summary>
+  <form id="pwdForm" class="auth-form">
+    <label for="pwdEmail">邮箱</label>
+    <input id="pwdEmail" type="email" name="email" required
+           placeholder="you@example.com" autocomplete="username"
+           autocapitalize="none" spellcheck="false">
+    <label for="pwdPass">密码</label>
+    <input id="pwdPass" type="password" name="password" required
+           placeholder="••••••••" autocomplete="current-password">
+    <button class="btn primary" type="submit" id="pwdBtn">登录</button>
+    <p class="hint" id="pwdHint"></p>
+  </form>
+</details>
+
 <form id="step2" class="auth-form" hidden>
   <label for="code">验证码</label>
   <input id="code" type="text" name="code" required inputmode="numeric"
@@ -206,6 +221,40 @@ ${oauthBlock}
       verifyBtn.textContent = "登录";
     }
   });
+
+  // 密码登录
+  var pwdForm = document.getElementById("pwdForm");
+  if (pwdForm) {
+    pwdForm.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      var pe = document.getElementById("pwdEmail");
+      var pp = document.getElementById("pwdPass");
+      var pb = document.getElementById("pwdBtn");
+      var ph = document.getElementById("pwdHint");
+      ph.textContent = "";
+      pb.disabled = true;
+      pb.textContent = "登录中…";
+      try {
+        var res = await post("/api/auth/login-password", {
+          email: pe.value.trim(),
+          password: pp.value,
+        });
+        if (res.ok) {
+          ph.textContent = "登录成功，正在跳转…";
+          location.href = REDIRECT;
+          return;
+        }
+        ph.textContent = res.body.message || "登录失败";
+        ph.className = "hint err";
+      } catch (err) {
+        ph.textContent = "网络异常，请重试";
+        ph.className = "hint err";
+      } finally {
+        pb.disabled = false;
+        pb.textContent = "登录";
+      }
+    });
+  }
 
   document.getElementById("resendBtn").addEventListener("click", function () {
     if (currentEmail) requestCode(currentEmail);

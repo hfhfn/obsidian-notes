@@ -14,6 +14,19 @@ import { verifySession, readSessionCookie } from "./_session.js"
 /**
  * 返回 { email, name } 或 null。
  */
+/**
+ * 解析 ADMIN_EMAILS 环境变量。
+ *
+ * 之前定义在 video-visibility.js 里，其他模块要用只能各自复制一份。
+ * 提到这里统一维护 —— 管理员判定全站只有一个来源。
+ */
+export function adminEmails(env) {
+  return String(env?.ADMIN_EMAILS || "")
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean)
+}
+
 export async function getUser(request, env) {
   // --- 1) 自建会话 ---
   const secret = env?.SESSION_SECRET
@@ -22,8 +35,22 @@ export async function getUser(request, env) {
     if (token) {
       const payload = await verifySession(secret, token)
       if (payload?.email) {
+        const email = String(payload.email).toLowerCase()
+        // userId 让业务数据（收藏/足迹/书架）能跨邮箱归到同一个账号。
+        // 会话里已经带了就不再查库；老会话没有就补一次。
+        let userId = payload.uid || null
+        if (!userId && env?.DB) {
+          try {
+            const row = await env.DB
+              .prepare(`SELECT user_id FROM account_links WHERE email = ?`)
+              .bind(email)
+              .first()
+            userId = row?.user_id || null
+          } catch (e) { /* 表还没建，忽略 */ }
+        }
         return {
-          email: String(payload.email).toLowerCase(),
+          email,
+          userId,
           name: payload.name || null,
         }
       }

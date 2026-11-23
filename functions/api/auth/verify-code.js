@@ -8,6 +8,7 @@
  */
 import { json, touchUser } from "../_auth.js"
 import { signSession, sessionCookie } from "../_session.js"
+import { resolveAccount } from "../_account.js"
 
 const MAX_ATTEMPTS = 5
 const SESSION_DAYS = 30
@@ -89,7 +90,20 @@ export async function onRequestPost({ request, env }) {
   await touchUser(db, { email, name: null })
 
   const exp = Math.floor(Date.now() / 1000) + SESSION_DAYS * 86400
-  const token = await signSession(env.SESSION_SECRET, { email, exp })
+  // 统一账号：同一个人的多个邮箱 / 多个 provider 归到同一个 userId
+  let userId = null
+  try {
+    const acc = await resolveAccount(env.DB, env, {
+      provider: "email",
+      providerUid: email,
+      email,
+    })
+    userId = acc.userId
+  } catch (e) {
+    console.error("[account] resolveAccount failed", e)
+  }
+
+  const token = await signSession(env.SESSION_SECRET, { email, uid: userId, exp })
 
   return new Response(JSON.stringify({ ok: true, email, redirect: "/my/bookmarks" }), {
     status: 200,

@@ -133,6 +133,7 @@ const ICONS = {
   bookmark: "M6 3h12a1 1 0 0 1 1 1v16l-7-4-7 4V4a1 1 0 0 1 1-1z",
   history: "M12 8v5l3 2M3.05 11a9 9 0 1 1 .5 4",
   palette: "M12 3a9 9 0 1 0 0 18h1.5a2 2 0 0 0 0-4H13a1 1 0 0 1 0-2h4a4 4 0 0 0 4-4c0-4-4-8-9-8z",
+  user: "M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z",
 }
 
 function icon(path) {
@@ -213,6 +214,34 @@ export function PersonalBar() {
       h("a", {
         class: "pb-btn", href: "/my/history", title: "浏览足迹",
       }, icon(ICONS.history), h("span", {}, "足迹")),
+
+      // 统一登录/账号入口。
+      // 之前侧边栏只有收藏和足迹，登录入口散落在评论区、收藏页空状态里，
+      // 退出更是完全找不到。这里给一个固定位置：
+      //   未登录 → 显示「登录」，点进 /login?redirect=<当前页>
+      //   已登录 → 显示邮箱首字母头像，点开有「我的收藏/足迹/退出登录」
+      // 具体显示哪个由 afterDOMLoaded 里的脚本查 /api/whoami 决定。
+      h("div", { class: "pb-wrap", "data-pb-account": "" },
+        h("a", {
+          class: "pb-btn", href: "/login", "data-pb-login": "",
+          title: "登录",
+        }, icon(ICONS.user), h("span", {}, "登录")),
+        h("button", {
+          class: "pb-btn", "data-pb-user": "", hidden: true,
+          title: "账号",
+          onclick: "window.__pbToggleAccount(this)",
+        }, h("span", { class: "pb-avatar", "data-pb-avatar": "" }, "·"),
+           h("span", { "data-pb-email": "" }, "账号")),
+        h("div", { class: "pb-pop", "data-pb-account-panel": "", hidden: true },
+          h("div", { class: "pb-head", "data-pb-account-email": "" }, "账号"),
+          h("a", { class: "pb-link", href: "/my/bookmarks" }, "我的收藏"),
+          h("a", { class: "pb-link", href: "/my/history" }, "浏览足迹"),
+          h("button", {
+            class: "pb-link pb-danger", "data-pb-logout": "",
+            onclick: "window.__pbLogout()",
+          }, "退出登录"),
+        ),
+      ),
 
       h("div", { class: "pb-wrap" },
         h("button", {

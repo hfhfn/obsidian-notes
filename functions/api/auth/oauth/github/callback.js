@@ -47,7 +47,13 @@ export async function onRequestGet({ request, env }) {
   if (!user) {
     return oauthError("拿不到邮箱", "GitHub 账号没有返回已验证的邮箱地址，无法用于登录。")
   }
+  // fetchEmail 可能返回 { error: "..." } —— 带具体可操作的提示，
+  // 比笼统的「拿不到邮箱」有用得多（比如「邮箱未验证，去 GitHub 验证」）。
+  if (user.error) {
+    return oauthError("拿不到邮箱", user.error)
+  }
 
+  user.provider = NAME
   const res = await finishLogin(env, user, state.r)
   res.headers.append("set-cookie", clearStateCookie())
   return res

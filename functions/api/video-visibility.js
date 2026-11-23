@@ -11,16 +11,9 @@
  * 只影响公开站（hfhfn-notes），私有站始终显示全部。
  * 实现方式：构建公开站时读这张表，把 hidden 的 slug 从 content-public 剔除。
  */
-import { json, requireUser } from "./_auth.js"
+import { json, requireUser, adminEmails } from "./_auth.js"
 
 const ADMIN_ONLY = true
-
-function adminEmails(env) {
-  return String(env.ADMIN_EMAILS || "")
-    .split(",")
-    .map((s) => s.trim().toLowerCase())
-    .filter(Boolean)
-}
 
 export async function onRequestGet({ request, env }) {
   const { user, response } = await requireUser(request, env)

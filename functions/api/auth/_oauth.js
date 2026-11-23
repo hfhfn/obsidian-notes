@@ -12,6 +12,7 @@
  */
 import { signSession, verifySession, sessionCookie } from "../_session.js"
 import { touchUser } from "../_auth.js"
+import { resolveAccount } from "../_account.js"
 
 export const STATE_COOKIE = "oauth_state"
 const STATE_TTL_SECONDS = 600
@@ -141,20 +142,60 @@ export async function fetchEmail(name, accessToken) {
     if (!email) return null
     // 未验证的 Google 邮箱不可信
     if (user.email_verified === false) return null
-    return { email: String(email).toLowerCase(), name: user.name || null }
+    return {
+      email: String(email).toLowerCase(),
+      name: user.name || null,
+      providerUid: String(user.sub || email),
+    }
   }
 
   if (name === "github") {
-    if (user.email) {
-      return { email: String(user.email).toLowerCase(), name: user.name || user.login || null }
+    // 先查 /user/emails —— 它比 /user.email 更全，且带 verified 标记。
+    // 之前优先用 user.email：那个字段可能是未验证的公开邮箱，
+    // 也可能为空（用户设置了隐私），两种情况都会导致登录失败。
+    const er = await fetch(p.emailsUrl, {
+      headers: { ...auth, accept: "application/json" },
+    })
+    if (er.ok) {
+      const list = await er.json().catch(() => null)
+      if (Array.isArray(list) && list.length) {
+        // 诊断：把真实情况记到日志，便于排查「拿不到邮箱」
+        console.log(
+          `[oauth:github] emails=${JSON.stringify(
+            list.map((e) => ({ e: e.email, p: e.primary, v: e.verified, vis: e.visibility })),
+          )}`,
+        )
+        // 优先 primary+verified，其次任意 verified
+        const pick =
+          list.find((e) => e.primary && e.verified) ||
+          list.find((e) => e.verified) ||
+          null
+        if (pick?.email) {
+          return {
+            email: String(pick.email).toLowerCase(),
+            name: user.name || user.login || null,
+            providerUid: String(user.id || user.login || pick.email),
+          }
+        }
+        // 一个 verified 都没有 —— 明确告诉用户该怎么做
+        const hasUnverified = list.some((e) => !e.verified)
+        return {
+          error: hasUnverified
+            ? "你的 GitHub 账号邮箱都还没验证。请到 GitHub → Settings → Emails 完成验证后再登录。"
+            : "你的 GitHub 账号没有可用邮箱。请到 GitHub → Settings → Emails 添加并验证一个邮箱。",
+        }
+      }
     }
-    const er = await fetch(p.emailsUrl, { headers: { ...auth, accept: "application/json" } })
-    if (!er.ok) return null
-    const list = await er.json().catch(() => null)
-    if (!Array.isArray(list)) return null
-    const primary = list.find((e) => e.primary && e.verified) || list.find((e) => e.verified)
-    if (!primary?.email) return null
-    return { email: String(primary.email).toLowerCase(), name: user.name || user.login || null }
+
+    // 兜底：/user.email（极少情况 emails 接口不可用）
+    if (user.email) {
+      return {
+        email: String(user.email).toLowerCase(),
+        name: user.name || user.login || null,
+        providerUid: String(user.id || user.login || user.email),
+      }
+    }
+    return null
   }
 
   return null
@@ -163,9 +204,29 @@ export async function fetchEmail(name, accessToken) {
 /** 登录成功后统一签发会话 */
 export async function finishLogin(env, user, redirect) {
   await touchUser(env.DB, user)
+
+  // 解析统一账号：同一个人的 Google / GitHub / 两个邮箱都归到同一个 userId。
+  // 失败不阻断登录（退化成按 email 处理），但要记日志。
+  let userId = null
+  try {
+    const acc = await resolveAccount(env.DB, env, {
+      provider: user.provider || "email",
+      providerUid: user.providerUid || user.email,
+      email: user.email,
+      name: user.name,
+    })
+    userId = acc.userId
+  } catch (e) {
+    console.error("[account] resolveAccount failed", e)
+  }
+
   const days = 30
   const exp = Math.floor(Date.now() / 1000) + days * 86400
-  const token = await signSession(env.SESSION_SECRET, { email: user.email, exp })
+  const token = await signSession(env.SESSION_SECRET, {
+    email: user.email,
+    uid: userId,
+    exp,
+  })
   return new Response(null, {
     status: 302,
     headers: {

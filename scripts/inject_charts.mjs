@@ -670,7 +670,7 @@ const RUNTIME = `
             if (ok) {
               paint(btn, null, 0);
               syncToShelf(btn, null);
-            } else toast('移除失败，请先登录', { actionLabel: '去登录', onAction: function(){ location.href = '/login'; }, duration: 8000 });
+            } else toast('移除失败，请先登录', { actionLabel: '去登录', onAction: function(){ gotoLogin(); }, duration: 8000 });
           } else {
             var res = await save(btn, next.status, next.progress);
             if (res && res.ok) {
@@ -680,7 +680,7 @@ const RUNTIME = `
               // 未登录：给页内提示 + 可点的「去登录」，不用 confirm 阻塞页面
               toast('标记需要先登录', {
                 actionLabel: '去登录',
-                onAction: function(){ location.href = '/login'; },
+                onAction: function(){ gotoLogin(); },
                 duration: 8000
               });
             } else {
@@ -842,7 +842,7 @@ const RUNTIME = `
             paint(b, null, 0);
           });
         } else {
-          toast('移除失败，请先登录', { actionLabel: '去登录', onAction: function(){ location.href = '/login'; }, duration: 8000 });
+          toast('移除失败，请先登录', { actionLabel: '去登录', onAction: function(){ gotoLogin(); }, duration: 8000 });
           rm.disabled = false;
         }
       } catch (e) {
@@ -1008,7 +1008,7 @@ const RUNTIME = `
             });
           } else if (d && d.error === 'login_required') {
             // 只弹提示，不自动跳转 —— 自动跳走会让用户以为什么都没发生
-            toast('移除需要先登录', { actionLabel: '去登录', onAction: function(){ location.href = '/login'; }, duration: 8000 });
+            toast('移除需要先登录', { actionLabel: '去登录', onAction: function(){ gotoLogin(); }, duration: 8000 });
           } else {
             toast('移除失败：' + ((d && d.error) || '未知错误'), { kind: 'error' });
             btn.disabled = false;
@@ -1083,7 +1083,7 @@ const RUNTIME = `
           } else if (d && d.code === 'forbidden') {
             toast('只有管理员能设置公开/隐藏', { kind: 'error' });
           } else if (d && d.error === 'login_required') {
-            toast('请先登录（需要管理员账号）', { actionLabel: '去登录', onAction: function(){ location.href = '/login'; }, duration: 8000 });
+            toast('请先登录（需要管理员账号）', { actionLabel: '去登录', onAction: function(){ gotoLogin(); }, duration: 8000 });
           } else {
             toast('操作失败：' + ((d && d.error) || '未知错误'), { kind: 'error' });
           }
@@ -1151,6 +1151,12 @@ const RUNTIME = `
 
   // 页内提示条。替代 alert/confirm —— 原生弹窗会阻塞页面，
   // 有些浏览器还会静默拦截，用户点了按钮完全看不到反应。
+  // 跳登录页并记住当前位置 —— 登录后回到原来的页面，
+  // 而不是固定跳到 /my/bookmarks（用户反馈「在足迹页登录，结果跳到收藏页」）。
+  function gotoLogin(){
+    location.href = '/login?redirect=' + encodeURIComponent(location.pathname + location.search);
+  }
+
   function toast(msg, opts){
     opts = opts || {};
     var el = document.getElementById('site-toast');

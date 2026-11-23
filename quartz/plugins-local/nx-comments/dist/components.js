@@ -353,7 +353,7 @@ const RUNTIME = `
     var hint = state.me
       ? ''
       : '<div class="nc-login-hint">登录后即可评论、回应表情。'
-        + '支持邮箱验证码 / Google / GitHub，<a href="/login">去登录 →</a></div>';
+        + '支持邮箱验证码 / Google / GitHub，<a href="/login?redirect=" + encodeURIComponent(location.pathname) + '">去登录 →</a></div>';
 
     var form = state.me
       ? '<div class="nc-form">'
@@ -400,7 +400,7 @@ const RUNTIME = `
     });
     var d = await r.json().catch(function(){ return {}; });
     if (r.status === 401) {
-      location.href = '/login';
+      location.href = '/login?redirect=' + encodeURIComponent(location.pathname + location.search);
       return false;
     }
     if (!d.ok) {
@@ -418,7 +418,7 @@ const RUNTIME = `
 
     var react = t.closest('[data-react]');
     if (react) {
-      if (!state.me) { location.href = '/login'; return; }
+      if (!state.me) { location.href = '/login?redirect=' + encodeURIComponent(location.pathname + location.search); return; }
       await post({ action: 'reaction', commentId: Number(react.dataset.cid), emoji: react.dataset.react });
       await load();
       return;
@@ -457,7 +457,7 @@ const RUNTIME = `
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ id: Number(del.dataset.del) })
       });
-      if (r.status === 401) { location.href = '/login'; return; }
+      if (r.status === 401) { location.href = '/login?redirect=' + encodeURIComponent(location.pathname + location.search); return; }
       await load();
       return;
     }
