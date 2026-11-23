@@ -26,7 +26,9 @@ mindmap-plugin: markmap
 
 ### 思维导图
 
-<div class="mm-wrap" data-mm="1" data-mm-title="Decoding Transformer Architecture: From Attention to QKV Mechanics" data-mm-slug="decodingtran-formerarchitecture-fromattentiontoqkvmec"><div class="mm-toolbar"><button data-mm-act="fit">适应窗口</button><button data-mm-act="expand">全部展开</button><button data-mm-act="collapse">折叠到底</button><span class="mm-sep"></span><label>字号 <input class="mm-font" type="range" min="11" max="24" value="15"></label><label>间距 <input class="mm-space" type="range" min="4" max="40" value="12"></label><span class="mm-sep"></span><button data-mm-act="html" title="导出可交互 HTML">导出 HTML</button><button data-mm-act="svg" title="导出静态 SVG">导出 SVG</button><button data-mm-act="full">全屏</button></div><svg class="mm-canvas"></svg><div class="mm-hint">拖动平移 · 滚轮缩放 · 点击节点折叠</div><script type="application/json" class="mm-data">{"name": "Transformer Architecture", "children": [{"name": "Evolution of NLP Models", "children": [{"name": "N-gram: Statistical next-word prediction"}, {"name": "Word Embedding: High-dimensional semantic vectors"}, {"name": "RNN: Sequential processing with memory"}, {"name": "LSTM: Long-term memory and gating mechanisms"}, {"name": "Previous Limitations", "children": [{"name": "Sequential calculation bottleneck"}, {"name": "Information loss over long distances"}]}]}, {"name": "Attention Mechanism", "children": [{"name": "Core Concept: Token mutual interaction"}, {"name": "The QKV Triad", "children": [{"name": "Query (Q): Search intention"}, {"name": "Key (K): Information label"}, {"name": "Value (V): Actual content"}]}, {"name": "Calculation Process", "children": [{"name": "Q and K dot product matching"}, {"name": "Scaling factor (sqrt d) for stability"}, {"name": "Softmax for weight distribution"}, {"name": "Weighted sum of Values (V)"}]}, {"name": "Self-Attention: Within the same sequence"}]}, {"name": "Structural Components", "children": [{"name": "Multi-Head Attention", "children": [{"name": "Multiple observation spaces"}, {"name": "Parallel relationship learning"}]}, {"name": "Positional Encoding", "children": [{"name": "Restores sequence order"}, {"name": "Added to word embeddings"}]}, {"name": "Feed-Forward Network (FFN)", "children": [{"name": "Information analysis and reasoning"}, {"name": "Feature combination within tokens"}]}, {"name": "Residual Connection (Add & Norm)", "children": [{"name": "Shortcut for gradient flow"}, {"name": "Solves gradient vanishing in deep layers"}]}]}, {"name": "Encoder-Decoder Architecture", "children": [{"name": "Encoder", "children": [{"name": "Encodes source text meaning"}, {"name": "Bi-directional visibility"}]}, {"name": "Decoder", "children": [{"name": "One-by-one token generation"}, {"name": "Masked Attention: Hides future tokens"}, {"name": "Cross Attention: Queries the Encoder"}]}, {"name": "Output Layer", "children": [{"name": "Linear layer and Softmax"}, {"name": "Probability distribution over vocabulary"}]}]}]}</script></div>
+> 🖥 [用浏览器打开完整脑图](_assets/Decoding%20Transformer%20Architecture_%20From%20Attention%20to%20QKV%20Mec/mindmap.html)（可拖动、折叠、全屏）
+
+[查看原始数据](_assets/Decoding%20Transformer%20Architecture_%20From%20Attention%20to%20QKV%20Mec/mind-map.json)
 
 ### 信息图
 
@@ -34,9 +36,7 @@ mindmap-plugin: markmap
 
 ### 演示文稿
 
-<iframe src="https://pdf.hfhfn.dpdns.org/notebooklm/Decoding%20Transformer%20Architecture_%20From%20Attention%20to%20QKV%20Mec/slide-deck.pdf#view=FitH" class="nlm-slides" title="演示文稿" loading="lazy"></iframe>
-
-<sub>[全屏打开](https://pdf.hfhfn.dpdns.org/notebooklm/Decoding%20Transformer%20Architecture_%20From%20Attention%20to%20QKV%20Mec/slide-deck.pdf)</sub>
+[打开 演示文稿（PDF）](https://pdf.hfhfn.dpdns.org/notebooklm/Decoding%20Transformer%20Architecture_%20From%20Attention%20to%20QKV%20Mec/slide-deck.pdf)
 
 ## 摘要
 

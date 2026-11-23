@@ -23,9 +23,7 @@ created: "2026-05-16"
 
 ### 演示文稿
 
-<iframe src="https://pdf.hfhfn.dpdns.org/notebooklm/%E6%8A%80%E6%9C%AF%E8%A7%86%E9%A2%91%E5%88%B6%E4%BD%9C%E7%9A%84%E8%87%AA%E4%B8%BBAgent%E5%B7%A5%E4%BD%9C%E6%B5%81/slide-deck.pdf#view=FitH" class="nlm-slides" title="演示文稿" loading="lazy"></iframe>
-
-<sub>[全屏打开](https://pdf.hfhfn.dpdns.org/notebooklm/%E6%8A%80%E6%9C%AF%E8%A7%86%E9%A2%91%E5%88%B6%E4%BD%9C%E7%9A%84%E8%87%AA%E4%B8%BBAgent%E5%B7%A5%E4%BD%9C%E6%B5%81/slide-deck.pdf)</sub>
+[打开 演示文稿（PDF）](https://pdf.hfhfn.dpdns.org/notebooklm/%E6%8A%80%E6%9C%AF%E8%A7%86%E9%A2%91%E5%88%B6%E4%BD%9C%E7%9A%84%E8%87%AA%E4%B8%BBAgent%E5%B7%A5%E4%BD%9C%E6%B5%81/slide-deck.pdf)
 
 ## 摘要
 

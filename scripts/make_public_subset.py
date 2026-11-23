@@ -233,15 +233,35 @@ def main() -> int:
         if not args.dry_run:
             shutil.copytree(src, dst)
             # 剔除 hidden 的视频笔记（只影响公开站）
+            #
+            # slug 形如「视频与专题/掘金头条...」，而 dst 本身就是
+            # 视频与专题/ 目录 —— 之前直接 dst / f"{slug}.md" 会拼成
+            # 视频与专题/视频与专题/xxx.md，永远不存在，所以一条都没剔除
+            # （用户反馈「隐藏了公开站未登录还能看到」）。
+            # 正确做法：把 slug 的第一段（模块名）去掉再拼。
             if hidden_slugs:
                 removed = 0
                 for slug in hidden_slugs:
-                    target = dst / f"{slug}.md"
+                    parts = slug.split("/", 1)
+                    if len(parts) < 2:
+                        continue
+                    target = dst / f"{parts[1]}.md"
                     if target.exists():
                         target.unlink()
                         removed += 1
                 if removed:
                     print(f"    {name}: 剔除 {removed} 条")
+
+            # 把隐藏清单写到仓库根的临时文件，供 inject_library.mjs 过滤
+            # 列表页卡片。
+            #
+            # 不写在 content-public 里 —— 那个目录会被 Quartz 整个复制到
+            # dist，清单会变成公开可访问的 URL。
+            if hidden_slugs and name == "视频与专题":
+                (ROOT / ".hidden-slugs.json").write_text(
+                    json.dumps(sorted(hidden_slugs), ensure_ascii=False, indent=2),
+                    encoding="utf-8",
+                )
         copied_dirs.append(name)
         copied_md.extend(src.rglob("*.md"))
 

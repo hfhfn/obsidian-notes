@@ -24,15 +24,11 @@ created: "2026-01-13"
 
 ### 信息图
 
-<img src="../attachments/modules/视频与专题/_assets/中国AI产业冰山图/infographic.webp" alt="信息图" class="nlm-infographic nlm-zoomable" loading="lazy">
-
-<sub>点图放大 · ESC 或点空白处关闭</sub>
+![信息图](_assets/中国AI产业冰山图/infographic.webp)
 
 ### 演示文稿
 
-<iframe src="https://pdf.hfhfn.dpdns.org/notebooklm/%E4%B8%AD%E5%9B%BDAI%E4%BA%A7%E4%B8%9A%E5%86%B0%E5%B1%B1%E5%9B%BE/slide-deck.pdf#view=FitH" class="nlm-slides" title="演示文稿" loading="lazy"></iframe>
-
-<sub>[全屏打开](https://pdf.hfhfn.dpdns.org/notebooklm/%E4%B8%AD%E5%9B%BDAI%E4%BA%A7%E4%B8%9A%E5%86%B0%E5%B1%B1%E5%9B%BE/slide-deck.pdf)</sub>
+[打开 演示文稿（PDF）](https://pdf.hfhfn.dpdns.org/notebooklm/%E4%B8%AD%E5%9B%BDAI%E4%BA%A7%E4%B8%9A%E5%86%B0%E5%B1%B1%E5%9B%BE/slide-deck.pdf)
 
 ## 摘要
 

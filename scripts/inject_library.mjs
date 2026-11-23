@@ -440,6 +440,31 @@ function copyCovers(distDir, items) {
  * 把某一类媒体注入到它的页面。
  * @returns {number} 注入的条目数，跳过时返回 0
  */
+/**
+ * 读公开站隐藏列表。
+ *
+ * 构建时 make_public_subset 已经把隐藏的笔记页删掉了，同时把清单写到
+ * dist/<dir>/.hidden-slugs.json，这里读它 —— 避免构建脚本再查一次 D1。
+ */
+function readHiddenSlugs(distDir) {
+  const out = new Set()
+  const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)))
+  for (const f of [
+    path.join(root, ".hidden-slugs.json"),        // make_public_subset 写的
+    path.join(distDir, ".hidden-slugs.json"),
+  ]) {
+    try {
+      if (fs.existsSync(f)) {
+        const arr = JSON.parse(fs.readFileSync(f, "utf-8"))
+        if (Array.isArray(arr)) arr.forEach((s) => out.add(s))
+      }
+    } catch (e) {
+      console.warn(`[library] 读 ${f} 失败: ${e.message}`)
+    }
+  }
+  return out
+}
+
 export function injectKind(distDir, kind) {
   const cfg = KINDS[kind]
   if (!cfg) {
@@ -470,6 +495,22 @@ export function injectKind(distDir, kind) {
   if (!Array.isArray(items) || items.length === 0) {
     console.log(`[${kind}] 没有数据，跳过`)
     return 0
+  }
+
+  // 公开站：剔除管理员标记为 hidden 的视频。
+  //
+  // 笔记页已经在 make_public_subset 里删掉了，但列表页的卡片来自
+  // _videos.json（扫源目录生成的），不会自动跟着消失 —— 结果「笔记页
+  // 404 但列表里还列着」。这里按 slug 过滤掉。
+  if (!IS_PRIVATE && kind === "video") {
+    const hidden = readHiddenSlugs(distDir)
+    if (hidden.size) {
+      const before = items.length
+      items = items.filter((it) => !hidden.has(it.slug))
+      if (items.length !== before) {
+        console.log(`[${kind}] 公开站剔除 ${before - items.length} 条隐藏视频`)
+      }
+    }
   }
 
   // 页面在 dist/<目录>/index.html。目录可能是 探索/藏书馆 这样的多层，
