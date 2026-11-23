@@ -324,6 +324,12 @@ const RUNTIME = `
         mmToast('已下载 ' + fname);
       }
 
+      // 幂等：boot() 会被 nav / MutationObserver / 轮询多次调用，
+      // 不加这个保护会给同一个按钮叠上几十个监听器，
+      // 一次点击触发几十次下载（实测导出 HTML 被调用几百次）。
+      if (wrap.dataset.mmActBound === '1') return;
+      wrap.dataset.mmActBound = '1';
+
       wrap.querySelectorAll('[data-mm-act]').forEach(function(btn){
         btn.addEventListener('click', function(){
           var act = btn.getAttribute('data-mm-act');
@@ -421,34 +427,54 @@ const RUNTIME = `
   //     浏览器「打开」而不是下载。
   //  2. <a> 挂到 document 上，click() 在用户手势同步栈里执行。
   //  3. URL 延迟回收，否则下载还没开始就被撤销。
-  // 真正触发「保存文件」。
+  // 真正触发「保存文件」，且保证文件名带后缀。
   //
-  // 踩过两次坑：
-  //   1. window.open(blobUrl) —— 只是打开预览页，不下载
-  //   2. blob 用 image/svg+xml / text/html —— Chrome 认定「可显示」，
-  //      即使有 download 属性也可能直接在标签页里打开
+  // 踩过的坑（按顺序）：
+  //   1. window.open(blobUrl)        → 只是打开预览页
+  //   2. image/svg+xml / text/html   → Chrome 当「可显示」，忽略 download
+  //   3. blob: + octet-stream        → 部分环境仍忽略 a.download，存成无后缀
   //
-  // 现在：内容用 Blob 原样保存，但 MIME 统一成 application/octet-stream
-  // 让浏览器走「下载」路径；文件名由 a.download 提供，所以后缀不会丢。
+  // 现在用两层：
+  //   主路 —— File 对象（自带 name，Chrome 优先用它当文件名）
+  //   兜底 —— data: URL + download 属性
   function downloadBlob(blob, filename){
-    var dlBlob;
+    var done = false;
+
+    // 主路：File 构造函数带 name，文件名最可靠
     try {
-      dlBlob = blob.slice(0, blob.size, 'application/octet-stream');
+      var file = new File([blob], filename, { type: 'application/octet-stream' });
+      var url1 = URL.createObjectURL(file);
+      var a1 = document.createElement('a');
+      a1.href = url1;
+      a1.download = filename;
+      a1.style.display = 'none';
+      document.body.appendChild(a1);
+      a1.click();
+      setTimeout(function(){
+        if (a1.parentNode) a1.parentNode.removeChild(a1);
+        URL.revokeObjectURL(url1);
+      }, 10000);
+      done = true;
     } catch (e) {
-      dlBlob = new Blob([blob], { type: 'application/octet-stream' });
+      done = false;
     }
-    var url = URL.createObjectURL(dlBlob);
-    var a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.rel = 'noopener';
-    a.style.display = 'none';
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(function(){
-      if (a.parentNode) a.parentNode.removeChild(a);
-      URL.revokeObjectURL(url);
-    }, 10000);
+
+    if (done) return;
+
+    // 兜底：data URL。体积较大但 download 属性最稳。
+    var reader = new FileReader();
+    reader.onload = function(){
+      var a = document.createElement('a');
+      a.href = reader.result;
+      a.download = filename;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function(){
+        if (a.parentNode) a.parentNode.removeChild(a);
+      }, 10000);
+    };
+    reader.readAsDataURL(blob);
   }
 
   // 页内轻提示（mindmap 页面不一定加载了 charts 的 toast）

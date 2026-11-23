@@ -578,12 +578,16 @@ const RUNTIME = `
     movie: { wish: '想看', doing: '在看', done: '已看' }
   };
 
+  // data-status 一律存英文 key（wish / doing / done）：
+  //   - CSS 高亮用 [data-status="wish"] 匹配
+  //   - cycle() 直接 indexOf 推进
+  //   - 中文文案只在 textContent 和书架卡 data-status 上出现
+  // 上一轮把它改成中文，导致高亮 CSS 全部失配（用户反馈「不高亮了」）。
   function paint(btn, status, progress){
     var kind = btn.getAttribute('data-kind');
     var lb = LABELS[kind] || LABELS.book;
     if (status) {
-      // data-status 存中文标签 key —— 和 .library-tabs 的 data-target 一致
-      btn.setAttribute('data-status', lb[status] || status);
+      btn.setAttribute('data-status', status);
       btn.textContent = (status === 'done' ? '✓ ' : '● ') + (lb[status] || status);
       if (progress > 0 && progress < 100) btn.textContent += ' ' + progress + '%';
     } else {
@@ -593,15 +597,8 @@ const RUNTIME = `
   }
 
   function cycle(btn){
-    var kind = btn.getAttribute('data-kind');
-    var lb = LABELS[kind] || LABELS.book;
     var order = ['wish', 'doing', 'done'];
-    // data-status 现在是中文标签（如「想看」），要反查成英文 key
-    var curLabel = btn.getAttribute('data-status');
-    var cur = null;
-    for (var k in lb) {
-      if (lb[k] === curLabel) { cur = k; break; }
-    }
+    var cur = btn.getAttribute('data-status');
     var idx = order.indexOf(cur);
     // 未标记 → wish → doing → done → 移除
     if (idx === -1) return { status: 'wish', progress: 0 };
@@ -910,11 +907,25 @@ const RUNTIME = `
         (d.items || []).forEach(function(it){ map[it.item_key] = it; });
 
         byKind[kind].forEach(function(btn){
-          var it = map[btn.getAttribute('data-item')];
-          if (it) {
-            paint(btn, it.status, it.progress);
-            syncToShelf(btn, it.status);
+          var key = btn.getAttribute('data-item');
+          var it = map[key];
+          if (!it) return;
+
+          paint(btn, it.status, it.progress);
+
+          // 如果书架里已经有这条的静态笔记卡（来自笔记 frontmatter），
+          // 只更新它的状态，不要再插一张 —— 否则同一部电影会出现两张卡，
+          // 分别落在不同标签里（用户反馈「同时出现在想看和已看」）。
+          var existing = document.querySelector(
+            '.book-grid .book-card[data-item="' + key + '"]'
+          );
+          if (existing && it.status !== 'hidden') {
+            var map2 = STATUS_TO_TAB[kind] || STATUS_TO_TAB.book;
+            existing.setAttribute('data-status', map2[it.status] || map2.wish);
+            return;
           }
+
+          syncToShelf(btn, it.status);
         });
 
         // 隐藏用户移除过的笔记卡（status=hidden）。
@@ -1008,22 +1019,20 @@ const RUNTIME = `
 
         var nowHidden = btn.getAttribute('data-hidden') === '1';
         var next = !nowHidden;
-        var cardTitle = (btn.closest('.book-card').querySelector('.book-title') || {}).textContent || '';
-        var msg = next
-          ? '在公开站隐藏《' + cardTitle + '》？私有站仍会显示。'
-          : '恢复在公开站显示《' + cardTitle + '》？';
+        var card = btn.closest('.book-card');
+        var titleEl = card ? card.querySelector('.book-title') : null;
+        var cardTitle = titleEl ? (titleEl.textContent || '').trim() : '';
 
-        // 不用 confirm（阻塞页面 + 可能被静默拦截），改成 toast 带确认按钮
-        toast(msg, {
-          actionLabel: next ? '隐藏' : '恢复',
-          duration: 10000,
-          onAction: function(){ applyVisibility(btn, slug, next); }
-        });
+        // 直接执行，不经过确认弹层。
+        // 之前用 toast + onAction 两步确认，但 toast 在部分路径下没渲染出来
+        // （用户反馈「点了没反应」），操作根本没机会发出。
+        // 隐藏是可逆的（再点一次恢复），不需要二次确认。
+        applyVisibility(btn, slug, next, cardTitle);
       });
     });
   }
 
-  async function applyVisibility(btn, slug, next){
+  async function applyVisibility(btn, slug, next, cardTitle){
         btn.disabled = true;
         try {
           var r = await fetch('/api/video-visibility', {
@@ -1039,8 +1048,13 @@ const RUNTIME = `
             btn.setAttribute('data-hidden', next ? '1' : '0');
             btn.textContent = next ? '🚫' : '👁';
             btn.title = next ? '已在公开站隐藏（点击恢复）' : '在公开站隐藏这条';
-            var card = btn.closest('.book-card');
-            if (card) card.classList.toggle('is-hidden-public', next);
+            var card2 = btn.closest('.book-card');
+            if (card2) card2.classList.toggle('is-hidden-public', next);
+            toast(
+              next
+                ? '已在公开站隐藏' + (cardTitle ? '《' + cardTitle + '》' : '')
+                : '已恢复公开显示' + (cardTitle ? '《' + cardTitle + '》' : '')
+            );
           } else if (d && d.code === 'forbidden') {
             toast('只有管理员能设置公开/隐藏', { kind: 'error' });
           } else if (d && d.error === 'login_required') {
