@@ -84,6 +84,12 @@ export const EXPLORER_EXPAND_RUNTIME = `
   }
 
   // ===== B. 点目录名：toggle + 跳转 =====
+  //
+  // 展开状态要写进 localStorage 的 fileTree，和 Quartz 用同一份数据。
+  // 为什么必须写：点击后页面会跳转（SPA），explorer 整体重渲染，
+  // Quartz 按 fileTree 里的 collapsed 恢复每个目录的展开状态。
+  // 我们不写 → 它按旧状态重建 → 看起来「刚展开又被折叠」，
+  // 就是用户说的「折叠展开行为不太正常」。
   function toggleFolder(a){
     var li = a.closest('li');
     if (!li) return;
@@ -96,15 +102,43 @@ export const EXPLORER_EXPAND_RUNTIME = `
     var fc = a.closest('.folder-container');
     if (fc) fc.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
     li.classList.toggle('open', willOpen);
+
+    // 同步到 Quartz 的 fileTree：collapsed 与 open 相反
+    var folderPath = fc && fc.dataset ? fc.dataset.folderpath : null;
+    if (folderPath) {
+      try {
+        var tree = JSON.parse(localStorage.getItem('fileTree') || '[]');
+        var idx = -1;
+        for (var i = 0; i < tree.length; i++) {
+          if (tree[i] && tree[i].path === folderPath) { idx = i; break; }
+        }
+        var collapsed = !willOpen;
+        if (idx >= 0) tree[idx].collapsed = collapsed;
+        else tree.push({ path: folderPath, collapsed: collapsed });
+        localStorage.setItem('fileTree', JSON.stringify(tree));
+      } catch (e) {}
+    }
   }
 
-  // 目录名点击同样用捕获阶段：先展开子项，再放行跳转。
+  // 目录名点击：只补一个「展开子项」的动作，**绝不拦截事件**。
   //
-  // 不 preventDefault —— 用户要求「点目录名既展开又跳转」。
-  // 但要挡住 Quartz 自己的 folder-button handler，否则它再 toggle 一次
-  // 就等于没展开（刚打开又被关掉）。
+  // 用户要求「点目录名既展开又跳转」。查 Quartz 源码
+  // (@quartz-community/explorer)：
+  //
+  //   let A = n.dataset.behavior || "collapse"
+  //   if (A !== "link") { C.stopPropagation(); ...toggle... }
+  //
+  // 我们的配置是 folderClickBehavior: "link"，所以 Quartz 对
+  // folder-button **什么都不做**，只是让浏览器正常跳转（由它自己的
+  // 全局 link 拦截器接管，走 SPA 导航）。
+  //
+  // ❌ 之前用 stopImmediatePropagation 想「挡住 Quartz 的 toggle」，
+  //    结果把 Quartz 的 SPA 路由拦截器一起挡了 → 退化成整页刷新，
+  //    用户看到「点一下整个页面都闪一下」。
+  //
+  // ✅ 现在：不 stop、不 preventDefault，只在冒泡阶段补做展开。
+  //    事件继续往下走，SPA 导航照常工作，页面不闪。
   function bind(){
-    // 监听只注册一次（document 级委托，SPA 换 body 后依然有效）
     if (!window.__nxFolderCapture) {
       window.__nxFolderCapture = true;
       document.addEventListener('click', function(ev){
@@ -112,9 +146,9 @@ export const EXPLORER_EXPAND_RUNTIME = `
         if (!t || !t.closest) return;
         var a = t.closest('.explorer-ul a.folder-button');
         if (!a) return;
-        ev.stopImmediatePropagation();   // 挡住 Quartz 的，但不阻止默认跳转
+        // 只展开，不干预事件流
         toggleFolder(a);
-      }, true);
+      });   // ← 冒泡阶段，不 capture、不 stop
     }
     // 标记每次都要补 —— 导航后是新 DOM，旧标记随旧节点一起没了
     var all = document.querySelectorAll('.explorer-ul a.folder-button');

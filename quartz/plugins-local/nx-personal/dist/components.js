@@ -373,25 +373,45 @@ const RUNTIME = `
   };
 
   window.__pbLogout = function () {
-    // 两个站点分流：
-    //   公开站 → 清 cookie 后直接回首页（它不在 Access 后面，
-    //            跳 Access 登出页只会看到 "No Access cookie found"）
-    //   私有站 → 必须先走 Access 登出清边缘会话，否则刷新还是登录态；
-    //            登出后落到公开站首页，避免又被私有站 Access 拦一次
+    // 登出分两步，缺一不可：
+    //
+    //   1. POST /api/auth/logout
+    //      清自建会话 notes_session，同时清掉 Access 的 4 个 cookie
+    //      （CF_Authorization / CF_Binding / CF_Device / CF_Session）。
+    //      之前只清 2 个 → 用户反馈「登出后依然是已登录」。
+    //
+    //   2. GET /cdn-cgi/access/logout（仅私有站）
+    //      清 Cloudflare 边缘会话。这个端点**不返回跳转**（实测 200 无
+    //      Location），所以只能由我们 fetch 它、拿 Set-Cookie，再自己跳。
+    //
+    //      之前把用户直接送到 team 域的登出页，那个页面没有跳转逻辑，
+    //      浏览器停在那儿 → 用户看到「还是刚才那个界面」。
+    function finish(redirect) {
+      acctState = null;
+      location.href = redirect || "/";
+    }
+
     fetch("/api/auth/logout", { method: "POST", credentials: "include" })
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (d) {
-        acctState = null;
-        if (d && d.accessLogoutUrl) {
-          location.href = d.accessLogoutUrl;
-        } else {
-          location.href = (d && d.redirect) || "/";
+        var redirect = (d && d.redirect) || "/";
+        if (d && d.needsAccessLogout) {
+          // 清边缘会话，然后跳登录页。用 no-store 保证拿到最新 Set-Cookie。
+          return fetch("/cdn-cgi/access/logout", {
+            credentials: "include",
+            cache: "no-store",
+          })
+            .then(function () { finish(redirect); })
+            .catch(function () { finish(redirect); });
         }
+        finish(redirect);
       })
       .catch(function () {
-        // 接口挂了也要给个合理落点：私有站回登录页，公开站回首页
+        // 接口挂了也要给个合理落点
         acctState = null;
-        location.href = location.hostname.indexOf("private.") === 0 ? "/login?loggedout=1" : "/";
+        location.href = location.hostname.indexOf("private.") === 0
+          ? "/login?loggedout=1"
+          : "/";
       });
   };
 
