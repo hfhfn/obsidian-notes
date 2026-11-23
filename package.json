@@ -29,12 +29,12 @@
     "changeset": "changeset",
     "version-packages": "changeset version && npm install --package-lock-only --ignore-scripts --no-audit --no-fund",
     "analytics": "python scripts/inject_analytics.py --dir dist-all",
-    "build:public": "python scripts/sync_content.py && python scripts/make_public_subset.py && python scripts/build_library.py && python scripts/render_notebooklm.py content-public && node scripts/patch_explorer_init.mjs && npx quartz build -d content-public -o dist-public && node scripts/inject_library.mjs dist-public && node scripts/inject_charts.mjs dist-public && node scripts/rewrite_tags_index.mjs dist-public && node scripts/fix_tag_pages.mjs dist-public && node scripts/paginate_listing.mjs dist-public && python scripts/inject_fonts.py --dir dist-public && python scripts/inject_analytics.py --dir dist-public && node scripts/inject_mindmap.mjs dist-public && node scripts/inject_moc_cards.mjs dist-public && node scripts/inject_reinit.mjs dist-public",
+    "build:public": "python scripts/sync_content.py && python scripts/make_public_subset.py && python scripts/build_library.py && python scripts/render_notebooklm.py content-public && node scripts/patch_explorer_init.mjs && npx quartz build -d content-public -o dist-public && node scripts/inject_library.mjs dist-public && node scripts/inject_charts.mjs dist-public && node scripts/rewrite_tags_index.mjs dist-public && node scripts/fix_tag_pages.mjs dist-public && node scripts/paginate_listing.mjs dist-public && python scripts/inject_fonts.py --dir dist-public && python scripts/inject_analytics.py --dir dist-public && node scripts/inject_mindmap.mjs dist-public && node scripts/inject_moc_cards.mjs dist-public && node scripts/inject_reinit.mjs dist-public && python scripts/notify_updates.py --dist dist-public",
     "subset": "python scripts/make_public_subset.py",
     "test:auth": "node test-auth.mjs && node test-session-security.mjs && node test-login-page.mjs && node test-subscribe.mjs && node test-oauth.mjs && node test-legal-pages.mjs",
     "library": "python scripts/build_library.py",
     "deploy:private": "npx wrangler pages deploy dist-all --project-name hfhfn-notes-private",
-    "deploy:public": "npx wrangler pages deploy dist-public --project-name hfhfn-notes"
+    "deploy:public": "npm run build:public && npx wrangler pages deploy dist-public --project-name hfhfn-notes --commit-dirty=true"
   },
   "engines": {
     "npm": ">=10.9.2",
