@@ -536,6 +536,36 @@ function perPageOf(grid){
 
 少一行就说明配置坏了，不要继续全量构建。
 
+### 18. 改文档不等于要重新部署
+
+**现象**：只改了 `README.md` 和一个 Obsidian 内部导航页，就跑了 `npm run build:public`
++ 全量部署，Cloudflare 逐个上传 1962 个文件，卡了好几分钟。
+
+**原因**：`build:public` 的第一步是 `python scripts/sync_content.py`，它会重新
+同步全部内容；接着 `quartz build` **全量重建**，所有 HTML 里的 CSS/JS hash
+全部变化 → Cloudflare 的 `check-missing` 认为每个文件都是新的 → 逐个上传。
+
+**关键判断**：先确认改的东西**是否在发布范围**。
+
+| 改动位置 | 是否需要部署 |
+|---|---|
+| `D:\private\obsidian\00_系统\*`（工作台、手册、导航页） | ❌ 在 `SKIP_DIRS` 里，不发布 |
+| `D:\private\obsidian\00_Inbox\*` | ❌ 同上 |
+| `obsidian-site\README.md` | ❌ 仓库文档，不进站点 |
+| `obsidian-site\scripts\*`、`functions\*`、`quartz\*` | ✅ 要重建 + 部署 |
+| `D:\private\obsidian` 下的主题目录（AI大模型/AI/工作…） | ✅ 要重建 + 部署 |
+
+`SKIP_DIRS`（`scripts/sync_content.py`）当前排除：
+`.git` `.obsidian` `.claudian` `.claude` `node_modules` `public` `.quartz`
+`.quartz-cache` `00_Inbox` `00_系统` `template` `private` `00_附件` `Excalidraw`
+
+**规则**：改完先 `grep` 一下文件路径在不在 `SKIP_DIRS` 里，不在才构建部署。
+
+**关于全量上传**：Cloudflare Pages 是内容寻址的，同一份内容重复部署会命中缓存
+不上传。但 Quartz 每次构建都会重算 hash，所以「重建 + 部署」几乎总是全量上传，
+这是正常现象，不是 bug。想避免就**别重建**（只改文档时）。
+
+
 ---
 
 ## 藏书馆 / 观影库 / 视频与专题
