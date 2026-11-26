@@ -83,5 +83,5 @@ git push
 if ($LASTEXITCODE -ne 0) { throw "推送失败" }
 
 Write-Host "`n已推送，GitHub Actions 正在构建部署（约 2 分钟）" -ForegroundColor Green
-Write-Host "进度：https://github.com/hfhfn/obsidian-notes/actions" -ForegroundColor Green
+Write-Host "进度：https://github.com/hfhfn/obsidian-site/actions" -ForegroundColor Green
 Write-Host "站点：https://hfhfn-notes.pages.dev" -ForegroundColor Green

@@ -641,7 +641,79 @@ Cloudflare Pages **只认站点根目录的 `_headers`**，Quartz 只把 `quartz
 本站封面按豆瓣 ID 命名，ID 不变文件不该变，所以 1 年安全）。
 **若换了封面图但文件名没变，用户最长 1 年看到旧图** —— 换图时要换文件名。
 
+### 20. CI 构建「显示成功但站点是坏的」——数据源被 gitignore
 
+**现象**：GitHub Actions 全绿，部署也成功，但线上排行榜（推荐 / 月度热书 /
+年度热书三个 tab）整个消失，只剩书架。
+
+**根因**：`.gitignore` 里整目录忽略了 `scripts/candidates/`，而
+`inject_charts.mjs` 的榜单数据源正是这里的 `book_charts.json` /
+`movie_charts.json`。本地有文件所以正常，CI checkout 下来没有 → 渲染不出来。
+
+**这类问题的通用特征**：
+
+```
+本地构建正常 + CI 构建也「成功」+ 线上缺内容
+  = 某个数据源/资源在 .gitignore 里
+```
+
+CI 不会因为缺数据源而报错（脚本读到空数组就跳过），所以**必须比对产物内容**，
+不能只看 Actions 是不是绿的。
+
+**修法**：`.gitignore` 只忽略真正可重新抓取的中间产物，保留构建必需的源数据。
+
+```gitignore
+# 忽略：可以随时重抓的
+scripts/candidates/book.json
+scripts/candidates/movie.json
+scripts/candidates/*_charts_raw.json
+
+# 保留：构建数据源（必须提交）
+scripts/candidates/book_charts.json
+scripts/candidates/movie_charts.json
+```
+
+**另外两个 CI 陷阱**（同批修的）：
+
+| 陷阱 | 表现 | 修法 |
+|---|---|---|
+| 没装 Python 依赖 | `Build public site` 退出码 1 | 加 `requirements.txt` + `pip install -r` |
+| 构建时下载封面 | 无代理环境每张超时 25s×3 | CI 用 `build_library.py --skip-covers` |
+
+**验证方式**：不能只看 Actions 绿了，要检查产物：
+
+```python
+# 藏书馆应有 3 个 tab、59 张榜单卡、59 个封面
+t = (dist/"藏书馆"/"index.html").read_text()
+assert t.count('class="lc-tab"') == 3
+assert t.count('class="lc-cell"') > 0
+```
+
+### 21. 仓库改名要同步三处
+
+GitHub 仓库从 `obsidian-notes` 改名为 `obsidian-site`（与本地目录同名）时，
+需要同步修改的地方：
+
+| 位置 | 内容 |
+|---|---|
+| GitHub 仓库设置 | 用 API `PATCH /repos/{owner}/{repo}` 带 `{"name": "新名"}` |
+| 本地 git remote | `git remote set-url origin <新地址>` |
+| `publish.ps1` | 第 86 行的 Actions 进度链接 |
+
+**改名前先查目标名是否被占用**：
+
+```bash
+curl -s -o /dev/null -w "%{http_code}" \
+  -H "Authorization: token $TOKEN" \
+  https://api.github.com/repos/hfhfn/obsidian-site
+# 404 = 可用
+```
+
+**权限要求**：需要 `admin: True`。GitHub OAuth token（`gho_` 前缀）如果能读到
+`"permissions": {"admin": true}` 就可以改名，不需要重新申请 PAT。
+
+改名后 GitHub 会自动保留旧地址的 301 重定向，但**不要依赖它**——
+本地 remote 和文档都要改成新地址。
 
 ---
 
