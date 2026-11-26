@@ -715,6 +715,106 @@ curl -s -o /dev/null -w "%{http_code}" \
 改名后 GitHub 会自动保留旧地址的 301 重定向，但**不要依赖它**——
 本地 remote 和文档都要改成新地址。
 
+### 22. 三库封面：三条独立链路，缺一条就全丢
+
+三库（藏书馆 / 观影库 / 视频与专题）的封面要正确显示，需要**三条链路同时成立**。
+任何一条断了，症状都是「卡片显示『无封面』」或「图片空白」，且**本地正常、线上不正常**。
+
+**链路一：`cover_local` 字段必须有值**
+
+`build_library.py` 的 `collect()` 每次都从 `modules/` 的 md frontmatter 重新解析，
+`cover_local` 不是从旧 JSON 继承的。所以：
+
+```python
+# 错：skip 时直接跳过整段，cover_local 全是空的
+if not skip_covers:
+    download_covers(kind, items)
+
+# 对：skip 时也要跑，从旧 JSON 读回映射复用
+n = download_covers(kind, items, skip=skip_covers)
+```
+
+`download_covers(skip=True)` 会读 `CONTENT_DIRS` 里的旧 JSON，建立
+`title → cover_local` 映射，并**校验文件真的在磁盘上**才复用。
+
+**链路二：封面文件必须在 git 里**
+
+```bash
+git ls-files content-all/attachments/covers/   # 必须 > 0
+git ls-files content-all/藏书馆/_books.json     # 必须存在
+```
+
+这两处曾被 `.gitignore` 隐式排除（没有显式规则，但从未 `git add`）。
+CI checkout 下来既没有图也没有路径记录，`skip` 模式无从复用。
+
+**链路三：站内相对路径必须小写**
+
+NotebookLM 信息图这类「站内相对路径」封面，`cover` 字段形如
+`attachments/modules/视频与专题/_assets/Agent Hooks_ .../infographic.webp`。
+
+**Quartz 构建时会把附件目录名转小写**，Cloudflare 跑在 Linux 上区分大小写：
+
+```
+大写路径 .../Agent Hooks_ .../infographic.webp  → 404
+小写路径 .../agent hooks_ .../infographic.webp  → 200
+```
+
+Windows 上两者都能访问，所以**本地完全看不出来**。必须显式转小写：
+
+```python
+if url and not url.startswith("http"):
+    it["cover_local"] = url.lower()   # 不能原样透传
+```
+
+**排查顺序**（从数据到渲染，逐层验证）：
+
+```python
+# 1. JSON 里有没有值
+json.load(open("content-all/视频与专题/_videos.json"))  # cover_local 非空？
+
+# 2. 产物里有没有值（Quartz 会把 JSON 复制到 dist）
+json.load(open("dist-public/视频与专题/_videos.json"))
+
+# 3. HTML 里有没有 img（不是 book-cover-empty）
+t = open("dist-public/视频与专题/index.html").read()
+t.count('class="book-cover-empty"')   # 应为 0 或极少
+
+# 4. 图片 URL 能不能 200
+# 5. 浏览器里 naturalWidth > 0
+```
+
+**注意**：第 3 步和第 4 步都通过，但浏览器仍可能显示空白——那是**图片太大加载慢**
+（见下条），不是 bug。
+
+### 23. 视频封面用信息图会慢到像「不显示」
+
+视频卡片的封面优先用 NotebookLM 导出的 `infographic.webp`（`build_library.py`
+第 336-339 行）。这是**设计选择**，因为信息图比 YouTube 缩略图更贴合专题语义。
+
+代价是体积：
+
+| 来源 | 尺寸 | 单张体积 | 首次加载 |
+|---|---|---|---|
+| `infographic.webp` | 1600×893 | 130–248 KB | **6–10 秒** |
+| YouTube `maxresdefault.jpg` | 1280×720 | ~72 KB | <1 秒 |
+
+卡片实际显示区域只有 191×108，24 张信息图共约 4MB。**新访客首次打开会看到
+6-10 秒的深灰空白**，第二次访问命中缓存（`immutable` 1 年）就正常了。
+
+这个「时好时坏」的错觉很容易误判成 bug。判断方法：
+
+```javascript
+// 浏览器里查真实下载耗时
+performance.getEntriesByType('resource')
+  .filter(r => /infographic/.test(r.name))
+  .map(r => ({ms: Math.round(r.duration), kb: Math.round(r.transferSize/1024)}))
+```
+
+如果 `transferSize > 0` 且 `naturalWidth > 0`，说明**图片是好的，只是慢**。
+
+要优化的话两个方向：换 YouTube 缩略图（快 3-4 倍、天然 16:9），
+或把信息图预压缩成 400px 宽的小图（体积降约 90%，保留信息图视觉）。
+
 ---
 
 ## 藏书馆 / 观影库 / 视频与专题
