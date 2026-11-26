@@ -390,6 +390,36 @@ def _cover_urls(url: str) -> list[str]:
     return urls
 
 
+def cover_file_exists(rel: str) -> bool:
+    """判断 content-all 下某个封面相对路径是否真的存在。
+
+    为什么不能直接 (SITE/"content-all"/rel).exists()：
+      JSON 里的 cover_local 存的是**小写**路径（Quartz 构建会把附件目录
+      转小写，Cloudflare 跑 Linux 区分大小写），而 git 里跟踪的文件名
+      保留原始大小写（如 "Agent Hooks_ 专业可靠的..."）。
+      Windows 不区分大小写所以本地判存在，Linux 上同一路径 404。
+      这里按「逐段大小写不敏感」比对真实文件名，两边都能判对。
+    """
+    base = SITE / "content-all"
+    cur = base
+    for part in Path(rel).parts:
+        if part in ("", "."):
+            continue
+        nxt = cur / part
+        if nxt.exists():
+            cur = nxt
+            continue
+        # 该段在 Linux 上可能大小写不符，扫目录找忽略大小写的匹配
+        if not cur.is_dir():
+            return False
+        low = part.lower()
+        hit = next((p for p in cur.iterdir() if p.name.lower() == low), None)
+        if hit is None:
+            return False
+        cur = hit
+    return cur.is_file()
+
+
 def download_covers(kind: str, items: list[dict], skip: bool = False) -> int:
     """把远程封面下载到站点本地，避免防盗链和第三方图床不稳定。
 
@@ -425,7 +455,7 @@ def download_covers(kind: str, items: list[dict], skip: bool = False) -> int:
         # 并确认文件真的在磁盘上（防止引用了已被清理的图）。
         if skip:
             old = prev.get(it["title"])
-            if old and (SITE / "content-all" / old).exists():
+            if old and cover_file_exists(old):
                 it["cover_local"] = old
                 ok += 1
             else:
