@@ -51,8 +51,20 @@ jobs:
           fi
 
       # ---------- 公开站：只含白名单目录 ----------
+      # 用 bash -x 逐条回显命令，并把 stderr 单独打印出来。
+      # GitHub 的失败日志在网页上默认折叠，拿不到具体报错；
+      # 加 ::error:: 注解后错误信息会直接显示在 Actions 摘要里。
       - name: Build public site
-        run: npm run build:public
+        run: |
+          set -o pipefail
+          npm run build:public 2>&1 | tee /tmp/build-public.log
+          code=${PIPESTATUS[0]}
+          if [ $code -ne 0 ]; then
+            echo "::error::build:public failed with exit code $code"
+            echo "===== 最后 60 行 ====="
+            tail -60 /tmp/build-public.log
+            exit $code
+          fi
         env:
           CF_ANALYTICS_TOKEN: ${{ secrets.CF_ANALYTICS_TOKEN }}
 
