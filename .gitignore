@@ -48,7 +48,11 @@ scripts/candidates/nlm_export_summary.json
 # nlm_remote/ 是 NotebookLM 导出的原始 PDF（511MB），只在本地用于上传 R2，
 # 构建时从 nlm_r2_manifest.json 拿 R2 URL，不需要这些 PDF 本体。
 scripts/candidates/nlm_remote/
-.hidden-slugs.json
+# 注意：.hidden-slugs.json 必须提交进仓库（不在此忽略）。
+# 它是「公开站要隐藏哪些视频」的决策结果，由 make_public_subset.py
+# 从 D1 查出后写入。CI 上 npx wrangler d1 execute 不可靠（npx 缓存会丢），
+# 查不到就静默返回空集合 → 隐藏的视频在公开站全部显示。
+# 提交进仓库后 CI 直接用这份清单，本地刷新时再提交新版本。
 .tmp-mm/
 
 # 误重定向产物：Windows 下 cmd 的 "> nul" 被当成文件名时会生成这些

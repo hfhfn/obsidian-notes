@@ -162,10 +162,13 @@ def clean_homepage(out_dir: Path, private_prefixes: set[str]) -> int:
 
 
 def fetch_hidden_slugs() -> set[str]:
-    """从 D1 读公开站隐藏列表。
+    """从 D1 读公开站隐藏列表；D1 不可达时退回仓库里的 .hidden-slugs.json。
 
-    用 wrangler d1 execute 拿 JSON。失败返回空集合 ——
-    构建不能因为 D1 不可达就整体失败。
+    为什么要有 fallback：
+      CI 上没有 npx 缓存、也可能拿不到 D1，wrangler 调用会失败。
+      以前失败就 `return set()`，导致隐藏列表变空 → 隐藏的视频在公开站
+      全部显示（用户反馈「公开站点被隐藏的视频依然能看到」）。
+      现在失败时读仓库里已提交的清单，保证构建可复现。
     """
     import subprocess
 
@@ -182,21 +185,30 @@ def fetch_hidden_slugs() -> set[str]:
             shell=True,
         )
         if r.returncode != 0:
-            print(f"  [warn] 读隐藏列表失败，按无隐藏处理")
-            return set()
+            raise RuntimeError(f"wrangler 退出码 {r.returncode}")
 
         # wrangler 输出前面有 npm notice 之类的噪音，取第一个 JSON 数组
         out = r.stdout
         start = out.find("[")
         if start < 0:
-            return set()
+            raise RuntimeError("输出里没有 JSON 数组")
         data = json.loads(out[start:])
         rows = []
         for block in data:
             rows.extend(block.get("results") or [])
         return {row["slug"] for row in rows if row.get("slug")}
     except Exception as e:
-        print(f"  [warn] 读隐藏列表异常：{e}")
+        # 退回仓库里的清单（CI 场景）
+        fallback = ROOT / ".hidden-slugs.json"
+        if fallback.exists():
+            try:
+                arr = json.loads(fallback.read_text(encoding="utf-8"))
+                if isinstance(arr, list) and arr:
+                    print(f"  [warn] 读 D1 失败（{e}），用仓库清单：{len(arr)} 条")
+                    return set(arr)
+            except Exception:
+                pass
+        print(f"  [warn] 读隐藏列表失败（{e}），按无隐藏处理")
         return set()
 
 
