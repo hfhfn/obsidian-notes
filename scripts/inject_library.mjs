@@ -129,8 +129,28 @@ export const FILTER_JS = `
       if (da === db) return 0;
       return da < db ? -sign : sign;
     });
-    // appendChild 会移动已有节点，按排好的顺序依次追加即可
-    for (var i = 0; i < cards.length; i++) grid.appendChild(cards[i]);
+
+    // 排序前先断开 MutationObserver。
+    //
+    // appendChild 会移动已有节点，属于 childList 变化 —— 会被 watch() 里的
+    // MutationObserver 捕获，触发 safe() → setup() → 再次 applySort，
+    // 形成循环。循环期间 DOM 处于「排到一半」的中间状态，用户看到的就是
+    // 「封面和标题对不上」；同时 state.page 被反复读写，翻页一次跳多页。
+    //
+    // 用 DocumentFragment 一次性替换更彻底：先把排好序的节点放进 fragment，
+    // 再整体 append，只产生一轮 childList 变化。
+    var mo = window.__libMO;
+    if (mo) mo.disconnect();
+    try {
+      var frag = document.createDocumentFragment();
+      for (var i = 0; i < cards.length; i++) frag.appendChild(cards[i]);
+      grid.appendChild(frag);
+    } finally {
+      // 重新观察。observe 同一个 target 是幂等的。
+      if (mo) {
+        mo.observe(document.body, { childList: true, subtree: true });
+      }
+    }
   }
 
   function render(tabs, grid, pager, key, page){
