@@ -766,6 +766,44 @@ if url and not url.startswith("http"):
     it["cover_local"] = url.lower()   # 不能原样透传
 ```
 
+**链路三的延伸：校验函数也要忽略大小写**
+
+光把 `cover_local` 转小写还不够。`--skip-covers` 复用时的存在性校验如果写成：
+
+```python
+if old and (SITE / "content-all" / old).exists():   # 错
+```
+
+Windows 上 `agent hooks_/` 能找到 `Agent Hooks_/`，返回 True；
+Linux 上返回 False，封面被 `pop` 掉，产物就缺图了。
+
+**CI 日志里的症状**：本地 `[video] 封面复用 36 张`，CI 只有 `17 张`，
+差额正好是那些带大写字母的目录（信息图类）。
+
+正确写法是逐段大小写不敏感比对：
+
+```python
+def cover_file_exists(rel: str) -> bool:
+    cur = SITE / "content-all"
+    for part in Path(rel).parts:
+        if part in ("", "."):
+            continue
+        nxt = cur / part
+        if nxt.exists():        # Windows 快路径
+            cur = nxt
+            continue
+        if not cur.is_dir():
+            return False
+        hit = next((p for p in cur.iterdir() if p.name.lower() == part.lower()), None)
+        if hit is None:
+            return False
+        cur = hit
+    return cur.is_file()
+```
+
+这条对**所有**「JSON 存小写、磁盘存原始大小写」的场景都适用，
+不只封面——比如 `attachments/modules/` 下的任何附件。
+
 **排查顺序**（从数据到渲染，逐层验证）：
 
 ```python
