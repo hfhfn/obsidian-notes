@@ -1,0 +1,88 @@
+# Cloudflare Pages 缓存策略
+#
+# 为什么需要这个文件：
+#   之前没有 _headers，Cloudflare 用默认策略 →
+#     HTML: Cache-Control: public, max-age=0, must-revalidate  → 每次回源
+#     图片: Cache-Control: public, max-age=14400, must-revalidate → 4 小时就失效
+#   实测同一张封面图请求 5 次，5 次都是 cf-cache-status: REVALIDATED，
+#   每次耗时 0.5~1.1 秒。藏书馆一页 16 张图，浏览器实测单张 6~9 秒。
+#
+# 规则依据：
+#   - 内容哈希命名的资源（component-*.css / nx-runtime.*.js）内容永不变 → 永久缓存
+#   - 图片带文件名稳定、但可能被替换 → 1 年 + immutable（改图时换文件名）
+#   - HTML 是入口，必须有条件缓存：max-age=0 + must-revalidate 保证拿到新版本，
+#     但配合 ETag 时未变更返回 304，省流量
+#   - _headers 只在 Pages 的静态资源上生效，Functions 的响应头由代码控制
+
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+
+# ===== 内容哈希命名的静态资源：永久缓存 =====
+# Quartz 产出的 component-<hash>.css、index-<hash>.css、resource-style-<hash>.css
+# 文件名里的 hash 就是内容指纹，内容一变文件名就变，所以可以永久缓存。
+/component-*.css
+  Cache-Control: public, max-age=31536000, immutable
+
+/index-*.css
+  Cache-Control: public, max-age=31536000, immutable
+
+/resource-style-*.css
+  Cache-Control: public, max-age=31536000, immutable
+
+/static/nx-runtime.*.js
+  Cache-Control: public, max-age=31536000, immutable
+
+/static/scripts/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/prescript-*.js
+  Cache-Control: public, max-age=31536000, immutable
+
+/postscript-*.js
+  Cache-Control: public, max-age=31536000, immutable
+
+# ===== 图片：一年 + immutable =====
+# 封面/配图按文件名区分，替换图片时应换文件名（构建脚本已按 id 命名）。
+# 注意：不要给 HTML 加 immutable，否则用户永远看不到更新。
+/attachments/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/static/icon.png
+  Cache-Control: public, max-age=31536000, immutable
+
+/static/fonts/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# ===== 字体：一年 =====
+# 字体文件内容稳定，文件名带 hash 或不常变
+*.woff2
+  Cache-Control: public, max-age=31536000, immutable
+
+*.ttf
+  Cache-Control: public, max-age=31536000, immutable
+
+# ===== vendor 第三方库：一年 =====
+# markmap / d3 等第三方库版本固定，不常变
+/vendor/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# ===== 数据文件：短期缓存 =====
+# contentIndex.json 随内容变化，但不需要每次请求都回源；
+# 5 分钟够新，且能挡住短时间内的重复请求
+/static/contentIndex.json
+  Cache-Control: public, max-age=300, must-revalidate
+
+# ===== HTML：必须重新验证，但允许 304 =====
+# 这是入口页面，内容会变。max-age=0 + must-revalidate 保证：
+#   - 浏览器每次都问服务器
+#   - 未变更时服务器返回 304（几十字节），不重传 HTML
+/*.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+# ===== RSS / sitemap：短期 =====
+/index.xml
+  Cache-Control: public, max-age=600
+
+/sitemap.xml
+  Cache-Control: public, max-age=600
