@@ -1,0 +1,621 @@
+{
+  "05b3ed27-2215-4ea0-8360-34d3676b2bcf": {
+    "title": "agentic-graphRAG方案",
+    "sources": [
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=_IhdFEuiBFw",
+        "title": "基于最新LangChain1.2，LangExtract轻量化实现\"法律 医疗 金融等垂直领域RAG幻觉\"技术解决方案！Agentic-GraphRAG精讲"
+      }
+    ]
+  },
+  "82a25fee-9f19-4ec1-b0d8-5832f449b142": {
+    "title": "中国AI产业冰山图",
+    "sources": [
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=HMC-s_zkNyE",
+        "title": "中国AI产业冰山图！全面盘点～【万字解析】"
+      }
+    ]
+  },
+  "8c63c2b8-e62b-4150-bf81-00e9634ef2bb": {
+    "title": "掘金头条项目实战抽取面试知识点",
+    "sources": []
+  },
+  "46d9af21-3356-45fd-aafd-ae9b6648c768": {
+    "title": "杰弗里辛顿: 数字智能的演进与生存危机",
+    "sources": [
+      {
+        "type": "web_page",
+        "url": "https://www.financialexpress.com/trending/the-thinking-game-crosses-200m-views-in-4-weeks-how-googles-viral-documentary-is-spilling-agi-secrets/4092092/",
+        "title": "'The Thinking Game' crosses 200M views in 4 weeks: How Google's viral documentary is spilling AGI secrets - Trending News | The Financial Express"
+      },
+      {
+        "type": "web_page",
+        "url": "https://timesofindia.indiatimes.com/technology/social/200-million-views-in-4-weeks-google-ai-ceo-demis-hassabis-celebrates-success-of-the-thinking-game-documentary-on-youtube/articleshow/126227133.cms",
+        "title": "200 million views in 4 weeks: Google AI CEO Demis Hassabis celebrates success of The Thinking Game documentary on YouTube - The Times of India"
+      },
+      {
+        "type": "web_page",
+        "url": "https://indianexpress.com/article/technology/artificial-intelligence/agi-debate-yann-lecun-elon-musk-demis-hassabis-10439835/",
+        "title": "AGI row: Elon Musk backs Google's Hassabis in dispute with AI pioneer Yann LeCun"
+      },
+      {
+        "type": "web_page",
+        "url": "https://deepmind.google/blog/demis-hassabis-john-jumper-awarded-nobel-prize-in-chemistry/",
+        "title": "Demis Hassabis & John Jumper awarded Nobel Prize in Chemistry - Google DeepMind"
+      },
+      {
+        "type": "web_page",
+        "url": "https://en.wikipedia.org/wiki/Demis_Hassabis",
+        "title": "Demis Hassabis - Wikipedia"
+      },
+      {
+        "type": "web_page",
+        "url": "https://beyondplm.com/2025/11/30/from-data-control-to-goal-achievement-ais-impact-on-plm-workflows/",
+        "title": "From Data Control to Goal Achievement: AI's Impact on PLM Workflows"
+      },
+      {
+        "type": "web_page",
+        "url": "https://www.reddit.com/r/BetterOffline/comments/1p79gsa/new_documentary_on_deepmind_the_thinking_game/",
+        "title": "New documentary on DeepMind - \"The Thinking Game\" : r ... - Reddit"
+      },
+      {
+        "type": "web_page",
+        "url": "https://www.reelasdirt.com/gregkohs",
+        "title": "Official bio of award-winning filmmaker Greg Kohs"
+      },
+      {
+        "type": "web_page",
+        "url": "https://www.nobelprize.org/prizes/chemistry/2024/press-release/",
+        "title": "Press release: The Nobel Prize in Chemistry 2024 - NobelPrize.org"
+      },
+      {
+        "type": "web_page",
+        "url": "https://www.geeky-gadgets.com/general-intelligence-definition/",
+        "title": "The AGI Debate That's Currently Dividing Google & Meta - Geeky Gadgets"
+      },
+      {
+        "type": "web_page",
+        "url": "https://www.filmreviewdaily.com/new-reviews/the-thinking-game",
+        "title": "The Thinking Game - FILM REVIEW"
+      },
+      {
+        "type": "web_page",
+        "url": "https://www.thefilmcollaborative.org/films/thethinkinggame",
+        "title": "The Thinking Game - The Film Collaborative"
+      },
+      {
+        "type": "web_page",
+        "url": "http://cineoutsider.com/reviews/films/t/thinking_game.html",
+        "title": "The Thinking Game streaming review | Cine Outsider"
+      },
+      {
+        "type": "web_page",
+        "url": "https://tribecafilm.com/films/thinking-game-2024",
+        "title": "The Thinking Game | 2024 Tribeca Festival"
+      },
+      {
+        "type": "web_page",
+        "url": "https://jontheblogcentric.org/2024/10/23/viff-2024-review-the-thinking-game/",
+        "title": "VIFF 2024 Review: The Thinking Game - Jon The Blogcentric"
+      },
+      {
+        "type": "web_page",
+        "url": "https://www.reddit.com/r/Bard/comments/1p6giik/watch_the_thinking_game_a_documentary_about/",
+        "title": "Watch 'The Thinking Game,' a documentary about Google DeepMind, for free on YouTube. : r/Bard - Reddit"
+      },
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=ts3zKEIYjXE",
+        "title": "【人工智能】杰弗里·辛顿2025观点2万字总结 | 诺奖得主 | 智能压缩 | 权重共享 | 进化带宽 | 反向传播 | 硅基文明 | 能效陷阱 | 知识蒸馏 | AGI临界点 | 特征捕捉"
+      }
+    ]
+  },
+  "77a108a2-22b0-46e5-a6d4-c6f10d8edbc7": {
+    "title": "Deepseek的Engram论文: 高效记忆网络作为MOE架构的补充",
+    "sources": [
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=LOHYVlZ0cwM",
+        "title": "DeepSeek Engram 论文串讲：从 Memory Network 到 N-gram Embedding"
+      }
+    ]
+  },
+  "bd5a7268-3ec5-4c71-b0de-b841a64ba0b6": {
+    "title": "Defining Standardized Skills for AI Agents",
+    "sources": []
+  },
+  "579f56bd-2cdd-4bd9-8ec4-a11c4479eeda": {
+    "title": "智力涌现: 预测下一个token",
+    "sources": []
+  },
+  "faaaf5c7-c207-4aaf-bf68-4d6813533f60": {
+    "title": "Andrew Ng’s Agentic Frameworks: Marriage Analogies",
+    "sources": []
+  },
+  "08ccc605-5599-4702-b373-f7524d1d0ded": {
+    "title": "智能体进化：长程Agent-自主规划记忆执行复杂任务",
+    "sources": [
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=baJ72mP_fKo",
+        "title": "【人工智能】AI不再只动嘴皮子 | 长程Agent | LangChain CEO | Harness架构 | 内存记忆护城河 | 告别对话框 | 自主规划 | Tracing追踪技术 | 自动化运维"
+      }
+    ]
+  },
+  "f88c69d0-bb53-427a-8bd9-402450e4f0e0": {
+    "title": "美团智能问答KBQA系统的架构和实现",
+    "sources": []
+  },
+  "397468d3-cefd-4599-9b37-c8fd9ff4269a": {
+    "title": "海量实时广告流平台的架构设计与核心实践",
+    "sources": [
+      {
+        "type": "youtube",
+        "url": "https://youtu.be/nZaoGz1Uht4",
+        "title": "1、海量实时广告流平台架构设计与实践（一）【瑞客论坛 www ruike1 com】"
+      },
+      {
+        "type": "youtube",
+        "url": "https://youtu.be/rWOMBs-SXwE",
+        "title": "2、海量实时广告流平台架构设计与实践（二）【瑞客论坛 www ruike1 com】"
+      }
+    ]
+  },
+  "60a7bb20-cd38-4563-8aa4-4a226c9bfcba": {
+    "title": "“涌现” 量变引起质变的过程与自然界的演化逻辑高度契合",
+    "sources": [
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=dmGrWNL7Fv8",
+        "title": "万物涌现的秘密 | 为什么多即是不同 | 从蚁群到大模型AI的智能真相"
+      }
+    ]
+  },
+  "248cad6d-4287-445b-937f-f5eef8bb9618": {
+    "title": "openclaw常用操作指令",
+    "sources": [
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=6WzuqO8xwZo",
+        "title": "一个视频让你OpenClaw技术瞬间超越90%的人"
+      }
+    ]
+  },
+  "8613a8e1-9f97-4b6b-87b7-da52b2c72504": {
+    "title": "RFM案例PPT生成",
+    "sources": []
+  },
+  "30a7e0f1-31c7-4fef-9d31-0b71c30f09f7": {
+    "title": "lora微调deepseek大模型demo",
+    "sources": [
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=Iit7p9K9grU",
+        "title": "手把手教你微调Deepseek-R1！0成败实战，全程干货，建议收藏！"
+      }
+    ]
+  },
+  "3b479fdd-d491-43df-8c50-12292dad6f73": {
+    "title": "claude code泄露解读",
+    "sources": [
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=DXTS82fJO9A",
+        "title": "Claude Code源码泄漏，首发解读51万行代码！"
+      }
+    ]
+  },
+  "23dc06d6-3629-4168-834e-37a8fbb16b6f": {
+    "title": "构建生产级Agent Memory系统架构",
+    "sources": [
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=rDTUDnPwUa0",
+        "title": "构建生产级Agent Memory的系统架构"
+      }
+    ]
+  },
+  "5b224f7e-982d-4cc7-b11c-1d2247818530": {
+    "title": "AI时代, 命令行界面(CLI)的复兴",
+    "sources": [
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=5rAIU0GBjII",
+        "title": "为什么巨头都在做CLI(命令行界面)？比起MCP有哪些优势？ #AI #CLI #Agent #科技 #计算机"
+      }
+    ]
+  },
+  "96a796d5-cb04-4f4f-b9c9-c67e7b78b866": {
+    "title": "mattpocock/skills仓库的AI-Coding工程流程Skills",
+    "sources": [
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=EJyuu6zlQCg",
+        "title": "5 Claude Code skills I use every single day"
+      }
+    ]
+  },
+  "d98860f4-8946-4129-bb8c-46e2de3050fd": {
+    "title": "技术视频制作的自主Agent工作流",
+    "sources": [
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=0hM2SkHZ2UU",
+        "title": "Harness 实践：让 Agent 全自动制作知识讲解视频"
+      }
+    ]
+  },
+  "9ecbd7c7-459d-471d-969e-6d7e599ce993": {
+    "title": "2023–2026 LLM架构的演进 Technical Roadmap",
+    "sources": [
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=jMz1NT4xScc",
+        "title": "【硬核深度】2023~2026大模型架构演进全复盘：分词器 / 位置编码 / 注意力机制 / MoE/ 归一化 / 激活函数！大模型零基础入门教程！#大模型 #人工智能 #人工智能课程 #ai"
+      }
+    ]
+  },
+  "385acacd-5af3-4eb1-b52b-049ec7caafbc": {
+    "title": "Agent Harness工程化实践",
+    "sources": [
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=HcCWJGrJPbI",
+        "title": "AI Agent Harness架构师级全景解析，2026必备核心技术！"
+      },
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=S36ri23-l60",
+        "title": "Agent Harness十二大模块完全解析 | Harness工程 | 影响模型性能 | Anthropic | OpenAI | LangGraph | 七大架构抉择"
+      },
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=VO-MBbe-PjI",
+        "title": "Harness enginerring方法论与落地指南！深度详解，全程干货，通俗易懂！"
+      },
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=3DlXq9nsQOE",
+        "title": "最近爆火的 Harness Engineering 到底是个啥？一期讲透！"
+      }
+    ]
+  },
+  "1e4e6636-c57c-45e3-9ec6-dc32e95ad867": {
+    "title": "大模型评估 lm-eval 实用指南",
+    "sources": [
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=17lpoQA6Wno",
+        "title": "大模型评估权威指南，lm-eval实战解析！20个核心问题，深入理解LLM微调最关键的一环！"
+      }
+    ]
+  },
+  "6360baf7-3c32-42da-8b26-75bb28320628": {
+    "title": "优化RAG检索：查询重写工程指南",
+    "sources": [
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=U3h2iTIYl5Q",
+        "title": "RAG系统中的Query改写技术全解析"
+      }
+    ]
+  },
+  "9451f591-41fe-43b4-adc5-03b1bc43e6bf": {
+    "title": "在AI时代掌握Git和GitHub",
+    "sources": [
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=bWUUHBVg-7E&t=20s",
+        "title": "Git+Github核心概念大串讲，从零到一全攻略，详细实战教程"
+      }
+    ]
+  },
+  "f72037f9-7650-4b9f-a8ad-781b725a5f8c": {
+    "title": "Claude Code 从0到1全攻略",
+    "sources": [
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=AT4b9kLtQCQ",
+        "title": "Claude Code 从 0 到 1 全攻略 —— MCP / SubAgent / Agent Skill / Hook / 图片 / 上下文处理/ 后台任务 / 权限 ......"
+      }
+    ]
+  },
+  "6bdcda62-b30e-4646-bbbb-b438e4403182": {
+    "title": "Agent生产力:  四组 Skills",
+    "sources": [
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=diU-Nbb1P_c",
+        "title": "https://youtu.be/diU-Nbb1P_c"
+      }
+    ]
+  },
+  "12c35a4e-d4a4-4a43-ab36-2114db41bab7": {
+    "title": "2025中国企业级AI智能体落地与实践全景图",
+    "sources": [
+      {
+        "type": "web_page",
+        "url": "https://cn.indeed.com/q-ai%E5%B2%97%E4%BD%8D%E6%8B%9B%E8%81%98-%E8%81%8C%E4%BD%8D.html",
+        "title": "100 个Ai岗位招聘职位 - Indeed 中国"
+      },
+      {
+        "type": "web_page",
+        "url": "https://www.shaqiu.cn/article/aQEDYdnbLW0A",
+        "title": "4份Agent必读报告：从技术路线、落地实践到主流厂商全景图 - 沙丘社区"
+      },
+      {
+        "type": "web_page",
+        "url": "https://www.yonyou.com/news/4298",
+        "title": "AI Agent 打通企业AI落地的“最后一公里” - 用友"
+      },
+      {
+        "type": "web_page",
+        "url": "https://www.shaqiu.cn/article/eDMGVwbrLPrJ",
+        "title": "AI Agent落地实践：21个头部企业案例研究 - 沙丘社区"
+      },
+      {
+        "type": "web_page",
+        "url": "https://m.mp.oeeee.com/a/BAAFRD0000202503131059275.html",
+        "title": "AI+金融，平安银行加速推进科技赋能数字化转型实践之路"
+      },
+      {
+        "type": "web_page",
+        "url": "https://www.21jingji.com/article/20260527/herald/bdcfb21945b50311762860eac946df54.html",
+        "title": "AI招聘，正让BOSS直聘们加速增长 - 21财经"
+      },
+      {
+        "type": "web_page",
+        "url": "https://m.thepaper.cn/newsDetail_forward_33405385",
+        "title": "AI能力“溢出”港口之后，西井科技在空港、工厂等多元领域跑出第二增长曲线 - 澎湃新闻"
+      },
+      {
+        "type": "web_page",
+        "url": "https://www.gaoxiaojob.com/bk_jobs/mhpqkmop",
+        "title": "Agent算法工程师招聘要求有哪些 - 高校人才网"
+      },
+      {
+        "type": "web_page",
+        "url": "https://www.shlab.org.cn/joinus/detail/7583654129794615571?mode=social",
+        "title": "Agent系统与应用工程师- 系统平台_社会招聘 - 上海人工智能实验室"
+      },
+      {
+        "type": "web_page",
+        "url": "https://finance.cnr.cn/zghq/20260123/t20260123_527504017.shtml",
+        "title": "BOSS直聘：AI岗位需求“井喷式”增长，复合型人才受市场追捧 - 央广财经"
+      },
+      {
+        "type": "web_page",
+        "url": "https://m.cyzone.cn/article/804864",
+        "title": "Manus“跑路”风波背后，AI Agent的商业化困局"
+      },
+      {
+        "type": "pdf",
+        "url": "https://pdf.dfcfw.com/pdf/H3_AP202503131644339445_1.pdf",
+        "title": "中国AI Agent 行业研究报告（二）"
+      },
+      {
+        "type": "web_page",
+        "url": "https://cn.indeed.com/q-ai-agent-l-%E4%B8%8A%E6%B5%B7%E5%B8%82-%E8%81%8C%E4%BD%8D.html",
+        "title": "在上海市地区的Ai agent 职位 - Indeed 中国"
+      },
+      {
+        "type": "web_page",
+        "url": "https://finance.sina.com.cn/jjxw/2025-03-27/doc-inerauek3896102.shtml",
+        "title": "当求职遇到AI，BOSS直聘优化多项功能为应届生保驾护航 - 新浪财经"
+      },
+      {
+        "type": "web_page",
+        "url": "https://www.shaqiu.cn/zhiku",
+        "title": "沙丘智库"
+      },
+      {
+        "type": "web_page",
+        "url": "https://www.betteryeah.com/blog/financial-ai-agent-implementation-guide-2025",
+        "title": "金融行业AI Agent落地指南2025：技术架构、实施策略与风险管控全解析"
+      }
+    ]
+  },
+  "9b37d671-4763-4a64-8ba2-6452c390d7db": {
+    "title": "LLM-Wiki：RAG与知识工程流程的演进",
+    "sources": [
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=g1Y7Rrz7u4k",
+        "title": "LLM Wiki 深度解析：从 RAG、GraphRAG 到大模型知识运行时"
+      }
+    ]
+  },
+  "a3538908-2a6e-47c0-974c-0f8390b4e974": {
+    "title": "Local AI Realtime Voice Guide",
+    "sources": [
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=cQ9va00zYNU",
+        "title": "太爽了！本地 AI 实时语音来了！免费开源、低延迟，仅需4G显存，支持中文（Realtime Voice）| 零度解说"
+      },
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=bDznyUOAzuc",
+        "title": "本地语音 AI 终于统一了！ 实时对话、声音克隆、AI 翻唱8G 显存全跑通｜audio.cpp｜整合包"
+      }
+    ]
+  },
+  "99ec8233-e8b6-4bf0-a9d2-5d4427902374": {
+    "title": "Qwen-27B 8GB VRAM 本地部署优化",
+    "sources": [
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=txUByfiaeOM",
+        "title": "8G显存运行Qwen3.8-27B，比Flash-Next更适合本地部署，附全部配置参数"
+      }
+    ]
+  },
+  "523f2825-afe8-49a6-873b-6bfa7e64dda5": {
+    "title": "Agent Hooks: 专业可靠的自动化控制机制",
+    "sources": [
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=vo5vqrtuThg",
+        "title": "Agent Hook 深度教程：事件、匹配、处理器、阻止机制一次讲透"
+      }
+    ]
+  },
+  "2d96ef54-6366-4ac3-9f56-6241d78f297e": {
+    "title": "From Transformer to LLM: 进化之路",
+    "sources": [
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=MusyyIW2dro",
+        "title": "【闪客】一小时从 Transformer 到大模型！"
+      }
+    ]
+  },
+  "1cd542b9-150f-4534-ad57-4bf16fa352ea": {
+    "title": "从向量到transformer, 大模型演进历程",
+    "sources": [
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=j-PLWhTJVsc",
+        "title": "从词向量到Transformer，AI大模型背后的原理，一个动画急速入门"
+      }
+    ]
+  },
+  "6cb28d5a-bf81-4b55-916e-e9ad688e687b": {
+    "title": "Agent 企业级工程落地系统架构技术方案",
+    "sources": [
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=x-s1Dbp4BE4",
+        "title": "Agent系统架构与工程落地十连问快问快答"
+      }
+    ]
+  },
+  "d5d1adcd-cb9d-4b0e-af94-ff1ba3c30ad4": {
+    "title": "Decoding Transformer Architecture: From Attention to QKV Mechanics",
+    "sources": [
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=jn7XU4OaIaE",
+        "title": "Transformer到底是个啥？一个动画彻底搞懂"
+      }
+    ]
+  },
+  "1c16cb77-17a9-488b-a00a-48a880345dd9": {
+    "title": "Mastering ByteDance Agent and RAG Architectures",
+    "sources": [
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=Pio4SrsPHCY",
+        "title": "月薪从25K冲到45K：字节Agent & RAG架构通关密码"
+      }
+    ]
+  },
+  "fd8c1190-3c83-4901-a80a-265c57bc420d": {
+    "title": "Large Model Training Processes and Refinement Techniques",
+    "sources": [
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=FkYLL4L0BfY",
+        "title": "大模型完整训练全过程编辑后 #大模型 #人工智能 #ai"
+      }
+    ]
+  },
+  "a28c4200-ea93-4ae2-a9d4-d396a1a2fe22": {
+    "title": "From Loop to Graph: 工程可靠的多智能体系统",
+    "sources": [
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=8RedSkw1UjE",
+        "title": "什么是图工程 | Graph Engineering | 循环工程 | Loop Engineering | 多智能体 | LangGraph | ReAct | 提示词工程 | 工作流编排 |验证器"
+      }
+    ]
+  },
+  "2eaae914-012d-459d-b00d-afc513c84247": {
+    "title": "Mastering GraphRAG: 高级知识图谱集成策略",
+    "sources": [
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=Uz7K757psEU",
+        "title": "突破单跳限制：真正的高阶 RAG 架构与落地实践"
+      }
+    ]
+  },
+  "fbf4b75b-c7d2-43f9-868f-e6d150320fc8": {
+    "title": "企业RAG安全：全链接权限和防泄漏策略",
+    "sources": [
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=aGpyWKtgjoU",
+        "title": "企业级RAG知识库全链路权限防泄密实战！"
+      }
+    ]
+  },
+  "ab5622d8-632b-4020-82e5-8eb63259db50": {
+    "title": "AI 动画视频创作完全指南",
+    "sources": [
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=0RIUsrk28GE",
+        "title": "【经验开源】AI 做动画视频完全指南：原理、技巧、Skill 一次给全"
+      }
+    ]
+  },
+  "9211a1f7-4188-4ae7-aac4-b16c179d556d": {
+    "title": "DeepSeek Super-agent 架构解析",
+    "sources": [
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=qX7msY_RYWY",
+        "title": "DeepSeek 新出的 Super Agent 是什么？真有用么？#deepseek #agent #ai #vibecoding #programming #coding #github #cs"
+      }
+    ]
+  },
+  "11bcdf09-7aeb-43ba-ace3-6f6ba415e20e": {
+    "title": "DeepSeek 超级智能体架构解析",
+    "sources": [
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=jLeYfSBXG_E",
+        "title": "DeepSeek最新开源的Super Agent是什么东西，一个动画彻底搞懂！"
+      }
+    ]
+  },
+  "3604f738-bcd1-4639-8ad6-a8e457c4a38e": {
+    "title": "AI 代码审核与全流程质量保障指南",
+    "sources": [
+      {
+        "type": "web_page",
+        "url": "https://claude.dev/blog/solving-code-review-at-anthropic/#when-we-change-direction",
+        "title": "How the Claude Code team does code review / claude.dev Blog"
+      },
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=h0ALH6qBb7k",
+        "title": "如何审核 AI 写的代码？从写代码到上线，一套保证产品质量的全流程"
+      }
+    ]
+  },
+  "9066ce02-0c78-45fb-89fd-03da432e9bd7": {
+    "title": "Milvus 向量数据库架构和系统设计",
+    "sources": [
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=-hKHbHA0KKI",
+        "title": "Milvus架构解析：从单机到分布式讲透"
+      }
+    ]
+  },
+  "abb19f3e-7453-4004-af65-24656ee22ac8": {
+    "title": "Agent Skills演进逻辑",
+    "sources": [
+      {
+        "type": "youtube",
+        "url": "https://www.youtube.com/watch?v=QnmW0FC7eN0",
+        "title": "10分钟彻底讲透Agent Skills，深度解析Skills、workflow、MCP与Command的演进逻辑！"
+      }
+    ]
+  }
+}

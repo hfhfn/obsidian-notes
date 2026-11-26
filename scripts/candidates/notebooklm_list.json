@@ -1,0 +1,475 @@
+{
+  "notebooks": [
+    {
+      "index": 1,
+      "id": "ab5622d8-632b-4020-82e5-8eb63259db50",
+      "title": "AI 动画视频创作完全指南",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-11-07T19:37:11+00:00",
+      "last_viewed_at": "2026-11-21T20:15:14+00:00",
+      "modified_at": "2026-11-21T20:15:14+00:00"
+    },
+    {
+      "index": 2,
+      "id": "9211a1f7-4188-4ae7-aac4-b16c179d556d",
+      "title": "DeepSeek Super-agent 架构解析",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-11-07T16:40:28+00:00",
+      "last_viewed_at": "2026-11-07T19:35:42+00:00",
+      "modified_at": "2026-11-07T19:35:42+00:00"
+    },
+    {
+      "index": 3,
+      "id": "11bcdf09-7aeb-43ba-ace3-6f6ba415e20e",
+      "title": "DeepSeek 超级智能体架构解析",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-11-04T02:35:37+00:00",
+      "last_viewed_at": "2026-11-04T02:35:39+00:00",
+      "modified_at": "2026-11-04T02:35:39+00:00"
+    },
+    {
+      "index": 4,
+      "id": "3604f738-bcd1-4639-8ad6-a8e457c4a38e",
+      "title": "AI 代码审核与全流程质量保障指南",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-10-29T03:28:43+00:00",
+      "last_viewed_at": "2026-10-29T03:28:44+00:00",
+      "modified_at": "2026-10-29T03:28:44+00:00"
+    },
+    {
+      "index": 5,
+      "id": "9066ce02-0c78-45fb-89fd-03da432e9bd7",
+      "title": "Milvus 向量数据库架构和系统设计",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-09-30T10:53:11+00:00",
+      "last_viewed_at": "2026-09-30T10:53:12+00:00",
+      "modified_at": "2026-09-30T10:53:12+00:00"
+    },
+    {
+      "index": 6,
+      "id": "fbf4b75b-c7d2-43f9-868f-e6d150320fc8",
+      "title": "企业RAG安全：全链接权限和防泄漏策略",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-09-17T11:06:17+00:00",
+      "last_viewed_at": "2026-09-18T00:58:04+00:00",
+      "modified_at": "2026-09-18T00:58:04+00:00"
+    },
+    {
+      "index": 7,
+      "id": "2eaae914-012d-459d-b00d-afc513c84247",
+      "title": "Mastering GraphRAG: 高级知识图谱集成策略",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-09-09T05:25:33+00:00",
+      "last_viewed_at": "2026-09-13T06:18:47+00:00",
+      "modified_at": "2026-09-13T06:18:47+00:00"
+    },
+    {
+      "index": 8,
+      "id": "a28c4200-ea93-4ae2-a9d4-d396a1a2fe22",
+      "title": "From Loop to Graph: 工程可靠的多智能体系统",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-09-05T18:14:01+00:00",
+      "last_viewed_at": "2026-09-06T03:10:31+00:00",
+      "modified_at": "2026-09-06T03:10:31+00:00"
+    },
+    {
+      "index": 9,
+      "id": "fd8c1190-3c83-4901-a80a-265c57bc420d",
+      "title": "Large Model Training Processes and Refinement Techniques",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-09-04T01:23:11+00:00",
+      "last_viewed_at": "2026-09-04T01:23:12+00:00",
+      "modified_at": "2026-09-04T01:23:12+00:00"
+    },
+    {
+      "index": 10,
+      "id": "1c16cb77-17a9-488b-a00a-48a880345dd9",
+      "title": "Mastering ByteDance Agent and RAG Architectures",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-09-01T12:23:13+00:00",
+      "last_viewed_at": "2026-09-02T02:59:20+00:00",
+      "modified_at": "2026-09-02T02:59:20+00:00"
+    },
+    {
+      "index": 11,
+      "id": "d5d1adcd-cb9d-4b0e-af94-ff1ba3c30ad4",
+      "title": "Decoding Transformer Architecture: From Attention to QKV Mechanics",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-09-01T08:41:56+00:00",
+      "last_viewed_at": "2026-09-01T08:41:57+00:00",
+      "modified_at": "2026-09-01T08:41:57+00:00"
+    },
+    {
+      "index": 12,
+      "id": "6cb28d5a-bf81-4b55-916e-e9ad688e687b",
+      "title": "Agent 企业级工程落地系统架构技术方案",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-08-27T12:11:38+00:00",
+      "last_viewed_at": "2026-08-30T07:18:52+00:00",
+      "modified_at": "2026-08-30T07:18:52+00:00"
+    },
+    {
+      "index": 13,
+      "id": "1cd542b9-150f-4534-ad57-4bf16fa352ea",
+      "title": "从向量到transformer, 大模型演进历程",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-08-26T15:06:01+00:00",
+      "last_viewed_at": "2026-08-30T06:35:47+00:00",
+      "modified_at": "2026-08-30T06:35:47+00:00"
+    },
+    {
+      "index": 14,
+      "id": "2d96ef54-6366-4ac3-9f56-6241d78f297e",
+      "title": "From Transformer to LLM: 进化之路",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-08-30T03:04:19+00:00",
+      "last_viewed_at": "2026-08-30T06:33:40+00:00",
+      "modified_at": "2026-08-30T06:33:40+00:00"
+    },
+    {
+      "index": 15,
+      "id": "523f2825-afe8-49a6-873b-6bfa7e64dda5",
+      "title": "Agent Hooks: 专业可靠的自动化控制机制",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-08-30T05:23:31+00:00",
+      "last_viewed_at": "2026-08-30T06:33:34+00:00",
+      "modified_at": "2026-08-30T06:33:34+00:00"
+    },
+    {
+      "index": 16,
+      "id": "99ec8233-e8b6-4bf0-a9d2-5d4427902374",
+      "title": "Qwen-27B 8GB VRAM 本地部署优化",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-08-29T21:41:47+00:00",
+      "last_viewed_at": "2026-08-29T21:41:48+00:00",
+      "modified_at": "2026-08-29T21:41:48+00:00"
+    },
+    {
+      "index": 17,
+      "id": "a3538908-2a6e-47c0-974c-0f8390b4e974",
+      "title": "Local AI Realtime Voice Guide",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-07-14T02:17:42+00:00",
+      "last_viewed_at": "2026-07-14T02:17:43+00:00",
+      "modified_at": "2026-07-14T02:17:43+00:00"
+    },
+    {
+      "index": 18,
+      "id": "9b37d671-4763-4a64-8ba2-6452c390d7db",
+      "title": "LLM-Wiki：RAG与知识工程流程的演进",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-07-11T08:45:21+00:00",
+      "last_viewed_at": "2026-07-11T08:45:22+00:00",
+      "modified_at": "2026-07-11T08:45:22+00:00"
+    },
+    {
+      "index": 19,
+      "id": "12c35a4e-d4a4-4a43-ab36-2114db41bab7",
+      "title": "2025中国企业级AI智能体落地与实践全景图",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-06-19T04:06:31+00:00",
+      "last_viewed_at": "2026-06-19T04:06:32+00:00",
+      "modified_at": "2026-06-19T04:06:32+00:00"
+    },
+    {
+      "index": 20,
+      "id": "6bdcda62-b30e-4646-bbbb-b438e4403182",
+      "title": "Agent生产力:  四组 Skills",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-06-15T03:52:38+00:00",
+      "last_viewed_at": "2026-06-18T01:01:00+00:00",
+      "modified_at": "2026-06-18T01:01:00+00:00"
+    },
+    {
+      "index": 21,
+      "id": "f72037f9-7650-4b9f-a8ad-781b725a5f8c",
+      "title": "Claude Code 从0到1全攻略",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-02-10T05:16:01+00:00",
+      "last_viewed_at": "2026-06-15T13:35:02+00:00",
+      "modified_at": "2026-06-15T13:35:02+00:00"
+    },
+    {
+      "index": 22,
+      "id": "9451f591-41fe-43b4-adc5-03b1bc43e6bf",
+      "title": "在AI时代掌握Git和GitHub",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-06-06T02:23:05+00:00",
+      "last_viewed_at": "2026-06-15T06:24:24+00:00",
+      "modified_at": "2026-06-15T06:24:24+00:00"
+    },
+    {
+      "index": 23,
+      "id": "6360baf7-3c32-42da-8b26-75bb28320628",
+      "title": "优化RAG检索：查询重写工程指南",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-06-06T01:54:05+00:00",
+      "last_viewed_at": "2026-06-06T01:54:06+00:00",
+      "modified_at": "2026-06-06T01:54:06+00:00"
+    },
+    {
+      "index": 24,
+      "id": "1e4e6636-c57c-45e3-9ec6-dc32e95ad867",
+      "title": "大模型评估 lm-eval 实用指南",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-06-06T00:40:55+00:00",
+      "last_viewed_at": "2026-06-06T00:40:56+00:00",
+      "modified_at": "2026-06-06T00:40:56+00:00"
+    },
+    {
+      "index": 25,
+      "id": "385acacd-5af3-4eb1-b52b-049ec7caafbc",
+      "title": "Agent Harness工程化实践",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-05-02T03:44:00+00:00",
+      "last_viewed_at": "2026-05-17T23:23:04+00:00",
+      "modified_at": "2026-05-17T23:23:04+00:00"
+    },
+    {
+      "index": 26,
+      "id": "9ecbd7c7-459d-471d-969e-6d7e599ce993",
+      "title": "2023–2026 LLM架构的演进 Technical Roadmap",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-05-16T02:50:07+00:00",
+      "last_viewed_at": "2026-05-16T02:50:08+00:00",
+      "modified_at": "2026-05-16T02:50:08+00:00"
+    },
+    {
+      "index": 27,
+      "id": "d98860f4-8946-4129-bb8c-46e2de3050fd",
+      "title": "技术视频制作的自主Agent工作流",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-05-16T02:47:58+00:00",
+      "last_viewed_at": "2026-05-16T02:50:03+00:00",
+      "modified_at": "2026-05-16T02:50:03+00:00"
+    },
+    {
+      "index": 28,
+      "id": "96a796d5-cb04-4f4f-b9c9-c67e7b78b866",
+      "title": "mattpocock/skills仓库的AI-Coding工程流程Skills",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-05-03T03:45:04+00:00",
+      "last_viewed_at": "2026-05-03T04:09:04+00:00",
+      "modified_at": "2026-05-03T04:09:04+00:00"
+    },
+    {
+      "index": 29,
+      "id": "5b224f7e-982d-4cc7-b11c-1d2247818530",
+      "title": "AI时代, 命令行界面(CLI)的复兴",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-05-03T03:32:07+00:00",
+      "last_viewed_at": "2026-05-03T04:09:00+00:00",
+      "modified_at": "2026-05-03T04:09:00+00:00"
+    },
+    {
+      "index": 30,
+      "id": "23dc06d6-3629-4168-834e-37a8fbb16b6f",
+      "title": "构建生产级Agent Memory系统架构",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-05-01T08:34:58+00:00",
+      "last_viewed_at": "2026-05-01T08:35:04+00:00",
+      "modified_at": "2026-05-01T08:35:04+00:00"
+    },
+    {
+      "index": 31,
+      "id": "3b479fdd-d491-43df-8c50-12292dad6f73",
+      "title": "claude code泄露解读",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-04-02T02:11:09+00:00",
+      "last_viewed_at": "2026-04-26T07:35:54+00:00",
+      "modified_at": "2026-04-26T07:35:54+00:00"
+    },
+    {
+      "index": 32,
+      "id": "30a7e0f1-31c7-4fef-9d31-0b71c30f09f7",
+      "title": "lora微调deepseek大模型demo",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-03-21T19:02:36+00:00",
+      "last_viewed_at": "2026-03-21T19:55:32+00:00",
+      "modified_at": "2026-03-21T19:55:32+00:00"
+    },
+    {
+      "index": 33,
+      "id": "abb19f3e-7453-4004-af65-24656ee22ac8",
+      "title": "Agent Skills演进逻辑",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-03-16T23:04:38+00:00",
+      "last_viewed_at": "2026-03-16T23:04:38+00:00",
+      "modified_at": "2026-03-16T23:04:38+00:00"
+    },
+    {
+      "index": 34,
+      "id": "8613a8e1-9f97-4b6b-87b7-da52b2c72504",
+      "title": "RFM案例PPT生成",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-03-14T08:42:20+00:00",
+      "last_viewed_at": "2026-03-14T08:55:17+00:00",
+      "modified_at": "2026-03-14T08:55:17+00:00"
+    },
+    {
+      "index": 35,
+      "id": "248cad6d-4287-445b-937f-f5eef8bb9618",
+      "title": "openclaw常用操作指令",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-02-28T10:01:43+00:00",
+      "last_viewed_at": "2026-02-28T10:01:49+00:00",
+      "modified_at": "2026-02-28T10:01:49+00:00"
+    },
+    {
+      "index": 36,
+      "id": "60a7bb20-cd38-4563-8aa4-4a226c9bfcba",
+      "title": "“涌现” 量变引起质变的过程与自然界的演化逻辑高度契合",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-02-17T07:09:31+00:00",
+      "last_viewed_at": "2026-02-17T07:09:32+00:00",
+      "modified_at": "2026-02-17T07:09:32+00:00"
+    },
+    {
+      "index": 37,
+      "id": "397468d3-cefd-4599-9b37-c8fd9ff4269a",
+      "title": "海量实时广告流平台的架构设计与核心实践",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-02-14T02:42:04+00:00",
+      "last_viewed_at": "2026-02-14T02:48:51+00:00",
+      "modified_at": "2026-02-14T02:48:51+00:00"
+    },
+    {
+      "index": 38,
+      "id": "f88c69d0-bb53-427a-8bd9-402450e4f0e0",
+      "title": "美团智能问答KBQA系统的架构和实现",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-02-07T03:22:49+00:00",
+      "last_viewed_at": "2026-02-07T03:22:50+00:00",
+      "modified_at": "2026-02-07T03:22:50+00:00"
+    },
+    {
+      "index": 39,
+      "id": "08ccc605-5599-4702-b373-f7524d1d0ded",
+      "title": "智能体进化：长程Agent-自主规划记忆执行复杂任务",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-02-04T02:48:43+00:00",
+      "last_viewed_at": "2026-02-04T02:48:54+00:00",
+      "modified_at": "2026-02-04T02:48:54+00:00"
+    },
+    {
+      "index": 40,
+      "id": "faaaf5c7-c207-4aaf-bf68-4d6813533f60",
+      "title": "Andrew Ng’s Agentic Frameworks: Marriage Analogies",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-01-28T14:46:57+00:00",
+      "last_viewed_at": "2026-01-29T17:25:16+00:00",
+      "modified_at": "2026-01-29T17:25:16+00:00"
+    },
+    {
+      "index": 41,
+      "id": "579f56bd-2cdd-4bd9-8ec4-a11c4479eeda",
+      "title": "智力涌现: 预测下一个token",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-01-28T14:41:47+00:00",
+      "last_viewed_at": "2026-01-29T16:57:38+00:00",
+      "modified_at": "2026-01-29T16:57:38+00:00"
+    },
+    {
+      "index": 42,
+      "id": "bd5a7268-3ec5-4c71-b0de-b841a64ba0b6",
+      "title": "Defining Standardized Skills for AI Agents",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-01-28T15:03:28+00:00",
+      "last_viewed_at": "2026-01-28T15:49:08+00:00",
+      "modified_at": "2026-01-28T15:49:08+00:00"
+    },
+    {
+      "index": 43,
+      "id": "77a108a2-22b0-46e5-a6d4-c6f10d8edbc7",
+      "title": "Deepseek的Engram论文: 高效记忆网络作为MOE架构的补充",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-01-24T02:43:22+00:00",
+      "last_viewed_at": "2026-01-24T02:43:23+00:00",
+      "modified_at": "2026-01-24T02:43:23+00:00"
+    },
+    {
+      "index": 44,
+      "id": "46d9af21-3356-45fd-aafd-ae9b6648c768",
+      "title": "杰弗里辛顿: 数字智能的演进与生存危机",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-01-04T02:02:13+00:00",
+      "last_viewed_at": "2026-01-24T02:16:21+00:00",
+      "modified_at": "2026-01-24T02:16:21+00:00"
+    },
+    {
+      "index": 45,
+      "id": "8c63c2b8-e62b-4150-bf81-00e9634ef2bb",
+      "title": "掘金头条项目实战抽取面试知识点",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-01-04T04:14:34+00:00",
+      "last_viewed_at": "2026-01-24T02:15:20+00:00",
+      "modified_at": "2026-01-24T02:15:20+00:00"
+    },
+    {
+      "index": 46,
+      "id": "82a25fee-9f19-4ec1-b0d8-5832f449b142",
+      "title": "中国AI产业冰山图",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-01-13T04:24:44+00:00",
+      "last_viewed_at": "2026-01-24T02:14:28+00:00",
+      "modified_at": "2026-01-24T02:14:28+00:00"
+    },
+    {
+      "index": 47,
+      "id": "05b3ed27-2215-4ea0-8360-34d3676b2bcf",
+      "title": "agentic-graphRAG方案",
+      "is_owner": true,
+      "role": "owner",
+      "created_at": "2026-01-24T01:55:53+00:00",
+      "last_viewed_at": "2026-01-24T01:55:54+00:00",
+      "modified_at": "2026-01-24T01:55:54+00:00"
+    }
+  ],
+  "count": 47
+}

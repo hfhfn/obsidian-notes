@@ -32,7 +32,21 @@ dist-public/
 __pycache__/
 *.pyc
 
-# 抓取的候选清单（临时产物，随时可重新抓）
-scripts/candidates/
+# 抓取的候选清单
+#
+# 注意：book_charts.json / movie_charts.json 是**榜单数据源**，
+# inject_charts.mjs 靠它们渲染「推荐 / 月度热书 / 年度热书」三个 tab。
+# 之前整个 scripts/candidates/ 被忽略，导致 GitHub Actions 上
+# 没有榜单数据 → 线上排行榜整个消失（只剩书架）。
+#
+# 只忽略真正可以重新抓取的中间产物：
+scripts/candidates/book.json
+scripts/candidates/movie.json
+scripts/candidates/book_charts_raw.json
+scripts/candidates/movie_charts_raw.json
+scripts/candidates/nlm_export_summary.json
+# nlm_remote/ 是 NotebookLM 导出的原始 PDF（511MB），只在本地用于上传 R2，
+# 构建时从 nlm_r2_manifest.json 拿 R2 URL，不需要这些 PDF 本体。
+scripts/candidates/nlm_remote/
 .hidden-slugs.json
 .tmp-mm/
