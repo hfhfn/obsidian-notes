@@ -565,6 +565,83 @@ function perPageOf(grid){
 不上传。但 Quartz 每次构建都会重算 hash，所以「重建 + 部署」几乎总是全量上传，
 这是正常现象，不是 bug。想避免就**别重建**（只改文档时）。
 
+### 19. 没有 `_headers` 时缓存形同虚设（性能问题首要排查项）
+
+**现象**：藏书馆 / 观影库 / 视频与专题打开慢，图片要一张张渲染出来。
+
+**实测数据**（藏书馆页，修复前）：
+
+```
+HTML 127KB、图片 16 张共 389KB（单张仅 11~68KB，270×384px，尺寸合理）
+但单张耗时 6~9 秒，domReady 4.5~13 秒
+同一张封面图连续请求 5 次，5 次全是 cf-cache-status: REVALIDATED
+```
+
+**根因**：仓库里从来没有 `_headers` 文件，Cloudflare 用默认策略：
+
+```
+HTML   Cache-Control: public, max-age=0, must-revalidate      → 每次回源
+图片   Cache-Control: public, max-age=14400, must-revalidate  → 只 4 小时
+```
+
+`must-revalidate` + 短 `max-age` = 缓存形同虚设，每次都回源验证。
+
+**修法**：`public/_headers` + `scripts/copy_headers.mjs`（构建后复制到 dist 根）。
+
+Cloudflare Pages **只认站点根目录的 `_headers`**，Quartz 只把 `quartz/static/`
+复制到 `dist/static/`，根目录的文件要构建后自己放。
+
+```
+路径/模式（顶格）              响应头（缩进 2 空格）
+/attachments/*
+  Cache-Control: public, max-age=31536000, immutable
+```
+
+**完整规则见 `public/_headers`**，核心三条：
+
+| 资源 | 策略 | 理由 |
+|---|---|---|
+| 带内容 hash 的 CSS/JS（`component-*.css`、`nx-runtime.*.js`、`prescript-*`） | `max-age=31536000, immutable` | hash 就是内容指纹，内容变则文件名变 |
+| 图片 `/attachments/*`、字体、vendor | `max-age=31536000, immutable` | 文件名稳定且不该变 |
+| HTML | `max-age=0, must-revalidate` | 入口页会变，必须能拿到新版 |
+
+**⚠️ 三个坑**：
+
+1. **pattern 必须以 `/` 开头**。写 `*.woff2` 会静默失效（不报错、不生效），
+   必须写 `/*.woff2`。
+2. **不要给 HTML 加 `immutable`**，否则用户永远看不到更新。
+3. **私有站不受影响**：Cloudflare Access 会强制 `no-store`，这是安全策略，
+   私有内容不该留在浏览器缓存，不要试图覆盖。
+
+**效果**（同一浏览器第二次访问藏书馆）：
+
+| 指标 | 修复前 | 修复后 |
+|---|---|---|
+| TTFB | 950 ms | 67 ms |
+| domReady | 13,204 ms | 152 ms |
+| 图片走网络 | 17 张 / 410 KB | 0 张 / 0 KB（全命中缓存） |
+
+**业界对照**（实测响应头，2026-11）：
+
+| 站点 | 带 hash 资源 | 图片 | HTML |
+|---|---|---|---|
+| GitHub | `max-age=31536000, immutable` | — | `max-age=0, private, must-revalidate` |
+| Vercel | `max-age=31536000, immutable` | — | — |
+| MDN | `max-age=31536000` | — | `max-age=3600` |
+| Unsplash | — | `max-age=31536000` | — |
+| Pexels | — | `max-age=31536000` | — |
+| 豆瓣 | — | `max-age=31104000` | — |
+| YouTube 缩略图 | — | `max-age=7200`（2h） | — |
+| B站首页 | — | — | `no-cache` |
+| 知乎 | — | — | `no-store, max-age=0` |
+| **本站** | `max-age=31536000, immutable` | `max-age=31536000, immutable` | `max-age=0, must-revalidate` |
+
+结论：本站策略与 GitHub / Vercel / Unsplash 一致，是业界标准做法。
+唯一比 YouTube 激进的是图片缓存（YouTube 给 2h 是因为它会替换同名文件；
+本站封面按豆瓣 ID 命名，ID 不变文件不该变，所以 1 年安全）。
+**若换了封面图但文件名没变，用户最长 1 年看到旧图** —— 换图时要换文件名。
+
+
 
 ---
 
