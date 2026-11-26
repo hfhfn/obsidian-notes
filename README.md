@@ -350,6 +350,192 @@ Prettier 会解析它们。一个多余的 `</div>` 就报错。
 `allow-scripts` 配置冲突（npm 12 起不允许在 project-scoped install 里使用）。
 换台机器或 npm 10/11 就会通过，**与站点代码无关**，不用修。
 
+### 8. Access 登出端点：参数必须是 `returnTo`，域名必须是 team 域
+
+**现象**：点「退出登录」后停在 Cloudflare 的 `Error ・ Cloudflare Access` 页面，
+或者立刻又被自动登录回去。
+
+**原因**：登出端点有四个坑，全部实测过：
+
+| 请求 | 结果 |
+|---|---|
+| `https://<team>.cloudflareaccess.com/cdn-cgi/access/logout?returnTo=<受保护域名>` | ✅ 302 + 4 条 Set-Cookie |
+| 同域 `<site>/cdn-cgi/access/logout` | ❌ 200 Error 页面，不清 cookie |
+| 同域 + `?returnTo=` | ❌ 400 Bad Request |
+| team 域 + `?redirect_url=` | ❌ 200 Error 页面，不清 cookie |
+| `returnTo` 指向不受 Access 保护的域名 | ❌ 400 Bad Request |
+
+用错参数时端点只返回错误页，**cookie 一个都没清** → Access 立刻用既有会话
+重新签发 JWT → 表现就是「退出的瞬间自动登录」。
+
+**规则**：
+
+```js
+`https://<team>.cloudflareaccess.com/cdn-cgi/access/logout?returnTo=${encodeURIComponent(siteUrl)}`
+```
+
+**诊断**（curl，不依赖浏览器）：
+
+```bash
+curl -s -o /dev/null -w "%{http_code} → %{redirect_url}\n" https://private.example.com/
+curl -s -D - -o /dev/null "https://<team>/cdn-cgi/access/logout?returnTo=..."
+curl -s -o /dev/null -w "%{http_code} → %{redirect_url}\n" https://private.example.com/
+```
+
+第 3 步仍 302 到登录页、但浏览器里自动登录 → 那是 Access 的 SSO 设计
+（`session_duration` 长 + `auto_redirect_to_identity: true`），不是代码 bug。
+
+### 9. Access 种 4 个 cookie，少清一个就退不掉
+
+```
+CF_Authorization   JWT，真正决定是否放行
+CF_Binding         设备绑定
+CF_Device          设备标识
+CF_Session         会话
+```
+
+只清 `CF_Authorization` 不够（之前还清了一个根本不存在的 `CF_AppSession`），
+剩下 3 个还在 → 刷新后 Access 仍认得你。
+
+清 cookie 时**同时清三种 Domain 形式**：host-only / `Domain=<host>` /
+`Domain=<apex>`。Access 可能用任一形式种，猜错一个就清不掉；
+对不存在的 cookie 发清除指令是无害的。
+
+### 10. 补发 `render` 事件会让关系图谱 OOM 崩溃
+
+**现象**：为修「日夜切换首次加载不生效」，在调度器里补发 Quartz 的 `render`
+事件，页面几十秒后 out of memory 崩溃。
+
+**原因**：
+
+```
+run() → dispatch render → graph 组件重建整个 PIXI 应用
+→ DOM 变化 → MutationObserver → run() → dispatch render → ...
+无限循环，每轮 new 一个 WebGL 上下文
+```
+
+**规则**：**绝对不要补发 `nav` / `render` 这类全局事件**。
+只针对具体元素直接绑定。
+
+### 11. 双重绑定会让按钮「点了没反应」
+
+**现象**：日夜切换、探索折叠点了没反应。看起来像没绑上，实际是**绑了两次**。
+
+**原因**：Quartz 自己也绑了 handler，两个 handler 各 toggle 一次 → 净效果为零。
+
+**规则**（只适用于按钮）：
+
+```js
+document.addEventListener('click', function(ev){
+  var btn = ev.target.closest('.target');
+  if (!btn) return;
+  ev.preventDefault();
+  ev.stopImmediatePropagation();   // 挡住 Quartz 的
+  doTheThing();
+}, true);   // ← capture: true 是关键
+```
+
+委托在 `document` 上还有好处：SPA 换掉整个 body 后不用重新绑。
+
+**⚠️ 对 `<a>` 链接绝对不能用 `stopImmediatePropagation`** —— 会把 Quartz 的
+SPA 路由拦截器一起挡掉，退化成整页刷新，用户看到「点一下整个页面都闪一下」。
+
+查 `@quartz-community/explorer` 源码：
+
+```js
+let A = n.dataset.behavior || "collapse"
+if (A !== "link") { C.stopPropagation(); ...toggle... }
+```
+
+配置 `folderClickBehavior: "link"` 时，Quartz 对 folder-button **什么都不做**，
+只让浏览器正常跳转。所以对链接只补做自己的动作，**不 stop、不 preventDefault**。
+
+### 12. 目录展开状态必须写进 `localStorage.fileTree`
+
+Quartz 用 `localStorage.fileTree`（`[{path, collapsed}]`）恢复展开状态。
+点击目录名后页面跳转、explorer 整体重渲染，它按这份数据重建。
+
+只改 DOM 不写 localStorage → 按旧状态重建 → 「刚展开又被折叠」。
+
+### 13. 分页条数不能在运行时读 CSS 算
+
+**现象**：视频与专题「每页只有 3 个」。
+
+**原因**：布局未完成时 `getComputedStyle(grid).gridTemplateColumns` 返回
+`"none"` 或只有 1 列 → `1 × 3 = 3`。
+
+**规则**：**构建时算好写进 `data-perpage`，运行时只读属性**。
+
+```js
+function perPageOf(grid){
+  var n = Number(grid.getAttribute('data-perpage'));
+  if (n > 0) return n;
+  return { book: 5, movie: 4, video: 3 }[grid.dataset.for] * 3;  // 兜底
+}
+```
+
+**判据**：榜单分页正常、书架分页错，差别就在前者构建时静态切好、后者运行时算。
+
+### 14. 关系图谱空闲仍跑 48 FPS，拖垮整页
+
+**现象**：页面卡、日夜切换也卡。
+
+**原因**：`@quartz-community/graph` 的渲染循环**无条件递归**，不看物理模拟
+是否收敛，也不看页面是否可见，每帧重绘所有节点和连线。
+
+**修法**：`scripts/patch_graph_loop.mjs` 比较相邻两帧节点最大位移，
+位移平方 < 0.09（约 0.3px）视为静止 → 停 PIXI ticker，300ms 后再检查。
+
+**⚠️ 两个必踩的坑**：
+
+1. **首帧必须无条件放行**。首帧 `ready=false` 时循环里不比较，`__maxd` 恒为 0
+   → 判定「静止」→ 直接 return → **一帧都没画，画布全空**（用户报「关系图谱
+   显示不出来了」就是这个）
+2. **恢复时要重启 ticker**。静止时 `ticker.stop()` 之后，节点又开始动时
+   ticker 不会自己醒来 → 画面冻住
+
+### 15. 登出后按浏览器后退仍是登录态
+
+**原因**：`Cache-Control: no-store` **拦不住** —— 后退走的是 **bfcache**，
+整个页面（含 JS 堆、DOM）冻结在内存里，恢复时不发任何请求。
+
+**修法**：监听 `pageshow`，`ev.persisted === true` 表示从 bfcache 恢复，
+此时重新问一次 `/api/whoami`，已登出就 `location.reload()`。
+
+为什么 reload 而不是原地改 DOM：服务端渲染的页面里带的是登录态数据
+（收藏列表、足迹、账号名），原地改要改十几处且容易漏。
+
+### 16. `npm run check` 报 vendor 占位文件语法错误
+
+**现象**：`npm run check` 永远失败，报
+`quartz/static/vendor/markmap/markmap-lib.min.js: Unterminated string constant`。
+
+**原因**：该文件本身就是一段报错文案
+（`Couldn't find the requested file /dist/browser/index.js in markmap-lib.`），
+不是有效 JS，Prettier 硬当 JS 解析。
+
+**规则**：已加入 `.prettierignore`（连带忽略 `dist-*` / `content-*` 生成物）。
+现在 check 只剩 `[warn]` 格式建议，**没有 `[error]`**。
+按约定不对既有文件全量 `prettier --write`，避免大面积 diff。
+
+### 17. 用行号改结构化配置会误删相邻字段
+
+**现象**：三库数据整个消失（书 0 本、电影 0 部、视频 0 条）。
+
+**原因**：用行号替换 `KINDS` 配置时误删了相邻的 `json:` / `label:` 字段，
+`injectKind` 抛 `TypeError`，静默失败。
+
+**规则**：改多字段配置块用**精确字符串匹配**，不用行号。
+部署前先单步跑注入，确认三个库都有输出：
+
+```
+[book]  已注入 3 本
+[movie] 已注入 2 部
+[video] 已注入 37 条
+```
+
+少一行就说明配置坏了，不要继续全量构建。
+
 ---
 
 ## 藏书馆 / 观影库 / 视频与专题
