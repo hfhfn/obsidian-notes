@@ -853,9 +853,78 @@ performance.getEntriesByType('resource')
 要优化的话两个方向：换 YouTube 缩略图（快 3-4 倍、天然 16:9），
 或把信息图预压缩成 400px 宽的小图（体积降约 90%，保留信息图视觉）。
 
+
+### 24. 分页点一次跳多页 + 封面标题错位 —— MutationObserver 循环
+
+**现象**（只在非无痕模式出现，无痕正常）：点一次「下一页」跳到第 3 页，
+卡片封面和标题对不上（A 的标题配 B 的图）。
+
+**根因**：排序函数用 `appendChild` 逐个移动节点，而页面注册了
+`MutationObserver({childList: true, subtree: true})`。`appendChild` 正是
+childList 变化 → 触发 `safe()` → `setup()` → 再次排序 → 循环。
+
+循环期间：
+- DOM 处于「排到一半」的中间状态 → 卡片和封面短暂错配
+- `state.page` 被反复读写 → 一次点击累加多次 → 跳页
+
+**为什么无痕正常**：无痕没有旧缓存，时序不同，首次加载时观察器和排序
+没撞上；普通模式有缓存，更容易触发。
+
+**修法**：排序前断开观察器，用 `DocumentFragment` 一次性替换：
+
+```javascript
+function applySort(grid, dir){
+  var cards = [].slice.call(grid.querySelectorAll('.book-card'));
+  cards.sort(/* ... */);
+
+  var mo = window.__libMO;
+  if (mo) mo.disconnect();          // 关键
+  try {
+    var frag = document.createDocumentFragment();
+    for (var i = 0; i < cards.length; i++) frag.appendChild(cards[i]);
+    grid.appendChild(frag);         // 只产生一轮 childList 变化
+  } finally {
+    if (mo) mo.observe(document.body, { childList: true, subtree: true });
+  }
+}
+```
+
+**通用教训**：任何「重排 DOM」+「MutationObserver 监听 childList」的组合
+都要防这个循环。判据是「无痕正常、普通模式异常」——差异在缓存和时序。
+
+### 25. 隐藏列表必须进仓库，不能只靠构建时查 D1
+
+**现象**：私有站隐藏了 2 条视频，公开站仍能看到；同时分页条目数从 37
+变 39，页数、每页内容全部错位（用户感知为「分页混乱 + 图片错乱」）。
+
+**根因**：`.hidden-slugs.json` 被 `.gitignore` 忽略，CI 上没有这个文件。
+`make_public_subset.py` 用 `npx --no-install wrangler d1 execute --remote`
+查 D1，CI 上 npx 缓存可能不存在，失败就静默 `return set()` → 隐藏列表为空。
+
+**修法**（两层）：
+
+1. `.hidden-slugs.json` 纳入版本控制。它是「公开站要隐藏哪些」的决策结果，
+   不是临时产物，只有几百字节。提交后 CI 直接用这份清单，构建可复现。
+2. `fetch_hidden_slugs()` 加 fallback：D1 失败时读仓库清单，而不是静默返回空。
+
+```python
+except Exception as e:
+    fallback = ROOT / ".hidden-slugs.json"
+    if fallback.exists():
+        arr = json.loads(fallback.read_text(encoding="utf-8"))
+        if arr:
+            print(f"[warn] 读 D1 失败（{e}），用仓库清单：{len(arr)} 条")
+            return set(arr)
+    return set()
+```
+
+**通用判据**：构建脚本里任何「查远端服务拿配置」的步骤，在 CI 上都要有
+本地 fallback。否则远端一失败就静默降级，产出看似成功但内容错误的站点。
+
 ---
 
 ## 藏书馆 / 观影库 / 视频与专题
+
 
 三个卡片网格页面，都是**站点根级目录**，与 `工作` / `AI` 等一级栏目同级。
 
