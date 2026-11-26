@@ -390,23 +390,55 @@ def _cover_urls(url: str) -> list[str]:
     return urls
 
 
-def download_covers(kind: str, items: list[dict]) -> int:
+def download_covers(kind: str, items: list[dict], skip: bool = False) -> int:
     """把远程封面下载到站点本地，避免防盗链和第三方图床不稳定。
 
     按类别分目录（covers/book/、covers/movie/），防止同名标题互相覆盖。
+
+    skip=True 时（CI / 无代理环境）不下载，但要**保留 JSON 里已有的
+    cover_local**。否则每次 --skip-covers 都会把封面字段清空，
+    导致产物里全是「无封面」占位——这是公开站封面全丢的根因。
     """
     cfg = KINDS[kind]
     rel_dir = f"attachments/covers/{kind}"
     out_dir = SITE / "content-all" / rel_dir
     out_dir.mkdir(parents=True, exist_ok=True)
 
+    # 读回已有 JSON，建立 title → cover_local 映射，供 skip 时复用
+    prev: dict[str, str] = {}
+    if skip:
+        for d in CONTENT_DIRS:
+            target = d / cfg["dir"] / cfg["json"]
+            if target.exists():
+                try:
+                    for x in json.loads(target.read_text(encoding="utf-8")):
+                        if x.get("cover_local"):
+                            prev[x["title"]] = x["cover_local"]
+                except Exception:
+                    pass
+
     ok = 0
     for it in items:
         url = it.get("cover", "")
 
+        # skip 模式（CI / 无代理）：不下载，复用 JSON 里已有的 cover_local，
+        # 并确认文件真的在磁盘上（防止引用了已被清理的图）。
+        if skip:
+            old = prev.get(it["title"])
+            if old and (SITE / "content-all" / old).exists():
+                it["cover_local"] = old
+                ok += 1
+            else:
+                it.pop("cover_local", None)
+            continue
+
         # 已经是站内相对路径（NotebookLM 信息图等），直接当封面用，不用下载
         if url and not url.startswith("http"):
-            it["cover_local"] = url
+            # 必须转小写：Quartz 构建时会把附件路径转小写，
+            # 而 Cloudflare Pages 跑在 Linux 上区分大小写。
+            # 原样透传 "Agent Hooks_ .../infographic.webp" 会让产物里的
+            # <img src> 指向 "agent hooks_ ..."，Linux 上 404（Windows 看不出来）。
+            it["cover_local"] = url.lower()
             ok += 1
             continue
 
@@ -493,9 +525,11 @@ def build(kind: str, dry_run: bool, skip_covers: bool) -> int:
     if dry_run or not items:
         return len(items)
 
-    if not skip_covers:
-        n = download_covers(kind, items)
-        print(f"[{kind}] 封面本地化 {n} 张")
+    # --skip-covers 不能直接跳过整段：那会把 cover_local 清空，
+    # 产物里全是「无封面」占位（公开站封面全丢的根因）。
+    # 传 skip=True 让它复用已有 JSON 里的封面路径。
+    n = download_covers(kind, items, skip=skip_covers)
+    print(f"[{kind}] {'封面复用' if skip_covers else '封面本地化'} {n} 张")
 
     write_json(kind, items)
 

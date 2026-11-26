@@ -1,0 +1,61 @@
+[
+  {
+    "title": "Code",
+    "slug": "藏书馆/Code",
+    "creator": "Charles Petzold",
+    "cover": "https://covers.openlibrary.org/b/id/460968-L.jpg",
+    "rating": "4.1",
+    "stars": "⭐⭐",
+    "status": "想读",
+    "progress": "",
+    "douban": "",
+    "item_key": "book:ha5478e6fb41d",
+    "source_url": "https://openlibrary.org/works/OL1972516W",
+    "info": {
+      "年份": "1999",
+      "评分": "4.1",
+      "作者": "Charles Petzold"
+    },
+    "cover_local": "attachments/covers/book/code.jpg"
+  },
+  {
+    "title": "Mona Lisa Overdrive",
+    "slug": "藏书馆/Mona Lisa Overdrive",
+    "creator": "William Gibson",
+    "cover": "https://covers.openlibrary.org/b/id/3327832-L.jpg",
+    "rating": "4.0",
+    "stars": "⭐⭐",
+    "status": "想读",
+    "progress": "",
+    "douban": "",
+    "item_key": "book:h2f66bad2baf8",
+    "source_url": "https://openlibrary.org/works/OL27253W",
+    "info": {
+      "年份": "1987",
+      "评分": "4.0",
+      "作者": "William Gibson"
+    },
+    "cover_local": "attachments/covers/book/mona_lisa_overdrive.jpg"
+  },
+  {
+    "title": "如何阅读一本书",
+    "slug": "藏书馆/如何阅读一本书",
+    "creator": "莫提默·J·艾德勒 / 查尔斯·范多伦",
+    "cover": "https://img9.doubanio.com/view/subject/l/public/s1670978.jpg",
+    "rating": "8.4",
+    "stars": "⭐⭐⭐⭐",
+    "status": "已读",
+    "progress": "100",
+    "douban": "https://book.douban.com/subject/1013208/",
+    "item_key": "book:1013208",
+    "source_url": "https://book.douban.com/subject/1013208/",
+    "info": {
+      "评分": "8.4",
+      "作者": "莫提默·J·艾德勒 / 查尔斯·范多伦",
+      "页数": "424",
+      "开始": "2026-01-15",
+      "读完": "2026-02-20"
+    },
+    "cover_local": "attachments/covers/book/如何阅读一本书.jpg"
+  }
+]
