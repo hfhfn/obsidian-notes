@@ -58,18 +58,46 @@ jobs:
         continue-on-error: true
         run: |
           set -o pipefail
+          # 构建前诊断：三库 JSON 的 cover_local 与封面文件是否到位。
+          # 之前出现过「CI 产物封面全丢但构建成功」的问题，加这段定位。
+          python - <<'DIAG'
+          import json, pathlib
+          for f in ["藏书馆/_books.json", "观影库/_movies.json", "视频与专题/_videos.json"]:
+              p = pathlib.Path("content-all") / f
+              if p.exists():
+                  d = json.loads(p.read_text(encoding="utf-8"))
+                  n = sum(1 for x in d if x.get("cover_local"))
+                  print(f"[diag] content-all/{f}: {n}/{len(d)} 有 cover_local")
+              else:
+                  print(f"[diag] content-all/{f}: 缺失")
+          covers = list(pathlib.Path("content-all/attachments/covers").rglob("*"))
+          print(f"[diag] covers 文件: {sum(1 for c in covers if c.is_file())} 个")
+          DIAG
           npm run build:public 2>&1 | tee build-public.log
           echo "exit_code=${PIPESTATUS[0]}" >> "$GITHUB_OUTPUT"
+          # 构建后诊断：产物里到底有没有封面
+          python - <<'DIAG2'
+          import re, pathlib
+          p = pathlib.Path("dist-public/视频与专题/index.html")
+          if p.exists():
+              t = p.read_text(encoding="utf-8", errors="ignore")
+              img = len(re.findall(r'<img[^>]*class="[^"]*book-cover[^"]*"', t))
+              empty = t.count("book-cover-empty")
+              print(f"[diag] 产物 视频页: img={img} empty={empty}")
+          DIAG2
         env:
           CF_ANALYTICS_TOKEN: ${{ secrets.CF_ANALYTICS_TOKEN }}
 
       - name: Upload build log
-        if: steps.build_public.outputs.exit_code != '0'
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: build-public-log
-          path: build-public.log
+          name: build-log
+          path: |
+            build-public.log
+            build-all.log
           retention-days: 3
+          if-no-files-found: ignore
 
       - name: Fail if build failed
         if: steps.build_public.outputs.exit_code != '0'
