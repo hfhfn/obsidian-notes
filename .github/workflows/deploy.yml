@@ -30,6 +30,13 @@ jobs:
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
 
+      # 构建脚本依赖 Pillow（图片转 WebP）和 PyYAML（读 frontmatter），
+      # ubuntu-latest + setup-python 默认不含这两个包。
+      # 缺了会在 make_public_subset.py / build_library.py 的 import 处
+      # ModuleNotFoundError 退出码 1，表现为「Build public site 失败」。
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
       - name: Install Quartz plugins
         run: npx quartz plugin install --from-config
 

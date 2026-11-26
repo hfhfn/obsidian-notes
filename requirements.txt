@@ -1,0 +1,17 @@
+# 构建脚本的 Python 依赖
+#
+# 为什么需要这个文件：
+#   GitHub Actions 的 ubuntu-latest + setup-python 只装 Python 本身，
+#   不含 Pillow / PyYAML。而构建脚本 import 了它们：
+#     scripts/sync_content.py      → from PIL import Image
+#     scripts/make_public_subset.py → import yaml
+#     scripts/build_library.py      → import yaml
+#   没有这两个包时，CI 跑到第一步就 ModuleNotFoundError 退出码 1，
+#   表现为「Build public site 失败」。
+#
+# 版本选择：
+#   Pillow 11.x 支持 Python 3.12；PyYAML 6.x 稳定。
+#   都用 >= 下限而非精确锁定，避免 Actions 上装不到 wheel。
+
+Pillow>=11.0.0
+PyYAML>=6.0.2
