@@ -56,10 +56,10 @@
 
 # ===== 字体：一年 =====
 # 字体文件内容稳定，文件名带 hash 或不常变
-*.woff2
+/*.woff2
   Cache-Control: public, max-age=31536000, immutable
 
-*.ttf
+/*.ttf
   Cache-Control: public, max-age=31536000, immutable
 
 # ===== vendor 第三方库：一年 =====
