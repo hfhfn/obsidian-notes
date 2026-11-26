@@ -22,8 +22,9 @@ $ErrorActionPreference = "Stop"
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 
 $taskName = "ObsidianSiteAutoPublish"
-$site = Split-Path -Parent $MyInvocation.MyCommand.Path
-$script = Join-Path $site "publish.ps1"
+# 本脚本在 scripts/ 下，仓库根是上一级
+$site = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
+$script = Join-Path $site "scripts\publish.ps1"
 
 if ($Remove) {
     $existing = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue

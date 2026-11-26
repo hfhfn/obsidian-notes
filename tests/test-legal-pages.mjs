@@ -1,6 +1,6 @@
 // 隐私政策 / 服务条款页：Google OAuth 发布的硬性要求
-import { onRequestGet as privacyPage } from "./functions/privacy/index.js"
-import { onRequestGet as termsPage } from "./functions/terms/index.js"
+import { onRequestGet as privacyPage } from "../functions/privacy/index.js"
+import { onRequestGet as termsPage } from "../functions/terms/index.js"
 
 let fail = 0
 const check = (c, l, e) => {

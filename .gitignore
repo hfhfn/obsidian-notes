@@ -50,3 +50,14 @@ scripts/candidates/nlm_export_summary.json
 scripts/candidates/nlm_remote/
 .hidden-slugs.json
 .tmp-mm/
+
+# 误重定向产物：Windows 下 cmd 的 "> nul" 被当成文件名时会生成这些
+# 2026-11-22 自动发布曾把 3 个 nul 文件（含 14.9MB PDF、4.4MB PNG）提交进仓库
+nul
+nul (2)
+nul (3)
+nul (4)
+nul (5)
+
+# 数据库迁移时的临时备份（已完成使命，不该进仓库）
+backup-*.json

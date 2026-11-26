@@ -58,11 +58,11 @@ const env = {
   SITE_ORIGIN: "https://test.local",
 }
 
-const requestCode = (await import("./functions/api/auth/request-code.js")).onRequestPost
-const verifyCode = (await import("./functions/api/auth/verify-code.js")).onRequestPost
-const bookmarksApi = await import("./functions/api/bookmarks.js")
-const historyApi = await import("./functions/api/history.js")
-const logout = (await import("./functions/api/auth/logout.js")).onRequestPost
+const requestCode = (await import("../functions/api/auth/request-code.js")).onRequestPost
+const verifyCode = (await import("../functions/api/auth/verify-code.js")).onRequestPost
+const bookmarksApi = await import("../functions/api/bookmarks.js")
+const historyApi = await import("../functions/api/history.js")
+const logout = (await import("../functions/api/auth/logout.js")).onRequestPost
 
 let fail = 0
 function check(cond, label, extra) {

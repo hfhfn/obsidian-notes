@@ -16,10 +16,10 @@ const check = (c, l, e) => {
 const SECRET = "test-secret"
 const baseEnv = { DB: makeD1(sqlite), SESSION_SECRET: SECRET }
 
-const gIndex = (await import("./functions/api/auth/oauth/google/index.js")).onRequestGet
-const gCb = (await import("./functions/api/auth/oauth/google/callback.js")).onRequestGet
-const hIndex = (await import("./functions/api/auth/oauth/github/index.js")).onRequestGet
-const loginPage = (await import("./functions/login/index.js")).onRequestGet
+const gIndex = (await import("../functions/api/auth/oauth/google/index.js")).onRequestGet
+const gCb = (await import("../functions/api/auth/oauth/google/callback.js")).onRequestGet
+const hIndex = (await import("../functions/api/auth/oauth/github/index.js")).onRequestGet
+const loginPage = (await import("../functions/login/index.js")).onRequestGet
 
 function req(url, cookie) {
   const headers = cookie ? { Cookie: cookie } : {}
@@ -208,7 +208,7 @@ console.log("\n[10] GitHub 邮箱走 /user/emails 兜底")
   // 注意：这里用 google 的 handler 处理 github state 会被 provider 校验拦下
   check(res.status === 400, "provider 不匹配的 state 被拒绝")
 
-  const hCb = (await import("./functions/api/auth/oauth/github/callback.js")).onRequestGet
+  const hCb = (await import("../functions/api/auth/oauth/github/callback.js")).onRequestGet
   const res2 = await hCb({
     request: req("https://x.test/api/auth/oauth/github/callback?code=xyz", cookieJar),
     env,

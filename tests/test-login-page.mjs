@@ -1,5 +1,5 @@
 // 登录页渲染 + 重定向安全
-import { onRequestGet } from "./functions/login/index.js"
+import { onRequestGet } from "../functions/login/index.js"
 
 let fail = 0
 const check = (c, l, e) => {

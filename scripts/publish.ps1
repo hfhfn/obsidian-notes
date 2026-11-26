@@ -20,7 +20,9 @@ $ErrorActionPreference = "Stop"
 $OutputEncoding = [System.Text.Encoding]::UTF8
 $env:PYTHONIOENCODING = "utf-8"
 
-$site = Split-Path -Parent $MyInvocation.MyCommand.Path
+# 本脚本在 scripts/ 下，仓库根是上一级
+# （2026-11 从根目录移进 scripts/，所以要多退一层）
+$site = Split-Path -Parent (Split-Path -Parent $MyInvocation.MyCommand.Path)
 Set-Location $site
 
 function Step($n, $msg) { Write-Host "`n[$n] $msg" -ForegroundColor Cyan }
@@ -68,11 +70,27 @@ if ($LocalDeploy) {
 }
 
 Step 2 "提交并推送到 GitHub"
-git add -A
+# 不要用 git add -A：它会把根目录一切照单全收。
+# 2026-11-22 那次自动发布就是这样把三个 nul 文件（误重定向产物，
+# 共 19MB）和 8 个迁移备份 JSON 提交进仓库的。
+# 只加明确需要发布的路径。
+git add content-all/ content-public/ modules/ scripts/ quartz/ functions/ db/ \
+        quartz.config.yaml package.json package-lock.json README.md \
+        requirements.txt wrangler.jsonc .gitignore 2>$null
+
 $changed = git status --porcelain
 if (-not $changed) {
     Write-Host "内容无变化，无需发布" -ForegroundColor Yellow
     exit 0
+}
+
+# 提交前检查：有没有不该进仓库的垃圾
+$junk = git diff --cached --name-only | Select-String -Pattern '^(nul|backup-.*\.json|qa-.*\.png)$'
+if ($junk) {
+    Write-Host "检测到可疑文件，已中止：" -ForegroundColor Red
+    $junk | ForEach-Object { Write-Host "  $_" -ForegroundColor Red }
+    git reset
+    throw "提交内容含垃圾文件"
 }
 
 $stamp = Get-Date -Format "yyyy-MM-dd HH:mm"

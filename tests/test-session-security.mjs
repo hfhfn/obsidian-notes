@@ -1,7 +1,7 @@
 // 反向验证：确认伪造 Cookie 是被 HMAC 拦下的，而不是解析失败偶然通过
 import { DatabaseSync } from "node:sqlite"
 import { makeD1 } from "./test-helpers/d1.mjs"
-import { signSession } from "./functions/api/_session.js"
+import { signSession } from "../functions/api/_session.js"
 
 const sqlite = new DatabaseSync(":memory:")
 sqlite.exec(`CREATE TABLE bookmarks (email TEXT NOT NULL, slug TEXT NOT NULL, title TEXT,
@@ -10,7 +10,7 @@ sqlite.exec(`CREATE TABLE bookmarks (email TEXT NOT NULL, slug TEXT NOT NULL, ti
 CREATE UNIQUE INDEX IF NOT EXISTS uniq_bookmarks_uid_slug ON bookmarks(user_id, slug);`)
 
 const env = { DB: makeD1(sqlite), SESSION_SECRET: "real-secret" }
-const { onRequestGet } = await import("./functions/api/bookmarks.js")
+const { onRequestGet } = await import("../functions/api/bookmarks.js")
 
 let fail = 0
 const check = (c, l, e) => {

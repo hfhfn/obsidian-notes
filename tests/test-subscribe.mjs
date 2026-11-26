@@ -16,7 +16,7 @@ function freshDb() {
   return makeD1(s)
 }
 
-const { onRequestPost } = await import("./functions/api/public/subscribe.js")
+const { onRequestPost } = await import("../functions/api/public/subscribe.js")
 
 let fail = 0
 const check = (c, l, e) => {
