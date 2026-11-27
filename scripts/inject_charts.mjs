@@ -310,6 +310,18 @@ const CSS = `
 #site-toast.is-error { background: #7a2e2e; }
 #site-toast.is-ok { background: #1e5f4f; }
 
+/* 书架首次加载防闪烁。
+ *
+ * 静态卡片（来自笔记 frontmatter，只有 3 本）先渲染，用户书架数据
+ * 异步到达后才插入/改状态 —— 中间那段用户会看到「先显示几本书，
+ * 然后刷一下变成自己的书架」。
+ *
+ * 用 visibility:hidden 而不是 display:none：保留布局，避免页面高度
+ * 在隐藏/显示之间跳两次（跳动比闪烁更难看）。
+ * 数据灌完由 hydrateMarks 的 finally 移除这个 class。
+ */
+.book-grid.is-hydrating { visibility: hidden; }
+
 /* 视频卡「公开站隐藏」按钮：和 shelf-remove 同位置同形态 */
 .vid-hide {
   position: absolute;
@@ -917,65 +929,93 @@ const RUNTIME = `
     var btns = Array.from(document.querySelectorAll('.lc-mark'));
     if (!btns.length) return;
 
+    // 防闪烁：书架页的静态卡片（来自笔记 frontmatter，只有 3 本）
+    // 会在用户数据到达后被插入/改状态，中间那段就是用户看到的
+    // 「先显示几个书，然后刷的一下变成自己的书架」。
+    //
+    // 做法：先把书架网格设为 visibility:hidden（保留布局，避免跳动），
+    // 数据灌完再显示。用 visibility 而不是 display，是为了不让页面
+    // 高度在隐藏/显示之间跳两次。
+    //
+    // 只对「书架页」生效（有 .lc-mark 的页面），不影响视频与专题。
+    var shelves = Array.from(document.querySelectorAll('.book-grid'));
+    shelves.forEach(function(g){ g.classList.add('is-hydrating'); });
+
+    // 兜底：无论下面发生什么（网络挂起、接口超时、异常），
+    // 最多 3 秒后一定显示书架。否则未登录或接口故障时页面永远是空白，
+    // 那比闪烁严重得多。
+    var revealTimer = setTimeout(function(){
+      shelves.forEach(function(g){ g.classList.remove('is-hydrating'); });
+    }, 3000);
+
     var byKind = {};
     btns.forEach(function(b){
       var k = b.getAttribute('data-kind');
       (byKind[k] = byKind[k] || []).push(b);
     });
 
-    for (var kind of Object.keys(byKind)) {
-      try {
-        var d = await fetchWithRetry('/api/collections?kind=' + kind, { credentials: 'same-origin' });
-        if (!d || !d.authed) continue;
+    try {
+      for (var kind of Object.keys(byKind)) {
+        try {
+          var d = await fetchWithRetry('/api/collections?kind=' + kind, { credentials: 'same-origin' });
+          if (!d || !d.authed) continue;
 
-        var map = {};
-        (d.items || []).forEach(function(it){ map[it.item_key] = it; });
+          var map = {};
+          (d.items || []).forEach(function(it){ map[it.item_key] = it; });
 
-        byKind[kind].forEach(function(btn){
-          var key = btn.getAttribute('data-item');
-          var it = map[key];
-          if (!it) return;
+          byKind[kind].forEach(function(btn){
+            var key = btn.getAttribute('data-item');
+            var it = map[key];
+            if (!it) return;
 
-          paint(btn, it.status, it.progress);
+            paint(btn, it.status, it.progress);
 
-          // 如果书架里已经有这条的静态笔记卡（来自笔记 frontmatter），
-          // 只更新它的状态，不要再插一张 —— 否则同一部电影会出现两张卡，
-          // 分别落在不同标签里（用户反馈「同时出现在想看和已看」）。
-          var existing = document.querySelector(
-            '.book-grid .book-card[data-item="' + key + '"]'
-          );
-          if (existing && it.status !== 'hidden') {
-            var map2 = STATUS_TO_TAB[kind] || STATUS_TO_TAB.book;
-            existing.setAttribute('data-status', map2[it.status] || map2.wish);
-            // 状态变了所属标签也变了，分页要重算 ——
-            // 否则「已读」标签下多了一张卡但分页器还是旧的页数。
-            var g2 = existing.closest('.book-grid');
-            if (g2) g2.dispatchEvent(new CustomEvent('shelf-changed', { bubbles: true }));
-            return;
-          }
+            // 如果书架里已经有这条的静态笔记卡（来自笔记 frontmatter），
+            // 只更新它的状态，不要再插一张 —— 否则同一部电影会出现两张卡，
+            // 分别落在不同标签里（用户反馈「同时出现在想看和已看」）。
+            var existing = document.querySelector(
+              '.book-grid .book-card[data-item="' + key + '"]'
+            );
+            if (existing && it.status !== 'hidden') {
+              var map2 = STATUS_TO_TAB[kind] || STATUS_TO_TAB.book;
+              existing.setAttribute('data-status', map2[it.status] || map2.wish);
+              // 状态变了所属标签也变了，分页要重算 ——
+              // 否则「已读」标签下多了一张卡但分页器还是旧的页数。
+              var g2 = existing.closest('.book-grid');
+              if (g2) g2.dispatchEvent(new CustomEvent('shelf-changed', { bubbles: true }));
+              return;
+            }
 
-          syncToShelf(btn, it.status);
-        });
+            syncToShelf(btn, it.status);
+          });
 
-        // 隐藏用户移除过的笔记卡（status=hidden）。
+          // 隐藏用户移除过的笔记卡（status=hidden）。
         // 这些卡来自笔记 frontmatter，不能删数据源，只能前端过滤。
-        var hiddenKeys = {};
-        (d.items || []).forEach(function(it){
-          if (it.status === 'hidden') hiddenKeys[it.item_key] = 1;
-        });
-        var removedAny = false;
-        Object.keys(hiddenKeys).forEach(function(key){
-          document.querySelectorAll('.book-card[data-item="' + key + '"]').forEach(function(card){
-            card.remove();
-            removedAny = true;
+          var hiddenKeys = {};
+          (d.items || []).forEach(function(it){
+            if (it.status === 'hidden') hiddenKeys[it.item_key] = 1;
           });
-        });
-        if (removedAny) {
-          document.querySelectorAll('.book-grid').forEach(function(g){
-            g.dispatchEvent(new CustomEvent('shelf-changed', { bubbles: true }));
+          var removedAny = false;
+          Object.keys(hiddenKeys).forEach(function(key){
+            document.querySelectorAll('.book-card[data-item="' + key + '"]').forEach(function(card){
+              card.remove();
+              removedAny = true;
+            });
           });
-        }
-      } catch (e) { /* 未登录静默 */ }
+          if (removedAny) {
+            document.querySelectorAll('.book-grid').forEach(function(g){
+              g.dispatchEvent(new CustomEvent('shelf-changed', { bubbles: true }));
+            });
+          }
+        } catch (e) { /* 未登录静默 */ }
+      }
+    } finally {
+      // 数据灌完（或失败）都要显示书架，否则未登录时页面永远是空的。
+      // 下一帧再移除，确保上面的 DOM 改动已经提交渲染，避免闪一帧旧内容。
+      clearTimeout(revealTimer);
+      requestAnimationFrame(function(){
+        shelves.forEach(function(g){ g.classList.remove('is-hydrating'); });
+      });
     }
   }
 
