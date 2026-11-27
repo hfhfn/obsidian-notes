@@ -979,9 +979,85 @@ var segs = decoded.split("?")[0].split("#")[0].split("/").filter(Boolean)
 var tail = segs.slice(-2).join("/")
 ```
 
+
+### 28. 站内附件路径必须按 Quartz 的 slugifyPath 转换
+
+Quartz 构建时会**重写附件目录名**，规则比「转小写」多几步。自己拼路径时
+必须完全复刻，否则产物里 `<img src>` 指向不存在的路径。
+
+从 `node_modules/@quartz-community/bases-page` 的 `slugifyPath` 抄出的完整规则：
+
+```javascript
+segment.replace(/\s/g, "-")            // 空白 → 连字符
+       .replace(/&/g, "-and-")
+       .replace(/%/g, "-percent")
+       .replace(/\?/g, "").replace(/#/g, "")
+       .replace(/[<>:"|*]/g, "")
+       .toLowerCase()
+```
+
+| | 路径 |
+|---|---|
+| 源目录 | `AI 动画视频创作完全指南` |
+| 产物实际 | `ai-动画视频创作完全指南` ← 空格变连字符 |
+| 只做 `.lower()` | `ai 动画视频创作完全指南` ← 空格没变 → **404** |
+
+**为什么表现成「有的图能显示、有的不行」**：没空格的目录（如
+`企业RAG安全：全链接权限...`）恰好只靠 `lower()` 就对，所以那几张正常。
+
+**两处都要转**：站内路径透传时 + `--skip-covers` 复用旧值时。只改前者不够 ——
+CI 走 skip 分支会原样复用旧的错误路径，重建后依然 404。
+
+### 29. 别用通用 `CI` 环境变量控制构建行为
+
+`build_library.py` 曾用 `CI` 判断是否跳过封面下载。但本地跑 `wrangler pages
+deploy` 也要 `CI=1` 关交互提示，这个变量会泄漏到同 shell 的构建脚本，让它
+走「复用」分支，把刚下载好的 36 条 `cover_local` 覆盖成旧 JSON 里的 17 条 ——
+**源文件 `content-all/_videos.json` 被写坏**，公开站 20 张封面变空白。
+
+改用 `GITHUB_ACTIONS`（只在 GitHub runner 上为 `true`）：
+
+```python
+in_ci = os.environ.get("GITHUB_ACTIONS") == "true"
+skip_covers = args.skip_covers or in_ci
+```
+
+**通用教训**：`CI` 是很多工具共用的开关，不能用来表达「这是 CI 构建」这种
+业务语义。要判 CI 就用平台专属变量（`GITHUB_ACTIONS` / `GITLAB_CI` /
+`CIRCLECI`）。
+
+**配套**：既然跳过与否由环境变量决定，`package.json` 里就不能再硬编码
+`--skip-covers`，否则本地构建永远复用旧值、永不下载新封面。
+
+### 30. 私有站的按钮不该再判 isAdmin
+
+私有站整个域名在 Cloudflare Access 后面，**只有站长进得来** —— 能打开页面
+本身就等于有权限。再要求邮箱在 `adminEmails` 里，会因为 Access 会话与
+`notes_session` 不同步、邮箱大小写等原因让按钮凭空消失。
+
+正确做法：私有站**无条件显示**按钮（先显示，再用 API 回填状态；拉不到就
+保持默认），写保护交给后端 `POST` 的 `ADMIN_ONLY`（非管理员 403）。
+
+判据：**前端的可见性是 UX，后端的鉴权才是安全**。不要用前端的显示逻辑
+承担安全职责，那只会制造「明明有权限却看不到」的故障。
+
+### 31. 公开站/私有站的构建差异必须成对验证
+
+两个站共用大部分脚本，靠 `IS_PRIVATE`（`process.argv` 是否含 `dist-all`）
+分支。改一处逻辑后，**必须同时构建两个站并对比产物**：
+
+```
+私有站 dist-all    vid-hide 39 个、封面 36、缺失 0
+公开站 dist-public vid-hide  0 个、封面 36、缺失 0
+```
+
+只验证一个站，另一个站的回归会漏到线上（本轮就漏了：私有站按钮消失、
+私有站图片路径还是旧的空格版）。
+
 ---
 
 ## 藏书馆 / 观影库 / 视频与专题
+
 
 
 
