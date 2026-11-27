@@ -16,18 +16,35 @@ import { json, requireUser, adminEmails } from "./_auth.js"
 const ADMIN_ONLY = true
 
 export async function onRequestGet({ request, env }) {
-  const { user, response } = await requireUser(request, env)
-  if (!user) return json({ authed: false, hidden: [] })
+  const { user } = await requireUser(request, env)
 
+  // 隐藏列表必须对所有人可读，包括未登录的普通读者。
+  //
+  // 为什么：隐藏是「管理员点一下就生效」的实时操作，靠前端拿这份名单
+  // 过滤卡片。以前未登录直接返回 hidden: []，普通读者拿不到名单，
+  // 只能看到构建时已剔除的条目 —— 管理员新隐藏的笔记要等下次构建
+  // 才消失（用户反馈「操作隐藏是前端实现的，不自动更新还得手动重建，
+  // 不合理」）。
+  //
+  // 公开这份名单安全吗：安全。它只说「这几个 slug 不公开」，
+  // 不含正文、不含隐藏理由、不含操作者。正文页在构建时已剔除（404），
+  // 搜索索引 / 标签页 / sitemap 也都剔除了。公开名单只是让前端知道
+  // 该藏哪几张卡，不会让内容本身变得可读。
   try {
     const { results } = await env.DB.prepare(
       `SELECT slug FROM video_visibility WHERE hidden = 1`,
     ).all()
-    // isAdmin 让前端决定是否显示隐藏按钮 —— 普通读者看不到这个开关
-    const admins = adminEmails(env)
-    const isAdmin = admins.includes(String(user.email || "").toLowerCase())
+
+    // isAdmin 只在登录后才有意义 —— 它决定要不要显示隐藏按钮。
+    // 未登录时给 false，前端据此隐藏按钮，但照样能拿到 hidden 列表。
+    let isAdmin = false
+    if (user) {
+      const admins = adminEmails(env)
+      isAdmin = admins.includes(String(user.email || "").toLowerCase())
+    }
+
     return json({
-      authed: true,
+      authed: Boolean(user),
       isAdmin,
       hidden: (results || []).map((r) => r.slug),
     })

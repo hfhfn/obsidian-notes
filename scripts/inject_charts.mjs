@@ -1149,17 +1149,18 @@ const RUNTIME = `
         return;
       }
 
-      // 未登录 → 不显示
-      if (!d.authed) {
-        btns.forEach(function(b){ b.style.display = 'none'; });
-        return;
-      }
-
-      // 公开站：只有管理员才显示这个开关（普通读者看不到）
-      // 私有站：整个域名只有自己进得来，不需要再判 isAdmin
+      // 未登录 或 非管理员 → 不显示按钮，但要按隐藏列表过滤卡片。
+      //
+      // 以前这里直接 return，导致普通读者看到全部卡片 —— 包括管理员
+      // 刚隐藏的（因为构建时的剔除只覆盖「上次构建前」的隐藏项）。
+      // 用户反馈：「管理员操作隐藏，普通用户就可以实现不显示，
+      // 因为操作隐藏是前端实现的，不自动更新还得手动重新构建，不合理」。
       var isPrivate = /^private\./.test(location.hostname);
-      if (!isPrivate && !d.isAdmin) {
+      var canToggle = isPrivate || d.isAdmin;
+
+      if (!canToggle) {
         btns.forEach(function(b){ b.style.display = 'none'; });
+        filterHiddenCards(d.hidden || []);
         return;
       }
 
@@ -1182,6 +1183,48 @@ const RUNTIME = `
       });
     } catch (e) {
       console.warn('[vid-hide] hydrate failed', e);
+    }
+  }
+
+  // 普通读者视角：把隐藏的卡片从网格里移除，并重算分页。
+  //
+  // 为什么必须重算分页：卡片数变了（比如 37 → 35），
+  // 不重算就会出现「最后一页只剩空行」或「页码显示 5 页但只有 4 页内容」。
+  //
+  // 为什么用 remove() 而不是 display:none：
+  // display:none 的卡片仍会被 inject_library 的 visibleCards() 数进去，
+  // 分页按 show.length 算就会多算。直接从 DOM 移除最干净。
+  function filterHiddenCards(hiddenList){
+    if (!hiddenList.length) return;
+
+    var removed = 0;
+    document.querySelectorAll('.book-card').forEach(function(card){
+      var link = card.querySelector('a[href]');
+      if (!link) return;
+      var href = link.getAttribute('href') || '';
+      // 卡片链接形如 ../视频与专题/xxx 或 /视频与专题/xxx，取末两段比对 slug
+      var decoded = href;
+      try { decoded = decodeURIComponent(href); } catch (e) {}
+      // 不用正则去尾斜杠：本文件导出的是模板字符串，里面的 \/ 会被
+      // JS 当成无效转义吃掉，replace(/\/+$/) 会变成 replace(//+$/)
+      // 而 // 是注释开头 —— 整段运行时语法错误、静默失效。
+      var segs = decoded.split("?")[0].split("#")[0].split("/").filter(Boolean);
+      var tail = segs.slice(-2).join("/");
+      var hit = hiddenList.some(function(s){
+        return tail === s || decoded.indexOf(s) !== -1;
+      });
+      if (hit) {
+        card.remove();
+        removed++;
+      }
+    });
+
+    if (removed && typeof window.__nxRepaginate === 'function') {
+      // inject_library 暴露的重算入口。传 video 只重算视频库。
+      window.__nxRepaginate('video');
+    }
+    if (removed) {
+      console.info('[vid-hide] 普通读者视角已隐藏 ' + removed + ' 条');
     }
   }
 
