@@ -921,9 +921,68 @@ except Exception as e:
 **通用判据**：构建脚本里任何「查远端服务拿配置」的步骤，在 CI 上都要有
 本地 fallback。否则远端一失败就静默降级，产出看似成功但内容错误的站点。
 
+
+### 26. 隐藏的时效性：构建时剔除 + 运行时过滤，两层都要有
+
+**需求**：管理员点「隐藏」，普通读者应当立即看不到，不该等下次构建。
+
+**两层机制**（缺一层就有缺口）：
+
+| 层 | 时机 | 作用 |
+|---|---|---|
+| 构建时 | `make_public_subset.py` 读 D1 剔除 md | 正文页 404、搜索索引/标签页/sitemap 都不含 |
+| 运行时 | 前端 `GET /api/video-visibility` 拿名单过滤卡片 | 管理员新隐藏的立即消失，无需重建 |
+
+**关键点：`GET /api/video-visibility` 的隐藏列表必须对未登录用户可读。**
+
+以前未登录直接 `return json({authed:false, hidden:[]})`，普通读者拿不到
+名单，前端无从过滤 —— 只能看到构建时已剔除的条目。改成：
+
+```javascript
+const { user } = await requireUser(request, env)
+// hidden 列表公开；isAdmin 仅登录后判定
+let isAdmin = false
+if (user) isAdmin = adminEmails(env).includes(user.email.toLowerCase())
+return json({ authed: Boolean(user), isAdmin, hidden: [...] })
+```
+
+公开这份名单不泄露内容：它只说「这几个 slug 不公开」，不含正文、
+不含理由、不含操作者。正文页构建时已剔除（404）。
+
+**前端过滤必须重算分页**，否则卡片数变了会出现空页 / 页码对不上：
+
+```javascript
+card.remove()                      // 不能用 display:none
+window.__nxRepaginate('video')     // 重算页数
+```
+
+为什么不能 `display:none`：`inject_library` 的 `visibleCards()` 会数到
+隐藏的卡片，分页按 `show.length` 算就会多算。
+
+**验证方法**：在浏览器 console 里手动移除一张卡再调 `__nxRepaginate`，
+看分页是否从「第 1/5 页（共 37 条）」变成「第 1/4 页（共 36 条）」。
+
+### 27. 模板字符串里不能写 `\/` 正则转义
+
+`inject_charts.mjs` / `inject_library.mjs` 导出的是一段**模板字符串**，
+由 `bundle_runtime.mjs` 拼进外部 runtime。字符串里的 `\/` 会被 JS 当成
+无效转义吃掉，`replace(/\/+$/, '')` 变成 `replace(//+$/, '')` ——
+`//` 是注释开头，整段运行时语法错误、静默失效。
+
+源文件 `node --check` 能过（它检查的是模板字符串本身），只有构建后的
+产物会炸。**判据**：`check_js_syntax` 报产物错误但源文件语法正常。
+
+修法：避开正则转义，用 split/filter：
+
+```javascript
+var segs = decoded.split("?")[0].split("#")[0].split("/").filter(Boolean)
+var tail = segs.slice(-2).join("/")
+```
+
 ---
 
 ## 藏书馆 / 观影库 / 视频与专题
+
 
 
 三个卡片网格页面，都是**站点根级目录**，与 `工作` / `AI` 等一级栏目同级。
