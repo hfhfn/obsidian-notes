@@ -310,18 +310,6 @@ const CSS = `
 #site-toast.is-error { background: #7a2e2e; }
 #site-toast.is-ok { background: #1e5f4f; }
 
-/* 书架首次加载防闪烁。
- *
- * 静态卡片（来自笔记 frontmatter，只有 3 本）先渲染，用户书架数据
- * 异步到达后才插入/改状态 —— 中间那段用户会看到「先显示几本书，
- * 然后刷一下变成自己的书架」。
- *
- * 用 visibility:hidden 而不是 display:none：保留布局，避免页面高度
- * 在隐藏/显示之间跳两次（跳动比闪烁更难看）。
- * 数据灌完由 hydrateMarks 的 finally 移除这个 class。
- */
-.book-grid.is-hydrating { visibility: hidden; }
-
 /* 视频卡「公开站隐藏」按钮：和 shelf-remove 同位置同形态 */
 .vid-hide {
   position: absolute;
@@ -425,7 +413,8 @@ function renderCell(it, kind, prefix) {
   //   第 2 行 meta   —— 作者 / 类型 · 地区 · 年份（缺失自动跳过）
   // 之前全挤在一行，书籍和影视字段顺序还不一致，看起来乱。
   const ratingBits = []
-  if (it.score) ratingBits.push(`${starStr(it.score)} <span class="lc-score">${esc(it.score)}</span>`)
+  if (it.score)
+    ratingBits.push(`${starStr(it.score)} <span class="lc-score">${esc(it.score)}</span>`)
 
   const metaBits = []
   if (kind === "book") {
@@ -929,26 +918,30 @@ const RUNTIME = `
     var btns = Array.from(document.querySelectorAll('.lc-mark'));
     if (!btns.length) return;
 
-    // 书架页首屏策略：未登录 → 直接显示静态数据；登录 → 直接显示用户数据。
+    // 书架页数据灌入。
     //
-    // 之前的做法是「先渲染静态卡，再等数据到了替换」，用户看到
-    // 「先显示几本书，然后刷的一下变成自己的书架」。
+    // 关键认知：静态卡片（3 本书 / 2 部电影）不是「初始化占位数据」，
+    // 它们是**这个站真实拥有笔记页的书**。未登录时看到它们是对的，
+    // 登录后它们也应该在 —— 除非用户明确移除过（status=hidden）。
     //
-    // 现在改成：先用 .is-hydrating 把网格藏起来（visibility:hidden，
-    // 保留布局避免高度跳动），等 /api/collections 回来后再决定显示什么。
-    // 因为 session cookie 是 HttpOnly，JS 读不到，无法同步判断登录态，
-    // 只能等这一次请求。但只有一次往返，比「先显示再替换」体验好得多。
+    // 所以正确逻辑不是「隐藏 → 等 → 换成用户数据」，而是：
+    //   静态卡原地不动 + 用户标记的卡叠加进来
+    // 这样无论登录与否都不需要隐藏任何东西，自然没有闪烁。
     //
-    // 只对「书架页」生效（有 .lc-mark 的页面），不影响视频与专题。
-    var shelves = Array.from(document.querySelectorAll('.book-grid'));
-    shelves.forEach(function(g){ g.classList.add('is-hydrating'); });
+    // 之前的错误做法（已回滚）：
+    //   ① 给网格加 .is-hydrating 藏起来，等数据到了再显示
+    //      → 等待期间一片空白，且 hydrateMarks 被 MutationObserver
+    //        反复触发，每次都藏一次，就是用户看到的「一直在闪」
+    //   ② 登录后把静态卡整体清掉，只留用户数据
+    //      → 那 3 本有笔记页的书会凭空消失，反而丢了内容
+    //
+    // 唯一需要处理的：同一本书如果既是静态卡又在用户书架里，
+    // 只更新它的状态，不要插第二张（见下面 existing 判断）。
+    await hydrateMarksData(btns);
+  }
 
-    // 兜底：无论下面发生什么（网络挂起、接口超时、异常），
-    // 最多 3 秒后一定显示书架。否则未登录或接口故障时页面永远是空白，
-    // 那比闪烁严重得多。
-    var revealTimer = setTimeout(function(){
-      shelves.forEach(function(g){ g.classList.remove('is-hydrating'); });
-    }, 3000);
+  // 真正的数据灌入逻辑。首屏和后续刷新共用。
+  async function hydrateMarksData(btns){
 
     var byKind = {};
     btns.forEach(function(b){
@@ -956,31 +949,12 @@ const RUNTIME = `
       (byKind[k] = byKind[k] || []).push(b);
     });
 
-    try {
-      for (var kind of Object.keys(byKind)) {
-        try {
+    for (var kind of Object.keys(byKind)) {
+      try {
           var d = await fetchWithRetry('/api/collections?kind=' + kind, { credentials: 'same-origin' });
 
-          // 未登录：什么都不做，静态卡片（笔记 frontmatter）就是最终内容。
-          // 这正是「未登录直接显示初始化数据」。
+          // 未登录：什么都不做。静态卡片就是最终内容，不隐藏、不替换。
           if (!d || !d.authed) continue;
-
-          // 已登录：先把该 kind 的静态卡片清掉，只留用户自己的数据。
-          //
-          // 为什么要清：静态卡片来自笔记 frontmatter（全站共享的 3 本书），
-          // 不是这个用户的收藏。用户登录后看到「自己的书架里混着 3 本没标记过
-          // 的书」，再被下面 syncToShelf 插入自己的卡 —— 就是用户反馈的
-          // 「先显示初始化的几个书籍和电影，然后才刷新出来用户本身的数据」。
-          //
-          // 清掉之后由 syncToShelf 按用户数据重建，做到「登录直接显示用户数据」。
-          // 注意只清「没有 data-shelf-item 的」—— 那种是上一轮 syncToShelf
-          // 插的用户卡，重复执行 hydrateMarks 时不能把用户卡也清掉。
-          var grid = bookGridFor(kind);
-          if (grid) {
-            grid.querySelectorAll('.book-card:not([data-shelf-item])').forEach(function(card){
-              card.remove();
-            });
-          }
 
           var map = {};
           (d.items || []).forEach(function(it){ map[it.item_key] = it; });
@@ -995,22 +969,44 @@ const RUNTIME = `
             // status=hidden 表示用户移除过这条，不插卡。
             if (it.status === 'hidden') return;
 
+            // 同一本书如果已经有静态卡（来自笔记 frontmatter），
+            // 只更新它的状态，不要再插一张 —— 否则同一本书会出现两张卡，
+            // 分别落在不同标签里（用户反馈「同时出现在想读和已读」）。
+            var existing = document.querySelector(
+              '.book-grid .book-card[data-item="' + key + '"]'
+            );
+            if (existing) {
+              var map2 = STATUS_TO_TAB[kind] || STATUS_TO_TAB.book;
+              existing.setAttribute('data-status', map2[it.status] || map2.wish);
+              var g2 = existing.closest('.book-grid');
+              if (g2) g2.dispatchEvent(new CustomEvent('shelf-changed', { bubbles: true }));
+              return;
+            }
+
             syncToShelf(btn, it.status);
           });
 
-          // 隐藏用户移除过的笔记卡（status=hidden）。
-          // 静态卡已在上面整体清掉了，这里只兜底处理「非本页 kind」的残留。
-          var hiddenKeys = {};
-          (d.items || []).forEach(function(it){
-            if (it.status === 'hidden') hiddenKeys[it.item_key] = 1;
-          });
+          // 移除用户删掉过的卡片（status=hidden）。
+          //
+          // 两类卡都要处理：
+          //   ① 静态卡（笔记 frontmatter）—— 服务端每次都渲染，必须前端过滤
+          //   ② 用户卡（syncToShelf 插的）—— 一般不会带 hidden，
+          //      但用户可能在别的设备删过，保险起见一起扫
+          //
+          // 用属性选择器一次匹配所有 hidden 的 key，避免逐个 querySelectorAll。
+          var hiddenKeys = (d.items || [])
+            .filter(function(it){ return it.status === 'hidden'; })
+            .map(function(it){ return it.item_key; });
           var removedAny = false;
-          Object.keys(hiddenKeys).forEach(function(key){
-            document.querySelectorAll('.book-card[data-item="' + key + '"]').forEach(function(card){
+          if (hiddenKeys.length) {
+            var sel = hiddenKeys.map(function(k){
+              return '.book-card[data-item="' + k.replace(/"/g, '\\"') + '"]';
+            }).join(',');
+            document.querySelectorAll(sel).forEach(function(card){
               card.remove();
               removedAny = true;
             });
-          });
+          }
           if (removedAny) {
             document.querySelectorAll('.book-grid').forEach(function(g){
               g.dispatchEvent(new CustomEvent('shelf-changed', { bubbles: true }));
@@ -1018,14 +1014,6 @@ const RUNTIME = `
           }
         } catch (e) { /* 未登录静默 */ }
       }
-    } finally {
-      // 数据灌完（或失败）都要显示书架，否则未登录时页面永远是空的。
-      // 下一帧再移除，确保上面的 DOM 改动已经提交渲染，避免闪一帧旧内容。
-      clearTimeout(revealTimer);
-      requestAnimationFrame(function(){
-        shelves.forEach(function(g){ g.classList.remove('is-hydrating'); });
-      });
-    }
   }
 
   // 首次加载必须显式调用：'nav' 只在 Quartz 的 SPA 导航时触发，
@@ -1411,12 +1399,11 @@ const RUNTIME = `
     window.addEventListener('popstate', boot);
   }
 })();
-`;
+`
 
 export const CHARTS_RUNTIME = RUNTIME
 
 // RUNTIME 的注入已统一由 scripts/bundle_runtime.mjs 处理（全站单文件，可缓存）。
-
 
 function inject(distDir) {
   const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)))
@@ -1468,15 +1455,16 @@ function inject(distDir) {
     const withCover = Object.values(data)
       .flat()
       .filter((x) => x.cover_local).length
-    console.log(`[charts:${kind}] ${total} 条（本地封面 ${withCover}）→ 标签页 ${cfg.dir}/index.html`)
+    console.log(
+      `[charts:${kind}] ${total} 条（本地封面 ${withCover}）→ 标签页 ${cfg.dir}/index.html`,
+    )
     n++
   }
 
   return n
 }
 
-const isMain =
-  process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
+const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 if (isMain) {
   inject(process.argv[2] || "dist-public")
 }
