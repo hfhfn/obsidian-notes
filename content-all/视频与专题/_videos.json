@@ -65,7 +65,7 @@
       "infographic",
       "slide-deck"
     ],
-    "cover_local": "attachments/modules/视频与专题/_assets/agent hooks_ 专业可靠的自动化控制机制/infographic.webp"
+    "cover_local": "attachments/modules/视频与专题/_assets/agent-hooks_-专业可靠的自动化控制机制/infographic.webp"
   },
   {
     "title": "Agent 企业级工程落地系统架构技术方案",
@@ -89,7 +89,7 @@
       "infographic",
       "slide-deck"
     ],
-    "cover_local": "attachments/modules/视频与专题/_assets/agent 企业级工程落地系统架构技术方案/infographic.webp"
+    "cover_local": "attachments/modules/视频与专题/_assets/agent-企业级工程落地系统架构技术方案/infographic.webp"
   },
   {
     "title": "Agent生产力:  四组 Skills",
@@ -113,7 +113,7 @@
       "infographic",
       "slide-deck"
     ],
-    "cover_local": "attachments/modules/视频与专题/_assets/agent生产力_ 四组 skills/infographic.webp"
+    "cover_local": "attachments/modules/视频与专题/_assets/agent生产力_-四组-skills/infographic.webp"
   },
   {
     "title": "AI 代码审核与全流程质量保障指南",
@@ -137,7 +137,7 @@
       "infographic",
       "slide-deck"
     ],
-    "cover_local": "attachments/modules/视频与专题/_assets/ai 代码审核与全流程质量保障指南/infographic.webp"
+    "cover_local": "attachments/modules/视频与专题/_assets/ai-代码审核与全流程质量保障指南/infographic.webp"
   },
   {
     "title": "AI 动画视频创作完全指南",
@@ -161,7 +161,7 @@
       "infographic",
       "slide-deck"
     ],
-    "cover_local": "attachments/modules/视频与专题/_assets/ai 动画视频创作完全指南/infographic.webp"
+    "cover_local": "attachments/modules/视频与专题/_assets/ai-动画视频创作完全指南/infographic.webp"
   },
   {
     "title": "AI时代, 命令行界面(CLI)的复兴",
@@ -207,7 +207,7 @@
       "infographic",
       "slide-deck"
     ],
-    "cover_local": "attachments/modules/视频与专题/_assets/claude code 从0到1全攻略/infographic.webp"
+    "cover_local": "attachments/modules/视频与专题/_assets/claude-code-从0到1全攻略/infographic.webp"
   },
   {
     "title": "claude code泄露解读",
@@ -277,7 +277,7 @@
       "infographic",
       "slide-deck"
     ],
-    "cover_local": "attachments/modules/视频与专题/_assets/deepseek super-agent 架构解析/infographic.webp"
+    "cover_local": "attachments/modules/视频与专题/_assets/deepseek-super-agent-架构解析/infographic.webp"
   },
   {
     "title": "DeepSeek 超级智能体架构解析",
@@ -301,7 +301,7 @@
       "infographic",
       "slide-deck"
     ],
-    "cover_local": "attachments/modules/视频与专题/_assets/deepseek 超级智能体架构解析/infographic.webp"
+    "cover_local": "attachments/modules/视频与专题/_assets/deepseek-超级智能体架构解析/infographic.webp"
   },
   {
     "title": "Deepseek的Engram论文: 高效记忆网络作为MOE架构的补充",
@@ -324,7 +324,7 @@
       "infographic",
       "slide-deck"
     ],
-    "cover_local": "attachments/modules/视频与专题/_assets/deepseek的engram论文_ 高效记忆网络作为moe架构的补充/infographic.webp"
+    "cover_local": "attachments/modules/视频与专题/_assets/deepseek的engram论文_-高效记忆网络作为moe架构的补充/infographic.webp"
   },
   {
     "title": "From Loop to Graph: 工程可靠的多智能体系统",
@@ -348,7 +348,7 @@
       "infographic",
       "slide-deck"
     ],
-    "cover_local": "attachments/modules/视频与专题/_assets/from loop to graph_ 工程可靠的多智能体系统/infographic.webp"
+    "cover_local": "attachments/modules/视频与专题/_assets/from-loop-to-graph_-工程可靠的多智能体系统/infographic.webp"
   },
   {
     "title": "From Transformer to LLM: 进化之路",
@@ -372,7 +372,7 @@
       "infographic",
       "slide-deck"
     ],
-    "cover_local": "attachments/modules/视频与专题/_assets/from transformer to llm_ 进化之路/infographic.webp"
+    "cover_local": "attachments/modules/视频与专题/_assets/from-transformer-to-llm_-进化之路/infographic.webp"
   },
   {
     "title": "Large Model Training Processes and Refinement Techniques",
@@ -396,7 +396,7 @@
       "infographic",
       "slide-deck"
     ],
-    "cover_local": "attachments/modules/视频与专题/_assets/large model training processes and refinement techniques/infographic.webp"
+    "cover_local": "attachments/modules/视频与专题/_assets/large-model-training-processes-and-refinement-techniques/infographic.webp"
   },
   {
     "title": "LLM-Wiki：RAG与知识工程流程的演进",
@@ -443,7 +443,7 @@
       "infographic",
       "slide-deck"
     ],
-    "cover_local": "attachments/modules/视频与专题/_assets/mastering bytedance agent and rag architectures/infographic.webp"
+    "cover_local": "attachments/modules/视频与专题/_assets/mastering-bytedance-agent-and-rag-architectures/infographic.webp"
   },
   {
     "title": "Mastering GraphRAG: 高级知识图谱集成策略",
@@ -467,7 +467,7 @@
       "infographic",
       "slide-deck"
     ],
-    "cover_local": "attachments/modules/视频与专题/_assets/mastering graphrag_ 高级知识图谱集成策略/infographic.webp"
+    "cover_local": "attachments/modules/视频与专题/_assets/mastering-graphrag_-高级知识图谱集成策略/infographic.webp"
   },
   {
     "title": "mattpocock/skills仓库的AI-Coding工程流程Skills",
@@ -514,7 +514,7 @@
       "infographic",
       "slide-deck"
     ],
-    "cover_local": "attachments/modules/视频与专题/_assets/milvus 向量数据库架构和系统设计/infographic.webp"
+    "cover_local": "attachments/modules/视频与专题/_assets/milvus-向量数据库架构和系统设计/infographic.webp"
   },
   {
     "title": "openclaw常用操作指令",
@@ -561,7 +561,7 @@
       "infographic",
       "slide-deck"
     ],
-    "cover_local": "attachments/modules/视频与专题/_assets/qwen-27b 8gb vram 本地部署优化/infographic.webp"
+    "cover_local": "attachments/modules/视频与专题/_assets/qwen-27b-8gb-vram-本地部署优化/infographic.webp"
   },
   {
     "title": "RFM案例PPT生成",
@@ -605,7 +605,7 @@
       "infographic",
       "slide-deck"
     ],
-    "cover_local": "attachments/modules/视频与专题/_assets/“涌现” 量变引起质变的过程与自然界的演化逻辑高度契合/infographic.webp"
+    "cover_local": "attachments/modules/视频与专题/_assets/“涌现”-量变引起质变的过程与自然界的演化逻辑高度契合/infographic.webp"
   },
   {
     "title": "中国AI产业冰山图",
@@ -652,7 +652,7 @@
       "infographic",
       "slide-deck"
     ],
-    "cover_local": "attachments/modules/视频与专题/_assets/从向量到transformer, 大模型演进历程/infographic.webp"
+    "cover_local": "attachments/modules/视频与专题/_assets/从向量到transformer,-大模型演进历程/infographic.webp"
   },
   {
     "title": "企业RAG安全：全链接权限和防泄漏策略",
@@ -854,7 +854,7 @@
       "infographic",
       "slide-deck"
     ],
-    "cover_local": "attachments/modules/视频与专题/_assets/杰弗里辛顿_ 数字智能的演进与生存危机/infographic.webp"
+    "cover_local": "attachments/modules/视频与专题/_assets/杰弗里辛顿_-数字智能的演进与生存危机/infographic.webp"
   },
   {
     "title": "构建生产级Agent Memory系统架构",
