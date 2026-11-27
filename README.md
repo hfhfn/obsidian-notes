@@ -1054,9 +1054,72 @@ skip_covers = args.skip_covers or in_ci
 只验证一个站，另一个站的回归会漏到线上（本轮就漏了：私有站按钮消失、
 私有站图片路径还是旧的空格版）。
 
+
+### 32. 路径校验必须归一化 `-` 与空格
+
+`cover_file_exists()` 校验 `cover_local` 指向的文件是否真在磁盘上。它最初只做
+**大小写不敏感**比对（因为 Quartz 转小写、Linux 区分大小写），但 slugify 还把
+空格变成了连字符，两边永远对不上：
+
+```
+JSON（已 slug）  agent-hooks_-专业可靠的自动化控制机制
+磁盘（原始名）    Agent Hooks_ 专业可靠的自动化控制机制
+                 ↑ `-` 和空格不等价，lower() 匹配不上
+```
+
+**后果**：CI 走 `--skip-covers` 复用分支时，24 条信息图只有 **5 条**通过校验
+（那几条恰好名字里没空格），复用率从 36 掉到 **17**，线上 20 张封面变空白。
+本地构建不走 skip 分支，所以本地看着完全正常 —— 这类「只有 CI 坏」的问题
+必须看 CI 日志的复用计数才能发现。
+
+**修法**：逐段比对时把两边的 `-` 和空格归一化成同一个字符再比小写：
+
+```python
+def norm(s): return s.lower().replace("-", " ")
+hit = next((p for p in cur.iterdir() if norm(p.name) == norm(part)), None)
+```
+
+修复后 36/36 命中，信息图 24/24。
+
+**通用教训**：任何「把产物路径反查源文件」的校验，都要考虑两者之间的全部
+变换（大小写 + 分隔符 + 特殊字符），不能只处理其中一个。
+
+### 33. `wrangler pages deploy` 必须直连
+
+带 `HTTPS_PROXY=http://127.0.0.1:7890` 跑 `wrangler pages deploy` 会报：
+
+```
+X [ERROR] The request to Cloudflare's API timed out.
+```
+
+Cloudflare API 在国内直连可用，走 Clash 反而超时。部署前清掉全部代理变量：
+
+```bash
+unset HTTPS_PROXY HTTP_PROXY https_proxy http_proxy ALL_PROXY all_proxy
+CI=1 ./node_modules/.bin/wrangler pages deploy dist-all --project-name ... --branch main
+```
+
+注意这和**下载封面**相反 —— 下载要代理（OpenLibrary / YouTube 直连超时），
+部署要直连。同一个 shell 里两件事不能共用一套环境变量。
+
+### 34. 「只有 CI 坏」要看复用计数，不能看本地产物
+
+本轮排查走了弯路：本地构建、产物验证、线上抽测全部正常，但 CI 部署后线上
+还是 17 张。根因在 CI 日志里：
+
+```
+[video] 封面复用 17 张     ← CI
+[video] 封面本地化 36 张   ← 本地
+```
+
+**判据**：两个站/两种模式（本地下载 vs CI 复用）走的是不同代码分支时，
+必须**分别验证两个分支的输出计数**，不能只验证本地。CI 的 artifact 里有
+完整构建日志，用 GitHub API 下载 `artifacts/*.zip` 就能读到。
+
 ---
 
 ## 藏书馆 / 观影库 / 视频与专题
+
 
 
 
