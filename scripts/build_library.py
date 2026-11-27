@@ -631,12 +631,17 @@ def main() -> int:
     # 和本地开发共用同一条命令。在 CI 里另加 --skip-covers 意味着
     # 两套命令要各自维护，容易漏（公开站当初就漏过，导致 CI 产物封面全丢）。
     #
-    # 判据用 CI 环境变量（GitHub Actions 自动设置 CI=true）：
-    #   本地 → 下载/刷新封面（有代理，能访问豆瓣/YouTube）
-    #   CI   → 复用仓库里已提交的封面（无代理，下载必超时）
+    # 判据用 GitHub Actions 专用变量 GITHUB_ACTIONS，不用通用的 CI：
+    #   CI 变量很多工具都会设（本地跑 wrangler 部署时为了关掉交互提示
+    #   也要 CI=1），一旦它泄漏到 build_library.py，本地构建就会走
+    #   「复用」分支，把刚下载好的 cover_local 覆盖成旧值 —— 实测踩过：
+    #   content-all/_videos.json 从 36 条掉到 17 条，公开站 20 张封面变空白。
+    #
+    #   GITHUB_ACTIONS 只在 GitHub runner 上为 true，本地绝不会误判。
     #
     # 显式传 --skip-covers 仍然有效，用于本地模拟 CI。
-    skip_covers = args.skip_covers or bool(os.environ.get("CI"))
+    in_ci = os.environ.get("GITHUB_ACTIONS") == "true"
+    skip_covers = args.skip_covers or in_ci
 
     kinds = list(KINDS) if args.kind == "all" else [args.kind]
     for kind in kinds:

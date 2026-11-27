@@ -1178,7 +1178,18 @@ const RUNTIME = `
     var btns = document.querySelectorAll('.vid-hide');
     var isPrivate = /^private\./.test(location.hostname);
 
-    // 公开站即使没有按钮也要拉名单 —— 过滤靠它，不靠按钮。
+    // 私有站：按钮无条件显示，不等 API。
+    //
+    // 私有站在 Cloudflare Access 后面，只有站长进得来，能打开页面就是有权限。
+    // 之前要等 /api/video-visibility 返回且 isAdmin 为 true 才显示，任何一环
+    // 出问题（Access 会话与 notes_session 不同步、邮箱大小写、接口被拦成
+    // HTML）按钮就永久消失 —— 用户反馈「私有站看不到隐藏按钮」。
+    // 现在先显示，再用 API 结果回填 🚫/👁 状态；拉不到就保持 👁。
+    if (isPrivate) {
+      btns.forEach(function(b){ b.style.display = ''; });
+    }
+
+    // 公开站没按钮也要拉名单 —— 过滤靠它，不靠按钮。
     if (!btns.length && isPrivate) return;
 
     try {
@@ -1204,13 +1215,15 @@ const RUNTIME = `
         return;
       }
 
-      // 私有站：回填按钮状态。非管理员不显示按钮（后端 POST 也会拦）。
-      if (!d.isAdmin) {
-        btns.forEach(function(b){ b.style.display = 'none'; });
-        return;
-      }
-
-      btns.forEach(function(b){ b.style.display = ''; });
+      // 私有站：直接显示按钮，不判 isAdmin。
+      //
+      // 为什么不判：私有站整个域名在 Cloudflare Access 后面，只有站长
+      // 自己能进 —— 能打开这个页面本身就等于「有权限」。再要求邮箱在
+      // adminEmails 里，反而会因为邮箱大小写、Access 会话与 notes_session
+      // 不同步等原因让按钮凭空消失（用户反馈「私有站看不到隐藏按钮」）。
+      //
+      // 真正的写保护在后端：POST /api/video-visibility 有 ADMIN_ONLY，
+      // 非管理员返回 403。前端显示按钮不构成越权。
 
       var set = {};
       hidden.forEach(function(s){ set[s] = 1; });
