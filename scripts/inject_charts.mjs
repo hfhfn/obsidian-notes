@@ -929,13 +929,15 @@ const RUNTIME = `
     var btns = Array.from(document.querySelectorAll('.lc-mark'));
     if (!btns.length) return;
 
-    // 防闪烁：书架页的静态卡片（来自笔记 frontmatter，只有 3 本）
-    // 会在用户数据到达后被插入/改状态，中间那段就是用户看到的
-    // 「先显示几个书，然后刷的一下变成自己的书架」。
+    // 书架页首屏策略：未登录 → 直接显示静态数据；登录 → 直接显示用户数据。
     //
-    // 做法：先把书架网格设为 visibility:hidden（保留布局，避免跳动），
-    // 数据灌完再显示。用 visibility 而不是 display，是为了不让页面
-    // 高度在隐藏/显示之间跳两次。
+    // 之前的做法是「先渲染静态卡，再等数据到了替换」，用户看到
+    // 「先显示几本书，然后刷的一下变成自己的书架」。
+    //
+    // 现在改成：先用 .is-hydrating 把网格藏起来（visibility:hidden，
+    // 保留布局避免高度跳动），等 /api/collections 回来后再决定显示什么。
+    // 因为 session cookie 是 HttpOnly，JS 读不到，无法同步判断登录态，
+    // 只能等这一次请求。但只有一次往返，比「先显示再替换」体验好得多。
     //
     // 只对「书架页」生效（有 .lc-mark 的页面），不影响视频与专题。
     var shelves = Array.from(document.querySelectorAll('.book-grid'));
@@ -958,7 +960,27 @@ const RUNTIME = `
       for (var kind of Object.keys(byKind)) {
         try {
           var d = await fetchWithRetry('/api/collections?kind=' + kind, { credentials: 'same-origin' });
+
+          // 未登录：什么都不做，静态卡片（笔记 frontmatter）就是最终内容。
+          // 这正是「未登录直接显示初始化数据」。
           if (!d || !d.authed) continue;
+
+          // 已登录：先把该 kind 的静态卡片清掉，只留用户自己的数据。
+          //
+          // 为什么要清：静态卡片来自笔记 frontmatter（全站共享的 3 本书），
+          // 不是这个用户的收藏。用户登录后看到「自己的书架里混着 3 本没标记过
+          // 的书」，再被下面 syncToShelf 插入自己的卡 —— 就是用户反馈的
+          // 「先显示初始化的几个书籍和电影，然后才刷新出来用户本身的数据」。
+          //
+          // 清掉之后由 syncToShelf 按用户数据重建，做到「登录直接显示用户数据」。
+          // 注意只清「没有 data-shelf-item 的」—— 那种是上一轮 syncToShelf
+          // 插的用户卡，重复执行 hydrateMarks 时不能把用户卡也清掉。
+          var grid = bookGridFor(kind);
+          if (grid) {
+            grid.querySelectorAll('.book-card:not([data-shelf-item])').forEach(function(card){
+              card.remove();
+            });
+          }
 
           var map = {};
           (d.items || []).forEach(function(it){ map[it.item_key] = it; });
@@ -970,27 +992,14 @@ const RUNTIME = `
 
             paint(btn, it.status, it.progress);
 
-            // 如果书架里已经有这条的静态笔记卡（来自笔记 frontmatter），
-            // 只更新它的状态，不要再插一张 —— 否则同一部电影会出现两张卡，
-            // 分别落在不同标签里（用户反馈「同时出现在想看和已看」）。
-            var existing = document.querySelector(
-              '.book-grid .book-card[data-item="' + key + '"]'
-            );
-            if (existing && it.status !== 'hidden') {
-              var map2 = STATUS_TO_TAB[kind] || STATUS_TO_TAB.book;
-              existing.setAttribute('data-status', map2[it.status] || map2.wish);
-              // 状态变了所属标签也变了，分页要重算 ——
-              // 否则「已读」标签下多了一张卡但分页器还是旧的页数。
-              var g2 = existing.closest('.book-grid');
-              if (g2) g2.dispatchEvent(new CustomEvent('shelf-changed', { bubbles: true }));
-              return;
-            }
+            // status=hidden 表示用户移除过这条，不插卡。
+            if (it.status === 'hidden') return;
 
             syncToShelf(btn, it.status);
           });
 
           // 隐藏用户移除过的笔记卡（status=hidden）。
-        // 这些卡来自笔记 frontmatter，不能删数据源，只能前端过滤。
+          // 静态卡已在上面整体清掉了，这里只兜底处理「非本页 kind」的残留。
           var hiddenKeys = {};
           (d.items || []).forEach(function(it){
             if (it.status === 'hidden') hiddenKeys[it.item_key] = 1;
