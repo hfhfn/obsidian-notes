@@ -562,17 +562,23 @@ function renderCard(item, cfg, depth, kind) {
 
   let cornerBtn = ""
   if (isVideo) {
-    // 隐藏按钮在两个站都渲染，但默认 display:none。
+    // 隐藏按钮只在私有站渲染，公开站完全不输出这个 <button>。
     //
-    // 公开站：普通读者不该看到这个开关 → hydrateVideoHide 确认 isAdmin
-    //         才显示。
+    // 为什么公开站不渲染（而不是渲染后 display:none）：
+    //   隐藏的操作入口是「私有站」（那里显示全部 39 条，可点可恢复）。
+    //   公开站对管理员唯一多出来的价值是「顺手恢复」，而代价是：
+    //   ① 按钮存在于 DOM 就多一个可被绕过 UI 的接触面（后端虽会拦）
+    //   ② 管理员在公开站看到的也只是「上次构建时还没隐藏的」条目 ——
+    //      构建时已剔除的卡片压根不在 HTML 里，点了也没东西可点，
+    //      容易误以为「隐藏没生效」。
+    //   与其渲染一个语义不完整的按钮，不如公开站彻底不输出。
+    //
     // 私有站：整个域名在 Cloudflare Access 后面（只有自己进得来），
-    //         无需再按 isAdmin 隐藏；但仍等 hydrateVideoHide 拉完
-    //         hidden 列表再显示，避免按钮状态和实际不符。
+    //   显示全部条目，按钮常驻可点。
     //
     // 注：私有站的 /api/video-visibility 已加 Access bypass，
     //     否则请求会被拦成 302 跳登录页（返回 HTML），fetch 解析失败。
-    cornerBtn = slug
+    cornerBtn = IS_PRIVATE && slug
       ? `<button class="vid-hide" data-slug="${esc(slug)}" title="在公开站隐藏这条" aria-label="隐藏" style="display:none">👁</button>`
       : ""
   } else if (itemKey) {

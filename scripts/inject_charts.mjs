@@ -1130,10 +1130,20 @@ const RUNTIME = `
         }
   }
 
-  // 页面加载后回填隐藏状态
+  // 页面加载后处理隐藏状态。
+  //
+  // 两个站职责不同（构建时就决定了，见 inject_library 的 IS_PRIVATE）：
+  //   公开站：不渲染隐藏按钮 → 这里只做「按隐藏列表过滤卡片」，
+  //           让管理员刚隐藏的条目对普通读者立即消失，无需重新构建。
+  //   私有站：渲染隐藏按钮 → 这里回填每个按钮的状态（🚫/👁），不过滤卡片，
+  //           因为私有站就是要看全部。
   async function hydrateVideoHide(){
     var btns = document.querySelectorAll('.vid-hide');
-    if (!btns.length) return;
+    var isPrivate = /^private\./.test(location.hostname);
+
+    // 公开站即使没有按钮也要拉名单 —— 过滤靠它，不靠按钮。
+    if (!btns.length && isPrivate) return;
+
     try {
       var r = await fetch('/api/video-visibility', { credentials: 'same-origin' });
       if (!r.ok) {
@@ -1149,25 +1159,24 @@ const RUNTIME = `
         return;
       }
 
-      // 未登录 或 非管理员 → 不显示按钮，但要按隐藏列表过滤卡片。
-      //
-      // 以前这里直接 return，导致普通读者看到全部卡片 —— 包括管理员
-      // 刚隐藏的（因为构建时的剔除只覆盖「上次构建前」的隐藏项）。
-      // 用户反馈：「管理员操作隐藏，普通用户就可以实现不显示，
-      // 因为操作隐藏是前端实现的，不自动更新还得手动重新构建，不合理」。
-      var isPrivate = /^private\./.test(location.hostname);
-      var canToggle = isPrivate || d.isAdmin;
+      var hidden = d.hidden || [];
 
-      if (!canToggle) {
+      // 公开站：只过滤，不管按钮（本来就没渲染）。
+      if (!isPrivate) {
+        filterHiddenCards(hidden);
+        return;
+      }
+
+      // 私有站：回填按钮状态。非管理员不显示按钮（后端 POST 也会拦）。
+      if (!d.isAdmin) {
         btns.forEach(function(b){ b.style.display = 'none'; });
-        filterHiddenCards(d.hidden || []);
         return;
       }
 
       btns.forEach(function(b){ b.style.display = ''; });
 
       var set = {};
-      (d.hidden || []).forEach(function(s){ set[s] = 1; });
+      hidden.forEach(function(s){ set[s] = 1; });
       btns.forEach(function(btn){
         var slug = btn.getAttribute('data-slug');
         if (set[slug]) {
