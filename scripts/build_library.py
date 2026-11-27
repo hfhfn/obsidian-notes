@@ -421,6 +421,40 @@ def cover_file_exists(rel: str) -> bool:
     return cur.is_file()
 
 
+def quartz_slug(path: str) -> str:
+    """按 Quartz 的 slugifyPath 规则转换路径，用于预测产物里的真实路径。
+
+    为什么要自己实现：站内相对路径的封面（NotebookLM 信息图）不经过下载，
+    cover_local 直接透传源路径。但 Quartz 构建时会 slugify 附件目录名，
+    两者不一致就会 404。
+
+    Quartz 规则（node_modules/@quartz-community/bases-page 的 slugifyPath）：
+        segment.replace(/\\s/g, "-")          空白 → 连字符
+               .replace(/&/g, "-and-")        & → -and-
+               .replace(/%/g, "-percent")     % → -percent
+               .replace(/\\?/g, "")            ? 删掉
+               .replace(/#/g, "")             # 删掉
+               .replace(/[<>:"|*]/g, "")      这些删掉
+               .toLowerCase()
+
+    之前只做了 .lower()，漏了空格转连字符：
+        "AI 动画视频创作完全指南"  → 产物是 "ai-动画视频创作完全指南"
+        cover_local 却是           "ai 动画视频创作完全指南"
+    于是 Linux 上 404（Windows 不区分，看不出来）。
+
+    无空格的目录（如「企业RAG安全：全链接权限...」）恰好只靠 lower 就对了，
+    所以表现为「有的能显示、有的不行」。
+    """
+    out = []
+    for seg in path.split("/"):
+        seg = re.sub(r"\s", "-", seg)
+        seg = seg.replace("&", "-and-").replace("%", "-percent")
+        seg = seg.replace("?", "").replace("#", "")
+        seg = re.sub(r'[<>:"|*]', "", seg)
+        out.append(seg.lower())
+    return "/".join(out).rstrip("/")
+
+
 def download_covers(kind: str, items: list[dict], skip: bool = False) -> int:
     """把远程封面下载到站点本地，避免防盗链和第三方图床不稳定。
 
@@ -457,7 +491,9 @@ def download_covers(kind: str, items: list[dict], skip: bool = False) -> int:
         if skip:
             old = prev.get(it["title"])
             if old and cover_file_exists(old):
-                it["cover_local"] = old
+                # 复用旧值也要过 quartz_slug —— 旧 JSON 里可能是历史遗留的
+                # 「只转小写、空格没转连字符」路径，直接复用会让产物 404。
+                it["cover_local"] = quartz_slug(old)
                 ok += 1
             else:
                 it.pop("cover_local", None)
@@ -465,11 +501,13 @@ def download_covers(kind: str, items: list[dict], skip: bool = False) -> int:
 
         # 已经是站内相对路径（NotebookLM 信息图等），直接当封面用，不用下载
         if url and not url.startswith("http"):
-            # 必须转小写：Quartz 构建时会把附件路径转小写，
-            # 而 Cloudflare Pages 跑在 Linux 上区分大小写。
-            # 原样透传 "Agent Hooks_ .../infographic.webp" 会让产物里的
-            # <img src> 指向 "agent hooks_ ..."，Linux 上 404（Windows 看不出来）。
-            it["cover_local"] = url.lower()
+            # 站内相对路径（NotebookLM 信息图）：不下载，但要按 Quartz 的
+            # slug 规则转换，否则 <img src> 指向的路径在产物里不存在。
+            #
+            # 只做 .lower() 是不够的：Quartz 还会把空格转成连字符。
+            #   "AI 动画视频创作完全指南" → 产物 "ai-动画视频创作完全指南"
+            # 漏了这步就是「有的图能显示、有的 404」—— 没空格的目录恰好对。
+            it["cover_local"] = quartz_slug(url)
             ok += 1
             continue
 
