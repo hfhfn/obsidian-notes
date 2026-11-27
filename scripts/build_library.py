@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
 import time
 import urllib.parse
@@ -579,12 +580,29 @@ def main() -> int:
         help="生成哪一类（默认全部）",
     )
     ap.add_argument("--dry-run", action="store_true")
-    ap.add_argument("--skip-covers", action="store_true")
+    ap.add_argument(
+        "--skip-covers",
+        action="store_true",
+        help="不下载封面，复用 JSON 里已有的 cover_local（CI / 无代理环境用）",
+    )
     args = ap.parse_args()
+
+    # CI 环境自动跳过封面下载。
+    #
+    # 为什么不靠 workflow 改命令行：私有站跑的是 `npm run build`，
+    # 和本地开发共用同一条命令。在 CI 里另加 --skip-covers 意味着
+    # 两套命令要各自维护，容易漏（公开站当初就漏过，导致 CI 产物封面全丢）。
+    #
+    # 判据用 CI 环境变量（GitHub Actions 自动设置 CI=true）：
+    #   本地 → 下载/刷新封面（有代理，能访问豆瓣/YouTube）
+    #   CI   → 复用仓库里已提交的封面（无代理，下载必超时）
+    #
+    # 显式传 --skip-covers 仍然有效，用于本地模拟 CI。
+    skip_covers = args.skip_covers or bool(os.environ.get("CI"))
 
     kinds = list(KINDS) if args.kind == "all" else [args.kind]
     for kind in kinds:
-        build(kind, args.dry_run, args.skip_covers)
+        build(kind, args.dry_run, skip_covers)
     return 0
 
 
