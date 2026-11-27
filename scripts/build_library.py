@@ -395,12 +395,21 @@ def cover_file_exists(rel: str) -> bool:
     """判断 content-all 下某个封面相对路径是否真的存在。
 
     为什么不能直接 (SITE/"content-all"/rel).exists()：
-      JSON 里的 cover_local 存的是**小写**路径（Quartz 构建会把附件目录
-      转小写，Cloudflare 跑 Linux 区分大小写），而 git 里跟踪的文件名
-      保留原始大小写（如 "Agent Hooks_ 专业可靠的..."）。
+      JSON 里的 cover_local 存的是**已 slugify 的小写路径**（Quartz 构建会
+      把附件目录名转小写、空格转连字符，Cloudflare 跑 Linux 区分大小写），
+      而磁盘上跟踪的文件名保留原始形态（如 "Agent Hooks_ 专业可靠的..."）。
       Windows 不区分大小写所以本地判存在，Linux 上同一路径 404。
-      这里按「逐段大小写不敏感」比对真实文件名，两边都能判对。
+
+    为什么不能只做大小写不敏感：
+      slugify 把空格变成了连字符 —— "agent-hooks_-专业可靠的..." 对比磁盘的
+      "Agent Hooks_ 专业可靠的..."，只 lower() 永远匹配不上（- 和空格不等价）。
+      实测：只做大小写比对时 24 条信息图只有 5 条命中，CI 复用率掉到 17/36。
+
+    做法：逐段比对时把两边的 `-` 和空格都归一化成同一个字符，再比小写。
     """
+    def norm(s: str) -> str:
+        return s.lower().replace("-", " ")
+
     base = SITE / "content-all"
     cur = base
     for part in Path(rel).parts:
@@ -410,11 +419,10 @@ def cover_file_exists(rel: str) -> bool:
         if nxt.exists():
             cur = nxt
             continue
-        # 该段在 Linux 上可能大小写不符，扫目录找忽略大小写的匹配
         if not cur.is_dir():
             return False
-        low = part.lower()
-        hit = next((p for p in cur.iterdir() if p.name.lower() == low), None)
+        want = norm(part)
+        hit = next((p for p in cur.iterdir() if norm(p.name) == want), None)
         if hit is None:
             return False
         cur = hit
